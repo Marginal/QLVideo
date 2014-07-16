@@ -1,0 +1,3 @@
+#!/bin/sh
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -r /Library/Application\ Support/QLvideo/QLVideo.app
+true
