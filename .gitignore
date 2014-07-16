@@ -1,0 +1,8 @@
+Build
+test
+.DS_Store
+*.xcworkspace
+xcuserdata
+*.bak
+*.pkg
+*.framework
