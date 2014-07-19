@@ -28,7 +28,7 @@
 #import <VLCKit/VLCKit.h>
 
 #import <signal.h>
-#include <dlfcn.h>
+#import <dlfcn.h>
 
 
 // -----------------------------------------------------------------------------
@@ -128,6 +128,7 @@ MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryI
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESETHAND;
     sa.sa_handler = segv_handler;
+    sigaction(SIGABRT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
 #endif
 

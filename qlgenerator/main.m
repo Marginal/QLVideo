@@ -8,7 +8,7 @@
 //==============================================================================
 
 
- #include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <CoreFoundation/CFPlugInCOM.h>
 #include <CoreServices/CoreServices.h>
 #include <QuickLook/QuickLook.h>
@@ -17,7 +17,7 @@
 #import <VLCKit/VLCKit.h>
 
 #import <signal.h>
-#include <dlfcn.h>
+#import <dlfcn.h>
 
 
 // -----------------------------------------------------------------------------
@@ -122,6 +122,7 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESETHAND;
     sa.sa_handler = segv_handler;
+    sigaction(SIGABRT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
 #endif
 
