@@ -15,6 +15,16 @@ Limitations
 * Ogg audio and video files are not supported.
 * Requires OSX 10.9 or later. Use [Perian](http://github.com/MaddTheSane/perian) for equivalent functionality under 10.8 and earlier.
 
+Uninstall
+---------
+* Run the Terminal app (found in Applications -> Utilities).
+* Copy the following and paste into the Terminal app:
+
+`sudo rm -rf /Library/Application\ Support/QLVideo /Library/QuickLook/Video.qlgenerator /Library/Spotlight/Video.mdimporter`
+ 
+* Press Enter.
+* Type your password and press Enter.
+
 Acknowledgements
 ----------------
 Uses the [VLCKit](http://wiki.videolan.org/VLCKit/) framework from the [VideoLAN project](http://www.videolan.org/).
