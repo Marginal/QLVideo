@@ -114,7 +114,8 @@ void segv_handler(int signum)
 MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryID)
 {
     // Initialise shared instance of VLCLibrary object
-    VLCLibrary *library = [[VLCLibrary sharedLibrary] initWithOptions:@[@"--no-interact", @"--no-media-library", @"--no-audio", @"--aout=none", @"--ignore-config", @"--intf=dummy", @"--deinterlace=-1", @"--no-drop-late-frames", @"--avi-index=3", @"--album-art=0", @"--avcodec-hw=vda",
+    VLCLibrary *library = [[VLCLibrary sharedLibrary] initWithOptions:@[@"--no-interact", @"--no-media-library", @"--no-audio", @"--aout=none", @"--ignore-config", @"--intf=dummy", @"--deinterlace=-1", @"--no-drop-late-frames", @"--avi-index=3", @"--album-art=0", @"--avcodec-hw=vda", @"--no-sub-autodetect-file",
+
 #ifndef DEBUG
                                                                         @"--quiet"
 #endif
