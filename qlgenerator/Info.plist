@@ -49,6 +49,12 @@
 				<!-- defined by NicePlayer.app -->
 				<string>indy.jt.niceplayer.divx</string>
 				<string>indy.jt.niceplayer.mkv</string>
+
+				<!-- defined by Blu-ray Player.app -->
+				<string>com.macblurayplayer.matroska</string>
+				<string>com.macblurayplayer.nuppelvideo</string>
+				<!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
+				<string>com.macblurayplayer.divx</string>
 			</array>
 		</dict>
 	</array>

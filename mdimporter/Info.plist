@@ -50,6 +50,12 @@
 				<string>indy.jt.niceplayer.divx</string>
 				<string>indy.jt.niceplayer.mkv</string>
 
+                                <!-- defined by Blu-ray Player.app -->
+				<string>com.macblurayplayer.matroska</string>
+			        <string>com.macblurayplayer.nuppelvideo</string>
+			        <!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
+			        <string>com.macblurayplayer.divx</string>
+
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
 				<string>com.microsoft.windows-media-wma</string>
 				<string>com.real.realaudio</string>
@@ -75,6 +81,9 @@
 				<string>org.niltsh.mplayerx-flac</string>
 				<string>org.niltsh.mplayerx-matroska-audio</string>
 				<!-- <string>org.niltsh.mplayerx-ogg</string>	Ogg support is broken -->
+
+                                <!-- Audio defined by Blu-ray Player.app -->
+			        <!-- <string>com.macblurayplayer.ogg</string>	Ogg support is broken -->
 			</array>
 		</dict>
 	</array>
