@@ -13,7 +13,7 @@ void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbn
 
 OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize)
 {
-    // This is (probably) called on a thread other than Main (QLSupportsConcurrentRequests==true in Info.plist)
+    // This must be called on a thread other than Main (so QLNeedsToBeRunInMainThread==false in Info.plist)
     // and we should block until completion.
     // https://developer.apple.com/library/prerelease/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
