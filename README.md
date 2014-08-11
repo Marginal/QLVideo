@@ -3,7 +3,13 @@ Quicklook Video
 
 This package allows OSX Finder to display thumbnails, previews and metadata for most types of video files.
 
-QuickLook and Spotlight on OSX 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.wmf` etc.
+QuickLook and Spotlight on OSX 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
+
+Installation
+------------
+* Download the `.pkg` file (the green button) of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
+* Double-click on it.
+* The Installer app will walk you through the installation process.
 
 Limitations
 -----------
@@ -27,7 +33,7 @@ Uninstall
 
 Acknowledgements
 ----------------
-Uses the [VLCKit](http://wiki.videolan.org/VLCKit/) framework from the [VideoLAN project](http://www.videolan.org/).
+Uses the [VLCKit](http://wiki.videolan.org/VLCKit/) framework from the [VideoLAN organization](http://www.videolan.org/).
 
 Packaged using [Packages](http://s.sudre.free.fr/Software/Packages/about.html).
 
