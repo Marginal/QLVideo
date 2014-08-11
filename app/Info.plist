@@ -46,8 +46,32 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+				<string>org.matroska.mkv</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>WebM Video File</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.webmproject.webm</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://www.webmproject.org/</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>webm</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/webm</string>
+				</array>
+			</dict>
+		</dict>
 
-                <!-- Perian -->
+		<!-- Perian -->
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -217,30 +241,6 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.movie</string>
-				<string>org.matroska.mkv</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>WebM Video File</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.google.webm</string>
-			<key>UTTypeReferenceURL</key>
-			<string>http://www.webmproject.org/</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>webm</string>
-				</array>
-				<key>public.mime-type</key>
-				<array>
-					<string>video/webm</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
 				<string>public.audio</string>
 				<string>public.data</string>
 			</array>
@@ -263,7 +263,7 @@
 			</dict>
 		</dict>
 
-                <!-- UTIs for extensions supported by libvlc -->
+		<!-- UTIs for extensions supported by libvlc -->
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -470,6 +470,6 @@
 				</array>
 			</dict>
 		</dict>
-        </array>
+	</array>
 </dict>
 </plist>

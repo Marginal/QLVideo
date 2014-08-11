@@ -33,6 +33,7 @@
 				<string>org.smpte.gxf</string>
 				<string>org.smpte.mxf</string>
 				<string>org.mythtv.nuppelvideo</string>
+				<string>org.webmproject.webm</string>
 				<!-- <string>org.xiph.ogv</string>	Ogg support is broken -->
 
 				<!-- defined by MPlayerX.app -->
@@ -55,6 +56,17 @@
 				<string>com.macblurayplayer.nuppelvideo</string>
 				<!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
 				<string>com.macblurayplayer.divx</string>
+
+				<!-- defined by mpv.app -->
+				<string>io.mpv.avi</string>
+				<string>io.mpv.divx</string>
+				<string>io.mpv.dv</string>
+				<string>io.mpv.flv</string>
+				<string>io.mpv.mkv</string>
+				<string>io.mpv.ogv</string>
+				<string>io.mpv.rmvb</string>
+				<string>io.mpv.wmv</string>
+				<string>io.mpv.xvid</string>
 			</array>
 		</dict>
 	</array>

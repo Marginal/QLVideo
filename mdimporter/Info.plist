@@ -33,6 +33,7 @@
 				<string>org.smpte.gxf</string>
 				<string>org.smpte.mxf</string>
 				<string>org.mythtv.nuppelvideo</string>
+				<string>org.webmproject.webm</string>
 				<!-- <string>org.xiph.ogv</string>	Ogg support is broken -->
 
 				<!-- defined by MPlayerX.app -->
@@ -50,11 +51,23 @@
 				<string>indy.jt.niceplayer.divx</string>
 				<string>indy.jt.niceplayer.mkv</string>
 
-                                <!-- defined by Blu-ray Player.app -->
+				<!-- defined by Blu-ray Player.app -->
 				<string>com.macblurayplayer.matroska</string>
-			        <string>com.macblurayplayer.nuppelvideo</string>
-			        <!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
-			        <string>com.macblurayplayer.divx</string>
+				<string>com.macblurayplayer.nuppelvideo</string>
+				<!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
+				<string>com.macblurayplayer.divx</string>
+
+				<!-- defined by mpv.app -->
+				<string>io.mpv.wma</string>
+				<string>io.mpv.avi</string>
+				<string>io.mpv.divx</string>
+				<string>io.mpv.dv</string>
+				<string>io.mpv.flv</string>
+				<string>io.mpv.mkv</string>
+				<string>io.mpv.ogv</string>
+				<string>io.mpv.rmvb</string>
+				<string>io.mpv.wmv</string>
+				<string>io.mpv.xvid</string>
 
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
 				<string>com.microsoft.windows-media-wma</string>
@@ -82,8 +95,15 @@
 				<string>org.niltsh.mplayerx-matroska-audio</string>
 				<!-- <string>org.niltsh.mplayerx-ogg</string>	Ogg support is broken -->
 
-                                <!-- Audio defined by Blu-ray Player.app -->
-			        <!-- <string>com.macblurayplayer.ogg</string>	Ogg support is broken -->
+				<!-- Audio defined by Blu-ray Player.app -->
+				<!-- <string>com.macblurayplayer.ogg</string>	Ogg support is broken -->
+
+				<!-- defined by mpv.app -->
+				<string>io.mpv.ac3</string>
+				<string>io.mpv.flac</string>
+				<string>io.mpv.mka</string>
+				<!-- <string>io.mpv.ogg-audio</string>	Ogg support is broken -->
+				<string>io.mpv.wma</string>
 			</array>
 		</dict>
 	</array>
