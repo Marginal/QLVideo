@@ -385,9 +385,9 @@
 				);
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -402,8 +402,9 @@
 				GCC_PREFIX_HEADER = "QLVideo/QLVideo-Prefix.pch";
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -419,7 +420,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = qlgenerator;
 			};
@@ -435,6 +436,7 @@
 				);
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = qlgenerator;
 			};

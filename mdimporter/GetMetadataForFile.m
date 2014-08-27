@@ -48,7 +48,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         if (!media) return false;
         
         NSArray *tracksinfo = [media tracksInformation];
-        if (![[media tracksInformation] count]) return false;
+        if (![tracksinfo count]) return false;
 
         // Stuff we collect along the way
         CFMutableArrayRef codecs     = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
