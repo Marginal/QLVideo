@@ -21,7 +21,8 @@
 				<string>public.avi</string>
 				<string>public.dv-movie</string>
 				<string>public.flc-animation</string>
-				<!-- <string>public.mpeg-2-transport-stream</string> we can't always handle this -->
+				<!-- <string>public.mpeg-2-transport-stream</string>	Movie generator handles MPEG better -->
+				<!-- <string>public.mpeg-2-video</string>		Movie generator handles MPEG better -->
 
 				<!-- defined by QLVideo.app / Perian -->
 				<string>com.divx.divx</string>
@@ -36,11 +37,37 @@
 				<string>org.webmproject.webm</string>
 				<!-- <string>org.xiph.ogv</string>	Ogg support is broken -->
 
+				<!-- defined by VLC.app >= 2.2 -->
+				<string>org.videolan.flash</string>
+				<string>org.videolan.xesc</string>
+				<string>org.videolan.realmedia</string>
+				<!-- <string>org.videolan.ogg-video</string>	Ogg support is broken -->
+				<string>org.videolan.axv</string>
+				<string>org.videolan.gxf</string>
+				<string>org.videolan.mxf</string>
+				<string>org.videolan.avi</string>
+				<string>org.videolan.quicktime</string>
+				<string>org.videolan.divx</string>
+				<string>org.videolan.dv</string>
+				<string>org.videolan.asf</string>
+				<string>org.videolan.wmv</string>
+				<string>org.videolan.wtv</string>
+				<!-- <string>org.videolan.mpeg-video</string>	Movie generator handles MPEG better -->
+				<!-- <string>org.videolan.mpeg-stream</string>	Movie generator handles MPEG better -->
+				<string>org.videolan.3gp</string>
+				<string>org.videolan.mkv</string>
+				<string>org.videolan.webm</string>
+				<string>org.videolan.rec</string>
+				<string>org.videolan.vro</string>
+				<string>org.videolan.tod</string>
+				<string>org.videolan.nsv</string>
+				<string>org.videolan.nuv</string>
+
 				<!-- defined by MPlayerX.app -->
 				<string>org.niltsh.mplayerx-divx</string>
 				<string>org.niltsh.mplayerx-dv</string>
 				<string>org.niltsh.mplayerx-flash-video</string>
-				<!-- <string>org.niltsh.mplayerx-mts</string>	Movie generator handles MPEG transport streams better -->
+				<!-- <string>org.niltsh.mplayerx-mts</string>	Movie generator handles MPEG better -->
 				<string>org.niltsh.mplayerx-matroska-video</string>
 				<string>org.niltsh.mplayerx-mxf</string>
 				<!-- <string>org.niltsh.mplayerx-ogg-video</string>	Ogg support is broken -->

@@ -22,6 +22,7 @@
 				<string>public.dv-movie</string>
 				<string>public.flc-animation</string>
 				<string>public.mpeg-2-transport-stream</string>
+				<string>public.mpeg-2-video</string>
 
 				<!-- defined by QLVideo.app / Perian -->
 				<string>com.divx.divx</string>
@@ -35,6 +36,32 @@
 				<string>org.mythtv.nuppelvideo</string>
 				<string>org.webmproject.webm</string>
 				<!-- <string>org.xiph.ogv</string>	Ogg support is broken -->
+
+				<!-- defined by VLC.app >= 2.2 -->
+				<string>org.videolan.flash</string>
+				<string>org.videolan.xesc</string>
+				<string>org.videolan.realmedia</string>
+				<!-- <string>org.videolan.ogg-video</string>	Ogg support is broken -->
+				<string>org.videolan.axv</string>
+				<string>org.videolan.gxf</string>
+				<string>org.videolan.mxf</string>
+				<string>org.videolan.avi</string>
+				<string>org.videolan.quicktime</string>
+				<string>org.videolan.divx</string>
+				<string>org.videolan.dv</string>
+				<string>org.videolan.asf</string>
+				<string>org.videolan.wmv</string>
+				<string>org.videolan.wtv</string>
+				<string>org.videolan.mpeg-video</string>
+				<string>org.videolan.mpeg-stream</string>
+				<string>org.videolan.3gp</string>
+				<string>org.videolan.mkv</string>
+				<string>org.videolan.webm</string>
+				<string>org.videolan.rec</string>
+				<string>org.videolan.vro</string>
+				<string>org.videolan.tod</string>
+				<string>org.videolan.nsv</string>
+				<string>org.videolan.nuv</string>
 
 				<!-- defined by MPlayerX.app -->
 				<string>org.niltsh.mplayerx-divx</string>
@@ -69,7 +96,7 @@
 				<string>io.mpv.wmv</string>
 				<string>io.mpv.xvid</string>
 
-				<!-- Core audio types not handled by Audio importer in 10.9 -->
+				<!-- Core audio types not handled by Audio or CoreMedia importer in 10.9 -->
 				<string>com.microsoft.windows-media-wma</string>
 				<string>com.real.realaudio</string>
 				<string>com.soundblaster.soundfont</string>
@@ -87,6 +114,36 @@
 				<string>org.matroska.mka</string>
 				<string>org.xiph.flac</string>
 				<!-- <string>org.xiph.ogg</string>	Ogg support is broken -->
+
+				<!-- Audio defined by VLC.app >= 2.2 -->
+				<string>org.videolan.ape</string>
+				<string>org.videolan.flac</string>
+				<string>org.videolan.wv</string>
+				<string>org.videolan.tta</string>
+				<string>org.videolan.mpc</string>
+				<string>org.videolan.mod</string>
+				<string>org.videolan.it</string>
+				<string>org.videolan.xm</string>
+				<string>org.videolan.aiff</string>
+				<string>org.videolan.amr</string>
+				<string>org.videolan.dts</string>
+				<string>org.videolan.spx</string>
+				<string>org.videolan.wav</string>
+				<string>org.videolan.ac3</string>
+				<string>org.videolan.aac</string>
+				<!-- <string>org.videolan.opus</string>		Ogg support is broken -->
+				<!-- <string>org.videolan.ogg-audio</string>	Ogg support is broken -->
+				<string>org.videolan.oma</string>
+				<string>org.videolan.voc</string>
+				<string>org.videolan.vqf</string>
+				<string>org.videolan.axa</string>
+				<string>org.videolan.wma</string>
+				<string>org.videolan.mpeg-audio</string>
+				<string>org.videolan.mid</string>
+				<string>org.videolan.mlp</string>
+				<string>org.videolan.mka</string>
+				<string>org.videolan.rmi</string>
+				<string>org.videolan.s3m</string>
 
 				<!-- Audio defined by MPlayerX.app -->
 				<string>org.niltsh.mplayerx-aac</string>
