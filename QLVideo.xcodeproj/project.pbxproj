@@ -7,19 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
+		AB7C713919F8A44D0006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
+		AB7C713B19F8A4550006104E /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713A19F8A4550006104E /* libavdevice.a */; };
+		AB7C713D19F8A4660006104E /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
+		AB7C713F19F8A5730006104E /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713E19F8A5730006104E /* liblzma.a */; };
+		AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
+		AB7C714319F8A5E50006104E /* VideoDecodeAcceleration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */; };
+		AB7C714519F8A6560006104E /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714419F8A6560006104E /* libavutil.a */; };
+		AB7C714719F8A6730006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
+		AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
+		AB7C714C19F8A7060006104E /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
+		AB7C714D19F8A7060006104E /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
+		AB7C714E19F9E2330006104E /* VideoDecodeAcceleration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */; };
+		AB7C714F19F9E2A30006104E /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713A19F8A4550006104E /* libavdevice.a */; };
+		AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
+		AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
+		AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
+		AB7C715319F9E2AE0006104E /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
+		AB7C715419F9E2B00006104E /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
+		AB7C715519F9E2B40006104E /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714419F8A6560006104E /* libavutil.a */; };
+		AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
+		AB7C715719F9E2C20006104E /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713E19F8A5730006104E /* liblzma.a */; };
+		AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
+		AB7C715919F9E2C90006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB93B0EE196B85C800708B2E /* QLVideo in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB93B0EC196B855100708B2E /* QLVideo */; };
 		AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0F7196CA60500708B2E /* QuickLook.framework */; };
 		AB93B105196CA60500708B2E /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B104196CA60500708B2E /* GenerateThumbnailForURL.m */; };
 		AB93B107196CA60500708B2E /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */; };
 		AB93B109196CA60500708B2E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B108196CA60500708B2E /* main.m */; };
-		AB93B110196DB7DB00708B2E /* VLCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB9846D4196B6C6600AF6349 /* VLCKit.framework */; };
-		AB93B118196DBA8700708B2E /* VLCKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB9846D4196B6C6600AF6349 /* VLCKit.framework */; };
-		AB93B11B1972EBF700708B2E /* Snapshotter.h in Headers */ = {isa = PBXBuildFile; fileRef = AB93B1191972EBF700708B2E /* Snapshotter.h */; };
 		AB93B11C1972EBF700708B2E /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		AB93B11F1972EFAB00708B2E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
 		AB93B1201972EFAC00708B2E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
-		AB9846D5196B6C6600AF6349 /* VLCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB9846D4196B6C6600AF6349 /* VLCKit.framework */; };
-		AB9846DD196B801000AF6349 /* VLCKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB9846D4196B6C6600AF6349 /* VLCKit.framework */; };
 		AB9FB57F1965DD7200D39647 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.m */; };
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */; };
 /* End PBXBuildFile section */
@@ -52,29 +71,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB93B117196DBA8100708B2E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				AB93B118196DBA8700708B2E /* VLCKit.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AB9846D2196B6B2500AF6349 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				AB9846DD196B801000AF6349 /* VLCKit.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = /usr/local/lib/libavformat.a; sourceTree = "<absolute>"; };
+		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = /usr/local/lib/libavfilter.a; sourceTree = "<absolute>"; };
+		AB7C713A19F8A4550006104E /* libavdevice.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavdevice.a; path = /usr/local/lib/libavdevice.a; sourceTree = "<absolute>"; };
+		AB7C713C19F8A4660006104E /* libavcodec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavcodec.a; path = /usr/local/lib/libavcodec.a; sourceTree = "<absolute>"; };
+		AB7C713E19F8A5730006104E /* liblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = liblzma.a; path = /usr/local/lib/liblzma.a; sourceTree = "<absolute>"; };
+		AB7C714019F8A5C50006104E /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
+		AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoDecodeAcceleration.framework; path = System/Library/Frameworks/VideoDecodeAcceleration.framework; sourceTree = SDKROOT; };
+		AB7C714419F8A6560006104E /* libavutil.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavutil.a; path = /usr/local/lib/libavutil.a; sourceTree = "<absolute>"; };
+		AB7C714619F8A6730006104E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
+		AB7C714819F8A6970006104E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = /usr/lib/libiconv.dylib; sourceTree = "<absolute>"; };
+		AB7C714A19F8A7060006104E /* libswresample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswresample.a; path = /usr/local/lib/libswresample.a; sourceTree = "<absolute>"; };
+		AB7C714B19F8A7060006104E /* libswscale.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswscale.a; path = /usr/local/lib/libswscale.a; sourceTree = "<absolute>"; };
 		AB93B0B3196B839600708B2E /* QLVideo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QLVideo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		AB93B0EC196B855100708B2E /* QLVideo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = QLVideo; path = app/QLVideo; sourceTree = SOURCE_ROOT; };
@@ -88,7 +99,6 @@
 		AB93B10E196CA7EE00708B2E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB93B1191972EBF700708B2E /* Snapshotter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Snapshotter.h; sourceTree = "<group>"; };
 		AB93B11A1972EBF700708B2E /* Snapshotter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Snapshotter.m; sourceTree = "<group>"; };
-		AB9846D4196B6C6600AF6349 /* VLCKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = VLCKit.framework; sourceTree = "<group>"; };
 		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = app/Info.plist; sourceTree = "<group>"; };
 		AB9FB56D1965DD7200D39647 /* Video.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB9FB5721965DD7200D39647 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -112,7 +122,18 @@
 			files = (
 				AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */,
 				AB93B1201972EFAC00708B2E /* Cocoa.framework in Frameworks */,
-				AB93B110196DB7DB00708B2E /* VLCKit.framework in Frameworks */,
+				AB7C714F19F9E2A30006104E /* libavdevice.a in Frameworks */,
+				AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */,
+				AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */,
+				AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */,
+				AB7C715319F9E2AE0006104E /* libswresample.a in Frameworks */,
+				AB7C715419F9E2B00006104E /* libswscale.a in Frameworks */,
+				AB7C715519F9E2B40006104E /* libavutil.a in Frameworks */,
+				AB7C714E19F9E2330006104E /* VideoDecodeAcceleration.framework in Frameworks */,
+				AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */,
+				AB7C715719F9E2C20006104E /* liblzma.a in Frameworks */,
+				AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */,
+				AB7C715919F9E2C90006104E /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,7 +142,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB93B11F1972EFAB00708B2E /* Cocoa.framework in Frameworks */,
-				AB9846D5196B6C6600AF6349 /* VLCKit.framework in Frameworks */,
+				AB7C713B19F8A4550006104E /* libavdevice.a in Frameworks */,
+				AB7C713919F8A44D0006104E /* libavfilter.a in Frameworks */,
+				AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */,
+				AB7C713D19F8A4660006104E /* libavcodec.a in Frameworks */,
+				AB7C714C19F8A7060006104E /* libswresample.a in Frameworks */,
+				AB7C714D19F8A7060006104E /* libswscale.a in Frameworks */,
+				AB7C714519F8A6560006104E /* libavutil.a in Frameworks */,
+				AB7C714319F8A5E50006104E /* VideoDecodeAcceleration.framework in Frameworks */,
+				AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */,
+				AB7C713F19F8A5730006104E /* liblzma.a in Frameworks */,
+				AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */,
+				AB7C714719F8A6730006104E /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +223,18 @@
 		AB9FB56F1965DD7200D39647 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				AB9846D4196B6C6600AF6349 /* VLCKit.framework */,
+				AB7C713A19F8A4550006104E /* libavdevice.a */,
+				AB7C713819F8A44D0006104E /* libavfilter.a */,
+				AB7C713619F8A31C0006104E /* libavformat.a */,
+				AB7C713C19F8A4660006104E /* libavcodec.a */,
+				AB7C714A19F8A7060006104E /* libswresample.a */,
+				AB7C714B19F8A7060006104E /* libswscale.a */,
+				AB7C714419F8A6560006104E /* libavutil.a */,
+				AB7C714819F8A6970006104E /* libiconv.dylib */,
+				AB7C713E19F8A5730006104E /* liblzma.a */,
+				AB7C714019F8A5C50006104E /* libbz2.dylib */,
+				AB7C714619F8A6730006104E /* libz.dylib */,
+				AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */,
 				AB9FB5721965DD7200D39647 /* CoreFoundation.framework */,
 				AB9FB5761965DD7200D39647 /* Foundation.framework */,
 				AB93B0B4196B839600708B2E /* Cocoa.framework */,
@@ -222,17 +265,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		AB93B0F2196CA60500708B2E /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB93B11B1972EBF700708B2E /* Snapshotter.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		AB93B0B2196B839600708B2E /* QLVideo */ = {
 			isa = PBXNativeTarget;
@@ -260,8 +292,6 @@
 			buildPhases = (
 				AB93B0F0196CA60500708B2E /* Sources */,
 				AB93B0F1196CA60500708B2E /* Frameworks */,
-				AB93B0F2196CA60500708B2E /* Headers */,
-				AB93B117196DBA8100708B2E /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -278,7 +308,6 @@
 			buildPhases = (
 				AB9FB5691965DD7200D39647 /* Sources */,
 				AB9FB56A1965DD7200D39647 /* Frameworks */,
-				AB9846D2196B6B2500AF6349 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -295,7 +324,7 @@
 		AB9FB5651965DD7200D39647 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -374,7 +403,7 @@
 		AB93B0E0196B839700708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -395,7 +424,7 @@
 		AB93B0E1196B839700708B2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -412,11 +441,6 @@
 		AB93B10C196CA60500708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
@@ -429,11 +453,6 @@
 		AB93B10D196CA60500708B2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				ONLY_ACTIVE_ARCH = NO;
@@ -445,7 +464,7 @@
 		AB9FB5871965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -459,25 +478,25 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application: Jonathan Harris";
-				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
 				SDKROOT = macosx10.9;
 			};
 			name = Debug;
@@ -485,7 +504,7 @@
 		AB9FB5881965DD7200D39647 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -499,20 +518,22 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application: Jonathan Harris";
-				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
 				SDKROOT = macosx10.9;
 			};
 			name = Release;
@@ -520,11 +541,6 @@
 		AB9FB58A1965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
@@ -537,11 +553,6 @@
 		AB9FB58B1965DD7200D39647 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;

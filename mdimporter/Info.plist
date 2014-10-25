@@ -35,13 +35,14 @@
 				<string>org.smpte.mxf</string>
 				<string>org.mythtv.nuppelvideo</string>
 				<string>org.webmproject.webm</string>
-				<!-- <string>org.xiph.ogv</string>	Ogg support is broken -->
+				<string>org.xiph.ogv</string>
+				<string>fm.magiclantern.mlv</string>
 
 				<!-- defined by VLC.app >= 2.2 -->
 				<string>org.videolan.flash</string>
 				<string>org.videolan.xesc</string>
 				<string>org.videolan.realmedia</string>
-				<!-- <string>org.videolan.ogg-video</string>	Ogg support is broken -->
+				<string>org.videolan.ogg-video</string>
 				<string>org.videolan.axv</string>
 				<string>org.videolan.gxf</string>
 				<string>org.videolan.mxf</string>
@@ -70,7 +71,7 @@
 				<string>org.niltsh.mplayerx-mts</string>
 				<string>org.niltsh.mplayerx-matroska-video</string>
 				<string>org.niltsh.mplayerx-mxf</string>
-				<!-- <string>org.niltsh.mplayerx-ogg-video</string>	Ogg support is broken -->
+				<string>org.niltsh.mplayerx-ogg-video</string>
 				<string>org.niltsh.mplayerx-rmvb</string>
 				<string>org.niltsh.mplayerx-xvid</string>
 	
@@ -81,7 +82,7 @@
 				<!-- defined by Blu-ray Player.app -->
 				<string>com.macblurayplayer.matroska</string>
 				<string>com.macblurayplayer.nuppelvideo</string>
-				<!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
+				<string>com.macblurayplayer.ogv</string>
 				<string>com.macblurayplayer.divx</string>
 
 				<!-- defined by mpv.app -->
@@ -113,7 +114,7 @@
 				<string>net.sourceforge.flac.flac</string>
 				<string>org.matroska.mka</string>
 				<string>org.xiph.flac</string>
-				<!-- <string>org.xiph.ogg</string>	Ogg support is broken -->
+				<string>org.xiph.ogg</string>
 
 				<!-- Audio defined by VLC.app >= 2.2 -->
 				<string>org.videolan.ape</string>
@@ -131,8 +132,8 @@
 				<string>org.videolan.wav</string>
 				<string>org.videolan.ac3</string>
 				<string>org.videolan.aac</string>
-				<!-- <string>org.videolan.opus</string>		Ogg support is broken -->
-				<!-- <string>org.videolan.ogg-audio</string>	Ogg support is broken -->
+				<string>org.videolan.opus</string>
+				<string>org.videolan.ogg-audio</string>
 				<string>org.videolan.oma</string>
 				<string>org.videolan.voc</string>
 				<string>org.videolan.vqf</string>
@@ -150,16 +151,16 @@
 				<string>org.niltsh.mplayerx-ac3</string>
 				<string>org.niltsh.mplayerx-flac</string>
 				<string>org.niltsh.mplayerx-matroska-audio</string>
-				<!-- <string>org.niltsh.mplayerx-ogg</string>	Ogg support is broken -->
+				<string>org.niltsh.mplayerx-ogg</string>
 
 				<!-- Audio defined by Blu-ray Player.app -->
-				<!-- <string>com.macblurayplayer.ogg</string>	Ogg support is broken -->
+				<string>com.macblurayplayer.ogg</string>
 
 				<!-- defined by mpv.app -->
 				<string>io.mpv.ac3</string>
 				<string>io.mpv.flac</string>
 				<string>io.mpv.mka</string>
-				<!-- <string>io.mpv.ogg-audio</string>	Ogg support is broken -->
+				<string>io.mpv.ogg-audio</string>
 				<string>io.mpv.wma</string>
 			</array>
 		</dict>

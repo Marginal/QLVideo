@@ -20,16 +20,13 @@
 //==============================================================================
 
 
-#import <CoreFoundation/CoreFoundation.h>
-#import <CoreFoundation/CFPlugInCOM.h>
-#import <CoreServices/CoreServices.h>
-
 #import <Cocoa/Cocoa.h>
-#import <VLCKit/VLCKit.h>
 
-#import <signal.h>
-#import <dlfcn.h>
+#include <signal.h>
+#include <dlfcn.h>
 
+#include <libavformat/avformat.h>
+#include <libavutil/log.h>
 
 // -----------------------------------------------------------------------------
 //	constants
@@ -113,25 +110,20 @@ void segv_handler(int signum)
 //
 MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryID)
 {
-    // Initialise shared instance of VLCLibrary object
-    VLCLibrary *library = [[VLCLibrary sharedLibrary] initWithOptions:@[@"--no-interact", @"--no-media-library", @"--no-audio", @"--aout=none", @"--ignore-config", @"--intf=dummy", @"--deinterlace=-1", @"--no-drop-late-frames", @"--avi-index=3", @"--album-art=0", @"--no-sub-autodetect-file",
-
 #ifndef DEBUG
-                                                                        @"--quiet"
-#endif
-                                                                        ]];
-    if (!library) return NULL;
-
-#ifndef DEBUG
-    // VLCKit can occasionally crash somewhere under [VLCMedia parsedChanged]. We can't do anything sensible when that happens,
-    // so install a handler to kill the mdworker process quietly so the user isn't alarmed by a crash report.
+    // Install a handler to kill the mdworker process quietly on a crash so the user isn't alarmed by a crash report.
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESETHAND;
     sa.sa_handler = segv_handler;
     sigaction(SIGABRT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
+
+    av_log_set_level(AV_LOG_FATAL|AV_LOG_SKIP_REPEATED);
+#else
+    av_log_set_level(AV_LOG_INFO |AV_LOG_SKIP_REPEATED);
 #endif
+    av_register_all();
 
     MetadataImporterPluginType *theNewInstance;
 

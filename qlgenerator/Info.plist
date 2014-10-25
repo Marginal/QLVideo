@@ -35,13 +35,14 @@
 				<string>org.smpte.mxf</string>
 				<string>org.mythtv.nuppelvideo</string>
 				<string>org.webmproject.webm</string>
-				<!-- <string>org.xiph.ogv</string>	Ogg support is broken -->
+				<string>org.xiph.ogv</string>
+				<!-- <string>fm.magiclantern.mlv</string> crashy -->
 
 				<!-- defined by VLC.app >= 2.2 -->
 				<string>org.videolan.flash</string>
 				<string>org.videolan.xesc</string>
 				<string>org.videolan.realmedia</string>
-				<!-- <string>org.videolan.ogg-video</string>	Ogg support is broken -->
+				<string>org.videolan.ogg-video</string>
 				<string>org.videolan.axv</string>
 				<string>org.videolan.gxf</string>
 				<string>org.videolan.mxf</string>
@@ -70,7 +71,7 @@
 				<!-- <string>org.niltsh.mplayerx-mts</string>	Movie generator handles MPEG better -->
 				<string>org.niltsh.mplayerx-matroska-video</string>
 				<string>org.niltsh.mplayerx-mxf</string>
-				<!-- <string>org.niltsh.mplayerx-ogg-video</string>	Ogg support is broken -->
+				<string>org.niltsh.mplayerx-ogg-video</string>
 				<string>org.niltsh.mplayerx-rmvb</string>
 				<string>org.niltsh.mplayerx-xvid</string>
 
@@ -81,7 +82,7 @@
 				<!-- defined by Blu-ray Player.app -->
 				<string>com.macblurayplayer.matroska</string>
 				<string>com.macblurayplayer.nuppelvideo</string>
-				<!-- <string>com.macblurayplayer.ogv</string>	Ogg support is broken -->
+				<string>com.macblurayplayer.ogv</string>
 				<string>com.macblurayplayer.divx</string>
 
 				<!-- defined by mpv.app -->
@@ -134,13 +135,13 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2014 Jonathan Harris. Licensed under GPLv2 or later.</string>
 	<key>QLNeedsToBeRunInMainThread</key>
-	<false/>
+	<true/>		<!-- serialize calls to keep helper process's resource usage below QuickLook's limits -->
+	<key>QLSupportsConcurrentRequests</key>
+	<true/>		<!-- but allow multiple helper processes -->
 	<key>QLPreviewHeight</key>
 	<integer>240</integer>
 	<key>QLPreviewWidth</key>
 	<integer>320</integer>
-	<key>QLSupportsConcurrentRequests</key>
-	<false/>
 	<key>QLThumbnailMinimumSize</key>
 	<integer>17</integer>
 </dict>

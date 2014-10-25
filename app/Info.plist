@@ -470,6 +470,27 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Magic Lantern Video</string>
+			<key>UTTypeIdentifier</key>
+			<string>fm.magiclantern.mlv</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mlv</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/x-mlv</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 </dict>
 </plist>

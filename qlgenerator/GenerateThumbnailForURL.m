@@ -1,6 +1,8 @@
+#import <Cocoa/Cocoa.h>
 #import <QuickLook/QuickLook.h>
 
-#import "snapshotter.h"
+#include "snapshotter.h"
+
 
 OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize);
 void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbnail);
@@ -13,40 +15,26 @@ void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbn
 
 OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize)
 {
-    // This must be called on a thread other than Main (so QLNeedsToBeRunInMainThread==false in Info.plist)
-    // and we should block until completion.
     // https://developer.apple.com/library/prerelease/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
     @autoreleasepool {
-        VLCMedia *media = [VLCMedia mediaWithURL:(__bridge NSURL *) url];
-        if (!media) return NSFileReadUnknownError;
+        Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
+        if (!snapshotter) return NSFileReadUnknownError;
 
-        // obtain screenshot dimensions
-        if (QLThumbnailRequestIsCancelled(thumbnail)) return noErr;
-        CGSize size = CGSizeMake(0,0);
-        for (NSDictionary *info in [media tracksInformation])
-            if ([[info objectForKey:VLCMediaTracksInformationType] isEqualToString:VLCMediaTracksInformationTypeVideo])
-            {
-                size = CGSizeMake([[info objectForKey:VLCMediaTracksInformationVideoWidth]  floatValue],
-                                  [[info objectForKey:VLCMediaTracksInformationVideoHeight] floatValue]);
-                break;
-            }
-        if (size.height==0 || size.width==0)
-            return NSFileReadUnknownError;
-
+        // determine thumbnail size (scale up if video is tiny)
+        CGSize size = [snapshotter displaySize];
         CGSize scaled;
         if (size.width/maxSize.width > size.height/maxSize.height)
-            scaled = CGSizeMake(maxSize.width, size.height * maxSize.width / size.width);
+            scaled = CGSizeMake(maxSize.width, round(size.height * maxSize.width / size.width));
         else
-            scaled = CGSizeMake(size.width * maxSize.height / size.height, maxSize.height);
+            scaled = CGSizeMake(round(size.width * maxSize.height / size.height), maxSize.height);
 
         if (QLThumbnailRequestIsCancelled(thumbnail)) return noErr;
-        Snapshotter *snapshotter = [[Snapshotter alloc] initWithMedia:media];
-        if (![snapshotter fetchSnapshotwithSize:scaled])
-            return NSFileReadUnknownError;
+        CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:scaled];
+        if (!snapshot) return NSFileReadUnknownError;
         
-        if (QLThumbnailRequestIsCancelled(thumbnail)) return noErr;
-        QLThumbnailRequestSetImage(thumbnail, [snapshotter snapshot], NULL);
+        QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
+        CGImageRelease(snapshot);
     }
     return noErr;
 }

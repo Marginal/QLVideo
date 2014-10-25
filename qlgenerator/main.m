@@ -8,16 +8,14 @@
 //==============================================================================
 
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreFoundation/CFPlugInCOM.h>
-#include <CoreServices/CoreServices.h>
-#include <QuickLook/QuickLook.h>
-
 #import <Cocoa/Cocoa.h>
-#import <VLCKit/VLCKit.h>
+#import <QuickLook/QuickLook.h>
 
-#import <signal.h>
-#import <dlfcn.h>
+#include <signal.h>
+#include <dlfcn.h>
+
+#include <libavformat/avformat.h>
+#include <libavutil/log.h>
 
 
 // -----------------------------------------------------------------------------
@@ -107,24 +105,20 @@ void segv_handler(int signum)
 //
 QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFactoryID)
 {
-    // Initialise shared instance of VLCLibrary object
-    VLCLibrary *library = [[VLCLibrary sharedLibrary] initWithOptions:@[@"--no-interact", @"--no-media-library", @"--no-audio", @"--aout=none", @"--ignore-config", @"--intf=dummy", @"--deinterlace=-1", @"--no-drop-late-frames", @"--avi-index=3", @"--album-art=0", @"--no-sub-autodetect-file",
 #ifndef DEBUG
-                                                                        @"--quiet"
-#endif
-                                                                        ]];
-    if (!library) return NULL;
-
-#ifndef DEBUG
-    // Some of the VLC plugins can crash on dodgy input. We can't do anything sensible when that happens,
-    // so install a handler to kill the QuickLookSatellite process quietly so the user isn't alarmed by a crash report.
+    // Install a handler to kill the QuickLookSatellite process quietly on a crash so the user isn't alarmed by a crash report.
     struct sigaction sa;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESETHAND;
     sa.sa_handler = segv_handler;
     sigaction(SIGABRT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
+
+    av_log_set_level(AV_LOG_FATAL|AV_LOG_SKIP_REPEATED);
+#else
+    av_log_set_level(AV_LOG_INFO |AV_LOG_SKIP_REPEATED);
 #endif
+    av_register_all();
 
     QuickLookGeneratorPluginType *theNewInstance;
 
