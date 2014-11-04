@@ -25,4 +25,4 @@ Notes
 * FFmpeg's demuxers and codecs can sometimes crash on corrupt or incompletely downloaded media files. In Release builds both plugins install exception handlers which quietly kill the worker process so that the user isn't disturbed by crash reports. This is an ugly hack.
 * Binary releases of this package are built and tested against a minimal installation of FFmpeg 2.4.2:
 
-`./configure --cc=clang --arch=x86_64 --cpu=core2 --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9 --enable-gpl --enable-hardcoded-tables --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters`
+`./configure --cc=clang --arch=x86_64 --cpu=core2 --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9 --enable-gpl --enable-hardcoded-tables --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters`

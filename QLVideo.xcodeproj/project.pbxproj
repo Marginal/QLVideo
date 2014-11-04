@@ -13,13 +13,11 @@
 		AB7C713D19F8A4660006104E /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
 		AB7C713F19F8A5730006104E /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713E19F8A5730006104E /* liblzma.a */; };
 		AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
-		AB7C714319F8A5E50006104E /* VideoDecodeAcceleration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */; };
 		AB7C714519F8A6560006104E /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714419F8A6560006104E /* libavutil.a */; };
 		AB7C714719F8A6730006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB7C714C19F8A7060006104E /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
 		AB7C714D19F8A7060006104E /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
-		AB7C714E19F9E2330006104E /* VideoDecodeAcceleration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */; };
 		AB7C714F19F9E2A30006104E /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713A19F8A4550006104E /* libavdevice.a */; };
 		AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
 		AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
@@ -80,7 +78,6 @@
 		AB7C713C19F8A4660006104E /* libavcodec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavcodec.a; path = /usr/local/lib/libavcodec.a; sourceTree = "<absolute>"; };
 		AB7C713E19F8A5730006104E /* liblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = liblzma.a; path = /usr/local/lib/liblzma.a; sourceTree = "<absolute>"; };
 		AB7C714019F8A5C50006104E /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
-		AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoDecodeAcceleration.framework; path = System/Library/Frameworks/VideoDecodeAcceleration.framework; sourceTree = SDKROOT; };
 		AB7C714419F8A6560006104E /* libavutil.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavutil.a; path = /usr/local/lib/libavutil.a; sourceTree = "<absolute>"; };
 		AB7C714619F8A6730006104E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		AB7C714819F8A6970006104E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = /usr/lib/libiconv.dylib; sourceTree = "<absolute>"; };
@@ -129,7 +126,6 @@
 				AB7C715319F9E2AE0006104E /* libswresample.a in Frameworks */,
 				AB7C715419F9E2B00006104E /* libswscale.a in Frameworks */,
 				AB7C715519F9E2B40006104E /* libavutil.a in Frameworks */,
-				AB7C714E19F9E2330006104E /* VideoDecodeAcceleration.framework in Frameworks */,
 				AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */,
 				AB7C715719F9E2C20006104E /* liblzma.a in Frameworks */,
 				AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */,
@@ -149,7 +145,6 @@
 				AB7C714C19F8A7060006104E /* libswresample.a in Frameworks */,
 				AB7C714D19F8A7060006104E /* libswscale.a in Frameworks */,
 				AB7C714519F8A6560006104E /* libavutil.a in Frameworks */,
-				AB7C714319F8A5E50006104E /* VideoDecodeAcceleration.framework in Frameworks */,
 				AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */,
 				AB7C713F19F8A5730006104E /* liblzma.a in Frameworks */,
 				AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */,
@@ -234,7 +229,6 @@
 				AB7C713E19F8A5730006104E /* liblzma.a */,
 				AB7C714019F8A5C50006104E /* libbz2.dylib */,
 				AB7C714619F8A6730006104E /* libz.dylib */,
-				AB7C714219F8A5E50006104E /* VideoDecodeAcceleration.framework */,
 				AB9FB5721965DD7200D39647 /* CoreFoundation.framework */,
 				AB9FB5761965DD7200D39647 /* Foundation.framework */,
 				AB93B0B4196B839600708B2E /* Cocoa.framework */,
