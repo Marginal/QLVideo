@@ -1,4 +1,5 @@
 #!/bin/sh
+touch -c "$2"
 /usr/bin/qlmanage -r
 /usr/bin/qlmanage -r cache
 true

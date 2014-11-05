@@ -1,3 +1,4 @@
 #!/bin/sh
-/usr/bin/mdimport -r /Library/Spotlight/Video.mdimporter
+touch -c "$2"
+if [ -n "$USER" ]; then sudo -u "$USER" /usr/bin/mdimport -r "$2"; fi
 true
