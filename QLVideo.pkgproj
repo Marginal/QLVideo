@@ -728,7 +728,7 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>gpl-2.0.rtf</string>
+							<string>Resources/en.lproj/license.rtf</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -754,7 +754,7 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>success.rtfd</string>
+							<string>Resources/en.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -764,14 +764,7 @@
 			<key>TITLE</key>
 			<dict>
 				<key>LOCALIZATIONS</key>
-				<array>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>English</string>
-						<key>VALUE</key>
-						<string>QLVideo</string>
-					</dict>
-				</array>
+				<array/>
 			</dict>
 		</dict>
 		<key>PROJECT_REQUIREMENTS</key>
@@ -809,12 +802,19 @@
 			<key>RESOURCES</key>
 			<array/>
 			<key>ROOT_VOLUME_ONLY</key>
-			<true/>
+			<false/>
 		</dict>
 		<key>PROJECT_SETTINGS</key>
 		<dict>
 			<key>ADVANCED_OPTIONS</key>
-			<dict/>
+			<dict>
+				<key>installer-script.domains:enable_localSystem</key>
+				<true/>
+				<key>installer-script.options:hostArchitectures</key>
+				<array>
+					<string>x86_64</string>
+				</array>
+			</dict>
 			<key>BUILD_FORMAT</key>
 			<integer>0</integer>
 			<key>BUILD_PATH</key>
@@ -823,6 +823,13 @@
 				<string>.</string>
 				<key>PATH_TYPE</key>
 				<integer>1</integer>
+			</dict>
+			<key>CERTIFICATE</key>
+			<dict>
+				<key>NAME</key>
+				<string>Developer ID Installer: Jonathan Harris</string>
+				<key>PATH</key>
+				<string>/Users/jonathan/Library/Keychains/login.keychain</string>
 			</dict>
 			<key>EXCLUDED_FILES</key>
 			<array>
@@ -993,7 +1000,7 @@
 				</dict>
 			</array>
 			<key>NAME</key>
-			<string>QLVideo</string>
+			<string>QuickLook Video</string>
 		</dict>
 	</dict>
 	<key>SHARED_GLOBAL_DATA</key>
