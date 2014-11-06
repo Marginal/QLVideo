@@ -1,4 +1,4 @@
-Quicklook Video
+QuickLook Video
 ===============
 
 This package allows OSX Finder to display thumbnails, previews and metadata for most types of video files.
@@ -13,10 +13,11 @@ Installation
 
 Limitations
 -----------
+* To see thumbnails of video files you may need to relaunch Finder or Log out and back in again.
 * You may experience high CPU and disk usage for a few minutes after installation while Spotlight re-indexes all of your "non-native" audio and video files.
 * The QuickLook "Preview" function displays a static snapshot of "non-native" video files.
-* Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews of "non-native" video files.
-* Depending on which media player app(s) you have installed Spotlight may not index the metadata in some "non-native" audio and video files.
+* Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
+* Depending on which media player app(s) you have installed Spotlight may not index the metadata in some audio and video files.
 * Requires OSX 10.9 or later. Use [Perian](http://github.com/MaddTheSane/perian) for equivalent functionality under 10.8 and earlier.
 
 Uninstall
