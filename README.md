@@ -5,6 +5,8 @@ This package allows OSX Finder to display thumbnails, previews and metadata for 
 
 QuickLook and Spotlight on OSX 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
 
+![Finder screenshot](img/finder.jpeg) ![Get Info](img/info.jpeg)
+
 Installation
 ------------
 * Download the `.pkg` file (the green button) of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
