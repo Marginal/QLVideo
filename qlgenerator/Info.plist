@@ -24,9 +24,9 @@
 				<!-- <string>public.mpeg-2-transport-stream</string>	Movie generator handles MPEG better -->
 				<!-- <string>public.mpeg-2-video</string>		Movie generator handles MPEG better -->
 
-				<!-- defined by QLVideo.app / Perian -->
+				<!-- defined by QLVideo.app / Perian >= 1.3 -->
 				<string>com.divx.divx</string>
-				<string>com.google.webm</string>
+				<string>com.google.webm</string>	<!-- we prefer org.webmproject.webm -->
 				<string>com.microsoft.wtv</string>
 				<string>com.microsoft.xesc</string>
 				<string>com.real.realvideo</string>
@@ -37,6 +37,13 @@
 				<string>org.webmproject.webm</string>
 				<string>org.xiph.ogv</string>
 				<!-- <string>fm.magiclantern.mlv</string> crashy -->
+
+				<!-- defined by Perian < 1.3 -->
+				<string>org.perian.matroska</string>
+				<string>org.perian.flash-video</string>
+				<string>org.perian.nuppelvideo</string>
+				<string>org.perian.ogv</string>
+				<string>org.perian.divx</string>
 
 				<!-- defined by VLC.app >= 2.2 -->
 				<string>org.videolan.flash</string>
