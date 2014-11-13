@@ -15,7 +15,7 @@ Installation
 
 Limitations
 -----------
-* To see thumbnails of video files you may need to relaunch Finder (ctrl-⌥-click on the Finder icon in the Dock and choose Relaunch) or Log out and back in again.
+* To see thumbnails of video files you may need to relaunch Finder (ctrl-⌥-click on the Finder icon in the Dock and choose Relaunch) or log out and back in again.
 * You may experience high CPU and disk usage for a few minutes after installation while Spotlight re-indexes all of your "non-native" audio and video files.
 * The QuickLook "Preview" function displays a static snapshot of "non-native" video files.
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
