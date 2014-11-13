@@ -12,6 +12,10 @@
 #include <libavutil/dict.h>
 
 
+// Custom attributes
+NSString *kMDItemVideoFrameRate = @"kMDItemVideoFrameRate";
+
+
 Boolean die(CFStringRef pathToFile, int err)
 {
 #ifdef DEBUG
@@ -172,6 +176,15 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                                  forKey:(__bridge NSString *)kMDItemPixelWidth];
                     else
                         [attrs setValue:[NSNumber numberWithInt:dec_ctx->width] forKey:(__bridge NSString *)kMDItemPixelWidth];
+                }
+                if (![attrs objectForKey:kMDItemVideoFrameRate])
+                {
+                    if (stream->avg_frame_rate.den && stream->avg_frame_rate.num)
+                        [attrs setValue:[NSNumber numberWithDouble:round((stream->avg_frame_rate.num * 100) / (double) stream->avg_frame_rate.den) / 100.]
+                                 forKey:kMDItemVideoFrameRate];
+                    else if (stream->r_frame_rate.den && stream->r_frame_rate.num)
+                        [attrs setValue:[NSNumber numberWithDouble:round((stream->r_frame_rate.num   * 100) / (double) stream->r_frame_rate.den)   / 100.]
+                                 forKey:kMDItemVideoFrameRate];
                 }
                 [mediatypes addObject:@"Video"];
             }
