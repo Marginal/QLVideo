@@ -107,6 +107,14 @@
 				<string>io.mpv.wmv</string>
 				<string>io.mpv.xvid</string>
 
+				<!-- defined by Media Inspector -->
+				<string>com.massanti.mediainfomac.ogv</string>
+				<string>com.massanti.mediainfomac.nuppelvideo</string>
+				<string>com.massanti.mediainfomac.matroska</string>
+				<string>com.massanti.mediainfomac.flash-video</string>
+				<string>com.massanti.mediainfomac.mpeg2TS</string>
+				<string>com.massanti.mediainfomac.mpeg2</string>
+
 				<!-- Core audio types not handled by Audio or CoreMedia importer in 10.9 -->
 				<string>com.microsoft.windows-media-wma</string>
 				<string>com.real.realaudio</string>
@@ -179,6 +187,12 @@
 				<string>io.mpv.mka</string>
 				<string>io.mpv.ogg-audio</string>
 				<string>io.mpv.wma</string>
+
+				<!-- Audio defined by Media Inspector -->
+				<string>com.massanti.mediainfomac.ogg</string>
+				<string>com.massanti.mediainfomac.flac</string>
+				<string>com.massanti.mediainfomac.ac3</string>
+				<string>com.massanti.mediainfomac.true-audio</string>
 			</array>
 		</dict>
 	</array>

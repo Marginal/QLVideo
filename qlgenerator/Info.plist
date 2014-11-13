@@ -102,6 +102,14 @@
 				<string>io.mpv.rmvb</string>
 				<string>io.mpv.wmv</string>
 				<string>io.mpv.xvid</string>
+
+				<!-- defined by Media Inspector -->
+				<string>com.massanti.mediainfomac.ogv</string>
+				<string>com.massanti.mediainfomac.nuppelvideo</string>
+				<string>com.massanti.mediainfomac.matroska</string>
+				<string>com.massanti.mediainfomac.flash-video</string>
+				<!-- <string>com.massanti.mediainfomac.mpeg2TS</string>	Movie generator handles MPEG better -->
+				<!-- <string>com.massanti.mediainfomac.mpeg2</string>	Movie generator handles MPEG better -->
 			</array>
 		</dict>
 	</array>
