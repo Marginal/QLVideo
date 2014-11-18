@@ -102,8 +102,13 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             else if (!strcasecmp(tag->key, "creation_time"))
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemContentCreationDate];
             else if (!strcasecmp(tag->key, "date"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value]
-                         forKey:(__bridge NSString *) (strchr(tag->value, '-') ? kMDItemRecordingDate : kMDItemRecordingYear)];
+            {
+                NSString *date = [NSString stringWithUTF8String:tag->value];
+                char *sep = strchr(tag->value, '-');
+                [attrs setValue:date forKey:(__bridge NSString *) (sep ? kMDItemRecordingDate : kMDItemRecordingYear)];
+                if (sep)
+                    [attrs setValue:[date substringToIndex: sep - tag->value] forKey:(__bridge NSString *) kMDItemRecordingYear];
+            }
             else if (!strcasecmp(tag->key, "encoder"))
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemEncodingApplications];
             else if (!strcasecmp(tag->key, "filename"))
