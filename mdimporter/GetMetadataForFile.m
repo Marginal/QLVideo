@@ -205,9 +205,14 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             // All recognised types
             if ((codec = avcodec_find_decoder(dec_ctx->codec_id)))
             {
-                NSString *name = [NSString stringWithUTF8String:(codec->long_name ? codec->long_name : codec->name)];
-                if (![codecs containsObject:name])
-                      [codecs addObject:name];
+                const char *name = (codec->long_name ? codec->long_name : codec->name);
+                if (name)
+                {
+                    const char *profile = av_get_profile_name(codec, dec_ctx->profile);
+                    NSString *nsname = profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : [NSString stringWithUTF8String:name];
+                    if (![codecs containsObject:nsname])
+                        [codecs addObject:nsname];
+                }
             }
 #ifdef DEBUG
             else
