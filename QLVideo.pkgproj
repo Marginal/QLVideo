@@ -781,6 +781,17 @@
 							<integer>1</integer>
 						</dict>
 					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Swedish</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/sv.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
 				</array>
 			</dict>
 			<key>TITLE</key>
