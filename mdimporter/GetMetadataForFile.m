@@ -13,7 +13,8 @@
 
 
 // Custom attributes
-NSString *kMDItemVideoFrameRate = @"kMDItemVideoFrameRate";
+NSString *kFrameRate = @"uk_org_marginal_qlvideo_framerate";
+NSString *kSubtitles = @"uk_org_marginal_qlvideo_subtitles";
 
 
 Boolean die(CFStringRef pathToFile, int err)
@@ -29,6 +30,83 @@ Boolean die(CFStringRef pathToFile, int err)
     return false;
 }
 
+
+// Return localised language name from ISO639-2 tag in metadata, or nil.
+// https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPInternational/LanguageandLocaleIDs/LanguageandLocaleIDs.html
+NSString *GetLanguage(AVDictionary *metadata)
+{
+    @autoreleasepool
+    {
+        AVDictionaryEntry *tag = av_dict_get(metadata, "language", NULL, 0);
+        if (!tag || !strcmp(tag->value, "unk"))
+            return nil;
+
+        NSString *display = NULL;
+        NSString *lang = [NSString stringWithUTF8String:tag->value];
+        if (!strcmp(tag->value, "chi"))
+        {
+            // ISO639-2 can't differentiate between traditional and simplified chinese script, so look at track title
+            // http://www.loc.gov/standards/iso639-2/faq.html#23
+            // http://www.w3.org/International/articles/bcp47/#macro
+            AVDictionaryEntry *title_entry = av_dict_get(metadata, "title", NULL, 0);
+            if (title_entry)
+            {
+                NSString *title = [NSString stringWithUTF8String:title_entry->value];
+                if ([title rangeOfString:@"simplified" options:NSCaseInsensitiveSearch].location != NSNotFound ||
+                    [title rangeOfString:@"简体"].location != NSNotFound)
+                    display = @"简体中文";
+                else if ([title rangeOfString:@"traditional" options:NSCaseInsensitiveSearch].location != NSNotFound ||
+                         [title rangeOfString:@"繁體"].location != NSNotFound)
+                    display = @"繁體中文";
+            }
+        }
+        else if (!strcmp(tag->value, "spa"))
+        {
+            // ISO639-2 can't differentiate between Spanish as spoken in Spain and in Latin America
+            AVDictionaryEntry *title_entry = av_dict_get(metadata, "title", NULL, 0);
+            if (title_entry)
+            {
+                NSString *title = [NSString stringWithUTF8String:title_entry->value];
+                if (!strcmp(title_entry->value, "eur") || !strcmp(title_entry->value, "spa") ||
+                    [title rangeOfString:@"españa" options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch].location != NSNotFound)
+                    lang = @"es-ES";
+                else if (!strcmp(title_entry->value, "lat") ||
+                        [title rangeOfString:@"latino" options:NSCaseInsensitiveSearch].location != NSNotFound)
+                    lang = @"es-419";
+            }
+        }
+        else if (!strcmp(tag->value, "por"))
+        {
+            // ISO639-2 can't differentiate between Portuguese as spoken in Portugal and in Brazil
+            AVDictionaryEntry *title_entry = av_dict_get(metadata, "title", NULL, 0);
+            if (title_entry)
+            {
+                NSString *title = [NSString stringWithUTF8String:title_entry->value];
+                if (!strcmp(title_entry->value, "eur") || !strcmp(title_entry->value, "por") ||
+                    [title rangeOfString:@"portugal" options:NSCaseInsensitiveSearch].location != NSNotFound)
+                    lang = @"pt-PT";
+                else if (!strcmp(title_entry->value, "lat") || !strcmp(title_entry->value, "bra") ||
+                         [title rangeOfString:@"brasil" options:NSCaseInsensitiveSearch].location != NSNotFound)
+                    lang = @"pt-BR";
+            }
+        }
+
+        if (!display)
+        {
+            // We don't get access to the user's preferred language (and we don't have an opportunity to update the
+            // Spotlight metadata if it changes) so return each language in its language if possible.
+            NSLocale *locale = [NSLocale localeWithLocaleIdentifier:lang];
+            display = [locale displayNameForKey:NSLocaleIdentifier value:[locale localeIdentifier]];    // can be nil
+
+            if (display)
+                display = [display capitalizedString];  // for consistency
+            else
+                display = lang; // just return the ISO639-2 code
+        }
+
+        return display;
+    }
+}
 
 //==============================================================================
 //
@@ -74,6 +152,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         NSMutableArray *codecs =     [[NSMutableArray alloc] init];
         NSMutableArray *mediatypes = [[NSMutableArray alloc] init];
         NSMutableArray *languages =  [[NSMutableArray alloc] init];
+        NSMutableArray *subtitles =  [[NSMutableArray alloc] init];
 
         // From the container
         if (fmt_ctx->bit_rate > 0)
@@ -94,7 +173,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             else if (!strcasecmp(tag->key, "artist"))
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemAuthors];
             else if (!strcasecmp(tag->key, "comment"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemDescription];
+                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemComment];
             else if (!strcasecmp(tag->key, "composer"))
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemComposer];
             else if (!strcasecmp(tag->key, "copyright"))
@@ -115,8 +194,6 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:@"kMDItemAlternateNames"];
             else if (!strcasecmp(tag->key, "genre"))
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemGenre];
-            else if (!strcasecmp(tag->key, "language"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemLanguages];
             else if (!strcasecmp(tag->key, "performers"))
                 [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemPerformers];
             else if (!strcasecmp(tag->key, "publisher"))
@@ -163,9 +240,9 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                     [attrs setValue:[NSNumber numberWithInt:dec_ctx->channels] forKey:(__bridge NSString *)kMDItemAudioChannelCount];
                 if (dec_ctx->sample_rate > 0 && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioSampleRate])
                     [attrs setValue:[NSNumber numberWithInt:dec_ctx->sample_rate] forKey:(__bridge NSString *)kMDItemAudioSampleRate];
-                AVDictionaryEntry *lang = av_dict_get(stream->metadata, "language", NULL, 0);
-                if (lang && strcasecmp(lang->value, "und"))
-                    [languages addObject:[NSString stringWithUTF8String:lang->value]];
+                NSString *lang = GetLanguage(stream->metadata);
+                if (lang)
+                    [languages addObject:lang];
                 [mediatypes addObject:@"Sound"];
             }
             else if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
@@ -182,19 +259,25 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                     else
                         [attrs setValue:[NSNumber numberWithInt:dec_ctx->width] forKey:(__bridge NSString *)kMDItemPixelWidth];
                 }
-                if (![attrs objectForKey:kMDItemVideoFrameRate])
+                if (![attrs objectForKey:kFrameRate])
                 {
                     if (stream->avg_frame_rate.den && stream->avg_frame_rate.num)
                         [attrs setValue:[NSNumber numberWithDouble:round((stream->avg_frame_rate.num * 100) / (double) stream->avg_frame_rate.den) / 100.]
-                                 forKey:kMDItemVideoFrameRate];
+                                 forKey:kFrameRate];
                     else if (stream->r_frame_rate.den && stream->r_frame_rate.num)
                         [attrs setValue:[NSNumber numberWithDouble:round((stream->r_frame_rate.num   * 100) / (double) stream->r_frame_rate.den)   / 100.]
-                                 forKey:kMDItemVideoFrameRate];
+                                 forKey:kFrameRate];
                 }
                 [mediatypes addObject:@"Video"];
             }
             else if (dec_ctx->codec_type == AVMEDIA_TYPE_SUBTITLE)
             {
+                if (stream->disposition & AV_DISPOSITION_FORCED)
+                    continue;   // Don't count forced subtitiles since they're effectively part of the video
+
+                NSString *lang = GetLanguage(stream->metadata);
+                if (lang)
+                    [subtitles addObject:lang];
                 [mediatypes addObject:@"Text"];
             }
             else
@@ -226,8 +309,18 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         if ([mediatypes count])
             [attrs setValue:mediatypes forKey:(__bridge NSString *)kMDItemMediaTypes];
 
+        // If the streams don't contain any language info, look in the container
+        if (![languages count])
+        {
+            NSString *lang = GetLanguage(fmt_ctx->metadata);
+            if (lang)
+                [languages addObject:lang];
+        }
         if ([languages count])
             [attrs setValue:languages forKey:(__bridge NSString *)kMDItemLanguages];
+
+        if ([subtitles count])
+            [attrs setValue:subtitles forKey:kSubtitles];
 
         avformat_close_input(&fmt_ctx);
     }

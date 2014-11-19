@@ -11,10 +11,12 @@
 			<string>MDImporter</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<!-- Handle everything; CoreMedia, Audio & Media importers will grab the more specific UTIs that they want to handle -->
+				<!-- Try to handle everything; Audio & CoreMedia importers will grab the more specific UTIs that they want to handle -->
 				<string>public.audiovisual-content</string>
 
-				<!-- Core movie types not handled by Movie importer in 10.9 -->
+				<!-- schema:start - pull following UTIs into schema.xml for display in Get Info dialog -->
+
+				<!-- Core movie types not handled by CoreMedia importer in 10.9 -->
 				<string>com.adobe.flash.video</string>
 				<!-- <string>com.apple.quicktime-movie</string>	Movie generator can handle all quicktime metadata -->
 				<string>com.microsoft.advanced-systems-format</string>
@@ -115,7 +117,9 @@
 				<string>com.massanti.mediainfomac.mpeg2TS</string>
 				<string>com.massanti.mediainfomac.mpeg2</string>
 
-				<!-- Core audio types not handled by Audio or CoreMedia importer in 10.9 -->
+				<!-- schema:stop - stop pulling UTIs into schema.xml -->
+
+				<!-- Core audio types not handled by Audio importer in 10.9 -->
 				<string>com.microsoft.windows-media-wma</string>
 				<string>com.real.realaudio</string>
 				<string>com.soundblaster.soundfont</string>
