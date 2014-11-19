@@ -229,7 +229,6 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         {
             AVStream *stream = fmt_ctx->streams[stream_idx];
             AVCodecContext *dec_ctx = stream->codec;
-            AVCodec *codec;
 
             if (dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
             {
@@ -286,9 +285,54 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             }
 
             // All recognised types
-            if ((codec = avcodec_find_decoder(dec_ctx->codec_id)))
+            AVCodec *codec = avcodec_find_decoder(dec_ctx->codec_id);
+            if (codec)
             {
-                const char *name = (codec->long_name ? codec->long_name : codec->name);
+                // Some of AVCodec.long_name can be too wordy (but .name too cryptic), so special-case some common
+                // codecs to give more compact & Applesque names
+                const char *name;
+                switch (codec->id)
+                {
+                    case AV_CODEC_ID_H263:
+                        name = "H.263"; break;
+                    case AV_CODEC_ID_H263P:
+                        name = "H.263+"; break;
+                    case AV_CODEC_ID_H264:
+                        name = "H.264"; break;
+                    case AV_CODEC_ID_HEVC:
+                        name = "H.265"; break;
+                    case AV_CODEC_ID_MJPEG:
+                        name = "Motion JPEG"; break;
+                    case AV_CODEC_ID_FLV1:
+                        name = "Sorenson Spark"; break;
+                    case AV_CODEC_ID_SVQ1:
+                        name = "Sorenson Video"; break;
+                    case AV_CODEC_ID_SVQ3:
+                        name = "Sorenson Video 3"; break;
+                    case AV_CODEC_ID_AAC:
+                        name = "AAC"; break;
+                    case AV_CODEC_ID_AC3:
+                        name = "AC-3"; break;
+                    case AV_CODEC_ID_DTS:
+                        name = "DTS"; break;
+                    case AV_CODEC_ID_FLAC:
+                        name = "FLAC"; break;
+                    case AV_CODEC_ID_MP2:
+                        name = "MPEG Layer 2"; break;
+                    case AV_CODEC_ID_MP3:
+                        name = "MPEG Layer 3"; break;
+                    case AV_CODEC_ID_ASS:
+                        name = "Advanced SubStation Alpha"; break;
+                    case AV_CODEC_ID_SSA:
+                        name = "SubStation Alpha"; break;
+                    case AV_CODEC_ID_HDMV_PGS_SUBTITLE:
+                        name = "PGS subtitle"; break;
+                    case AV_CODEC_ID_SRT:
+                        name = "SubRip subtitle"; break;
+                    default:
+                        name = codec->long_name ? codec->long_name : codec->name;
+                }
+
                 if (name)
                 {
                     const char *profile = av_get_profile_name(codec, dec_ctx->profile);
