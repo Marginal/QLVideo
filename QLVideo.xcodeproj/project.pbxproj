@@ -109,6 +109,7 @@
 		ABB1A29A1A1C358500EEF82B /* buildschema */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = buildschema; sourceTree = "<group>"; };
 		ABB1A29C1A1C392400EEF82B /* schema.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = schema.xml; path = Video.mdimporter/Contents/Resources/schema.xml; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
+		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE4610F1A15A519006C89A2 /* en */ = {isa = PBXFileReference; explicitFileType = text.plist.strings; name = en; path = en.lproj/schema.strings; sourceTree = "<group>"; };
 		ABFE69C31A28399200243CA0 /* zh_CN */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh_CN; path = zh_CN.lproj/schema.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -352,6 +353,7 @@
 				it,
 				sv,
 				zh_CN,
+				ja,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -457,6 +459,7 @@
 				AB0E0D3D1A15B03B0056CC24 /* it */,
 				ABB8CF531A1C798B00CF242E /* sv */,
 				ABFE69C31A28399200243CA0 /* zh_CN */,
+				ABE05B671A29FED900E228EE /* ja */,
 			);
 			name = schema.strings;
 			path = Resources;
