@@ -19,7 +19,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 
     @autoreleasepool {
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
-        if (!snapshotter) return NSFileReadUnknownError;
+        if (!snapshotter) return kQLReturnNoError;
 
         // determine thumbnail size (scale up if video is tiny)
         CGSize size = [snapshotter displaySize];
@@ -29,14 +29,14 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         else
             scaled = CGSizeMake(round(size.width * maxSize.height / size.height), maxSize.height);
 
-        if (QLThumbnailRequestIsCancelled(thumbnail)) return noErr;
+        if (QLThumbnailRequestIsCancelled(thumbnail)) return kQLReturnNoError;
         CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:scaled];
-        if (!snapshot) return NSFileReadUnknownError;
+        if (!snapshot) return kQLReturnNoError;
         
         QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
         CGImageRelease(snapshot);
     }
-    return noErr;
+    return kQLReturnNoError;
 }
 
 void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbnail)
