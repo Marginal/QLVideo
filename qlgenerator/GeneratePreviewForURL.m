@@ -30,7 +30,36 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             CGImageRelease(snapshot);
             return kQLReturnNoError;
         }
-        CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, NULL);
+
+        // Replace title string
+        NSString *title, *channels;
+        switch ([snapshotter channels])
+        {
+            case 0:
+                channels = @"🔇"; break;
+            case 1:
+                channels = @"mono"; break;
+            case 2:
+                channels = @"stereo"; break;
+            case 4:
+                channels = @"4.0"; break;
+            case 6:
+                channels = @"5.1"; break;
+            case 8:
+                channels = @"7.1"; break;
+            default:    // That's weird
+                channels = [NSString stringWithFormat:@"%d🔉", [snapshotter channels]];
+        }
+        if ([snapshotter title])
+            title = [NSString stringWithFormat:@"%@ (%d×%d %@)", [snapshotter title],
+                     (int) size.width, (int) size.height, channels];
+        else
+            title = [NSString stringWithFormat:@"%@ (%d×%d %@)", [(__bridge NSURL *)url lastPathComponent],
+                     (int) size.width, (int) size.height, channels];
+        NSDictionary *properties = [NSDictionary dictionaryWithObject:title forKey:(NSString *) kQLPreviewPropertyDisplayNameKey];
+
+        // display
+        CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, (__bridge CFDictionaryRef) properties);
         CGContextDrawImage(context, CGRectMake(0, 0, size.width, size.height), snapshot);
         QLPreviewRequestFlushContext(preview, context);
         CGContextRelease(context);

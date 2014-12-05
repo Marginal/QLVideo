@@ -39,21 +39,35 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
         return nil;
     }
 
+    // Find first audio stream and record channel count
+    for (stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
+    {
+        AVCodecContext *audio_ctx = fmt_ctx->streams[stream_idx]->codec;
+        if (audio_ctx && audio_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
+        {
+            _channels = audio_ctx->channels;
+            break;
+        }
+    }
+
+    AVDictionaryEntry *tag = av_dict_get(fmt_ctx->metadata, "title", NULL, 0);
+    if (tag && tag->value)
+        _title = [NSString stringWithUTF8String:tag->value];
+
     // Find first video stream and open appropriate codec
+    AVCodec *codec = NULL;
     for (stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
     {
         stream = fmt_ctx->streams[stream_idx];
         dec_ctx = stream->codec;
-        if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
+        if (dec_ctx && dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
         {
-            codec = avcodec_find_decoder(dec_ctx->codec_id);
+            if (dec_ctx->height > 0)
+                codec = avcodec_find_decoder(dec_ctx->codec_id);
             break;
         }
     }
-    if (stream_idx >= fmt_ctx->nb_streams ||
-        dec_ctx->height <= 0 ||
-        !codec ||
-        avcodec_open2(dec_ctx, codec, NULL))
+    if (!codec || avcodec_open2(dec_ctx, codec, NULL))
     {
         avformat_close_input(&fmt_ctx);
         return nil;
