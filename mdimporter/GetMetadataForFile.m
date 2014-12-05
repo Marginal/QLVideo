@@ -236,7 +236,23 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 if (dec_ctx->bit_rate > 0    && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioBitRate])
                     [attrs setValue:[NSNumber numberWithInt:dec_ctx->bit_rate] forKey:(__bridge NSString *)kMDItemAudioBitRate];
                 if (dec_ctx->channels > 0    && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioChannelCount])
-                    [attrs setValue:[NSNumber numberWithInt:dec_ctx->channels] forKey:(__bridge NSString *)kMDItemAudioChannelCount];
+                {
+                    NSNumber *channels;
+                    switch (dec_ctx->channels)
+                    {
+                        // See e.g. http://help.apple.com/logicpro/mac/9.1.6/en/logicpro/usermanual/index.html#chapter=39
+                        // Can't tell Quadraphonic from LCRS
+                        case 6:
+                            channels = [NSNumber numberWithFloat:5.1f]; break;
+                        case 7:
+                            channels = [NSNumber numberWithFloat:6.1f]; break;
+                        case 8:
+                            channels = [NSNumber numberWithFloat:7.1f]; break;
+                        default:
+                            channels = [NSNumber numberWithInt:dec_ctx->channels];
+                    }
+                    [attrs setValue:channels forKey:(__bridge NSString *)kMDItemAudioChannelCount];
+                }
                 if (dec_ctx->sample_rate > 0 && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioSampleRate])
                     [attrs setValue:[NSNumber numberWithInt:dec_ctx->sample_rate] forKey:(__bridge NSString *)kMDItemAudioSampleRate];
                 NSString *lang = GetLanguage(stream->metadata);

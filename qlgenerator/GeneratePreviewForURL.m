@@ -41,13 +41,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 channels = @"mono"; break;
             case 2:
                 channels = @"stereo"; break;
-            case 4:
-                channels = @"4.0"; break;
             case 6:
                 channels = @"5.1"; break;
+            case 7:
+                channels = @"6.1"; break;
             case 8:
                 channels = @"7.1"; break;
-            default:    // That's weird
+            default:    // Quadraphonic, LCRS or something else
                 channels = [NSString stringWithFormat:@"%d🔉", [snapshotter channels]];
         }
         if ([snapshotter title])
