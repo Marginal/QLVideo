@@ -25,6 +25,10 @@
 // Don't modify this line
 #define PLUGIN_ID "4A60E117-F6DF-4B3C-9603-2BBE6CEC6972"
 
+// used in GeneratePreviewForURL
+NSBundle *myBundle;
+
+
 //
 // Below is the generic glue code for all plug-ins.
 //
@@ -119,6 +123,9 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     av_log_set_level(AV_LOG_INFO |AV_LOG_SKIP_REPEATED);
 #endif
     av_register_all();
+
+    // name must match CFBundleIdentifier in Info.plist
+    myBundle = [NSBundle bundleWithIdentifier: @"uk.org.marginal.qlvideo.qlgenerator"];
 
     QuickLookGeneratorPluginType *theNewInstance;
 

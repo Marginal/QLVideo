@@ -3,6 +3,8 @@
 
 #include "snapshotter.h"
 
+extern NSBundle *myBundle;
+
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options);
 void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
 
@@ -36,19 +38,20 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         switch ([snapshotter channels])
         {
             case 0:
-                channels = @"🔇"; break;
+                channels = myBundle ? [myBundle localizedStringForKey:@"🔇"     value:nil table:nil] : @"🔇"; break;
             case 1:
-                channels = @"mono"; break;
+                channels = myBundle ? [myBundle localizedStringForKey:@"mono"   value:nil table:nil] : @"mono"; break;
             case 2:
-                channels = @"stereo"; break;
+                channels = myBundle ? [myBundle localizedStringForKey:@"stereo" value:nil table:nil] : @"stereo"; break;
             case 6:
-                channels = @"5.1"; break;
+                channels = myBundle ? [myBundle localizedStringForKey:@"5.1"    value:nil table:nil] : @"5.1"; break;
             case 7:
-                channels = @"6.1"; break;
+                channels = myBundle ? [myBundle localizedStringForKey:@"6.1"    value:nil table:nil] : @"6.1"; break;
             case 8:
-                channels = @"7.1"; break;
+                channels = myBundle ? [myBundle localizedStringForKey:@"7.1"    value:nil table:nil] : @"7.1"; break;
             default:    // Quadraphonic, LCRS or something else
-                channels = [NSString stringWithFormat:@"%d🔉", [snapshotter channels]];
+                channels = [NSString stringWithFormat:(myBundle ? [myBundle localizedStringForKey:@"%d🔉" value:nil table:nil] : @"%d🔉"),
+                            [snapshotter channels]];
         }
         if ([snapshotter title])
             title = [NSString stringWithFormat:@"%@ (%d×%d %@)", [snapshotter title],
