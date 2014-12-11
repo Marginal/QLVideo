@@ -99,6 +99,7 @@
 		AB93B10E196CA7EE00708B2E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB93B1191972EBF700708B2E /* Snapshotter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Snapshotter.h; sourceTree = "<group>"; };
 		AB93B11A1972EBF700708B2E /* Snapshotter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Snapshotter.m; sourceTree = "<group>"; };
+		AB97CDD21A3A059C005FECB1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/schema.strings; sourceTree = "<group>"; };
 		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = app/Info.plist; sourceTree = "<group>"; };
 		AB9FB56D1965DD7200D39647 /* Video.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB9FB5721965DD7200D39647 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -354,6 +355,7 @@
 				sv,
 				zh_CN,
 				ja,
+				es,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -460,6 +462,7 @@
 				ABB8CF531A1C798B00CF242E /* sv */,
 				ABFE69C31A28399200243CA0 /* zh_CN */,
 				ABE05B671A29FED900E228EE /* ja */,
+				AB97CDD21A3A059C005FECB1 /* es */,
 			);
 			name = schema.strings;
 			path = Resources;
