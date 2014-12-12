@@ -26,10 +26,20 @@ Uninstall
 * Run the Terminal app (found in Applications → Utilities).
 * Copy the following and paste into the Terminal app:
 
-`sudo rm -rf /Library/Application\ Support/QLVideo /Library/QuickLook/Video.qlgenerator /Library/Spotlight/Video.mdimporter`
- 
+        sudo rm -rf "/Library/Application Support/QLVideo" "/Library/QuickLook/Video.qlgenerator" "/Library/Spotlight/Video.mdimporter"
 * Press Enter.
 * Type your password and press Enter.
+
+Reporting bugs
+--------------
+* First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of OSX and back in again and see if the problem remains.
+* Open a [New issue](https://github.com/Marginal/QLVideo/issues/new) and describe the problem.
+* To help diagnose the problem please run the Terminal app (found in Applications → Utilities) and type:
+
+        qlmanage -m
+        qlmanage -p -d1 /path/of/some/video/file
+but substitute the *path of some video file* by dragging a video file from the Finder and dropping it on the Terminal window.
+* In the Terminal app choose Edit → Select All then Edit → Copy, and paste the results in the "New issue".
 
 Acknowledgements
 ----------------
