@@ -794,6 +794,17 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
+						<string>Greek</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/el.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
 						<string>Italian</string>
 						<key>VALUE</key>
 						<dict>
