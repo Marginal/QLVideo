@@ -772,6 +772,17 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
+						<string>German</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/de.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
 						<string>Italian</string>
 						<key>VALUE</key>
 						<dict>
