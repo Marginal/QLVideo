@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <QuickLook/QuickLook.h>
+#import <AVFoundation/AVFoundation.h>
 
 #include "snapshotter.h"
 
@@ -20,20 +21,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
     @autoreleasepool {
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
-        if (!snapshotter) return kQLReturnNoError;
-        
-        if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
-        CGSize size = [snapshotter displaySize];
-        CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:size];
-        if (!snapshot) return kQLReturnNoError;
-
-        if (QLPreviewRequestIsCancelled(preview))
-        {
-            CGImageRelease(snapshot);
-            return kQLReturnNoError;
-        }
+        if (!snapshotter || QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
 
         // Replace title string
+        CGSize size = [snapshotter displaySize];
         NSString *title, *channels;
         switch ([snapshotter channels])
         {
@@ -61,7 +52,30 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                      (int) size.width, (int) size.height, channels];
         NSDictionary *properties = [NSDictionary dictionaryWithObject:title forKey:(NSString *) kQLPreviewPropertyDisplayNameKey];
 
+        // If AVFoundation can play it, then hand it off to
+        // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay
+        AVAsset *asset = [AVAsset assetWithURL:(__bridge NSURL *)url];
+        if (asset)
+        {
+            AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
+            if (track && track.playable)
+            {
+                QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
+                return kQLReturnNoError;
+            }
+        }
+
+        // AVFoundation can't play it, so generate a static snapshot
+        if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
+        CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:size];
+        if (!snapshot) return kQLReturnNoError;
+
         // display
+        if (QLPreviewRequestIsCancelled(preview))
+        {
+            CGImageRelease(snapshot);
+            return kQLReturnNoError;
+        }
         CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, (__bridge CFDictionaryRef) properties);
         CGContextDrawImage(context, CGRectMake(0, 0, size.width, size.height), snapshot);
         QLPreviewRequestFlushContext(preview, context);

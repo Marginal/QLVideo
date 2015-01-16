@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
 		AB7C713919F8A44D0006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
 		AB7C713B19F8A4550006104E /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713A19F8A4550006104E /* libavdevice.a */; };
@@ -87,6 +88,7 @@
 		AB19C8301A3A2A7F00A14247 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB19C8311A3A2AB200A14247 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB19C8321A3A2B2200A14247 /* zh_CN */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh_CN; path = zh_CN.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = /usr/local/lib/libavformat.a; sourceTree = "<absolute>"; };
 		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = /usr/local/lib/libavfilter.a; sourceTree = "<absolute>"; };
 		AB7C713A19F8A4550006104E /* libavdevice.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavdevice.a; path = /usr/local/lib/libavdevice.a; sourceTree = "<absolute>"; };
@@ -145,6 +147,7 @@
 			files = (
 				AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */,
 				AB93B1201972EFAC00708B2E /* Cocoa.framework in Frameworks */,
+				AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */,
 				AB7C714F19F9E2A30006104E /* libavdevice.a in Frameworks */,
 				AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */,
 				AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */,
@@ -256,6 +259,7 @@
 				AB7C713E19F8A5730006104E /* liblzma.a */,
 				AB7C714019F8A5C50006104E /* libbz2.dylib */,
 				AB7C714619F8A6730006104E /* libz.dylib */,
+				AB2ACD9D1A696F72002411DF /* AVFoundation.framework */,
 				AB9FB5721965DD7200D39647 /* CoreFoundation.framework */,
 				AB9FB5761965DD7200D39647 /* Foundation.framework */,
 				AB93B0B4196B839600708B2E /* Cocoa.framework */,
