@@ -18,7 +18,7 @@
 
 				<!-- Core movie types not handled by CoreMedia importer in 10.9 -->
 				<string>com.adobe.flash.video</string>
-				<!-- <string>com.apple.quicktime-movie</string>	Movie generator can handle all quicktime metadata -->
+				<!-- <string>com.apple.quicktime-movie</string>	CoreMedia importer can handle all quicktime metadata -->
 				<string>com.microsoft.advanced-systems-format</string>
 				<string>com.microsoft.windows-media-wmv</string>
 				<string>com.real.realmedia</string>
@@ -35,13 +35,13 @@
 				<string>com.microsoft.wtv</string>
 				<string>com.microsoft.xesc</string>
 				<string>com.real.realvideo</string>
+				<string>jp.co.dvdfllc.vob</string>
 				<string>org.matroska.mkv</string>
 				<string>org.smpte.gxf</string>
 				<string>org.smpte.mxf</string>
 				<string>org.mythtv.nuppelvideo</string>
 				<string>org.webmproject.webm</string>
 				<string>org.xiph.ogv</string>
-				<string>fm.magiclantern.mlv</string>
 
 				<!-- defined by Perian < 1.3 -->
 				<string>org.perian.matroska</string>

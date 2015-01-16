@@ -70,6 +70,30 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+				<string>public.mpeg</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Video Object</string>
+			<key>UTTypeIdentifier</key>
+			<string>jp.co.dvdfllc.vob</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://www.dvdfllc.co.jp/</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vob</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/dvd</string>
+				</array>
+			</dict>
+		</dict>
 
 		<!-- Perian -->
 		<dict>
@@ -467,27 +491,6 @@
 				<key>public.mime-type</key>
 				<array>
 					<string>audio/x-mlp</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.movie</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Magic Lantern Video</string>
-			<key>UTTypeIdentifier</key>
-			<string>fm.magiclantern.mlv</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>mlv</string>
-				</array>
-				<key>public.mime-type</key>
-				<array>
-					<string>video/x-mlv</string>
 				</array>
 			</dict>
 		</dict>
