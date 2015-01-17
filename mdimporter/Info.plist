@@ -117,6 +117,12 @@
 				<string>com.massanti.mediainfomac.mpeg2TS</string>
 				<string>com.massanti.mediainfomac.mpeg2</string>
 
+				<!-- defined by Aurora Blu-ray Player for Mac -->
+				<string>com.blurayplayersoftware.matroska</string>
+				<string>com.blurayplayersoftware.nuppelvideo</string>
+				<string>com.blurayplayersoftware.divx</string>
+				<string>com.blurayplayersoftware.ogv</string>
+
 				<!-- schema:stop - stop pulling UTIs into schema.xml -->
 
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
@@ -197,6 +203,9 @@
 				<string>com.massanti.mediainfomac.flac</string>
 				<string>com.massanti.mediainfomac.ac3</string>
 				<string>com.massanti.mediainfomac.true-audio</string>
+
+				<!-- Audio defined by Aurora Blu-ray Player for Mac -->
+				<string>com.blurayplayersoftware.ogg</string>
 			</array>
 		</dict>
 	</array>
