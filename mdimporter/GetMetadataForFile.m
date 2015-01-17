@@ -38,7 +38,7 @@ NSString *GetLanguage(AVDictionary *metadata)
     @autoreleasepool
     {
         AVDictionaryEntry *tag = av_dict_get(metadata, "language", NULL, 0);
-        if (!tag || !strcmp(tag->value, "unk"))
+        if (!tag || !strcmp(tag->value, "unk") || !strcmp(tag->value, "und"))
             return nil;
 
         NSString *display = NULL;

@@ -25,7 +25,7 @@ cat > $SCHEMA <<HEADER
 	xsi:schemaLocation="http://www.apple.com/metadata file:///System/Library/Frameworks/CoreServices.framework/Frameworks/Metadata.framework/Resources/MetadataSchema.xsd">
 	<attributes>
 		<attribute name="uk_org_marginal_qlvideo_framerate" type="CFNumber" uniqued="true"/>
-		<attribute name="uk_org_marginal_qlvideo_subtitles" type="CFString" multivalued="true"/>
+		<attribute name="uk_org_marginal_qlvideo_subtitles" type="CFString" multivalued="true" uniqued="true"/>
 	</attributes>
 	<types>
 HEADER
