@@ -25,6 +25,7 @@
 - (id) initWithURL:(CFURLRef)url;
 - (void) dealloc;
 - (CGSize) displaySize;
+- (CGImageRef) CreateCoverArtWithSize:(CGSize)size;
 - (CGImageRef) CreateSnapshotWithSize:(CGSize)size;
 
 @property (nonatomic,assign,readonly) int channels;

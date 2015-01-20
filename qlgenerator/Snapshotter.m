@@ -102,7 +102,72 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
         return CGSizeMake(dec_ctx->width, dec_ctx->height);
 }
 
-// gets snapshot and blocks until completion, timeout or failure. Returns true on success.
+
+// Gets cover art if available, or nil.
+// size parameter is currently ignored - let QuickLook do any rescaling.
+- (CGImageRef) CreateCoverArtWithSize:(CGSize)size;
+{
+    // Cover art can appear as an extra video stream (e.g. mp4, wtv) or as attachment(s) (e.g. mkv).
+    // (Note this isn't necessarily how they're encoded in the file, but how the FFmpeg codecs present them).
+
+    AVStream *art_stream = NULL;
+    int art_priority = 0;
+
+    for (int idx=0; idx < fmt_ctx->nb_streams; idx++)
+    {
+        AVStream *s = fmt_ctx->streams[idx];
+        AVCodecContext *ctx = s->codec;
+        if (ctx && (ctx->codec_id == AV_CODEC_ID_PNG || ctx->codec_id == AV_CODEC_ID_MJPEG))
+        {
+            if (ctx->codec_type == AVMEDIA_TYPE_VIDEO && (s->disposition & AV_DISPOSITION_ATTACHED_PIC))
+            {
+                art_stream = s;
+                break;      // prefer first if multiple
+            }
+            else if (ctx->codec_type == AVMEDIA_TYPE_ATTACHMENT)
+            {
+                // MKVs can contain multiple cover art - see http://matroska.org/technical/cover_art/index.html
+                // We prefer small ('cos thumbnail) square/portrait.
+                int priority;
+                AVDictionaryEntry *filename = av_dict_get(s->metadata, "filename", NULL, 0);
+                if (!filename || !filename->value)
+                    priority = 1;
+                else if (!strncasecmp(filename->value, "cover.", 6))
+                    priority = 2;
+                else if (!strncasecmp(filename->value, "small_cover.", 12))
+                    priority = 3;
+                else
+                    priority = 1;
+                if (art_priority < priority)
+                {
+                    art_priority = priority;
+                    art_stream = s;
+                }
+            }
+        }
+    }
+
+    // Extract data
+    CFDataRef data;
+    if (!art_stream)
+        return nil;
+    else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc
+    else
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codec->extradata, art_stream->codec->extradata_size, kCFAllocatorNull);   // we'll dealloc
+
+    // wangle into a CGImage
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+    CGImageRef image = (art_stream->codec->codec_id == AV_CODEC_ID_PNG) ?
+        CGImageCreateWithPNGDataProvider (provider, NULL, false, kCGRenderingIntentDefault) :
+        CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
+    CGDataProviderRelease(provider);
+    CFRelease(data);
+    return image;
+}
+
+
+// gets snapshot and blocks until completion, timeout or failure.
 // the data buffer backing the snapshot is only good 'til the next snapshot or until the object is destroyed, so not thread-safe
 - (CGImageRef) CreateSnapshotWithSize:(CGSize)size;
 {

@@ -1,7 +1,7 @@
 QuickLook Video
 ===============
 
-This package allows OSX Finder to display thumbnails, previews and metadata for most types of video files.
+This package allows OSX Finder to display thumbnails/cover art, static previews and metadata for most types of video files.
 
 QuickLook and Spotlight on OSX 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
 

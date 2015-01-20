@@ -21,6 +21,15 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) return kQLReturnNoError;
 
+        // Use cover art if present
+        CGImageRef snapshot = [snapshotter CreateCoverArtWithSize:maxSize];
+        if (snapshot)
+        {
+            QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
+            CGImageRelease(snapshot);
+            return kQLReturnNoError;
+        }
+
         // determine thumbnail size (scale up if video is tiny)
         CGSize size = [snapshotter displaySize];
         CGSize scaled;
@@ -30,13 +39,13 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
             scaled = CGSizeMake(round(size.width * maxSize.height / size.height), maxSize.height);
 
         if (QLThumbnailRequestIsCancelled(thumbnail)) return kQLReturnNoError;
-        CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:scaled];
+        snapshot = [snapshotter CreateSnapshotWithSize:scaled];
         if (!snapshot) return kQLReturnNoError;
         
         QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
         CGImageRelease(snapshot);
+        return kQLReturnNoError;
     }
-    return kQLReturnNoError;
 }
 
 void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbnail)
