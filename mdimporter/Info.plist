@@ -30,6 +30,7 @@
 				<string>public.mpeg-2-video</string>
 
 				<!-- defined by QLVideo.app / Perian >= 1.3 -->
+				<string>com.blu-raydisc.bdav</string>
 				<string>com.divx.divx</string>
 				<string>com.google.webm</string>	<!-- we prefer org.webmproject.webm -->
 				<string>com.microsoft.wtv</string>
