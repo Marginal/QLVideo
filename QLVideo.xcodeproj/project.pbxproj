@@ -504,7 +504,7 @@
 			);
 			name = Localizable.strings;
 			path = Resources;
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		ABE4610E1A15A519006C89A2 /* schema.strings */ = {
 			isa = PBXVariantGroup;
@@ -523,7 +523,7 @@
 			);
 			name = schema.strings;
 			path = Resources;
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXVariantGroup section */
 
