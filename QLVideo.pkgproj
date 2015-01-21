@@ -918,8 +918,6 @@
 		<dict>
 			<key>ADVANCED_OPTIONS</key>
 			<dict>
-				<key>installer-script.domains:enable_localSystem</key>
-				<true/>
 				<key>installer-script.options:hostArchitectures</key>
 				<array>
 					<string>x86_64</string>
