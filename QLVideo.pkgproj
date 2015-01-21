@@ -827,6 +827,17 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
+						<string>Norwegian</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/no.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
 						<string>Portuguese</string>
 						<key>VALUE</key>
 						<dict>

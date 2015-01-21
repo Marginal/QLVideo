@@ -89,6 +89,8 @@
 		AB19C8311A3A2AB200A14247 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB19C8321A3A2B2200A14247 /* zh_CN */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh_CN; path = zh_CN.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		AB36C88E1A6FFB3C004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/schema.strings; sourceTree = "<group>"; };
+		AB36C8901A6FFB4E004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = /usr/local/lib/libavformat.a; sourceTree = "<absolute>"; };
 		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = /usr/local/lib/libavfilter.a; sourceTree = "<absolute>"; };
 		AB7C713A19F8A4550006104E /* libavdevice.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavdevice.a; path = /usr/local/lib/libavdevice.a; sourceTree = "<absolute>"; };
@@ -382,6 +384,7 @@
 				de,
 				nl,
 				el,
+				no,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -501,6 +504,7 @@
 				AB00C5CC1A682F9400D71399 /* de */,
 				AB00C5D11A682FAF00D71399 /* nl */,
 				AB00C5D21A682FB700D71399 /* el */,
+				AB36C8901A6FFB4E004F571E /* no */,
 			);
 			name = Localizable.strings;
 			path = Resources;
@@ -520,6 +524,7 @@
 				AB00C5C81A682EF800D71399 /* de */,
 				AB00C5CA1A682F6800D71399 /* nl */,
 				AB00C5CB1A682F7200D71399 /* el */,
+				AB36C88E1A6FFB3C004F571E /* no */,
 			);
 			name = schema.strings;
 			path = Resources;
