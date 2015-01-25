@@ -750,6 +750,17 @@
 				<array>
 					<dict>
 						<key>LANGUAGE</key>
+						<string>Catalan</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/ca.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
 						<string>Dutch</string>
 						<key>VALUE</key>
 						<dict>

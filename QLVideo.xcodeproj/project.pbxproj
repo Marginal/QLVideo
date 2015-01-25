@@ -102,6 +102,8 @@
 		AB7C714819F8A6970006104E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = /usr/lib/libiconv.dylib; sourceTree = "<absolute>"; };
 		AB7C714A19F8A7060006104E /* libswresample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswresample.a; path = /usr/local/lib/libswresample.a; sourceTree = "<absolute>"; };
 		AB7C714B19F8A7060006104E /* libswscale.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswscale.a; path = /usr/local/lib/libswscale.a; sourceTree = "<absolute>"; };
+		AB8277781A7523F300F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/schema.strings; sourceTree = "<group>"; };
+		AB82777A1A7523FC00F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB93B0B3196B839600708B2E /* QLVideo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QLVideo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		AB93B0EC196B855100708B2E /* QLVideo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = QLVideo; path = app/QLVideo; sourceTree = SOURCE_ROOT; };
@@ -385,6 +387,7 @@
 				nl,
 				el,
 				no,
+				ca,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -505,6 +508,7 @@
 				AB00C5D11A682FAF00D71399 /* nl */,
 				AB00C5D21A682FB700D71399 /* el */,
 				AB36C8901A6FFB4E004F571E /* no */,
+				AB82777A1A7523FC00F1D9F4 /* ca */,
 			);
 			name = Localizable.strings;
 			path = Resources;
@@ -525,6 +529,7 @@
 				AB00C5CA1A682F6800D71399 /* nl */,
 				AB00C5CB1A682F7200D71399 /* el */,
 				AB36C88E1A6FFB3C004F571E /* no */,
+				AB8277781A7523F300F1D9F4 /* ca */,
 			);
 			name = schema.strings;
 			path = Resources;
