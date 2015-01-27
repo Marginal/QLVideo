@@ -10,6 +10,15 @@
 
 #include <libavformat/avformat.h>
 
+
+typedef NS_ENUM(NSInteger, CoverArtMode)
+{
+    CoverArtDefault     = 0,
+    CoverArtThumbnail   = 1,
+    CoverArtLandscape   = 2,
+};
+
+
 @interface Snapshotter : NSObject
 {
     AVFormatContext *fmt_ctx;
@@ -22,10 +31,10 @@
     NSString *_title;   // and title
 }
 
-- (id) initWithURL:(CFURLRef)url;
+- (instancetype) initWithURL:(CFURLRef)url;
 - (void) dealloc;
 - (CGSize) displaySize;
-- (CGImageRef) CreateCoverArtWithSize:(CGSize)size;
+- (CGImageRef) CreateCoverArtWithMode:(CoverArtMode)mode;
 - (CGImageRef) CreateSnapshotWithSize:(CGSize)size;
 
 @property (nonatomic,assign,readonly) int channels;

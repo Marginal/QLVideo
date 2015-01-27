@@ -4,7 +4,20 @@
 
 #include "snapshotter.h"
 
+// Implemented in main.m
 extern NSBundle *myBundle;
+extern BOOL brokenQLPrefetch;
+
+typedef NS_ENUM(NSInteger, QLPreviewMode)
+{
+    kQLPreviewModeNone              = 0,
+    kQLPreviewModeGetInfo           = 1,    // File -> Get Info and Column view in Finder
+    kQLPreviewModeQuickLookPrefetch = 2,    // Be ready for QuickLook (called for selected file in Finder's Cover Flow view)
+    kQLPreviewModeUnknown           = 3,
+    kQLPreviewModeSpotlight         = 4,    // Desktop Spotlight search popup bubble
+    kQLPreviewModeQuickLook         = 5,    // File -> Quick Look in Finder (also qlmanage -p)
+};
+
 
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options);
 void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
@@ -17,7 +30,12 @@ void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
 
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options)
 {
-    // https://developer.apple.com/library/prerelease/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
+    // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
+
+    NSNumber *nsPreviewMode = ((__bridge NSDictionary *)options)[@"QLPreviewMode"];
+#ifdef DEBUG
+    NSLog(@"QLVideo QLPreviewMode=%@ %@", nsPreviewMode, url);
+#endif
 
     @autoreleasepool {
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
@@ -52,35 +70,59 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                      (int) size.width, (int) size.height, channels];
         NSDictionary *properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: title};
 
-        // If AVFoundation can play it, then hand it off to
-        // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay
-        AVAsset *asset = [AVAsset assetWithURL:(__bridge NSURL *)url];
-        if (asset)
+        // The preview
+        CGImageRef thePreview = NULL;
+
+        // Prefer any cover art (if present) over a playable preview or static snapshot in Finder and Spotlight views
+        QLPreviewMode previewMode = nsPreviewMode.intValue;
+        if (previewMode == kQLPreviewModeGetInfo || previewMode == kQLPreviewModeSpotlight)
+            thePreview = [snapshotter CreateCoverArtWithMode:CoverArtDefault];
+
+        if (!thePreview)
         {
-            AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
-            if (track && track.playable)
+            // If AVFoundation can play it, then hand it off to
+            // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay
+            AVAsset *asset = [AVAsset assetWithURL:(__bridge NSURL *)url];
+            if (asset)	// note: asset.playable==true doesn't imply there's a playable video track
             {
-                QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
-                return kQLReturnNoError;
+                AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
+                if (track && track.playable)
+                {
+                    QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
+                    return kQLReturnNoError;    // early exit
+                }
             }
+            if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
+
+            // kQLPreviewModeQuickLookPrefetch is broken for "non-native" files on Mavericks - the user gets a blank window
+            // if they invoke QuickLook soon after. Presumambly QuickLookUI is caching and getting confused?
+            // If we return nothing we get called again with no QLPreviewMode option. This somehow forces QuickLookUI to
+            // correctly call us with kQLPreviewModeQuickLook when the user later invokes QuickLook. What a crock.
+            if (brokenQLPrefetch && previewMode == kQLPreviewModeQuickLookPrefetch)
+                return kQLReturnNoError;    // early exit
+
+            // AVFoundation can't play it; prefer landscape cover art (if present) over a static snapshot
+            if (previewMode == kQLPreviewModeQuickLook || previewMode == kQLPreviewModeQuickLookPrefetch || previewMode == kQLPreviewModeNone)
+                thePreview = [snapshotter CreateCoverArtWithMode:CoverArtLandscape];
         }
 
-        // AVFoundation can't play it, so generate a static snapshot
-        if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
-        CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:size];
-        if (!snapshot) return kQLReturnNoError;
+        // Fall back to generating a static snapshot
+        if (!thePreview)
+            thePreview = [snapshotter CreateSnapshotWithSize:size];
+        if (!thePreview)
+            return kQLReturnNoError;
 
         // display
         if (QLPreviewRequestIsCancelled(preview))
         {
-            CGImageRelease(snapshot);
+            CGImageRelease(thePreview);
             return kQLReturnNoError;
         }
-        CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, (__bridge CFDictionaryRef) properties);
-        CGContextDrawImage(context, CGRectMake(0, 0, size.width, size.height), snapshot);
+        CGContextRef context = QLPreviewRequestCreateContext(preview, CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), true, (__bridge CFDictionaryRef) properties);
+        CGContextDrawImage(context, CGRectMake(0, 0, CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), thePreview);
         QLPreviewRequestFlushContext(preview, context);
         CGContextRelease(context);
-        CGImageRelease(snapshot);
+        CGImageRelease(thePreview);
     }
     return kQLReturnNoError;
 }

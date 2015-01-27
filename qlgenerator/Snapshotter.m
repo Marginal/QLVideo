@@ -15,7 +15,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
 
 @implementation Snapshotter
 
-- (id)initWithURL:(CFURLRef)url;
+- (instancetype) initWithURL:(CFURLRef)url;
 {
     if (!(self = [super init]))
         return nil;
@@ -104,8 +104,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
 
 
 // Gets cover art if available, or nil.
-// size parameter is currently ignored - let QuickLook do any rescaling.
-- (CGImageRef) CreateCoverArtWithSize:(CGSize)size;
+- (CGImageRef) CreateCoverArtWithMode:(CoverArtMode)mode;
 {
     // Cover art can appear as an extra video stream (e.g. mp4, wtv) or as attachment(s) (e.g. mkv).
     // (Note this isn't necessarily how they're encoded in the file, but how the FFmpeg codecs present them).
@@ -121,24 +120,49 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
         {
             if (ctx->codec_type == AVMEDIA_TYPE_VIDEO && (s->disposition & AV_DISPOSITION_ATTACHED_PIC))
             {
-                art_stream = s;
+                if (mode != CoverArtLandscape)  // Assume that unnamed cover art is *not* landscape, so don't return it
+                    art_stream = s;
+
                 break;      // prefer first if multiple
             }
             else if (ctx->codec_type == AVMEDIA_TYPE_ATTACHMENT)
             {
                 // MKVs can contain multiple cover art - see http://matroska.org/technical/cover_art/index.html
-                // We prefer small ('cos thumbnail) square/portrait.
                 int priority;
                 AVDictionaryEntry *filename = av_dict_get(s->metadata, "filename", NULL, 0);
-                if (!filename || !filename->value)
-                    priority = 1;
-                else if (!strncasecmp(filename->value, "cover.", 6))
-                    priority = 2;
-                else if (!strncasecmp(filename->value, "small_cover.", 12))
-                    priority = 3;
-                else
-                    priority = 1;
-                if (art_priority < priority)
+
+                switch (mode)
+                {
+                case CoverArtThumbnail:     // Prefer small square/portrait.
+                    if (!filename || !filename->value)
+                        priority = 1;
+                    else if (!strncasecmp(filename->value, "cover.", 6))
+                        priority = 2;
+                    else if (!strncasecmp(filename->value, "small_cover.", 12))
+                        priority = 3;
+                    else
+                        priority = 1;
+                    break;
+
+                case CoverArtLandscape:    // Only return large landscape.
+                    if (filename && filename->value && !strncasecmp(filename->value, "cover_land.", 11))
+                        priority = 3;
+                    else
+                        priority = 0;
+                    break;
+
+                default:    // CoverArtDefault  Prefer large square/portrait.
+                    if (!filename || !filename->value)
+                        priority = 1;
+                    else if (!strncasecmp(filename->value, "small_cover.", 12))
+                        priority = 2;
+                    else if (!strncasecmp(filename->value, "cover.", 6))
+                        priority = 3;
+                    else
+                        priority = 1;
+                }
+
+                if (art_priority < priority)    // Prefer first if multiple with same priority
                 {
                     art_priority = priority;
                     art_stream = s;

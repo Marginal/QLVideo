@@ -15,14 +15,14 @@ void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbn
 
 OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize)
 {
-    // https://developer.apple.com/library/prerelease/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
+    // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
     @autoreleasepool {
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) return kQLReturnNoError;
 
         // Use cover art if present
-        CGImageRef snapshot = [snapshotter CreateCoverArtWithSize:maxSize];
+        CGImageRef snapshot = [snapshotter CreateCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
             QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);

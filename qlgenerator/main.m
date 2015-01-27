@@ -27,6 +27,7 @@
 
 // used in GeneratePreviewForURL
 NSBundle *myBundle;
+BOOL brokenQLPrefetch;
 
 
 //
@@ -126,6 +127,10 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
 
     // name must match CFBundleIdentifier in Info.plist
     myBundle = [NSBundle bundleWithIdentifier: @"uk.org.marginal.qlvideo.qlgenerator"];
+
+    NSOperatingSystemVersion yosemite = { 10, 10, 0 };
+    brokenQLPrefetch = (!([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
+                          [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:yosemite]));
 
     QuickLookGeneratorPluginType *theNewInstance;
 
