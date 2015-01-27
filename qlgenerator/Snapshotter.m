@@ -52,7 +52,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
 
     AVDictionaryEntry *tag = av_dict_get(fmt_ctx->metadata, "title", NULL, 0);
     if (tag && tag->value)
-        _title = [NSString stringWithUTF8String:tag->value];
+        _title = @(tag->value);
 
     // Find first video stream and open appropriate codec
     AVCodec *codec = NULL;

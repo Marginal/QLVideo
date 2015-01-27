@@ -42,7 +42,7 @@ NSString *GetLanguage(AVDictionary *metadata)
             return nil;
 
         NSString *display = NULL;
-        NSString *lang = [NSString stringWithUTF8String:tag->value];
+        NSString *lang = @(tag->value);
         if (!strcmp(tag->value, "chi"))
         {
             // ISO639-2 can't differentiate between traditional and simplified chinese script, so look at track title
@@ -51,7 +51,7 @@ NSString *GetLanguage(AVDictionary *metadata)
             AVDictionaryEntry *title_entry = av_dict_get(metadata, "title", NULL, 0);
             if (title_entry)
             {
-                NSString *title = [NSString stringWithUTF8String:title_entry->value];
+                NSString *title = @(title_entry->value);
                 if ([title rangeOfString:@"simplified" options:NSCaseInsensitiveSearch].location != NSNotFound ||
                     [title rangeOfString:@"简体"].location != NSNotFound)
                     display = @"简体中文";
@@ -66,7 +66,7 @@ NSString *GetLanguage(AVDictionary *metadata)
             AVDictionaryEntry *title_entry = av_dict_get(metadata, "title", NULL, 0);
             if (title_entry)
             {
-                NSString *title = [NSString stringWithUTF8String:title_entry->value];
+                NSString *title = @(title_entry->value);
                 if (!strcmp(title_entry->value, "eur") || !strcmp(title_entry->value, "spa") ||
                     [title rangeOfString:@"españa" options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch].location != NSNotFound)
                     lang = @"es-ES";
@@ -81,7 +81,7 @@ NSString *GetLanguage(AVDictionary *metadata)
             AVDictionaryEntry *title_entry = av_dict_get(metadata, "title", NULL, 0);
             if (title_entry)
             {
-                NSString *title = [NSString stringWithUTF8String:title_entry->value];
+                NSString *title = @(title_entry->value);
                 if (!strcmp(title_entry->value, "eur") || !strcmp(title_entry->value, "por") ||
                     [title rangeOfString:@"portugal" options:NSCaseInsensitiveSearch].location != NSNotFound)
                     lang = @"pt-PT";
@@ -156,9 +156,9 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
 
         // From the container
         if (fmt_ctx->bit_rate > 0)
-            [attrs setValue:[NSNumber numberWithInt:fmt_ctx->bit_rate] forKey:(__bridge NSString *)kMDItemTotalBitRate];
+            [attrs setValue:@(fmt_ctx->bit_rate) forKey:(__bridge NSString *)kMDItemTotalBitRate];
         if (fmt_ctx->duration > 0)
-            [attrs setValue:[NSNumber numberWithFloat:(float)((double)fmt_ctx->duration/AV_TIME_BASE)]    // downcast to float to avoid spurious accuracy
+            [attrs setValue:@((float)((double)fmt_ctx->duration/AV_TIME_BASE))    // downcast to float to avoid spurious accuracy
                      forKey:(__bridge NSString *)kMDItemDurationSeconds];
         
         // metadata tags - see avformat.h and https://developer.apple.com/library/mac/documentation/Carbon/reference/MDItemRef/
@@ -169,49 +169,49 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             if (!strlen(tag->value)) continue;	// shouldn't happen
 
             if (!strcasecmp(tag->key, "album"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemAlbum];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemAlbum];
             else if (!strcasecmp(tag->key, "artist"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemAuthors];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemAuthors];
             else if (!strcasecmp(tag->key, "comment"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemComment];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemComment];
             else if (!strcasecmp(tag->key, "composer"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemComposer];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemComposer];
             else if (!strcasecmp(tag->key, "copyright"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemCopyright];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemCopyright];
             else if (!strcasecmp(tag->key, "creation_time"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemContentCreationDate];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemContentCreationDate];
             else if (!strcasecmp(tag->key, "date"))
             {
-                NSString *date = [NSString stringWithUTF8String:tag->value];
+                NSString *date = @(tag->value);
                 char *sep = strchr(tag->value, '-');
                 [attrs setValue:date forKey:(__bridge NSString *) (sep ? kMDItemRecordingDate : kMDItemRecordingYear)];
                 if (sep)
                     [attrs setValue:[date substringToIndex: sep - tag->value] forKey:(__bridge NSString *) kMDItemRecordingYear];
             }
             else if (!strcasecmp(tag->key, "encoder"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemEncodingApplications];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemEncodingApplications];
             else if (!strcasecmp(tag->key, "filename"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:@"kMDItemAlternateNames"];
+                [attrs setValue:@(tag->value) forKey:@"kMDItemAlternateNames"];
             else if (!strcasecmp(tag->key, "genre"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemGenre];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemGenre];
             else if (!strcasecmp(tag->key, "performers"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemPerformers];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemPerformers];
             else if (!strcasecmp(tag->key, "publisher"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemPublishers];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemPublishers];
             else if (!strcasecmp(tag->key, "service_name") || !strcasecmp(tag->key, "service_provider"))
             {
-                if (![attrs objectForKey:(__bridge NSString *)kMDItemPublishers])
-                    [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemPublishers];
+                if (!attrs[(__bridge NSString *)kMDItemPublishers])
+                    [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemPublishers];
             }
             else if (!strcasecmp(tag->key, "title"))
-                [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemTitle];
+                [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemTitle];
             else if (!strcasecmp(tag->key, "track"))
             {
                 char *sep = strchr(tag->value, '/');
                 if (!sep)
-                    [attrs setValue:[NSString stringWithUTF8String:tag->value] forKey:(__bridge NSString *)kMDItemAudioTrackNumber];
+                    [attrs setValue:@(tag->value) forKey:(__bridge NSString *)kMDItemAudioTrackNumber];
                 else
-                    [attrs setValue:[[NSString stringWithUTF8String:tag->value] substringToIndex: sep - tag->value]
+                    [attrs setValue:[@(tag->value) substringToIndex: sep - tag->value]
                              forKey:(__bridge NSString *)kMDItemAudioTrackNumber];
             }
 #if LOG_UNUSED_META
@@ -233,9 +233,9 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             if (dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
             {
                 // Assume that lower-numbered streams are primary (e.g. main track rather than commentary) so don't overwrite their values
-                if (dec_ctx->bit_rate > 0    && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioBitRate])
-                    [attrs setValue:[NSNumber numberWithInt:dec_ctx->bit_rate] forKey:(__bridge NSString *)kMDItemAudioBitRate];
-                if (dec_ctx->channels > 0    && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioChannelCount])
+                if (dec_ctx->bit_rate > 0    && !attrs[(__bridge NSString *)kMDItemAudioBitRate])
+                    [attrs setValue:@(dec_ctx->bit_rate) forKey:(__bridge NSString *)kMDItemAudioBitRate];
+                if (dec_ctx->channels > 0    && !attrs[(__bridge NSString *)kMDItemAudioChannelCount])
                 {
                     NSNumber *channels;
                     switch (dec_ctx->channels)
@@ -243,18 +243,18 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                         // See e.g. http://help.apple.com/logicpro/mac/9.1.6/en/logicpro/usermanual/index.html#chapter=39
                         // Can't tell Quadraphonic from LCRS
                         case 6:
-                            channels = [NSNumber numberWithFloat:5.1f]; break;
+                            channels = @5.1f; break;
                         case 7:
-                            channels = [NSNumber numberWithFloat:6.1f]; break;
+                            channels = @6.1f; break;
                         case 8:
-                            channels = [NSNumber numberWithFloat:7.1f]; break;
+                            channels = @7.1f; break;
                         default:
-                            channels = [NSNumber numberWithInt:dec_ctx->channels];
+                            channels = @(dec_ctx->channels);
                     }
                     [attrs setValue:channels forKey:(__bridge NSString *)kMDItemAudioChannelCount];
                 }
-                if (dec_ctx->sample_rate > 0 && ![attrs objectForKey:(__bridge NSString *)kMDItemAudioSampleRate])
-                    [attrs setValue:[NSNumber numberWithInt:dec_ctx->sample_rate] forKey:(__bridge NSString *)kMDItemAudioSampleRate];
+                if (dec_ctx->sample_rate > 0 && !attrs[(__bridge NSString *)kMDItemAudioSampleRate])
+                    [attrs setValue:@(dec_ctx->sample_rate) forKey:(__bridge NSString *)kMDItemAudioSampleRate];
                 NSString *lang = GetLanguage(stream->metadata);
                 if (lang)
                     [languages addObject:lang];
@@ -265,25 +265,25 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 if (stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
                     continue;   // Don't count cover art
 
-                if (dec_ctx->bit_rate > 0 && ![attrs objectForKey:(__bridge NSString *)kMDItemVideoBitRate])
-                    [attrs setValue:[NSNumber numberWithInt:dec_ctx->bit_rate] forKey:(__bridge NSString *)kMDItemVideoBitRate];
-                if (dec_ctx->height > 0 && ![attrs objectForKey:(__bridge NSString *)kMDItemPixelHeight])
+                if (dec_ctx->bit_rate > 0 && !attrs[(__bridge NSString *)kMDItemVideoBitRate])
+                    [attrs setValue:@(dec_ctx->bit_rate) forKey:(__bridge NSString *)kMDItemVideoBitRate];
+                if (dec_ctx->height > 0 && !attrs[(__bridge NSString *)kMDItemPixelHeight])
                 {
-                    [attrs setValue:[NSNumber numberWithInt:dec_ctx->height] forKey:(__bridge NSString *)kMDItemPixelHeight];
+                    [attrs setValue:@(dec_ctx->height) forKey:(__bridge NSString *)kMDItemPixelHeight];
                     AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, stream, NULL);
                     if (sar.num && sar.den)
-                        [attrs setValue:[NSNumber numberWithInt:(int)av_rescale(dec_ctx->width, sar.num, sar.den)]
+                        [attrs setValue:@((int)av_rescale(dec_ctx->width, sar.num, sar.den))
                                  forKey:(__bridge NSString *)kMDItemPixelWidth];
                     else
-                        [attrs setValue:[NSNumber numberWithInt:dec_ctx->width] forKey:(__bridge NSString *)kMDItemPixelWidth];
+                        [attrs setValue:@(dec_ctx->width) forKey:(__bridge NSString *)kMDItemPixelWidth];
                 }
-                if (![attrs objectForKey:kFrameRate])
+                if (!attrs[kFrameRate])
                 {
                     if (stream->avg_frame_rate.den && stream->avg_frame_rate.num)
-                        [attrs setValue:[NSNumber numberWithDouble:round((stream->avg_frame_rate.num * 100) / (double) stream->avg_frame_rate.den) / 100.]
+                        [attrs setValue:@(round((stream->avg_frame_rate.num * 100) / (double) stream->avg_frame_rate.den) / 100.)
                                  forKey:kFrameRate];
                     else if (stream->r_frame_rate.den && stream->r_frame_rate.num)
-                        [attrs setValue:[NSNumber numberWithDouble:round((stream->r_frame_rate.num   * 100) / (double) stream->r_frame_rate.den)   / 100.]
+                        [attrs setValue:@(round((stream->r_frame_rate.num   * 100) / (double) stream->r_frame_rate.den)   / 100.)
                                  forKey:kFrameRate];
                 }
                 [mediatypes addObject:@"Video"];
@@ -355,7 +355,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 if (name)
                 {
                     const char *profile = av_get_profile_name(codec, dec_ctx->profile);
-                    NSString *nsname = profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : [NSString stringWithUTF8String:name];
+                    NSString *nsname = profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : @(name);
                     if (![codecs containsObject:nsname])
                         [codecs addObject:nsname];
                 }

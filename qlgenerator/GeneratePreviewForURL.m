@@ -50,7 +50,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         else
             title = [NSString stringWithFormat:@"%@ (%d×%d %@)", [(__bridge NSURL *)url lastPathComponent],
                      (int) size.width, (int) size.height, channels];
-        NSDictionary *properties = [NSDictionary dictionaryWithObject:title forKey:(NSString *) kQLPreviewPropertyDisplayNameKey];
+        NSDictionary *properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: title};
 
         // If AVFoundation can play it, then hand it off to
         // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay
