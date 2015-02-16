@@ -9,7 +9,7 @@ QuickLook and Spotlight on OSX 10.9 and later understand a limited number of med
 
 Installation
 ------------
-* Download the `.pkg` file (the green button) of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
+* Download the `.pkg` file of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
 * Double-click on it.
 * The Installer app will walk you through the installation process.
 
