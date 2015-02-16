@@ -3,6 +3,27 @@
 
 #include "snapshotter.h"
 
+// Undocumented properties
+const CFStringRef kQLThumbnailPropertyIconModeKey   = CFSTR("IconMode");
+const CFStringRef kQLThumbnailPropertyIconFlavorKey = CFSTR("IconFlavor");
+
+typedef NS_ENUM(NSInteger, IconFlavor)
+{
+    IconFlavorPlain     = 0,
+    IconFlavorShadow    = 1,
+    IconFlavorBook      = 2,
+    IconFlavorMovie     = 3,
+    IconFlavorAddress   = 4,
+    IconFlavorImage     = 5,
+    IconFlavorGloss     = 6,
+    IconFlavorSlide     = 7,
+    IconFlavorSquare    = 8,
+    IconFlavorBorder    = 9,
+    // = 10,
+    IconFlavorCalendar  = 11,
+    IconFlavorPattern   = 12,
+};
+
 
 OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize);
 void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbnail);
@@ -18,6 +39,9 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
     @autoreleasepool {
+#ifdef DEBUG
+        NSLog(@"QLVideo options=%@ size=%dx%d %@", options, (int) maxSize.width, (int) maxSize.height, url);
+#endif
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) return kQLReturnNoError;
 
@@ -25,7 +49,8 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         CGImageRef snapshot = [snapshotter CreateCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
-            QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
+            NSDictionary *properties = @{(__bridge NSString *) kQLThumbnailPropertyIconFlavorKey: @(IconFlavorGloss) }; // suppress letterbox mattes
+            QLThumbnailRequestSetImage(thumbnail, snapshot, (__bridge CFDictionaryRef) properties);
             CGImageRelease(snapshot);
             return kQLReturnNoError;
         }

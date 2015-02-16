@@ -32,12 +32,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 {
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
-    NSNumber *nsPreviewMode = ((__bridge NSDictionary *)options)[@"QLPreviewMode"];
-#ifdef DEBUG
-    NSLog(@"QLVideo QLPreviewMode=%@ %@", nsPreviewMode, url);
-#endif
-
     @autoreleasepool {
+        NSNumber *nsPreviewMode = ((__bridge NSDictionary *)options)[@"QLPreviewMode"];
+#ifdef DEBUG
+        NSLog(@"QLVideo QLPreviewMode=%@ %@", nsPreviewMode, url);
+#endif
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter || QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
 
