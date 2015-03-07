@@ -34,10 +34,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
     free(filename);
 
     if (avformat_find_stream_info(fmt_ctx, NULL))
-    {
-        avformat_close_input(&fmt_ctx);
         return nil;
-    }
 
     // Find first audio stream and record channel count
     for (stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
@@ -60,7 +57,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
     {
         stream = fmt_ctx->streams[stream_idx];
         dec_ctx = stream->codec;
-        if (dec_ctx && dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
+        if (dec_ctx && dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO && !(stream->disposition & AV_DISPOSITION_ATTACHED_PIC))
         {
             if (dec_ctx->height > 0)
                 codec = avcodec_find_decoder(dec_ctx->codec_id);
@@ -68,18 +65,11 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
         }
     }
     if (!codec || avcodec_open2(dec_ctx, codec, NULL))
-    {
-        avformat_close_input(&fmt_ctx);
-        return nil;
-    }
+        return self;    // Can't decode the video stream. Might still be able to read metadata and cover art 'though.
 
     // allocate frame container
     if (!(frame = av_frame_alloc()))
-    {
-        avcodec_close(dec_ctx);
-        avformat_close_input(&fmt_ctx);
         return nil;
-    }
 
     return self;
 }
@@ -195,6 +185,9 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
 // the data buffer backing the snapshot is only good 'til the next snapshot or until the object is destroyed, so not thread-safe
 - (CGImageRef) CreateSnapshotWithSize:(CGSize)size;
 {
+    if (!avcodec_is_open(dec_ctx))
+        return nil;     // Can't decode video stream
+
     // offset for our screenshot
     if (fmt_ctx->duration > 2 * AV_TIME_BASE)   // just use first frame if duration unknown or less than 2 seconds
     {
