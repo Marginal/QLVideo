@@ -3,7 +3,8 @@
 
 #include "snapshotter.h"
 
-// Undocumented properties
+// Undocumented options & properties
+const CFStringRef kQLThumbnailOptionScaleFactor     = CFSTR("QLThumbnailOptionScaleFactor");
 const CFStringRef kQLThumbnailPropertyIconModeKey   = CFSTR("IconMode");
 const CFStringRef kQLThumbnailPropertyIconFlavorKey = CFSTR("IconFlavor");
 
@@ -56,12 +57,14 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         }
 
         // determine thumbnail size (scale up if video is tiny)
+        NSNumber *scaleFactor = ((__bridge NSDictionary *) options)[(__bridge NSString *) kQLThumbnailOptionScaleFactor];   // >1 on Retina displays
+        CGSize desired = scaleFactor.boolValue ? CGSizeMake(maxSize.width * scaleFactor.floatValue, maxSize.height * scaleFactor.floatValue) : CGSizeMake(maxSize.width, maxSize.height);
         CGSize size = [snapshotter displaySize];
         CGSize scaled;
-        if (size.width/maxSize.width > size.height/maxSize.height)
-            scaled = CGSizeMake(maxSize.width, round(size.height * maxSize.width / size.width));
+        if (size.width/desired.width > size.height/desired.height)
+            scaled = CGSizeMake(desired.width, round(size.height * desired.width / size.width));
         else
-            scaled = CGSizeMake(round(size.width * maxSize.height / size.height), maxSize.height);
+            scaled = CGSizeMake(round(size.width * desired.height / size.height), desired.height);
 
         if (QLThumbnailRequestIsCancelled(thumbnail)) return kQLReturnNoError;
         snapshot = [snapshotter CreateSnapshotWithSize:scaled];
