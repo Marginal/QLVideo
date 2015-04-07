@@ -8,14 +8,17 @@
 extern NSBundle *myBundle;
 extern BOOL brokenQLPrefetch;
 
+// Undocumented options
+const CFStringRef kQLPreviewOptionModeKey = CFSTR("QLPreviewMode");
+
 typedef NS_ENUM(NSInteger, QLPreviewMode)
 {
-    kQLPreviewModeNone              = 0,
-    kQLPreviewModeGetInfo           = 1,    // File -> Get Info and Column view in Finder
-    kQLPreviewModeQuickLookPrefetch = 2,    // Be ready for QuickLook (called for selected file in Finder's Cover Flow view)
-    kQLPreviewModeUnknown           = 3,
-    kQLPreviewModeSpotlight         = 4,    // Desktop Spotlight search popup bubble
-    kQLPreviewModeQuickLook         = 5,    // File -> Quick Look in Finder (also qlmanage -p)
+    kQLPreviewNoMode		= 0,
+    kQLPreviewGetInfoMode	= 1,	// File -> Get Info and Column view in Finder
+    kQLPreviewPrefetchMode	= 2,	// Be ready for QuickLook (called for selected file in Finder's Cover Flow view)
+    kQLPreviewUnknownMode	= 3,
+    kQLPreviewSpotlightMode	= 4,	// Desktop Spotlight search popup bubble
+    kQLPreviewQuicklookMode	= 5,	// File -> Quick Look in Finder (also qlmanage -p)
 };
 
 
@@ -33,7 +36,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
     @autoreleasepool {
-        NSNumber *nsPreviewMode = ((__bridge NSDictionary *)options)[@"QLPreviewMode"];
+        NSNumber *nsPreviewMode = ((__bridge NSDictionary *)options)[(__bridge NSString *) kQLPreviewOptionModeKey];
 #ifdef DEBUG
         NSLog(@"QLVideo QLPreviewMode=%@ %@", nsPreviewMode, url);
 #endif
@@ -74,7 +77,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
         // Prefer any cover art (if present) over a playable preview or static snapshot in Finder and Spotlight views
         QLPreviewMode previewMode = nsPreviewMode.intValue;
-        if (previewMode == kQLPreviewModeGetInfo || previewMode == kQLPreviewModeSpotlight)
+        if (previewMode == kQLPreviewGetInfoMode || previewMode == kQLPreviewSpotlightMode)
             thePreview = [snapshotter CreateCoverArtWithMode:CoverArtDefault];
 
         if (!thePreview)
@@ -93,15 +96,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             }
             if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
 
-            // kQLPreviewModeQuickLookPrefetch is broken for "non-native" files on Mavericks - the user gets a blank window
+            // kQLPreviewPrefetchMode is broken for "non-native" files on Mavericks - the user gets a blank window
             // if they invoke QuickLook soon after. Presumambly QuickLookUI is caching and getting confused?
             // If we return nothing we get called again with no QLPreviewMode option. This somehow forces QuickLookUI to
-            // correctly call us with kQLPreviewModeQuickLook when the user later invokes QuickLook. What a crock.
-            if (brokenQLPrefetch && previewMode == kQLPreviewModeQuickLookPrefetch)
+            // correctly call us with kQLPreviewQuicklookMode when the user later invokes QuickLook. What a crock.
+            if (brokenQLPrefetch && previewMode == kQLPreviewPrefetchMode)
                 return kQLReturnNoError;    // early exit
 
             // AVFoundation can't play it; prefer landscape cover art (if present) over a static snapshot
-            if (previewMode == kQLPreviewModeQuickLook || previewMode == kQLPreviewModeQuickLookPrefetch || previewMode == kQLPreviewModeNone)
+            if (previewMode == kQLPreviewQuicklookMode || previewMode == kQLPreviewPrefetchMode || previewMode == kQLPreviewNoMode)
                 thePreview = [snapshotter CreateCoverArtWithMode:CoverArtLandscape];
         }
 

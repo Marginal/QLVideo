@@ -3,26 +3,24 @@
 
 #include "snapshotter.h"
 
-// Undocumented options & properties
-const CFStringRef kQLThumbnailOptionScaleFactor     = CFSTR("QLThumbnailOptionScaleFactor");
-const CFStringRef kQLThumbnailPropertyIconModeKey   = CFSTR("IconMode");
+// Undocumented properties
 const CFStringRef kQLThumbnailPropertyIconFlavorKey = CFSTR("IconFlavor");
 
-typedef NS_ENUM(NSInteger, IconFlavor)
+typedef NS_ENUM(NSInteger, QLThumbnailIconFlavor)
 {
-    IconFlavorPlain     = 0,
-    IconFlavorShadow    = 1,
-    IconFlavorBook      = 2,
-    IconFlavorMovie     = 3,
-    IconFlavorAddress   = 4,
-    IconFlavorImage     = 5,
-    IconFlavorGloss     = 6,
-    IconFlavorSlide     = 7,
-    IconFlavorSquare    = 8,
-    IconFlavorBorder    = 9,
+    kQLThumbnailIconPlainFlavor		= 0,
+    kQLThumbnailIconShadowFlavor	= 1,
+    kQLThumbnailIconBookFlavor		= 2,
+    kQLThumbnailIconMovieFlavor		= 3,
+    kQLThumbnailIconAddressFlavor	= 4,
+    kQLThumbnailIconImageFlavor		= 5,
+    kQLThumbnailIconGlossFlavor		= 6,
+    kQLThumbnailIconSlideFlavor		= 7,
+    kQLThumbnailIconSquareFlavor	= 8,
+    kQLThumbnailIconBorderFlavor	= 9,
     // = 10,
-    IconFlavorCalendar  = 11,
-    IconFlavorPattern   = 12,
+    kQLThumbnailIconCalendarFlavor	= 11,
+    kQLThumbnailIconPatternFlavor	= 12,
 };
 
 
@@ -50,14 +48,14 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         CGImageRef snapshot = [snapshotter CreateCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
-            NSDictionary *properties = @{(__bridge NSString *) kQLThumbnailPropertyIconFlavorKey: @(IconFlavorGloss) }; // suppress letterbox mattes
+            NSDictionary *properties = @{(__bridge NSString *) kQLThumbnailPropertyIconFlavorKey: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
             QLThumbnailRequestSetImage(thumbnail, snapshot, (__bridge CFDictionaryRef) properties);
             CGImageRelease(snapshot);
             return kQLReturnNoError;
         }
 
         // determine thumbnail size (scale up if video is tiny)
-        NSNumber *scaleFactor = ((__bridge NSDictionary *) options)[(__bridge NSString *) kQLThumbnailOptionScaleFactor];   // >1 on Retina displays
+        NSNumber *scaleFactor = ((__bridge NSDictionary *) options)[(__bridge NSString *) kQLThumbnailOptionScaleFactorKey];	// can be >1 on Retina displays
         CGSize desired = scaleFactor.boolValue ? CGSizeMake(maxSize.width * scaleFactor.floatValue, maxSize.height * scaleFactor.floatValue) : CGSizeMake(maxSize.width, maxSize.height);
         CGSize size = [snapshotter displaySize];
         CGSize scaled;
