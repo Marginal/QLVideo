@@ -13,6 +13,10 @@ Installation
 * Double-click on it.
 * The Installer app will walk you through the installation process.
 
+Alternatively, if you have [Homebrew](http://brew.sh/) installed, you can install using Homebrew [Cask](http://caskroom.io/):
+
+    brew cask install qlvideo
+
 Limitations
 -----------
 * To see thumbnails of video files you may need to relaunch Finder (ctrl-⌥-click on the Finder icon in the Dock and choose Relaunch) or log out and back in again.
