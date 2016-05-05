@@ -1,10 +1,17 @@
 Building
 ========
 
-Prerequisites
--------------
-* Xcode 5 or later.
-* FFmpeg static libraries installed under /usr/local/.
+## Dependencies
+
+This project depends on [FFmpeg](http://source.ffmpeg.org/). Initialize and build this with:
+
+```
+git submodule init
+git submodule update
+cd ffmpeg
+`./configure --cc=clang --arch=x86_64 --cpu=core2 --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9 --enable-gpl --enable-hardcoded-tables --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters`
+make
+```
 
 Targets
 -------
@@ -23,6 +30,3 @@ The [Packages](http://s.sudre.free.fr/Software/Packages/about.html) project `QLV
 Notes
 -----
 * FFmpeg's demuxers and codecs can sometimes crash on corrupt or incompletely downloaded media files. In Release builds both plugins install exception handlers which quietly kill the worker process so that the user isn't disturbed by crash reports. This is an ugly hack.
-* Binary releases of this package are built and tested against a minimal installation of FFmpeg 2.8.3:
-
-`./configure --cc=clang --arch=x86_64 --cpu=core2 --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9 --enable-gpl --enable-hardcoded-tables --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters`

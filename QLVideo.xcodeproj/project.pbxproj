@@ -89,15 +89,15 @@
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		AB36C88E1A6FFB3C004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/schema.strings; sourceTree = "<group>"; };
 		AB36C8901A6FFB4E004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = /usr/local/lib/libavformat.a; sourceTree = "<absolute>"; };
-		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = /usr/local/lib/libavfilter.a; sourceTree = "<absolute>"; };
-		AB7C713C19F8A4660006104E /* libavcodec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavcodec.a; path = /usr/local/lib/libavcodec.a; sourceTree = "<absolute>"; };
+		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = libavformat/libavformat.a; sourceTree = "<group>"; };
+		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = libavfilter/libavfilter.a; sourceTree = "<group>"; };
+		AB7C713C19F8A4660006104E /* libavcodec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavcodec.a; path = libavcodec/libavcodec.a; sourceTree = "<group>"; };
 		AB7C714019F8A5C50006104E /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
-		AB7C714419F8A6560006104E /* libavutil.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavutil.a; path = /usr/local/lib/libavutil.a; sourceTree = "<absolute>"; };
+		AB7C714419F8A6560006104E /* libavutil.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavutil.a; path = libavutil/libavutil.a; sourceTree = "<group>"; };
 		AB7C714619F8A6730006104E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		AB7C714819F8A6970006104E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = /usr/lib/libiconv.dylib; sourceTree = "<absolute>"; };
-		AB7C714A19F8A7060006104E /* libswresample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswresample.a; path = /usr/local/lib/libswresample.a; sourceTree = "<absolute>"; };
-		AB7C714B19F8A7060006104E /* libswscale.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswscale.a; path = /usr/local/lib/libswscale.a; sourceTree = "<absolute>"; };
+		AB7C714A19F8A7060006104E /* libswresample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswresample.a; path = libswresample/libswresample.a; sourceTree = "<group>"; };
+		AB7C714B19F8A7060006104E /* libswscale.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswscale.a; path = libswscale/libswscale.a; sourceTree = "<group>"; };
 		AB8277781A7523F300F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/schema.strings; sourceTree = "<group>"; };
 		AB82777A1A7523FC00F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB93B0B3196B839600708B2E /* QLVideo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QLVideo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -247,12 +247,7 @@
 		AB9FB56F1965DD7200D39647 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				AB7C713819F8A44D0006104E /* libavfilter.a */,
-				AB7C713619F8A31C0006104E /* libavformat.a */,
-				AB7C713C19F8A4660006104E /* libavcodec.a */,
-				AB7C714A19F8A7060006104E /* libswresample.a */,
-				AB7C714B19F8A7060006104E /* libswscale.a */,
-				AB7C714419F8A6560006104E /* libavutil.a */,
+				ABCAEA331CDB899B004890E3 /* FFmpeg */,
 				AB7C714019F8A5C50006104E /* libbz2.dylib */,
 				AB7C714819F8A6970006104E /* libiconv.dylib */,
 				ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */,
@@ -296,6 +291,20 @@
 			);
 			name = "Built Products";
 			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		ABCAEA331CDB899B004890E3 /* FFmpeg */ = {
+			isa = PBXGroup;
+			children = (
+				AB7C713C19F8A4660006104E /* libavcodec.a */,
+				AB7C713819F8A44D0006104E /* libavfilter.a */,
+				AB7C713619F8A31C0006104E /* libavformat.a */,
+				AB7C714419F8A6560006104E /* libavutil.a */,
+				AB7C714A19F8A7060006104E /* libswresample.a */,
+				AB7C714B19F8A7060006104E /* libswscale.a */,
+			);
+			name = FFmpeg;
+			path = ffmpeg;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
