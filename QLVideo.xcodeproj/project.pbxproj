@@ -39,6 +39,13 @@
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */; };
 		ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
+		ABE23BD31D258F6C004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
+		ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
+		ABE23BD51D259070004E9D26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
+		ABE23BD71D25914C004E9D26 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
+		ABE23BD81D25914C004E9D26 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
+		ABE23BDA1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
+		ABE23BDB1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
 		ABE461181A15A776006C89A2 /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABE4610E1A15A519006C89A2 /* schema.strings */; };
 /* End PBXBuildFile section */
 
@@ -128,6 +135,9 @@
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
 		ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
+		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = ../../../../System/Library/Frameworks/VideoToolbox.framework; sourceTree = "<group>"; };
+		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = ../../../../System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<group>"; };
+		ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = ../../../../System/Library/Frameworks/CoreMedia.framework; sourceTree = "<group>"; };
 		ABE4610F1A15A519006C89A2 /* en */ = {isa = PBXFileReference; explicitFileType = text.plist.strings; name = en; path = en.lproj/schema.strings; sourceTree = "<group>"; };
 		ABFA2CDE1A3E153700B17BC5 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/schema.strings; sourceTree = "<group>"; };
 		ABFA2CE01A3E155000B17BC5 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -149,6 +159,9 @@
 				AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */,
 				AB93B1201972EFAC00708B2E /* Cocoa.framework in Frameworks */,
 				AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */,
+				ABE23BD81D25914C004E9D26 /* AudioToolbox.framework in Frameworks */,
+				ABE23BD31D258F6C004E9D26 /* VideoToolbox.framework in Frameworks */,
+				ABE23BDB1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */,
 				AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */,
 				AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */,
 				AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */,
@@ -167,6 +180,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB93B11F1972EFAB00708B2E /* Cocoa.framework in Frameworks */,
+				ABE23BD51D259070004E9D26 /* AVFoundation.framework in Frameworks */,
+				ABE23BD71D25914C004E9D26 /* AudioToolbox.framework in Frameworks */,
+				ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */,
+				ABE23BDA1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */,
 				AB7C713919F8A44D0006104E /* libavfilter.a in Frameworks */,
 				AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */,
 				AB7C713D19F8A4660006104E /* libavcodec.a in Frameworks */,
@@ -252,6 +269,9 @@
 				AB7C714819F8A6970006104E /* libiconv.dylib */,
 				ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */,
 				AB7C714619F8A6730006104E /* libz.dylib */,
+				ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */,
+				ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */,
+				ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */,
 				AB2ACD9D1A696F72002411DF /* AVFoundation.framework */,
 				AB9FB5721965DD7200D39647 /* CoreFoundation.framework */,
 				AB9FB5761965DD7200D39647 /* Foundation.framework */,
@@ -628,11 +648,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/include,
+				HEADER_SEARCH_PATHS = ffmpeg;
+				LIBRARY_SEARCH_PATHS = (
+					ffmpeg/libavcodec,
+					ffmpeg/libavfilter,
+					ffmpeg/libavformat,
+					ffmpeg/libavutil,
+					ffmpeg/libswresample,
+					ffmpeg/libswscale,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -666,11 +690,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/usr/local/include,
+				HEADER_SEARCH_PATHS = ffmpeg;
+				LIBRARY_SEARCH_PATHS = (
+					ffmpeg/libavcodec,
+					ffmpeg/libavfilter,
+					ffmpeg/libavformat,
+					ffmpeg/libavutil,
+					ffmpeg/libswresample,
+					ffmpeg/libswscale,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 			};

@@ -36,48 +36,31 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
     if (avformat_find_stream_info(fmt_ctx, NULL))
         return nil;
 
-    // Find first audio stream and record channel count
-    for (stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
-    {
-        AVCodecContext *audio_ctx = fmt_ctx->streams[stream_idx]->codec;
-        if (audio_ctx && audio_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
-        {
-            _channels = audio_ctx->channels;
-            break;
-        }
-    }
+    // Find best audio stream and record channel count
+    int audio_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
+    if (audio_stream_idx >= 0)
+        _channels = fmt_ctx->streams[audio_stream_idx]->codec->channels;
 
     AVDictionaryEntry *tag = av_dict_get(fmt_ctx->metadata, "title", NULL, 0);
     if (tag && tag->value)
         _title = @(tag->value);
 
-    // Find first video stream and open appropriate codec
+    // Find best video stream and open appropriate codec
     AVCodec *codec = NULL;
-    for (stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
+    stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+    if (stream_idx >= 0)
     {
         stream = fmt_ctx->streams[stream_idx];
         dec_ctx = stream->codec;
-        if (dec_ctx && dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO && !(stream->disposition & AV_DISPOSITION_ATTACHED_PIC))
-        {
-            if (dec_ctx->height > 0)
-                codec = avcodec_find_decoder(dec_ctx->codec_id);
-            break;
-        }
+        avcodec_open2(dec_ctx, codec, NULL);
     }
-    if (!codec || avcodec_open2(dec_ctx, codec, NULL))
-        return self;    // Can't decode the video stream. Might still be able to read metadata and cover art 'though.
 
-    // allocate frame container
-    if (!(frame = av_frame_alloc()))
-        return nil;
-
+    // If we can't decode the video stream, might still be able to read metadata and cover art.
     return self;
 }
 
 - (void) dealloc
 {
-    avpicture_free(&picture);
-    av_frame_free(&frame);
     avcodec_close(dec_ctx);
     avformat_close_input(&fmt_ctx);
 }
@@ -166,9 +149,9 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
     if (!art_stream)
         return nil;
     else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
     else
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codec->extradata, art_stream->codec->extradata_size, kCFAllocatorNull);   // we'll dealloc
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codec->extradata, art_stream->codec->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
 
     // wangle into a CGImage
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
@@ -182,10 +165,9 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
 
 
 // gets snapshot and blocks until completion, timeout or failure.
-// the data buffer backing the snapshot is only good 'til the next snapshot or until the object is destroyed, so not thread-safe
 - (CGImageRef) CreateSnapshotWithSize:(CGSize)size;
 {
-    if (!avcodec_is_open(dec_ctx))
+    if (!dec_ctx || !avcodec_is_open(dec_ctx))
         return nil;     // Can't decode video stream
 
     // offset for our screenshot
@@ -196,7 +178,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
                              av_rescale(fmt_ctx->duration, stream->time_base.den, 2 * AV_TIME_BASE * stream->time_base.num));   // or half way for short clips
         if (stream->start_time > 0)
             timestamp += stream->start_time;
-        if (av_seek_frame(fmt_ctx, stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)
+        if (av_seek_frame(fmt_ctx, stream_idx, timestamp, 0) < 0)
             av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);    // failed - try to rewind
     }
 
@@ -204,39 +186,49 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
     av_init_packet(&pkt);
     pkt.data = NULL;   // let the demuxer allocate
     pkt.size = 0;
-    int got_frame = 0;
 
-    while (av_read_frame(fmt_ctx, &pkt) >= 0)
+    AVFrame *frame;     // holds the raw frame data
+    if (!(frame = av_frame_alloc()))
+        return nil;
+
+    int linesize = 3 * (int) size.width;
+    uint8_t *picture = NULL;   // points to the RGB data
+    struct SwsContext *sws_ctx;
+
+    int got_frame = 0;
+    while (av_read_frame(fmt_ctx, &pkt) >= 0 && !got_frame)
     {
         if (pkt.stream_index == stream_idx)
             avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
-        av_free_packet(&pkt);
-        if (got_frame)
-            break;
+        av_packet_unref(&pkt);
     }
-    if (!got_frame) return nil;     // Failed to find a single frame!
-
-    // allocate backing store for snapshot
-    avpicture_free(&picture);   // not necessary if we're only called once, but harmless
-    if (avpicture_alloc(&picture, AV_PIX_FMT_RGB24, size.width, size.height)) return nil;
+    if (!got_frame ||
+        !(picture = malloc(linesize * (int) size.height)) ||
+        !(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
+                                   size.width, size.height, AV_PIX_FMT_RGB24,
+                                   SWS_BICUBIC, NULL, NULL, NULL)))
+    {
+        free(picture);
+        av_frame_free(&frame);
+        return nil;     // Failed to find a single frame!
+    }
 
     // convert raw frame data, and rescale if necessary
-    struct SwsContext *sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
-                                                size.width, size.height, AV_PIX_FMT_RGB24,
-                                                SWS_BICUBIC, NULL, NULL, NULL);
-    if (!sws_ctx) return nil;
-    sws_scale(sws_ctx, (const uint8_t *const *) frame->data, frame->linesize, 0, dec_ctx->height, picture.data, picture.linesize);
+    uint8_t *const dst[4] = { picture };
+    const int dstStride[4] = { linesize };
+    sws_scale(sws_ctx, (const uint8_t *const *) frame->data, frame->linesize, 0, dec_ctx->height, dst, dstStride);
     sws_freeContext(sws_ctx);
+    av_frame_free(&frame);
 
     // wangle into a CGImage
-    CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, picture.data[0], size.width * size.height * 3, kCFAllocatorNull);   // we'll dealloc
+    CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, picture, linesize * (int) size.height, kCFAllocatorMalloc);
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
     CGColorSpaceRef rgb = CGColorSpaceCreateDeviceRGB();
-    CGImageRef image = CGImageCreate(size.width, size.height, 8, 24, size.width * 3,
+    CGImageRef image = CGImageCreate(size.width, size.height, 8, 24, linesize,
                                      rgb, kCGBitmapByteOrderDefault, provider, NULL, false, kCGRenderingIntentDefault);
     CGColorSpaceRelease(rgb);
     CGDataProviderRelease(provider);
-    CFRelease(data);
+    CFRelease(data);    // frees the RGB data in "picture" too
     return image;
 }
 @end

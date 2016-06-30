@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <libavformat/avformat.h>
+#include "libavformat/avformat.h"
 
 
 typedef NS_ENUM(NSInteger, CoverArtMode)
@@ -25,8 +25,6 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
     AVCodecContext *dec_ctx;
     int stream_idx;
     AVStream *stream;
-    AVFrame *frame;     // holds the raw frame data for the last snapshot
-    AVPicture picture;  // holds the RGB data for the last snapshot
     int _channels;      // number of audio channels - purely for display
     NSString *_title;   // and title
 }

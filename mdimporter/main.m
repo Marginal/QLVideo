@@ -25,8 +25,8 @@
 #include <signal.h>
 #include <dlfcn.h>
 
-#include <libavformat/avformat.h>
-#include <libavutil/log.h>
+#include "libavformat/avformat.h"
+#include "libavutil/log.h"
 
 // -----------------------------------------------------------------------------
 //	constants
