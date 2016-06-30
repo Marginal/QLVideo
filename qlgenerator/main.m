@@ -28,6 +28,7 @@
 // used in GeneratePreviewForURL
 NSBundle *myBundle;
 BOOL brokenQLPrefetch;
+BOOL hackedQLDisplay;
 
 
 //
@@ -132,20 +133,23 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     brokenQLPrefetch = (!([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
                           [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:yosemite]));
 
+    hackedQLDisplay = [[[[NSFileManager defaultManager] attributesOfItemAtPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay" error:nil] objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
+
+    /* the rest of this function is standard boilderplate */
     QuickLookGeneratorPluginType *theNewInstance;
 
     theNewInstance = (QuickLookGeneratorPluginType *)malloc(sizeof(QuickLookGeneratorPluginType));
     memset(theNewInstance,0,sizeof(QuickLookGeneratorPluginType));
 
-        /* Point to the function table Malloc enough to store the stuff and copy the filler from myInterfaceFtbl over */
+    /* Point to the function table Malloc enough to store the stuff and copy the filler from myInterfaceFtbl over */
     theNewInstance->conduitInterface = malloc(sizeof(QLGeneratorInterfaceStruct));
     memcpy(theNewInstance->conduitInterface,&myInterfaceFtbl,sizeof(QLGeneratorInterfaceStruct));
 
-        /*  Retain and keep an open instance refcount for each factory. */
+    /*  Retain and keep an open instance refcount for each factory. */
     theNewInstance->factoryID = CFRetain(inFactoryID);
     CFPlugInAddInstanceForFactory(inFactoryID);
 
-        /* This function returns the IUnknown interface so set the refCount to one. */
+    /* This function returns the IUnknown interface so set the refCount to one. */
     theNewInstance->refCount = 1;
     return theNewInstance;
 }
