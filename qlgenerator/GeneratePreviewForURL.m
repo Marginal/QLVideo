@@ -6,7 +6,6 @@
 #include "snapshotter.h"
 
 // Implemented in main.m
-extern NSBundle *myBundle;
 extern BOOL brokenQLPrefetch;
 BOOL hackedQLDisplay;
 
@@ -47,24 +46,25 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (!snapshotter || QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
 
         // Replace title string
+        CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
         CGSize size = [snapshotter displaySize];
         NSString *title, *channels;
         switch ([snapshotter channels])
         {
             case 0:
-                channels = myBundle ? [myBundle localizedStringForKey:@"🔇"     value:nil table:nil] : @"🔇"; break;
+                channels = CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("🔇"),     NULL, myBundle, "Audio channel info in Preview window title")); break;
             case 1:
-                channels = myBundle ? [myBundle localizedStringForKey:@"mono"   value:nil table:nil] : @"mono"; break;
+                channels = CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("mono"),   NULL, myBundle, "Audio channel info in Preview window title")); break;
             case 2:
-                channels = myBundle ? [myBundle localizedStringForKey:@"stereo" value:nil table:nil] : @"stereo"; break;
+                channels = CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("stereo"), NULL, myBundle, "Audio channel info in Preview window title")); break;
             case 6:
-                channels = myBundle ? [myBundle localizedStringForKey:@"5.1"    value:nil table:nil] : @"5.1"; break;
+                channels = CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("5.1"),    NULL, myBundle, "Audio channel info in Preview window title")); break;
             case 7:
-                channels = myBundle ? [myBundle localizedStringForKey:@"6.1"    value:nil table:nil] : @"6.1"; break;
+                channels = CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("6.1"),    NULL, myBundle, "Audio channel info in Preview window title")); break;
             case 8:
-                channels = myBundle ? [myBundle localizedStringForKey:@"7.1"    value:nil table:nil] : @"7.1"; break;
+                channels = CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("7.1"),    NULL, myBundle, "Audio channel info in Preview window title")); break;
             default:    // Quadraphonic, LCRS or something else
-                channels = [NSString stringWithFormat:(myBundle ? [myBundle localizedStringForKey:@"%d🔉" value:nil table:nil] : @"%d🔉"),
+                channels = [NSString stringWithFormat:CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("%d🔉"), NULL, myBundle, "Audio channel info in Preview window title")),
                             [snapshotter channels]];
         }
         if ([snapshotter title])
