@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <QuickLook/QuickLook.h>
 
+#include "generator.h"
 #include "snapshotter.h"
 
 // Undocumented properties

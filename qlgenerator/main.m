@@ -17,6 +17,8 @@
 #include "libavformat/avformat.h"
 #include "libavutil/log.h"
 
+#include "generator.h"
+
 
 // -----------------------------------------------------------------------------
 //	constants
@@ -26,7 +28,7 @@
 #define PLUGIN_ID "4A60E117-F6DF-4B3C-9603-2BBE6CEC6972"
 
 // used in GeneratePreviewForURL
-BOOL brokenQLPrefetch;
+BOOL brokenQLCoverFlow;
 BOOL hackedQLDisplay;
 
 
@@ -126,8 +128,8 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     av_register_all();
 
     NSOperatingSystemVersion yosemite = { 10, 10, 0 };
-    brokenQLPrefetch = (!([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
-                          [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:yosemite]));
+    brokenQLCoverFlow = (!([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
+                           [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:yosemite]));
 
     hackedQLDisplay = [[[[NSFileManager defaultManager] attributesOfItemAtPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay" error:nil] objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
 

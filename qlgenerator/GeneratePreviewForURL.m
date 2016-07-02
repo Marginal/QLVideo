@@ -3,11 +3,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <QTKit/QTKit.h>
 
+#include "generator.h"
 #include "snapshotter.h"
-
-// Implemented in main.m
-extern BOOL brokenQLPrefetch;
-BOOL hackedQLDisplay;
 
 
 // Undocumented options
@@ -17,7 +14,7 @@ typedef NS_ENUM(NSInteger, QLPreviewMode)
 {
     kQLPreviewNoMode		= 0,
     kQLPreviewGetInfoMode	= 1,	// File -> Get Info and Column view in Finder
-    kQLPreviewPrefetchMode	= 2,	// Be ready for QuickLook (called for selected file in Finder's Cover Flow view)
+    kQLPreviewCoverFlowMode	= 2,	// Finder's Cover Flow view
     kQLPreviewUnknownMode	= 3,
     kQLPreviewSpotlightMode	= 4,	// Desktop Spotlight search popup bubble
     kQLPreviewQuicklookMode	= 5,	// File -> Quick Look in Finder (also qlmanage -p)
@@ -125,11 +122,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             }
             if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
 
-            // kQLPreviewPrefetchMode is broken for "non-native" files on Mavericks - the user gets a blank window
+            // kQLPreviewCoverFlowMode is broken for "non-native" files on Mavericks - the user gets a blank window
             // if they invoke QuickLook soon after. Presumably QuickLookUI is caching and getting confused?
             // If we return nothing we get called again with no QLPreviewMode option. This somehow forces QuickLookUI to
             // correctly call us with kQLPreviewQuicklookMode when the user later invokes QuickLook. What a crock.
-            if (brokenQLPrefetch && previewMode == kQLPreviewPrefetchMode)
+            if (brokenQLCoverFlow && previewMode == kQLPreviewCoverFlowMode)
                 return kQLReturnNoError;    // early exit
 
             // AVFoundation can't play it; prefer landscape cover art (if present) over a static snapshot

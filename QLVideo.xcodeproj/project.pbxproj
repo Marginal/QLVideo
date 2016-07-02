@@ -138,6 +138,7 @@
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = ../../../../System/Library/Frameworks/VideoToolbox.framework; sourceTree = "<group>"; };
 		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = ../../../../System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<group>"; };
 		ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = ../../../../System/Library/Frameworks/CoreMedia.framework; sourceTree = "<group>"; };
+		ABE23BDD1D274D9A004E9D26 /* generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = generator.h; sourceTree = "<group>"; };
 		ABE4610F1A15A519006C89A2 /* en */ = {isa = PBXFileReference; explicitFileType = text.plist.strings; name = en; path = en.lproj/schema.strings; sourceTree = "<group>"; };
 		ABFA2CDE1A3E153700B17BC5 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/schema.strings; sourceTree = "<group>"; };
 		ABFA2CE01A3E155000B17BC5 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -203,6 +204,7 @@
 		AB93B0FE196CA60500708B2E /* qlgenerator */ = {
 			isa = PBXGroup;
 			children = (
+				ABE23BDD1D274D9A004E9D26 /* generator.h */,
 				AB93B108196CA60500708B2E /* main.m */,
 				AB93B104196CA60500708B2E /* GenerateThumbnailForURL.m */,
 				AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */,
