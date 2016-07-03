@@ -66,7 +66,18 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
             scaled = CGSizeMake(round(size.width * desired.height / size.height), desired.height);
 
         if (QLThumbnailRequestIsCancelled(thumbnail)) return kQLReturnNoError;
-        snapshot = [snapshotter CreateSnapshotWithSize:scaled];
+
+        NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
+        NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
+        if (snapshot_time <= 0)
+            snapshot_time = kDefaultSnapshotTime;
+
+        NSInteger duration = [snapshotter duration];
+        NSInteger time = duration < kMinimumDuration ? 0 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
+        snapshot = [snapshotter CreateSnapshotWithSize:scaled atTime:time];
+        if (!snapshot && time)
+            snapshot = [snapshotter CreateSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
+
         if (!snapshot) return kQLReturnNoError;
         
         QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);

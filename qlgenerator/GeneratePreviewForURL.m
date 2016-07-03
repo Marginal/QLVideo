@@ -9,6 +9,8 @@
 
 // Undocumented options
 const CFStringRef kQLPreviewOptionModeKey = CFSTR("QLPreviewMode");
+const CFStringRef kQLPreviewPropertyPageElementXPathKey = CFSTR("PageElementXPath");
+
 
 typedef NS_ENUM(NSInteger, QLPreviewMode)
 {
@@ -35,9 +37,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
     @autoreleasepool {
-        NSNumber *nsPreviewMode = ((__bridge NSDictionary *)options)[(__bridge NSString *) kQLPreviewOptionModeKey];
 #ifdef DEBUG
-        NSLog(@"QLVideo QLPreviewMode=%@ %@", nsPreviewMode, url);
+        NSLog(@"Preview %@ with options %@", [(__bridge NSURL*)url path], options);
 #endif
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter || QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
@@ -70,17 +71,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         else
             title = [NSString stringWithFormat:@"%@ (%d×%d %@)", [(__bridge NSURL *)url lastPathComponent],
                      (int) size.width, (int) size.height, channels];
-        NSDictionary *properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: title};
 
         // The preview
         CGImageRef thePreview = NULL;
 
         // Prefer any cover art (if present) over a playable preview or static snapshot in Finder and Spotlight views
-        QLPreviewMode previewMode = nsPreviewMode.intValue;
+        QLPreviewMode previewMode = [((__bridge NSDictionary *)options)[(__bridge NSString *) kQLPreviewOptionModeKey] intValue];
         if (previewMode == kQLPreviewGetInfoMode || previewMode == kQLPreviewSpotlightMode)
             thePreview = [snapshotter CreateCoverArtWithMode:CoverArtDefault];
 
-        if (!thePreview)
+        NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
+        BOOL force_static = [defaults boolForKey:kSettingsSnapshotAlways];
+        if (!thePreview && !force_static)
         {
             if (hackedQLDisplay)
             {
@@ -99,7 +101,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     QTTrack *track = [movie tracksOfMediaType:QTMediaTypeVideo].firstObject;
                     if (track)
                     {
-                        QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
+                        QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) @{(NSString *) kQLPreviewPropertyDisplayNameKey: title});
                         return kQLReturnNoError;    // early exit
                     }
                 }
@@ -115,7 +117,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
                     if (track && track.playable)
                     {
-                        QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
+                        QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) @{(NSString *) kQLPreviewPropertyDisplayNameKey: title});
                         return kQLReturnNoError;    // early exit
                     }
                 }
@@ -128,15 +130,80 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             // correctly call us with kQLPreviewQuicklookMode when the user later invokes QuickLook. What a crock.
             if (brokenQLCoverFlow && previewMode == kQLPreviewCoverFlowMode)
                 return kQLReturnNoError;    // early exit
-
-            // AVFoundation can't play it; prefer landscape cover art (if present) over a static snapshot
-            if (previewMode == kQLPreviewQuicklookMode || previewMode == kQLPreviewPrefetchMode || previewMode == kQLPreviewNoMode)
-                thePreview = [snapshotter CreateCoverArtWithMode:CoverArtLandscape];
         }
 
-        // Fall back to generating a static snapshot
+        // AVFoundation/QTKit can't play it
+
+        // prefer landscape cover art (if present) over a static snapshot
+        if (!thePreview && previewMode != kQLPreviewGetInfoMode && previewMode != kQLPreviewSpotlightMode)
+            thePreview = [snapshotter CreateCoverArtWithMode:CoverArtLandscape];
+
+        // Generate a contact sheet?
+        NSInteger desired_image_count = [defaults integerForKey:kSettingsSnapshotCount];
+        if (desired_image_count <= 0 || desired_image_count >= 100)
+            desired_image_count = kDefaultSnapshotCount;
+
+        NSInteger duration = [snapshotter duration];
+        int image_count = duration <= 0 ? 0 : (int) (duration / kMinimumPeriod) - 1;
+        if (image_count > desired_image_count)
+            image_count = (int) desired_image_count;
+        if (!thePreview && (previewMode == kQLPreviewNoMode || previewMode == kQLPreviewQuicklookMode) && image_count > 1)
+        {
+            NSString *html = @"<!DOCTYPE html>\n<html>\n<body style=\"background-color:black\">\n";
+            NSMutableDictionary *attachments;
+            attachments = [NSMutableDictionary dictionaryWithCapacity: image_count];
+
+            for (int i=0; i < image_count; i++)
+            {
+                if (QLPreviewRequestIsCancelled(preview))
+                    return kQLReturnNoError;
+
+                CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:size atTime:(duration * (i + 1)) / (image_count + 1)];
+                if (!snapshot && !i)
+                    snapshot = [snapshotter CreateSnapshotWithSize:size atTime:0];  // Failed on first frame. Try again at start.
+                if (!snapshot)
+                    break;
+
+                CFMutableDataRef data = CFDataCreateMutable(NULL, 0);
+                CGImageDestinationRef destination = CGImageDestinationCreateWithData(data, kUTTypePNG, 1, NULL);
+                if (destination)
+                {
+                    CGImageDestinationAddImage(destination, snapshot, nil);
+                    if (CGImageDestinationFinalize(destination))
+                    {
+                        html = [html stringByAppendingFormat:@"<div><img src=\"cid:%d.png\" width=\"%d\" height=\"%d\"/></div>\n", i, (int) size.width, (int) size.height];
+                        [attachments setObject:@{(NSString *) kQLPreviewPropertyMIMETypeKey: @"image/png",
+                                                 (NSString *) kQLPreviewPropertyAttachmentDataKey: (__bridge NSData *) data}
+                                        forKey:[NSString stringWithFormat:@"%d.png", i]];
+                    }
+                    CFRelease(destination);
+                }
+                CFRelease(data);
+                CGImageRelease(snapshot);
+            }
+
+            html = [html stringByAppendingString:@"</body>\n</html>\n"];
+            QLPreviewRequestSetDataRepresentation(preview, (__bridge CFDataRef) [html dataUsingEncoding:NSUTF8StringEncoding], kUTTypeHTML,
+                                                  (__bridge CFDictionaryRef) @{(NSString *) kQLPreviewPropertyDisplayNameKey: title,
+                                                                               (NSString *) kQLPreviewPropertyTextEncodingNameKey: @"UTF-8",
+                                                                               (__bridge NSString *) kQLPreviewPropertyPageElementXPathKey: @"/html/body/div",
+                                                                               (NSString *) kQLPreviewPropertyPDFStyleKey: @(kQLPreviewPDFPagesWithThumbnailsOnLeftStyle),
+                                                                               (NSString *) kQLPreviewPropertyAttachmentsKey: attachments});
+            return kQLReturnNoError;    // early exit
+        }
+
+        // Fall back to generating a single snapshot
+
         if (!thePreview)
-            thePreview = [snapshotter CreateSnapshotWithSize:size];
+        {
+            NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
+            if (snapshot_time <= 0)
+                snapshot_time = kDefaultSnapshotTime;
+            NSInteger time = duration < kMinimumDuration ? 0 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
+            thePreview = [snapshotter CreateSnapshotWithSize:size atTime:time];
+            if (!thePreview && time)
+                thePreview = [snapshotter CreateSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
+        }
         if (!thePreview)
             return kQLReturnNoError;
 
@@ -146,7 +213,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             CGImageRelease(thePreview);
             return kQLReturnNoError;
         }
-        CGContextRef context = QLPreviewRequestCreateContext(preview, CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), true, (__bridge CFDictionaryRef) properties);
+        CGContextRef context = QLPreviewRequestCreateContext(preview, CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), true,
+                                                             (__bridge CFDictionaryRef) @{(NSString *) kQLPreviewPropertyDisplayNameKey: title});
         CGContextDrawImage(context, CGRectMake(0, 0, CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), thePreview);
         QLPreviewRequestFlushContext(preview, context);
         CGContextRelease(context);

@@ -27,7 +27,21 @@
 // Don't modify this line
 #define PLUGIN_ID "4A60E117-F6DF-4B3C-9603-2BBE6CEC6972"
 
-// used in GeneratePreviewForURL
+// Settings
+NSString * const kSettingsSuiteName     = @"uk.org.marginal.qlvideo";
+NSString * const kSettingsSnapshotCount = @"SnapshotCount";     // Max number of snapshots generated in Preview mode.
+NSString * const kSettingsSnapshotTime  = @"SnapshotTime";      // Seek offset for thumbnails and single Previews [s].
+NSString * const kSettingsSnapshotAlways= @"SnapshotAlways";    // Whether to generate static snapshot(s) even if playable Preview is available.
+
+// Setting defaults
+const int kDefaultSnapshotTime = 60;     // CoreMedia generator appears to use 10s. Completely arbitrary.
+const int kDefaultSnapshotCount = 10;    // 7-14 fit in the left bar of the Preview window without scrolling, depending on the display vertical resolution.
+
+// Implementation
+const int kMinimumDuration = 5;          // Don't bother seeking clips shorter than this [s]. Completely arbitrary.
+const int kMinimumPeriod = 60;           // Don't create snapshots spaced more closely than this [s]. Completely arbitrary.
+
+// Globals
 BOOL brokenQLCoverFlow;
 BOOL hackedQLDisplay;
 

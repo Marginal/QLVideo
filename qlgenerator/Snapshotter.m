@@ -11,7 +11,7 @@
 #include <libswscale/swscale.h>
 
 
-static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia generator appears to use 10s
+static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 
 @implementation Snapshotter
 
@@ -75,6 +75,11 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
         return CGSizeMake(dec_ctx->width, dec_ctx->height);
 }
 
+// Duration [s]
+- (NSInteger) duration
+{
+    return fmt_ctx->duration > 0 ? (fmt_ctx->duration / AV_TIME_BASE) : 0; // We're not interested in sub-second accuracy
+}
 
 // Gets cover art if available, or nil.
 - (CGImageRef) CreateCoverArtWithMode:(CoverArtMode)mode;
@@ -165,21 +170,22 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
 
 
 // gets snapshot and blocks until completion, timeout or failure.
-- (CGImageRef) CreateSnapshotWithSize:(CGSize)size;
+- (CGImageRef) CreateSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 {
     if (!dec_ctx || !avcodec_is_open(dec_ctx))
         return nil;     // Can't decode video stream
 
     // offset for our screenshot
-    if (fmt_ctx->duration > 2 * AV_TIME_BASE)   // just use first frame if duration unknown or less than 2 seconds
+    int64_t timestamp = (stream->start_time <= 0) ? 0 : stream->start_time;
+    if (seconds)
     {
-        int64_t timestamp = (fmt_ctx->duration > kPositionSeconds * 2 * AV_TIME_BASE ?
-                             av_rescale(kPositionSeconds,  stream->time_base.den, stream->time_base.num) :
-                             av_rescale(fmt_ctx->duration, stream->time_base.den, 2 * AV_TIME_BASE * stream->time_base.num));   // or half way for short clips
-        if (stream->start_time > 0)
-            timestamp += stream->start_time;
+        timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         if (av_seek_frame(fmt_ctx, stream_idx, timestamp, 0) < 0)
-            av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);    // failed - try to rewind
+            return nil;
+    }
+    else
+    {
+        av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);    // rewind
     }
 
     AVPacket pkt;
@@ -196,6 +202,7 @@ static const int kPositionSeconds = 60; // Completely arbitrary. CoreMedia gener
     struct SwsContext *sws_ctx;
 
     int got_frame = 0;
+    avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
     while (av_read_frame(fmt_ctx, &pkt) >= 0 && !got_frame)
     {
         if (pkt.stream_index == stream_idx)
