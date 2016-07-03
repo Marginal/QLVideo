@@ -3,6 +3,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <QTKit/QTKit.h>
 
+#include <sys/stat.h>
+
 #include "generator.h"
 #include "snapshotter.h"
 
@@ -150,8 +152,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (!thePreview && (previewMode == kQLPreviewNoMode || previewMode == kQLPreviewQuicklookMode) && image_count > 1)
         {
             NSString *html = @"<!DOCTYPE html>\n<html>\n<body style=\"background-color:black\">\n";
-            NSMutableDictionary *attachments;
-            attachments = [NSMutableDictionary dictionaryWithCapacity: image_count];
+            NSMutableDictionary *attachments =[NSMutableDictionary dictionaryWithCapacity:image_count];
+
+            // Use indode # to uniquify snapshot names, otherwise QuickLook can confuse them
+            struct stat st;
+            int64_t inode = 0;
+            if (!stat([(__bridge NSURL *) url fileSystemRepresentation], &st))
+                inode = st.st_ino;
 
             for (int i=0; i < image_count; i++)
             {
@@ -171,10 +178,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     CGImageDestinationAddImage(destination, snapshot, nil);
                     if (CGImageDestinationFinalize(destination))
                     {
-                        html = [html stringByAppendingFormat:@"<div><img src=\"cid:%d.png\" width=\"%d\" height=\"%d\"/></div>\n", i, (int) size.width, (int) size.height];
+                        html = [html stringByAppendingFormat:@"<div><img src=\"cid:%lld/%03d.png\" width=\"%d\" height=\"%d\"/></div>\n", inode, i, (int) size.width, (int) size.height];
                         [attachments setObject:@{(NSString *) kQLPreviewPropertyMIMETypeKey: @"image/png",
                                                  (NSString *) kQLPreviewPropertyAttachmentDataKey: (__bridge NSData *) data}
-                                        forKey:[NSString stringWithFormat:@"%d.png", i]];
+                                        forKey:[NSString stringWithFormat:@"%lld/%03d.png", inode, i]];
                     }
                     CFRelease(destination);
                 }
