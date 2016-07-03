@@ -198,7 +198,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     if (!(frame = av_frame_alloc()))
         return nil;
 
-    int linesize = 3 * (int) size.width;
+    int linesize = ((3 * (int) size.width + 15) / 16) * 16; // align for efficient swscale
     uint8_t *picture = NULL;   // points to the RGB data
     struct SwsContext *sws_ctx;
 
