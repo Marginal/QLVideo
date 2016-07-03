@@ -187,6 +187,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     {
         av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);    // rewind
     }
+    int64_t stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
 
     AVPacket pkt;
     av_init_packet(&pkt);
@@ -208,6 +209,14 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
         if (pkt.stream_index == stream_idx)
             avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
         av_packet_unref(&pkt);
+
+        // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
+        if (got_frame && !frame->key_frame && frame->pkt_pts != AV_NOPTS_VALUE && frame->pkt_pts < stoptime)
+        {
+            got_frame = 0;
+            av_frame_unref(frame);
+            continue;
+        }
     }
     if (!got_frame ||
         !(picture = malloc(linesize * (int) size.height)) ||
