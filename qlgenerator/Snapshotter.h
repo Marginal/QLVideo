@@ -33,8 +33,8 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 - (void) dealloc;
 - (CGSize) displaySize;
 - (NSInteger) duration;
-- (CGImageRef) CreateCoverArtWithMode:(CoverArtMode)mode;
-- (CGImageRef) CreateSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
+- (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
+- (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 
 @property (nonatomic,assign,readonly) int channels;
 @property (nonatomic,retain,readonly) NSString *title;

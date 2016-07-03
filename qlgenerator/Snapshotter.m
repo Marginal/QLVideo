@@ -82,7 +82,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 }
 
 // Gets cover art if available, or nil.
-- (CGImageRef) CreateCoverArtWithMode:(CoverArtMode)mode;
+- (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
 {
     // Cover art can appear as an extra video stream (e.g. mp4, wtv) or as attachment(s) (e.g. mkv).
     // (Note this isn't necessarily how they're encoded in the file, but how the FFmpeg codecs present them).
@@ -170,7 +170,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 
 
 // gets snapshot and blocks until completion, timeout or failure.
-- (CGImageRef) CreateSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
+- (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 {
     if (!dec_ctx || !avcodec_is_open(dec_ctx))
         return nil;     // Can't decode video stream

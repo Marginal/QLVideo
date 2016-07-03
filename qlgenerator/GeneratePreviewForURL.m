@@ -78,7 +78,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         // Prefer any cover art (if present) over a playable preview or static snapshot in Finder and Spotlight views
         QLPreviewMode previewMode = [((__bridge NSDictionary *)options)[(__bridge NSString *) kQLPreviewOptionModeKey] intValue];
         if (previewMode == kQLPreviewGetInfoMode || previewMode == kQLPreviewSpotlightMode)
-            thePreview = [snapshotter CreateCoverArtWithMode:CoverArtDefault];
+            thePreview = [snapshotter newCoverArtWithMode:CoverArtDefault];
 
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
         BOOL force_static = [defaults boolForKey:kSettingsSnapshotAlways];
@@ -136,7 +136,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
         // prefer landscape cover art (if present) over a static snapshot
         if (!thePreview && previewMode != kQLPreviewGetInfoMode && previewMode != kQLPreviewSpotlightMode)
-            thePreview = [snapshotter CreateCoverArtWithMode:CoverArtLandscape];
+            thePreview = [snapshotter newCoverArtWithMode:CoverArtLandscape];
 
         // Generate a contact sheet?
         NSInteger desired_image_count = [defaults integerForKey:kSettingsSnapshotCount];
@@ -158,9 +158,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 if (QLPreviewRequestIsCancelled(preview))
                     return kQLReturnNoError;
 
-                CGImageRef snapshot = [snapshotter CreateSnapshotWithSize:size atTime:(duration * (i + 1)) / (image_count + 1)];
+                CGImageRef snapshot = [snapshotter newSnapshotWithSize:size atTime:(duration * (i + 1)) / (image_count + 1)];
                 if (!snapshot && !i)
-                    snapshot = [snapshotter CreateSnapshotWithSize:size atTime:0];  // Failed on first frame. Try again at start.
+                    snapshot = [snapshotter newSnapshotWithSize:size atTime:0];  // Failed on first frame. Try again at start.
                 if (!snapshot)
                     break;
 
@@ -200,9 +200,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             if (snapshot_time <= 0)
                 snapshot_time = kDefaultSnapshotTime;
             NSInteger time = duration < kMinimumDuration ? 0 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
-            thePreview = [snapshotter CreateSnapshotWithSize:size atTime:time];
+            thePreview = [snapshotter newSnapshotWithSize:size atTime:time];
             if (!thePreview && time)
-                thePreview = [snapshotter CreateSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
+                thePreview = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
         }
         if (!thePreview)
             return kQLReturnNoError;

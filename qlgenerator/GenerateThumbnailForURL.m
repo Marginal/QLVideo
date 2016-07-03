@@ -46,7 +46,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         if (!snapshotter) return kQLReturnNoError;
 
         // Use cover art if present
-        CGImageRef snapshot = [snapshotter CreateCoverArtWithMode:CoverArtThumbnail];
+        CGImageRef snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
             NSDictionary *properties = @{(__bridge NSString *) kQLThumbnailPropertyIconFlavorKey: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
@@ -74,9 +74,9 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 
         NSInteger duration = [snapshotter duration];
         NSInteger time = duration < kMinimumDuration ? 0 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
-        snapshot = [snapshotter CreateSnapshotWithSize:scaled atTime:time];
+        snapshot = [snapshotter newSnapshotWithSize:scaled atTime:time];
         if (!snapshot && time)
-            snapshot = [snapshotter CreateSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
+            snapshot = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
 
         if (!snapshot) return kQLReturnNoError;
         
