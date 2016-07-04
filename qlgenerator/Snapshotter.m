@@ -179,17 +179,23 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 
     // offset for our screenshot
     int64_t timestamp = (stream->start_time <= 0) ? 0 : stream->start_time;
-    if (seconds)
+    int64_t stoptime;
+    if (seconds > 0)
     {
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
+        stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
         if (av_seek_frame(fmt_ctx, stream_idx, timestamp, 0) < 0)
             return -1;
     }
-    else
+    else if (seconds == 0)  // rewind
     {
-        av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);    // rewind
+        av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);
+        stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
     }
-    int64_t stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
+    else    // Don't seek
+    {
+        stoptime = LLONG_MAX;
+    }
 
     AVPacket pkt;
     av_init_packet(&pkt);
@@ -205,15 +211,17 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     while (av_read_frame(fmt_ctx, &pkt) >= 0 && !got_frame)
     {
         if (pkt.stream_index == stream_idx)
-            avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
-        av_packet_unref(&pkt);
-
-        // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
-        if (got_frame && !frame->key_frame && frame->pkt_pts != AV_NOPTS_VALUE && frame->pkt_pts < stoptime)
         {
-            got_frame = 0;
-            av_frame_unref(frame);
+            avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
+
+            // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
+            if (got_frame && !frame->key_frame && frame->pkt_pts < stoptime)
+            {
+                got_frame = 0;
+                av_frame_unref(frame);
+            }
         }
+        av_packet_unref(&pkt);
     }
     if (!got_frame)
         return -1;     // Failed to find a single frame!
@@ -234,7 +242,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     return 0;
 }
 
-// Gets snapshot and blocks until completion, timeout or failure.
+// Gets non-black snapshot and blocks until completion, timeout or failure.
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 {
     uint8_t *picture = NULL;   // points to the RGB data
@@ -244,10 +252,28 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 
     uint8_t *const dst[4] = { picture };
     const int dstStride[4] = { linesize };
-    if ([self newImageWithSize:size atTime:seconds to:dst withStride:dstStride])
+    while (1)
     {
-        free(picture);
-        return nil;
+        if ([self newImageWithSize:size atTime:seconds to:dst withStride:dstStride])
+        {
+            free(picture);
+            return nil;
+        }
+
+        // Check not too dark or too light
+        uint8_t *line = picture;
+        unsigned sum = 0;
+        for (int y = 0; y < (int) size.height; y++)
+        {
+            for (int x = 0; x < 3 * (int) size.width; x++)
+                sum += line[x];
+            line += linesize;
+        }
+        double avg = (double) sum / (size.width * size.height * 3);
+        if  (avg < 16.0 || avg > 240.0)   // arbitrary thresholds
+            seconds = -1;   // next keyframe
+        else
+            break;
     }
 
     // wangle into a CGImage
