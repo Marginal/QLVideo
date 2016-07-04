@@ -9,7 +9,7 @@ This project depends on [FFmpeg](http://source.ffmpeg.org/). Initialize and buil
 git submodule init
 git submodule update
 cd ffmpeg
-`./configure --cc=clang --arch=x86_64 --cpu=core2 --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9 --enable-gpl --enable-hardcoded-tables --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-protocol=file`
+`./configure --cc=clang --arch=x86_64 --cpu=core2 --disable-stripping --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9 --enable-gpl --enable-hardcoded-tables --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-muxer=image2 --enable-encoder=png --enable-protocol=file`
 make
 ```
 

@@ -63,6 +63,8 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 {
     avcodec_close(dec_ctx);
     avformat_close_input(&fmt_ctx);
+    if (enc_ctx)
+        avcodec_free_context(&enc_ctx); // also closes the codec
 }
 
 // Native frame size, adjusting for anamorphic
@@ -169,11 +171,11 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 }
 
 
-// gets snapshot and blocks until completion, timeout or failure.
-- (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
+// Private method. Gets snapshot as raw RGB, blocking until completion, timeout or failure.
+- (int) newImageWithSize:(CGSize)size atTime:(NSInteger)seconds to:(uint8_t *const [])dst withStride:(const int [])dstStride
 {
     if (!dec_ctx || !avcodec_is_open(dec_ctx))
-        return nil;     // Can't decode video stream
+        return -1;      // Can't decode video stream
 
     // offset for our screenshot
     int64_t timestamp = (stream->start_time <= 0) ? 0 : stream->start_time;
@@ -181,7 +183,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     {
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         if (av_seek_frame(fmt_ctx, stream_idx, timestamp, 0) < 0)
-            return nil;
+            return -1;
     }
     else
     {
@@ -196,11 +198,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 
     AVFrame *frame;     // holds the raw frame data
     if (!(frame = av_frame_alloc()))
-        return nil;
-
-    int linesize = ((3 * (int) size.width + 15) / 16) * 16; // align for efficient swscale
-    uint8_t *picture = NULL;   // points to the RGB data
-    struct SwsContext *sws_ctx;
+        return -1;
 
     int got_frame = 0;
     avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
@@ -215,26 +213,42 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
         {
             got_frame = 0;
             av_frame_unref(frame);
-            continue;
         }
     }
-    if (!got_frame ||
-        !(picture = malloc(linesize * (int) size.height)) ||
-        !(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
+    if (!got_frame)
+        return -1;     // Failed to find a single frame!
+
+    // convert raw frame data, and rescale if necessary
+    struct SwsContext *sws_ctx;
+    if (!(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
                                    size.width, size.height, AV_PIX_FMT_RGB24,
                                    SWS_BICUBIC, NULL, NULL, NULL)))
     {
-        free(picture);
         av_frame_free(&frame);
-        return nil;     // Failed to find a single frame!
+        return -1;
     }
-
-    // convert raw frame data, and rescale if necessary
-    uint8_t *const dst[4] = { picture };
-    const int dstStride[4] = { linesize };
     sws_scale(sws_ctx, (const uint8_t *const *) frame->data, frame->linesize, 0, dec_ctx->height, dst, dstStride);
     sws_freeContext(sws_ctx);
     av_frame_free(&frame);
+
+    return 0;
+}
+
+// Gets snapshot and blocks until completion, timeout or failure.
+- (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
+{
+    uint8_t *picture = NULL;   // points to the RGB data
+    int linesize = ((3 * (int) size.width + 15) / 16) * 16; // align for efficient swscale
+    if (!(picture = malloc(linesize * (int) size.height)))
+        return nil;
+
+    uint8_t *const dst[4] = { picture };
+    const int dstStride[4] = { linesize };
+    if ([self newImageWithSize:size atTime:seconds to:dst withStride:dstStride])
+    {
+        free(picture);
+        return nil;
+    }
 
     // wangle into a CGImage
     CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, picture, linesize * (int) size.height, kCFAllocatorMalloc);
@@ -247,4 +261,52 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     CFRelease(data);    // frees the RGB data in "picture" too
     return image;
 }
+
+// Gets snapshot and blocks until completion, timeout or failure.
+- (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
+{
+    // Allocate temporary frame for decoded RGB data
+    AVFrame *rgb_frame = av_frame_alloc();
+    if (!rgb_frame)
+        return nil;
+    rgb_frame->format = AV_PIX_FMT_RGB24;
+    rgb_frame->width = (int) size.width;
+    rgb_frame->height = (int) size.height;
+    if (av_frame_get_buffer(rgb_frame, 32))
+        return nil;
+
+    if ([self newImageWithSize:size atTime:seconds to:rgb_frame->data withStride:rgb_frame->linesize])
+    {
+        av_frame_free(&rgb_frame);
+        return nil;
+    }
+
+    if (!enc_ctx || enc_ctx->width != (int) size.width || enc_ctx->height != (int) size.height)
+    {
+        AVCodec *codec = avcodec_find_encoder(AV_CODEC_ID_PNG);
+        enc_ctx = avcodec_alloc_context3(codec);
+        enc_ctx->pix_fmt = AV_PIX_FMT_RGB24;
+        enc_ctx->width = (int) size.width;
+        enc_ctx->height = (int) size.height;
+        enc_ctx->time_base.num = enc_ctx->time_base.den = 1;  // meaningless for PNG but can't be zero
+        enc_ctx->compression_level = 1; // Z_BEST_SPEED = ~20% larger ~25% quicker than default
+        if (avcodec_open2(enc_ctx, codec, NULL))
+            return nil;
+    }
+
+    AVPacket pkt;
+    av_init_packet(&pkt);
+    pkt.data = NULL;   // let the muxer allocate
+    pkt.size = 0;
+
+    CFDataRef data = nil;
+    int got_pkt = 0;
+    if (!avcodec_encode_video2(enc_ctx, &pkt, rgb_frame, &got_pkt) && got_pkt)
+    {
+        data = CFDataCreateWithBytesNoCopy(NULL, pkt.data, pkt.size, kCFAllocatorMalloc);
+    }
+    av_frame_free(&rgb_frame);
+    return data;
+}
+
 @end

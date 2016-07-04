@@ -23,6 +23,7 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 {
     AVFormatContext *fmt_ctx;
     AVCodecContext *dec_ctx;
+    AVCodecContext *enc_ctx;    // Only allocated if needed
     int stream_idx;
     AVStream *stream;
     int _channels;      // number of audio channels - purely for display
@@ -35,6 +36,7 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 - (NSInteger) duration;
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
+- (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
 
 @property (nonatomic,assign,readonly) int channels;
 @property (nonatomic,retain,readonly) NSString *title;

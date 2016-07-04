@@ -165,28 +165,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 if (QLPreviewRequestIsCancelled(preview))
                     return kQLReturnNoError;
 
-                CGImageRef snapshot = [snapshotter newSnapshotWithSize:size atTime:(duration * (i + 1)) / (image_count + 1)];
-                if (!snapshot && !i)
-                    snapshot = [snapshotter newSnapshotWithSize:size atTime:0];  // Failed on first frame. Try again at start.
-                if (!snapshot)
+                CFDataRef png = [snapshotter newPNGWithSize:size atTime:(duration * (i + 1)) / (image_count + 1)];
+                if (!png && !i)
+                    png = [snapshotter newPNGWithSize:size atTime:0];  // Failed on first frame. Try again at start.
+                if (!png)
                     break;
-
-                CFMutableDataRef data = CFDataCreateMutable(NULL, 0);
-                CGImageDestinationRef destination = CGImageDestinationCreateWithData(data, kUTTypePNG, 1, NULL);
-                if (destination)
-                {
-                    CGImageDestinationAddImage(destination, snapshot, nil);
-                    if (CGImageDestinationFinalize(destination))
-                    {
-                        html = [html stringByAppendingFormat:@"<div><img src=\"cid:%lld/%03d.png\" width=\"%d\" height=\"%d\"/></div>\n", inode, i, (int) size.width, (int) size.height];
-                        [attachments setObject:@{(NSString *) kQLPreviewPropertyMIMETypeKey: @"image/png",
-                                                 (NSString *) kQLPreviewPropertyAttachmentDataKey: (__bridge NSData *) data}
-                                        forKey:[NSString stringWithFormat:@"%lld/%03d.png", inode, i]];
-                    }
-                    CFRelease(destination);
-                }
-                CFRelease(data);
-                CGImageRelease(snapshot);
+                html = [html stringByAppendingFormat:@"<div><img src=\"cid:%lld/%03d.png\" width=\"%d\" height=\"%d\"/></div>\n", inode, i, (int) size.width, (int) size.height];
+                [attachments setObject:@{(NSString *) kQLPreviewPropertyMIMETypeKey: @"image/png",
+                                         (NSString *) kQLPreviewPropertyAttachmentDataKey: (__bridge NSData *) png}
+                                forKey:[NSString stringWithFormat:@"%lld/%03d.png", inode, i]];
+                CFRelease(png);
             }
 
             html = [html stringByAppendingString:@"</body>\n</html>\n"];
