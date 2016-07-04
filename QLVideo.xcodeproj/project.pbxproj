@@ -7,6 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB0527D51D294751009A809B /* bench.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0527C81D2946F1009A809B /* bench.m */; };
+		AB0527D61D294756009A809B /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
+		AB0527D71D29476C009A809B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
+		AB0527D81D294772009A809B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
+		AB0527D91D294776009A809B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
+		AB0527DA1D294779009A809B /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
+		AB0527DB1D294781009A809B /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
+		AB0527DC1D29478A009A809B /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
+		AB0527DD1D29478E009A809B /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
+		AB0527DE1D294790009A809B /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
+		AB0527DF1D294793009A809B /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714419F8A6560006104E /* libavutil.a */; };
+		AB0527E01D294796009A809B /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
+		AB0527E11D294799009A809B /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
+		AB0527E21D2947AC009A809B /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
+		AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
+		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
+		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
 		AB7C713919F8A44D0006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
@@ -86,6 +103,8 @@
 		AB00C5CC1A682F9400D71399 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB00C5D11A682FAF00D71399 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB00C5D21A682FB700D71399 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB0527C81D2946F1009A809B /* bench.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bench.m; sourceTree = "<group>"; };
+		AB0527CE1D294732009A809B /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB0E0D3C1A15B0300056CC24 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0E0D3D1A15B03B0056CC24 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/schema.strings; sourceTree = "<group>"; };
 		AB19C82C1A3A295700A14247 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -109,7 +128,7 @@
 		AB82777A1A7523FC00F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB93B0B3196B839600708B2E /* QLVideo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QLVideo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		AB93B0EC196B855100708B2E /* QLVideo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = QLVideo; path = app/QLVideo; sourceTree = SOURCE_ROOT; };
+		AB93B0EC196B855100708B2E /* QLVideo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = QLVideo; sourceTree = "<group>"; };
 		AB93B0F6196CA60500708B2E /* Video.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0F7196CA60500708B2E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		AB93B0F9196CA60500708B2E /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
@@ -123,7 +142,7 @@
 		AB9730211A3A2BB00067C886 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB9730221A3A2BF40067C886 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB97CDD21A3A059C005FECB1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/schema.strings; sourceTree = "<group>"; };
-		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = app/Info.plist; sourceTree = "<group>"; };
+		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB9FB56D1965DD7200D39647 /* Video.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB9FB5721965DD7200D39647 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		AB9FB5761965DD7200D39647 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -146,6 +165,28 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AB0527CB1D294732009A809B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB0527D71D29476C009A809B /* Cocoa.framework in Frameworks */,
+				AB0527D81D294772009A809B /* AVFoundation.framework in Frameworks */,
+				AB0527D91D294776009A809B /* AudioToolbox.framework in Frameworks */,
+				AB0527DA1D294779009A809B /* VideoToolbox.framework in Frameworks */,
+				AB0527DB1D294781009A809B /* CoreMedia.framework in Frameworks */,
+				AB0527DD1D29478E009A809B /* libavfilter.a in Frameworks */,
+				AB0527DE1D294790009A809B /* libavformat.a in Frameworks */,
+				AB0527DC1D29478A009A809B /* libavcodec.a in Frameworks */,
+				AB0527E01D294796009A809B /* libswresample.a in Frameworks */,
+				AB0527E11D294799009A809B /* libswscale.a in Frameworks */,
+				AB0527E21D2947AC009A809B /* liblzma.5.dylib in Frameworks */,
+				AB0527DF1D294793009A809B /* libavutil.a in Frameworks */,
+				AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */,
+				AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */,
+				AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB93B0B0196B839600708B2E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -201,6 +242,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB0527CF1D294732009A809B /* benchmark */ = {
+			isa = PBXGroup;
+			children = (
+				AB0527C81D2946F1009A809B /* bench.m */,
+			);
+			path = benchmark;
+			sourceTree = "<group>";
+		};
 		AB93B0FE196CA60500708B2E /* qlgenerator */ = {
 			isa = PBXGroup;
 			children = (
@@ -229,8 +278,7 @@
 			children = (
 				AB984693196B432200AF6349 /* Supporting Files */,
 			);
-			name = app;
-			path = QLVideo;
+			path = app;
 			sourceTree = "<group>";
 		};
 		AB984693196B432200AF6349 /* Supporting Files */ = {
@@ -246,6 +294,7 @@
 			isa = PBXGroup;
 			children = (
 				AB984692196B432100AF6349 /* app */,
+				AB0527CF1D294732009A809B /* benchmark */,
 				AB9FB5781965DD7200D39647 /* mdimporter */,
 				AB93B0FE196CA60500708B2E /* qlgenerator */,
 				AB9FB56F1965DD7200D39647 /* Frameworks */,
@@ -259,6 +308,7 @@
 				AB9FB56D1965DD7200D39647 /* Video.mdimporter */,
 				AB93B0B3196B839600708B2E /* QLVideo.app */,
 				AB93B0F6196CA60500708B2E /* Video.qlgenerator */,
+				AB0527CE1D294732009A809B /* benchmark */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -331,6 +381,22 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AB0527CD1D294732009A809B /* benchmark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB0527D21D294732009A809B /* Build configuration list for PBXNativeTarget "benchmark" */;
+			buildPhases = (
+				AB0527CA1D294732009A809B /* Sources */,
+				AB0527CB1D294732009A809B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = benchmark;
+			productName = benchmark;
+			productReference = AB0527CE1D294732009A809B /* benchmark */;
+			productType = "com.apple.product-type.tool";
+		};
 		AB93B0B2196B839600708B2E /* QLVideo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AB93B0E4196B839700708B2E /* Build configuration list for PBXNativeTarget "QLVideo" */;
@@ -393,6 +459,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0720;
+				TargetAttributes = {
+					AB0527CD1D294732009A809B = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
 			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -422,6 +493,7 @@
 				AB93B0B2196B839600708B2E /* QLVideo */,
 				AB9FB56C1965DD7200D39647 /* mdimporter */,
 				AB93B0F5196CA60500708B2E /* qlgenerator */,
+				AB0527CD1D294732009A809B /* benchmark */,
 			);
 		};
 /* End PBXProject section */
@@ -475,6 +547,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AB0527CA1D294732009A809B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB0527D61D294756009A809B /* Snapshotter.m in Sources */,
+				AB0527D51D294751009A809B /* bench.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB93B0AF196B839600708B2E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -563,6 +644,36 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		AB0527D31D294732009A809B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AB0527D41D294732009A809B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		AB93B0E0196B839700708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -735,6 +846,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AB0527D21D294732009A809B /* Build configuration list for PBXNativeTarget "benchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB0527D31D294732009A809B /* Debug */,
+				AB0527D41D294732009A809B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AB93B0E4196B839700708B2E /* Build configuration list for PBXNativeTarget "QLVideo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
