@@ -184,10 +184,10 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
     {
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
-        if (av_seek_frame(fmt_ctx, stream_idx, timestamp, 0) < 0)
+        if (av_seek_frame(fmt_ctx, stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
             return -1;
     }
-    else if (seconds == 0)  // rewind
+    else if (seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
     {
         av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);
         stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
