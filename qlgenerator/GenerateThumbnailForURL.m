@@ -38,7 +38,10 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 {
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
-    @autoreleasepool {
+    CGImageRef snapshot = NULL;
+
+    @autoreleasepool
+    {
 #ifdef DEBUG
         NSLog(@"QLVideo options=%@ size=%dx%d %@", options, (int) maxSize.width, (int) maxSize.height, url);
 #endif
@@ -46,7 +49,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         if (!snapshotter) return kQLReturnNoError;
 
         // Use cover art if present
-        CGImageRef snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
+        snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
             NSDictionary *properties = @{(__bridge NSString *) kQLThumbnailPropertyIconFlavorKey: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
@@ -77,13 +80,14 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         snapshot = [snapshotter newSnapshotWithSize:scaled atTime:time];
         if (!snapshot && time)
             snapshot = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
+    }   // Free snapshotter and ffmpeg resources before handing back to QuickLook
 
-        if (!snapshot) return kQLReturnNoError;
-        
+    if (snapshot)
+    {
         QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
         CGImageRelease(snapshot);
-        return kQLReturnNoError;
     }
+    return kQLReturnNoError;
 }
 
 void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbnail)
