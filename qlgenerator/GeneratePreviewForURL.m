@@ -112,7 +112,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     if (movie)
                     {
                         QTTrack *track = [movie tracksOfMediaType:QTMediaTypeVideo].firstObject;
-                        if (track)
+                        if (track && *([[track attributeForKey:@"QTTrackFormatSummaryAttribute"] UTF8String] + 1))  // Hack: Unknown codecs have a format string like "'\0\0\0\0', ..."
                         {
                             QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
                             return kQLReturnNoError;    // early exit
