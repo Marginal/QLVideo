@@ -19,14 +19,24 @@ Alternatively, if you have [Homebrew](http://brew.sh/) installed, you can instal
 
 Screenshots
 -----------
-![Finder screenshot](img/finder.jpeg) ![Get Info](img/info.jpeg)
+![Finder screenshot](img/finder.jpeg) ![Get Info](img/info.jpeg) ![Preview](img/preview.jpeg)
 
 Limitations
 -----------
 * QuickLook struggles with `.mp4` files. In particular, QuickLook on recent versions of OSX cannot preview a `.mp4` file containing H.265-encoded video. Rename your `.mp4` files as `.m4v`, or use another container for H.265 content - e.g. [Matroska](http://www.matroska.org/).
-* The QuickLook "Preview" function displays a static snapshot of "non-native" video files. You'll need a media player app (e.g. [VLC](http://www.videolan.org/vlc/) or [MPlayerX](http://mplayerx.org/)) to play "non-native" files.
+* The QuickLook "Preview" function displays one or more static snapshots of "non-native" video files. You'll need a media player app (e.g. [VLC](http://www.videolan.org/vlc/) or [MPlayerX](http://mplayerx.org/)) to play these files.
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
 * Requires OSX 10.9 or later. Use [Perian](http://github.com/MaddTheSane/perian) for equivalent functionality under 10.8 and earlier.
+
+Customisation
+-----------
+You can customise this plugin's behaviour by entered the following in the Terminal app:
+
+ - `defaults write uk.org.marginal.qlvideo SnapshotAlways -bool XX` : Controls whether QuickLook "Preview" shows static snapshot(s) even if a playable preview is available. Default is `NO`.
+ - `defaults write uk.org.marginal.qlvideo SnapshotCount -int XX` : Maximum number of snapshots to show in a QuickLook "Preview". Default is 10.
+ - `defaults write uk.org.marginal.qlvideo SnapshotTime -int XX` : Time offset in seconds for thumbnails and for single snapshots. Unless the video clip is shorter than twice this value, in which case the snapshot is taken at the mid-point. Default is 60.
+    This setting doesn't affect thumbnails that have already been generated - use `qlmanage -r cache` and re-start Finder to force regeneration of exisitng thumbnails.
+
 
 Uninstall
 ---------
@@ -56,6 +66,6 @@ Packaged using [Packages](http://s.sudre.free.fr/Software/Packages/about.html).
 
 License
 -------
-Copyright © 2014 Jonathan Harris.
+Copyright © 2014-2016 Jonathan Harris.
 
 Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
