@@ -30,12 +30,12 @@ Limitations
 
 Customisation
 -----------
-You can customise this plugin's behaviour by entered the following in the Terminal app:
+You can customise this plugin's behaviour by entering the following in the Terminal app:
 
  - `defaults write uk.org.marginal.qlvideo SnapshotAlways -bool XX` : Controls whether QuickLook "Preview" shows static snapshot(s) even if a playable preview is available. Default is `NO`.
  - `defaults write uk.org.marginal.qlvideo SnapshotCount -int XX` : Maximum number of snapshots to show in a QuickLook "Preview". Default is 10.
  - `defaults write uk.org.marginal.qlvideo SnapshotTime -int XX` : Time offset in seconds for thumbnails and for single snapshots. Unless the video clip is shorter than twice this value, in which case the snapshot is taken at the mid-point. Default is 60.
-    This setting doesn't affect thumbnails that have already been generated - use `qlmanage -r cache` and re-start Finder to force regeneration of exisitng thumbnails.
+    This setting doesn't affect thumbnails that have already been generated - use `qlmanage -r cache` and re-start Finder to force regeneration of existing thumbnails.
 
 
 Uninstall
