@@ -114,6 +114,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                         QTTrack *track = [movie tracksOfMediaType:QTMediaTypeVideo].firstObject;
                         if (track && *([[track attributeForKey:@"QTTrackFormatSummaryAttribute"] UTF8String] + 1))  // Hack: Unknown codecs have a format string like "'\0\0\0\0', ..."
                         {
+#ifdef DEBUG
+                            NSLog(@"Handing off %@ to QTKit", [(__bridge NSURL*)url path]);
+#endif
                             QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
                             return kQLReturnNoError;    // early exit
                         }
@@ -130,6 +133,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                         AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
                         if (track && track.playable)
                         {
+#ifdef DEBUG
+                            NSLog(@"Handing off %@ to AVFoundation", [(__bridge NSURL*)url path]);
+#endif
                             QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
                             return kQLReturnNoError;    // early exit
                         }
@@ -221,11 +227,17 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         // display
         if (html)
         {
+#ifdef DEBUG
+            NSLog(@"Supplying %lu images for %@", [properties[(NSString *) kQLPreviewPropertyAttachmentsKey] count], [(__bridge NSURL*)url path]);
+#endif
             QLPreviewRequestSetDataRepresentation(preview, (__bridge CFDataRef) [html dataUsingEncoding:NSUTF8StringEncoding], kUTTypeHTML,
                                                   (__bridge CFDictionaryRef) properties);
         }
         else if (thePreview)
         {
+#ifdef DEBUG
+            NSLog(@"Supplying %zux%zu image for %@", CGImageGetWidth(thePreview), CGImageGetHeight(thePreview), [(__bridge NSURL*)url path]);
+#endif
             CGContextRef context = QLPreviewRequestCreateContext(preview, CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), true,
                                                                  (__bridge CFDictionaryRef) properties);
             CGContextDrawImage(context, CGRectMake(0, 0, CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), thePreview);
@@ -233,6 +245,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             CGContextRelease(context);
             CGImageRelease(thePreview);
         }
+#ifdef DEBUG
+        else
+            NSLog(@"Can't supply anything for %@", [(__bridge NSURL*)url path]);
+#endif
     }
     return kQLReturnNoError;
 }
