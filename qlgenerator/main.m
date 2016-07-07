@@ -34,12 +34,15 @@ NSString * const kSettingsSnapshotTime  = @"SnapshotTime";      // Seek offset f
 NSString * const kSettingsSnapshotAlways= @"SnapshotAlways";    // Whether to generate static snapshot(s) even if playable Preview is available.
 
 // Setting defaults
-const int kDefaultSnapshotTime = 60;     // CoreMedia generator appears to use 10s. Completely arbitrary.
-const int kDefaultSnapshotCount = 10;    // 7-14 fit in the left bar of the Preview window without scrolling, depending on the display vertical resolution.
+const int kDefaultSnapshotTime = 60;    // CoreMedia generator appears to use 10s. Completely arbitrary.
+const int kDefaultSnapshotCount = 10;   // 7-14 fit in the left bar of the Preview window without scrolling, depending on the display vertical resolution.
 
 // Implementation
-const int kMinimumDuration = 5;          // Don't bother seeking clips shorter than this [s]. Completely arbitrary.
-const int kMinimumPeriod = 60;           // Don't create snapshots spaced more closely than this [s]. Completely arbitrary.
+const int kMinimumDuration = 5;         // Don't bother seeking clips shorter than this [s]. Completely arbitrary.
+const int kMinimumPeriod = 60;          // Don't create snapshots spaced more closely than this [s]. Completely arbitrary.
+
+extern int QLMemoryUsedCritical;        // From QuickLook framework
+static const int kSatelliteMemory = 150 * 1024 * 1024; // Memory threshold for our QuickLookSatellite process
 
 // Globals
 BOOL brokenQLCoverFlow;
@@ -141,11 +144,16 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
 #endif
     av_register_all();
 
+    // Plugin intitialisation
     NSOperatingSystemVersion yosemite = { 10, 10, 0 };
     brokenQLCoverFlow = (!([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
                            [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:yosemite]));
 
     hackedQLDisplay = [[[[NSFileManager defaultManager] attributesOfItemAtPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay" error:nil] objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
+
+    // Hack! Give our process enough memory to handle 4K H.265 content
+    if (QLMemoryUsedCritical && QLMemoryUsedCritical < kSatelliteMemory)
+        QLMemoryUsedCritical = kSatelliteMemory;
 
     /* the rest of this function is standard boilderplate */
     QuickLookGeneratorPluginType *theNewInstance;
