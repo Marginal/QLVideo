@@ -128,7 +128,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     // If AVFoundation can play it, then hand it off to
                     // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay
                     AVAsset *asset = [AVAsset assetWithURL:(__bridge NSURL *)url];
-                    if (asset)	// note: asset.playable==true doesn't imply there's a playable video track
+                    if (asset && !asset.hasProtectedContent)	// note: asset.playable==true doesn't imply there's a playable video track
                     {
                         AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
                         if (track && track.playable)
