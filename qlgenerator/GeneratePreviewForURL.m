@@ -235,12 +235,23 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         }
         else if (thePreview)
         {
+            CGSize size = CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview));
 #ifdef DEBUG
-            NSLog(@"Supplying %zux%zu image for %@", CGImageGetWidth(thePreview), CGImageGetHeight(thePreview), [(__bridge NSURL*)url path]);
+# if 0  // Make small image for running with no OpenGL acceleration (e.g. under virtualisation) to avoid QuickLookUIHelper timing out
+            const int kMaxWidth = 640;
+            const int kMaxHeight = 480;
+            CGSize original = CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview));
+            if (original.width <= kMaxWidth && original.height <= kMaxHeight)
+                ;
+            else if (original.width/kMaxWidth > original.height/kMaxHeight)
+                size = CGSizeMake(kMaxWidth, round(original.height * kMaxWidth / original.width));
+            else
+                size = CGSizeMake(round(original.width * kMaxHeight / original.height), kMaxHeight);
+# endif
+            NSLog(@"Supplying %dx%d image for %@", (int) size.width, (int) size.height, [(__bridge NSURL*)url path]);
 #endif
-            CGContextRef context = QLPreviewRequestCreateContext(preview, CGSizeMake(CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), true,
-                                                                 (__bridge CFDictionaryRef) properties);
-            CGContextDrawImage(context, CGRectMake(0, 0, CGImageGetWidth(thePreview), CGImageGetHeight(thePreview)), thePreview);
+            CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, (__bridge CFDictionaryRef) properties);
+            CGContextDrawImage(context, CGRectMake(0, 0, size.width, size.height), thePreview);
             QLPreviewRequestFlushContext(preview, context);
             CGContextRelease(context);
             CGImageRelease(thePreview);
