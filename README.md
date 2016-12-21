@@ -1,9 +1,9 @@
 QuickLook Video
 ===============
 
-This package allows OSX Finder to display thumbnails, static previews, cover art and metadata for most types of video files.
+This package allows macOS Finder to display thumbnails, static previews, cover art and metadata for most types of video files.
 
-QuickLook and Spotlight on OSX 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
+QuickLook and Spotlight on macOS 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
 
 Installation
 ------------
@@ -26,7 +26,7 @@ Limitations
 * QuickLook under Mavericks, Yosemite and El Capitan struggles with `.mp4` files. In particular, it won't let this plugin preview `.mp4` files that it can't handle itself (e.g. containing H.265 video) or you that you have asked it not to handle via the `SnapshotAlways` [setting](#customisation). Rename your `.mp4` files as `.m4v`, or use another container for H.265 content - e.g. [Matroska](http://www.matroska.org/).
 * The QuickLook "Preview" function displays one or more static snapshots of "non-native" video files. You'll need a media player app (e.g. [VLC](http://www.videolan.org/vlc/) or [MPlayerX](http://mplayerx.org/)) to play these files.
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
-* Requires OSX 10.9 or later. Use [Perian](http://github.com/MaddTheSane/perian) for equivalent functionality under 10.8 and earlier.
+* Requires macOS 10.9 or later. Use [Perian](http://github.com/MaddTheSane/perian) for equivalent functionality under 10.8 and earlier.
 
 Customisation
 -----------
@@ -49,7 +49,7 @@ Uninstall
 
 Reporting bugs
 --------------
-* First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of OSX and back in again and see if the problem remains.
+* First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of m and back in again and see if the problem remains.
 * Open a [New issue](https://github.com/Marginal/QLVideo/issues/new) and describe the problem.
 * To help diagnose the problem please run the Terminal app (found in Applications → Utilities) and type:
 
