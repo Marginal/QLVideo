@@ -49,7 +49,7 @@ Uninstall
 
 Reporting bugs
 --------------
-* First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of m and back in again and see if the problem remains.
+* First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of macOS and back in again and see if the problem remains.
 * Open a [New issue](https://github.com/Marginal/QLVideo/issues/new) and describe the problem.
 * To help diagnose the problem please run the Terminal app (found in Applications → Utilities) and type:
 
