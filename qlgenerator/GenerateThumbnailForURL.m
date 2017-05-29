@@ -2,7 +2,7 @@
 #import <QuickLook/QuickLook.h>
 
 #include "generator.h"
-#include "snapshotter.h"
+#include "Snapshotter.h"
 
 // Undocumented properties
 const CFStringRef kQLThumbnailPropertyIconFlavorKey = CFSTR("IconFlavor");

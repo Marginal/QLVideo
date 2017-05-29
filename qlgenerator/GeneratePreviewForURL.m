@@ -1,13 +1,16 @@
 #import <Cocoa/Cocoa.h>
 #import <QuickLook/QuickLook.h>
 #import <AVFoundation/AVFoundation.h>
+
+#ifndef __MAC_10_12 // macOS 10.12 SDK drops support for QTKit
 #import <QTKit/QTKit.h>
+#endif
 
 #include <sys/stat.h>
 #include <sys/malloc.h>
 
 #include "generator.h"
-#include "snapshotter.h"
+#include "Snapshotter.h"
 
 
 // Undocumented options
@@ -99,12 +102,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             if (!thePreview && !force_static)
                 @autoreleasepool    // Reduce peak footprint
             {
+#ifndef __MAC_10_12 // macOS 10.12 SDK drops support for QTKit
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
                 if (hackedQLDisplay)
                 {
                     // If QTKit can play it, then hand it off to
                     // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/LegacyMovie.qldisplay symlinked as Movie.qldisplay
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                     QTMovie *movie = [QTMovie movieWithAttributes:@{QTMovieURLAttribute:(__bridge NSURL *)url,
                                                                     QTMovieOpenForPlaybackAttribute:@true,
                                                                     QTMovieOpenAsyncOKAttribute:@false}
@@ -114,16 +119,17 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                         QTTrack *track = [movie tracksOfMediaType:QTMediaTypeVideo].firstObject;
                         if (track && *([[track attributeForKey:@"QTTrackFormatSummaryAttribute"] UTF8String] + 1))  // Hack: Unknown codecs have a format string like "'\0\0\0\0', ..."
                         {
-#ifdef DEBUG
+# ifdef DEBUG
                             NSLog(@"Handing off %@ to QTKit", [(__bridge NSURL*)url path]);
-#endif
+# endif
                             QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
                             return kQLReturnNoError;    // early exit
                         }
                     }
-#pragma clang diagnostic pop
                 }
                 else
+# pragma clang diagnostic pop
+#endif  // __MAC_10_12
                 {
                     // If AVFoundation can play it, then hand it off to
                     // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay

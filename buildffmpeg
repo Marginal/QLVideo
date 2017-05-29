@@ -1,0 +1,29 @@
+#/bin/bash
+
+OUTDIR="${TARGET_BUILD_DIR}/${TARGET_NAME}"
+if [ "${ACTION}" == "clean" ]; then
+	echo Remove "${OUTDIR}"
+	if [ -n "${OUTDIR}" ]; then
+		rm -rf "${OUTDIR}"
+	fi
+else
+	if [ ! -x "${SRCROOT}/ffmpeg/configure" ]; then
+		echo Clone to ${SRCROOT}/ffmpeg
+		cd "${SRCROOT}"
+		git submodule update --init
+	fi
+	echo Build in ${OUTDIR}
+	mkdir -p "${OUTDIR}"
+	cd "${OUTDIR}"
+	if [ -f config.h ]; then
+		echo Skipping configure
+	else
+		if [ "${CONFIGURATION}" == "Debug" ]; then
+			FLAGS="--disable-optimizations"
+		else
+			FLAGS=
+		fi
+		${SRCROOT}/ffmpeg/configure --cc=clang --cpu=core2 --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
+	fi
+	make ${ACTION}
+fi
