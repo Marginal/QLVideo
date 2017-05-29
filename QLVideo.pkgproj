@@ -761,6 +761,17 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
+						<string>Czech</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/cs/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
 						<string>Dutch</string>
 						<key>VALUE</key>
 						<dict>
@@ -854,6 +865,17 @@
 						<dict>
 							<key>PATH</key>
 							<string>Resources/pt.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Russian</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/ru.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
