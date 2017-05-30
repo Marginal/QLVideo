@@ -12,6 +12,7 @@
 
 
 static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
+static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for being too black or too white
 
 @implementation Snapshotter
 
@@ -252,7 +253,7 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 
     uint8_t *const dst[4] = { picture };
     const int dstStride[4] = { linesize };
-    while (1)
+    for (int frame = 0; frame <= kMaxKeyframeBlankSkip; frame++)
     {
         if ([self newImageWithSize:size atTime:seconds to:dst withStride:dstStride])
         {
@@ -269,8 +270,8 @@ static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
                 sum += line[x];
             line += linesize;
         }
-        double avg = (double) sum / (size.width * size.height * 3);
-        if  (avg < 16.0 || avg > 240.0)   // arbitrary thresholds
+        unsigned avg = sum / (unsigned) (size.width * size.height * 3);
+        if  (avg < 16 || avg > 240)   // arbitrary thresholds
             seconds = -1;   // next keyframe
         else
             break;
