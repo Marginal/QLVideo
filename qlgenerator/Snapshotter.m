@@ -99,7 +99,8 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         AVCodecContext *ctx = s->codec;
         if (ctx && (ctx->codec_id == AV_CODEC_ID_PNG || ctx->codec_id == AV_CODEC_ID_MJPEG))
         {
-            if (ctx->codec_type == AVMEDIA_TYPE_VIDEO && (s->disposition & AV_DISPOSITION_ATTACHED_PIC))
+            if (ctx->codec_type == AVMEDIA_TYPE_VIDEO &&
+                ((s->disposition & (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS)) == AV_DISPOSITION_ATTACHED_PIC))
             {
                 if (mode != CoverArtLandscape)  // Assume that unnamed cover art is *not* landscape, so don't return it
                     art_stream = s;
