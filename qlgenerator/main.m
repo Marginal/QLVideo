@@ -36,6 +36,7 @@ NSString * const kSettingsSnapshotAlways= @"SnapshotAlways";    // Whether to ge
 // Setting defaults
 const int kDefaultSnapshotTime = 60;    // CoreMedia generator appears to use 10s. Completely arbitrary.
 const int kDefaultSnapshotCount = 10;   // 7-14 fit in the left bar of the Preview window without scrolling, depending on the display vertical resolution.
+const int kMaxSnapshotCount = 100;
 
 // Implementation
 const int kMinimumDuration = 5;         // Don't bother seeking clips shorter than this [s]. Completely arbitrary.

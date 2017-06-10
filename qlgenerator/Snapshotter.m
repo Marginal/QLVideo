@@ -51,9 +51,10 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
     if (stream_idx >= 0)
     {
-        stream = fmt_ctx->streams[stream_idx];
+        AVStream *stream = fmt_ctx->streams[stream_idx];
         dec_ctx = stream->codec;
         avcodec_open2(dec_ctx, codec, NULL);
+        _thumbnails = (stream->disposition == (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS) && ((int) stream->nb_frames > 0) ? (int) stream->nb_frames: 0);
     }
 
     // If we can't decode the video stream, might still be able to read metadata and cover art.
@@ -71,7 +72,7 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 // Native frame size, adjusting for anamorphic
 - (CGSize) displaySize
 {
-    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, stream, NULL);
+    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, fmt_ctx->streams[stream_idx], NULL);
     if (sar.num > 1 && sar.den > 1)
         return CGSizeMake(av_rescale(dec_ctx->width, sar.num, sar.den), dec_ctx->height);
     else
@@ -176,11 +177,13 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 // Private method. Gets snapshot as raw RGB, blocking until completion, timeout or failure.
 - (int) newImageWithSize:(CGSize)size atTime:(NSInteger)seconds to:(uint8_t *const [])dst withStride:(const int [])dstStride
 {
+    AVStream *stream = fmt_ctx->streams[stream_idx];
+
     if (!dec_ctx || !avcodec_is_open(dec_ctx))
         return -1;      // Can't decode video stream
 
     // offset for our screenshot
-    int64_t timestamp = (stream->start_time <= 0) ? 0 : stream->start_time;
+    int64_t timestamp = (stream->start_time == AV_NOPTS_VALUE) ? 0 : stream->start_time;
     int64_t stoptime;
     if (seconds > 0)
     {
@@ -230,7 +233,8 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 
     // convert raw frame data, and rescale if necessary
     struct SwsContext *sws_ctx;
-    if (!(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
+    if (!size.width || !size.height ||
+        !(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
                                    size.width, size.height, AV_PIX_FMT_RGB24,
                                    SWS_BICUBIC, NULL, NULL, NULL)))
     {

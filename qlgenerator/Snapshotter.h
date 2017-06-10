@@ -24,10 +24,10 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
     AVFormatContext *fmt_ctx;
     AVCodecContext *dec_ctx;
     AVCodecContext *enc_ctx;    // Only allocated if needed
-    int stream_idx;
-    AVStream *stream;
-    int _channels;      // number of audio channels - purely for display
-    NSString *_title;   // and title
+    int stream_idx;             // index of "best" video stream
+    int _thumbnails;        // "best" video stream is pre-computed thumbnails (i.e. DRMed content)
+    int _channels;              // number of audio channels - purely for display
+    NSString *_title;           // title for dsiplay
 }
 
 - (instancetype) initWithURL:(CFURLRef)url;
@@ -38,6 +38,7 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 - (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
 
+@property (nonatomic,assign,readonly) int thumbnails;
 @property (nonatomic,assign,readonly) int channels;
 @property (nonatomic,retain,readonly) NSString *title;
 

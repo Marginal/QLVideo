@@ -20,6 +20,7 @@ extern NSString * const kSettingsSnapshotAlways;
 // Setting defaults
 extern const int kDefaultSnapshotTime;
 extern const int kDefaultSnapshotCount;
+extern const int kMaxSnapshotCount;
 
 // Implementation
 extern const int kMinimumDuration;

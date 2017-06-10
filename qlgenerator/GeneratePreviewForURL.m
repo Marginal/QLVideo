@@ -166,13 +166,29 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
             // Generate a contact sheet?
             NSInteger desired_image_count = [defaults integerForKey:kSettingsSnapshotCount];
-            if (desired_image_count <= 0 || desired_image_count >= 100)
+            if (desired_image_count <= 0 || desired_image_count >= kMaxSnapshotCount)
                 desired_image_count = kDefaultSnapshotCount;
 
             NSInteger duration = [snapshotter duration];
-            int image_count = duration <= 0 ? 0 : (int) (duration / kMinimumPeriod) - 1;
-            if (image_count > desired_image_count)
-                image_count = (int) desired_image_count;
+            int image_count;
+            if ([snapshotter thumbnails])
+            {
+                // "best" video stream is pre-computed thumbnails
+                image_count = [snapshotter thumbnails];
+                if (image_count >= kMaxSnapshotCount)
+                    image_count = kDefaultSnapshotCount;
+
+                // AV_DISPOSITION_TIMED_THUMBNAILS is undocumented and semantics are unclear.
+                // Appears that the first thumbnail is duplicated in the stream, so read and discard.
+                [snapshotter newSnapshotWithSize:CGSizeMake(0,0) atTime:-1];
+            }
+            else
+            {
+                image_count = duration <= 0 ? 0 : (int) (duration / kMinimumPeriod) - 1;
+                if (image_count > desired_image_count)
+                    image_count = (int) desired_image_count;
+            }
+
             if (!thePreview && (previewMode == kQLPreviewNoMode || previewMode == kQLPreviewQuicklookMode) && image_count > 1)
             {
                 html = @"<!DOCTYPE html>\n<html>\n<body style=\"background-color:black\">\n";
@@ -197,7 +213,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     if (QLPreviewRequestIsCancelled(preview))
                         return kQLReturnNoError;
 
-                    CFDataRef png = [snapshotter newPNGWithSize:scaled atTime:(duration * (i + 1)) / (image_count + 1)];
+                    CFDataRef png = [snapshotter newPNGWithSize:scaled atTime:[snapshotter thumbnails] ? -1 : (duration * (i + 1)) / (image_count + 1)];
                     if (!png && !i)
                         png = [snapshotter newPNGWithSize:scaled atTime:0];  // Failed on first frame. Try again at start.
                     if (!png)
