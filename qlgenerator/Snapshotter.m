@@ -266,16 +266,16 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
             return nil;
         }
 
-        // Check not too dark or too light
-        uint8_t *line = picture;
+        // Check centre of 3x3 rectangle for not too dark or too light
+        uint8_t *line = picture + linesize * ((int) size.height / 3) + (int) size.width;
         unsigned sum = 0;
-        for (int y = 0; y < (int) size.height; y++)
+        for (int y = 0; y < (int) size.height / 3; y++)
         {
-            for (int x = 0; x < 3 * (int) size.width; x++)
+            for (int x = 0; x < (int) size.width; x++)
                 sum += line[x];
             line += linesize;
         }
-        unsigned avg = sum / (unsigned) (size.width * size.height * 3);
+        unsigned avg = sum / ((int) size.width * ((int) size.height / 3));
         if  (avg < 16 || avg > 240)   // arbitrary thresholds
             seconds = -1;   // next keyframe
         else
