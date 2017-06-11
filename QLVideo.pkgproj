@@ -765,7 +765,7 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>Resources/cs/conclusion.rtfd</string>
+							<string>Resources/cs.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>

@@ -128,6 +128,10 @@
 		AB0527C81D2946F1009A809B /* bench.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bench.m; sourceTree = "<group>"; };
 		AB0527CE1D294732009A809B /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB0680CD1EDB913400534129 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = System/Library/Frameworks/QTKit.framework; sourceTree = SDKROOT; };
+		AB0B80BF1EED41F1008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/schema.strings; sourceTree = "<group>"; };
+		AB0B80C11EED4204008A22DC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/schema.strings; sourceTree = "<group>"; };
+		AB0B80C21EED4215008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB0B80C41EED4220008A22DC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB0E0D3C1A15B0300056CC24 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0E0D3D1A15B03B0056CC24 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/schema.strings; sourceTree = "<group>"; };
 		AB19C82C1A3A295700A14247 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -533,6 +537,8 @@
 				el,
 				no,
 				ca,
+				cs,
+				ru,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -680,6 +686,8 @@
 				AB00C5D21A682FB700D71399 /* el */,
 				AB36C8901A6FFB4E004F571E /* no */,
 				AB82777A1A7523FC00F1D9F4 /* ca */,
+				AB0B80C21EED4215008A22DC /* cs */,
+				AB0B80C41EED4220008A22DC /* ru */,
 			);
 			name = Localizable.strings;
 			path = Resources;
@@ -701,6 +709,8 @@
 				AB00C5CB1A682F7200D71399 /* el */,
 				AB36C88E1A6FFB3C004F571E /* no */,
 				AB8277781A7523F300F1D9F4 /* ca */,
+				AB0B80BF1EED41F1008A22DC /* cs */,
+				AB0B80C11EED4204008A22DC /* ru */,
 			);
 			name = schema.strings;
 			path = Resources;
