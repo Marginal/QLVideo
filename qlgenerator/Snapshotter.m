@@ -72,6 +72,9 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 // Native frame size, adjusting for anamorphic
 - (CGSize) displaySize
 {
+    if (stream_idx < 0)
+        return CGSizeMake(0,0);
+
     AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, fmt_ctx->streams[stream_idx], NULL);
     if (sar.num > 1 && sar.den > 1)
         return CGSizeMake(av_rescale(dec_ctx->width, sar.num, sar.den), dec_ctx->height);
@@ -177,6 +180,8 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 // Private method. Gets snapshot as raw RGB, blocking until completion, timeout or failure.
 - (int) newImageWithSize:(CGSize)size atTime:(NSInteger)seconds to:(uint8_t *const [])dst withStride:(const int [])dstStride
 {
+    if (stream_idx < 0)
+        return -1;
     AVStream *stream = fmt_ctx->streams[stream_idx];
 
     if (!dec_ctx || !avcodec_is_open(dec_ctx))

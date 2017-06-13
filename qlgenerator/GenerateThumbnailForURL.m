@@ -48,6 +48,10 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) return kQLReturnNoError;
 
+        CGSize size = [snapshotter displaySize];
+        if (!size.width || !size.height)
+            return kQLReturnNoError;
+
         // Use cover art if present
         snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
@@ -61,7 +65,6 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         // determine thumbnail size (scale up if video is tiny)
         NSNumber *scaleFactor = ((__bridge NSDictionary *) options)[(__bridge NSString *) kQLThumbnailOptionScaleFactorKey];	// can be >1 on Retina displays
         CGSize desired = scaleFactor.boolValue ? CGSizeMake(maxSize.width * scaleFactor.floatValue, maxSize.height * scaleFactor.floatValue) : CGSizeMake(maxSize.width, maxSize.height);
-        CGSize size = [snapshotter displaySize];
         CGSize scaled;
         if (size.width/desired.width > size.height/desired.height)
             scaled = CGSizeMake(desired.width, round(size.height * desired.width / size.width));

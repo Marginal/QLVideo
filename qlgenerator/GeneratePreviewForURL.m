@@ -62,9 +62,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
             if (!snapshotter || QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
 
+            CGSize size = [snapshotter displaySize];
+            if (!size.width || !size.height)
+                return kQLReturnNoError;
+
             // Replace title string
             CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
-            CGSize size = [snapshotter displaySize];
             NSString *channels;
             switch ([snapshotter channels])
             {
