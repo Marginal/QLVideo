@@ -79,9 +79,9 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
             snapshot_time = kDefaultSnapshotTime;
 
         NSInteger duration = [snapshotter duration];
-        NSInteger time = duration < kMinimumDuration ? 0 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
+        NSInteger time = duration < kMinimumDuration ? -1 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
         snapshot = [snapshotter newSnapshotWithSize:scaled atTime:time];
-        if (!snapshot && time)
+        if (!snapshot && time > 0)
             snapshot = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
     }   // Free snapshotter and ffmpeg resources before handing back to QuickLook
 

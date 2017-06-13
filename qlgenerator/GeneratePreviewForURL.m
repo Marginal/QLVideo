@@ -242,9 +242,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
                 if (snapshot_time <= 0)
                     snapshot_time = kDefaultSnapshotTime;
-                NSInteger time = duration < kMinimumDuration ? 0 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
+                NSInteger time = duration < kMinimumDuration ? -1 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
                 thePreview = [snapshotter newSnapshotWithSize:size atTime:time];
-                if (!thePreview && time)
+                if (!thePreview && time > 0)
                     thePreview = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
             }
         }   // Free snapshotter and ffmpeg resources before handing back to QuickLook

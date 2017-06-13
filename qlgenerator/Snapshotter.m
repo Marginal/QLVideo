@@ -192,6 +192,7 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     int64_t stoptime;
     if (seconds > 0)
     {
+        avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
         if (av_seek_frame(fmt_ctx, stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
@@ -199,6 +200,7 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     }
     else if (seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
     {
+        avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
         av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);
         stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
     }
@@ -217,15 +219,18 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         return -1;
 
     int got_frame = 0;
-    avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
     while (av_read_frame(fmt_ctx, &pkt) >= 0 && !got_frame)
     {
         if (pkt.stream_index == stream_idx)
         {
             avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
 
-            // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
-            if (got_frame && !frame->key_frame && frame->pkt_pts < stoptime)
+            if (got_frame && seconds > 0 &&
+                (
+                 // It's a small clip and we've ended up at a keyframe at start of it. Keep reading until desired time.
+                 (seconds <= kMaxKeyframeTime && frame->pts < timestamp) ||
+                 // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
+                 ((seconds > kMaxKeyframeTime && !frame->key_frame && frame->pts < stoptime))))
             {
                 got_frame = 0;
                 av_frame_unref(frame);
