@@ -56,6 +56,18 @@
 											<key>CHILDREN</key>
 											<array>
 												<dict>
+													<key>BUNDLE_CAN_DOWNGRADE</key>
+													<true/>
+													<key>BUNDLE_POSTINSTALL_PATH</key>
+													<dict>
+														<key>PATH_TYPE</key>
+														<integer>0</integer>
+													</dict>
+													<key>BUNDLE_PREINSTALL_PATH</key>
+													<dict>
+														<key>PATH_TYPE</key>
+														<integer>0</integer>
+													</dict>
 													<key>CHILDREN</key>
 													<array/>
 													<key>GID</key>
@@ -279,12 +291,19 @@
 									<key>CHILDREN</key>
 									<array>
 										<dict>
+											<key>BUNDLE_CAN_DOWNGRADE</key>
+											<true/>
 											<key>BUNDLE_POSTINSTALL_PATH</key>
 											<dict>
 												<key>PATH</key>
 												<string>resetquicklookd</string>
 												<key>PATH_TYPE</key>
 												<integer>1</integer>
+											</dict>
+											<key>BUNDLE_PREINSTALL_PATH</key>
+											<dict>
+												<key>PATH_TYPE</key>
+												<integer>0</integer>
 											</dict>
 											<key>CHILDREN</key>
 											<array/>
@@ -383,12 +402,19 @@
 									<key>CHILDREN</key>
 									<array>
 										<dict>
+											<key>BUNDLE_CAN_DOWNGRADE</key>
+											<true/>
 											<key>BUNDLE_POSTINSTALL_PATH</key>
 											<dict>
 												<key>PATH</key>
 												<string>resetmds</string>
 												<key>PATH_TYPE</key>
 												<integer>1</integer>
+											</dict>
+											<key>BUNDLE_PREINSTALL_PATH</key>
+											<dict>
+												<key>PATH_TYPE</key>
+												<integer>0</integer>
 											</dict>
 											<key>CHILDREN</key>
 											<array/>
@@ -548,15 +574,27 @@
 				</dict>
 				<key>PAYLOAD_TYPE</key>
 				<integer>0</integer>
+				<key>SHOW_INVISIBLE</key>
+				<false/>
+				<key>SPLIT_FORKS</key>
+				<true/>
+				<key>TREAT_MISSING_FILES_AS_WARNING</key>
+				<false/>
 				<key>VERSION</key>
 				<integer>2</integer>
 			</dict>
 			<key>PACKAGE_SCRIPTS</key>
 			<dict>
 				<key>POSTINSTALL_PATH</key>
-				<dict/>
+				<dict>
+					<key>PATH_TYPE</key>
+					<integer>0</integer>
+				</dict>
 				<key>PREINSTALL_PATH</key>
-				<dict/>
+				<dict>
+					<key>PATH_TYPE</key>
+					<integer>0</integer>
+				</dict>
 				<key>RESOURCES</key>
 				<array/>
 			</dict>
@@ -570,13 +608,23 @@
 				<true/>
 				<key>IDENTIFIER</key>
 				<string>uk.org.marginal.qlvideo</string>
+				<key>LOCATION</key>
+				<integer>0</integer>
 				<key>NAME</key>
 				<string>QLVideo</string>
 				<key>OVERWRITE_PERMISSIONS</key>
 				<false/>
+				<key>PAYLOAD_SIZE</key>
+				<integer>-1</integer>
+				<key>RELOCATABLE</key>
+				<false/>
+				<key>USE_HFS+_COMPRESSION</key>
+				<false/>
 				<key>VERSION</key>
 				<string>1.8.9</string>
 			</dict>
+			<key>TYPE</key>
+			<integer>0</integer>
 			<key>UUID</key>
 			<string>1329BD95-2DCB-4A36-96B3-D5FDAE71E467</string>
 		</dict>
@@ -603,16 +651,7 @@
 		<key>PROJECT_PRESENTATION</key>
 		<dict>
 			<key>BACKGROUND</key>
-			<dict>
-				<key>ALIGNMENT</key>
-				<integer>4</integer>
-				<key>BACKGROUND_PATH</key>
-				<dict/>
-				<key>CUSTOM</key>
-				<false/>
-				<key>SCALING</key>
-				<integer>0</integer>
-			</dict>
+			<dict/>
 			<key>INSTALLATION TYPE</key>
 			<dict>
 				<key>HIERARCHIES</key>
@@ -647,8 +686,6 @@
 						<dict/>
 					</dict>
 				</dict>
-				<key>INSTALLATION TYPE</key>
-				<integer>0</integer>
 				<key>MODE</key>
 				<integer>1</integer>
 			</dict>
@@ -718,8 +755,6 @@
 			</dict>
 			<key>LICENSE</key>
 			<dict>
-				<key>KEYWORDS</key>
-				<dict/>
 				<key>LOCALIZATIONS</key>
 				<array>
 					<dict>
@@ -736,8 +771,6 @@
 				</array>
 				<key>MODE</key>
 				<integer>0</integer>
-				<key>TEMPLATE</key>
-				<string>BSD License</string>
 			</dict>
 			<key>README</key>
 			<dict>
@@ -750,77 +783,11 @@
 				<array>
 					<dict>
 						<key>LANGUAGE</key>
-						<string>Catalan</string>
+						<string>Swedish</string>
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>Resources/ca.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>Czech</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/cs.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>Dutch</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/nl.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>English</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/en.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>French</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/fr.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>German</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/de.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>Greek</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/el.lproj/conclusion.rtfd</string>
+							<string>Resources/sv.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -838,11 +805,11 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
-						<string>Japanese</string>
+						<string>Spanish</string>
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>Resources/ja.lproj/conclusion.rtfd</string>
+							<string>Resources/es.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -854,6 +821,94 @@
 						<dict>
 							<key>PATH</key>
 							<string>Resources/no.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Japanese</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/ja.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Greek</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/el.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Simplified Chinese</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/zh_CN.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Catalan</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/ca.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Dutch</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/nl.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>French</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/fr.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>English</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/en.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>German</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/de.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -882,33 +937,11 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
-						<string>Simplified Chinese</string>
+						<string>Czech</string>
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>Resources/zh_CN.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>Spanish</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/es.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>Swedish</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/sv.lproj/conclusion.rtfd</string>
+							<string>Resources/cs.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -949,10 +982,6 @@
 					<true/>
 				</dict>
 			</array>
-			<key>POSTINSTALL_PATH</key>
-			<dict/>
-			<key>PREINSTALL_PATH</key>
-			<dict/>
 			<key>RESOURCES</key>
 			<array/>
 			<key>ROOT_VOLUME_ONLY</key>
@@ -1146,6 +1175,10 @@
 			</array>
 			<key>NAME</key>
 			<string>QuickLook Video</string>
+			<key>PAYLOAD_ONLY</key>
+			<false/>
+			<key>TREAT_MISSING_PRESENTATION_DOCUMENTS_AS_WARNING</key>
+			<false/>
 		</dict>
 	</dict>
 	<key>SHARED_GLOBAL_DATA</key>
