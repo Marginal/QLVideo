@@ -277,7 +277,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 # endif
             NSLog(@"Supplying %dx%d image for %@", (int) size.width, (int) size.height, [(__bridge NSURL*)url path]);
 #endif
-            CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, (__bridge CFDictionaryRef) properties);
+            CGContextRef context = QLPreviewRequestCreateContext(preview, size, false, (__bridge CFDictionaryRef) properties);
             CGContextDrawImage(context, CGRectMake(0, 0, size.width, size.height), thePreview);
             QLPreviewRequestFlushContext(preview, context);
             CGContextRelease(context);
