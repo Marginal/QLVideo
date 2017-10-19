@@ -7,6 +7,9 @@ if [ "${ACTION}" == "clean" ]; then
 		rm -rf "${OUTDIR}"
 	fi
 else
+	# For yasm
+	PATH=$PATH:/usr/local/bin
+
 	if [ ! -x "${SRCROOT}/ffmpeg/configure" ]; then
 		echo Clone to ${SRCROOT}/ffmpeg
 		cd "${SRCROOT}"
@@ -25,5 +28,5 @@ else
 		fi
 		${SRCROOT}/ffmpeg/configure --cc=clang --cpu=core2 --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
 	fi
-	make ${ACTION}
+	make -j`sysctl -n hw.physicalcpu` ${ACTION}
 fi

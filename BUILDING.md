@@ -1,6 +1,12 @@
 Building
 ========
 
+Prerequisites
+-------
+* Requires Xcode 6.1 and macOS 10.10 SDK or later.
+* The QuickLook plugin supports a [workaround](https://github.com/Marginal/QLVideo/issues/3#issuecomment-217217855) that uses QuickTime to display animated previews for some legacy formats if you also have [Perian](https://github.com/MaddTheSane/perian) installed. This workaround requires that you build with Xcode 7 or earlier against macOS 10.11 SDK or earlier, since 10.12 SDK drops support for QuickTime.
+* ffmpeg requires the "yasm" assembler to build. You can obtain it through [Homebrew](https://brew.sh) via `brew install yasm`.
+
 Products
 -------
 The "QLVideo" scheme in the Xcode project `QLVideo.xcodeproj` builds the following Products:
@@ -11,8 +17,6 @@ The "QLVideo" scheme in the Xcode project `QLVideo.xcodeproj` builds the followi
 * ffmpeg - The [FFmpeg](http://ffmpeg.org/) libraries. The other plugins depend on these.
 
 The `resetmds` and `resetquicklood` post-installation scripts can be run to inform Launch Services, SpotLight and QuickLook respectively of any changes.
-
-The QuickLook plugin supports a [workaround](https://github.com/Marginal/QLVideo/issues/3#issuecomment-217217855) that uses QuickTime to display animated previews for some legacy formats if you also have [Perian](https://github.com/MaddTheSane/perian) installed. This workaround requires that you build against the macOS 10.11 SDK or earlier, since 10.12 SDK drops support for QuickTime.
 
 Debugging
 ---------
