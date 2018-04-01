@@ -180,6 +180,8 @@
 		ABB1A29C1A1C392400EEF82B /* schema.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = schema.xml; path = Video.mdimporter/Contents/Resources/schema.xml; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
 		ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
+		ABC22D232070E05200A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/schema.strings; sourceTree = "<group>"; };
+		ABC22D242070E06900A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -539,6 +541,7 @@
 				ca,
 				cs,
 				ru,
+				hu,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -688,6 +691,7 @@
 				AB82777A1A7523FC00F1D9F4 /* ca */,
 				AB0B80C21EED4215008A22DC /* cs */,
 				AB0B80C41EED4220008A22DC /* ru */,
+				ABC22D242070E06900A2D884 /* hu */,
 			);
 			name = Localizable.strings;
 			path = Resources;
@@ -711,6 +715,7 @@
 				AB8277781A7523F300F1D9F4 /* ca */,
 				AB0B80BF1EED41F1008A22DC /* cs */,
 				AB0B80C11EED4204008A22DC /* ru */,
+				ABC22D232070E05200A2D884 /* hu */,
 			);
 			name = schema.strings;
 			path = Resources;
