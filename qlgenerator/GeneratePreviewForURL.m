@@ -69,6 +69,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 return kQLReturnNoError;
 
             // Replace title string
+            NSString *title = [snapshotter title];
+            if (!title)
+                title = [(__bridge NSURL *)url lastPathComponent];
+
             CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
             NSString *channels;
             switch ([snapshotter channels])
@@ -89,12 +93,20 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                     channels = [NSString stringWithFormat:CFBridgingRelease(CFCopyLocalizedStringFromTableInBundle(CFSTR("%d🔉"), NULL, myBundle, "Audio channel info in Preview window title")),
                                 [snapshotter channels]];
             }
-            if ([snapshotter title])
-                theTitle = [NSString stringWithFormat:@"%@ (%d×%d %@)", [snapshotter title],
-                            (int) size.width, (int) size.height, channels];
+
+            // Format duration like Finder (NSDateComponentsFormatter doesn't seem to be able to do this)
+            if ([snapshotter duration] <= 0)
+                theTitle = [NSString stringWithFormat:@"%@ (%d×%d, %@)", title, (int) size.width, (int) size.height, channels];
+            else if ([snapshotter duration] < 60)
+                theTitle = [NSString stringWithFormat:@"%@ (%d×%d, %@, 00:%02ld)", title, (int) size.width, (int) size.height, channels,
+                            [snapshotter duration]];
+            else if ([snapshotter duration] < 3600)
+                theTitle = [NSString stringWithFormat:@"%@ (%d×%d, %@, %02ld:%02ld)", title, (int) size.width, (int) size.height, channels,
+                            [snapshotter duration] / 60, [snapshotter duration] % 60];
             else
-                theTitle = [NSString stringWithFormat:@"%@ (%d×%d %@)", [(__bridge NSURL *)url lastPathComponent],
-                            (int) size.width, (int) size.height, channels];
+                theTitle = [NSString stringWithFormat:@"%@ (%d×%d, %@, %02ld:%02ld:%02ld)", title, (int) size.width, (int) size.height, channels,
+                            [snapshotter duration] / 3600, ([snapshotter duration] / 60) % 60, [snapshotter duration] % 60];
+
             properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: theTitle};
 
             // Prefer any cover art (if present) over a playable preview or static snapshot in Finder and Spotlight views
