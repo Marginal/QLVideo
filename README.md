@@ -34,16 +34,17 @@ You can customise this plugin's behaviour by entering the following in the Termi
 
  - `defaults write uk.org.marginal.qlvideo SnapshotAlways -bool XX` : Controls whether QuickLook "Preview" shows static snapshot(s) even if a playable preview is available. Default is `NO`.
  - `defaults write uk.org.marginal.qlvideo SnapshotCount -int XX` : Maximum number of snapshots to show in a QuickLook "Preview". Default is 10.
- - `defaults write uk.org.marginal.qlvideo SnapshotTime -int XX` : Time offset in seconds for thumbnails and for single snapshots. Unless the video clip is shorter than twice this value, in which case the snapshot is taken at the mid-point. Default is 60.
+ - `defaults write uk.org.marginal.qlvideo SnapshotTime -int XX` : Time offset in seconds for thumbnails and for single snapshots. Unless the video clip is shorter than twice this value, in which case the snapshot is taken at the mid-point. Default is `60`.
     This setting doesn't affect thumbnails that have already been generated - use `qlmanage -r cache` and re-start Finder to force regeneration of existing thumbnails.
 
 
 Uninstall
 ---------
-* Run the Terminal app (found in Applications → Utilities).
+* Run the Terminal app (found in `Applications` → `Utilities`).
 * Copy the following and paste into the Terminal app:
-
-        sudo rm -rf "/Library/Application Support/QLVideo" "/Library/QuickLook/Video.qlgenerator" "/Library/Spotlight/Video.mdimporter"
+```
+sudo rm -rf "/Library/Application Support/QLVideo" "/Library/QuickLook/Video.qlgenerator" "/Library/Spotlight/Video.mdimporter"
+```
 * Press Enter.
 * Type your password and press Enter.
 
@@ -52,11 +53,13 @@ Reporting bugs
 * First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of macOS and back in again and see if the problem remains.
 * Open a [New issue](https://github.com/Marginal/QLVideo/issues/new) and describe the problem.
 * To help diagnose the problem please run the Terminal app (found in Applications → Utilities) and type:
-
+```
         qlmanage -m
         qlmanage -p -d1 /path/of/some/video/file
+```
+        qlmanage -p -d1 /path/of/some/video/file
 but substitute the *path of some video file* by dragging a video file from the Finder and dropping it on the Terminal window.
-* In the Terminal app choose Edit → Select All then Edit → Copy, and paste the results in the "New issue".
+* In the Terminal app choose `Edit` → `Select All` then `Edit` → `Copy` and `Paste` the results in the "New issue".
 
 Acknowledgements
 ----------------
