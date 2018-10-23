@@ -142,6 +142,8 @@
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		AB36C88E1A6FFB3C004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/schema.strings; sourceTree = "<group>"; };
 		AB36C8901A6FFB4E004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB54B962217F425D00558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/schema.strings; sourceTree = "<group>"; };
+		AB54B963217F42B000558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt_PT"; path = pt_PT.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = libavformat/libavformat.a; sourceTree = "<group>"; };
 		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = libavfilter/libavfilter.a; sourceTree = "<group>"; };
 		AB7C713C19F8A4660006104E /* libavcodec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavcodec.a; path = libavcodec/libavcodec.a; sourceTree = "<group>"; };
@@ -542,6 +544,7 @@
 				cs,
 				ru,
 				hu,
+				pt_PT,
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
@@ -692,6 +695,7 @@
 				AB0B80C21EED4215008A22DC /* cs */,
 				AB0B80C41EED4220008A22DC /* ru */,
 				ABC22D242070E06900A2D884 /* hu */,
+				AB54B963217F42B000558403 /* pt_PT */,
 			);
 			name = Localizable.strings;
 			path = Resources;
@@ -716,6 +720,7 @@
 				AB0B80BF1EED41F1008A22DC /* cs */,
 				AB0B80C11EED4204008A22DC /* ru */,
 				ABC22D232070E05200A2D884 /* hu */,
+				AB54B962217F425D00558403 /* pt_PT */,
 			);
 			name = schema.strings;
 			path = Resources;
