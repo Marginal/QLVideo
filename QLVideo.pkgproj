@@ -886,6 +886,17 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
+						<string>Simplified Chinese</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/zh_CN.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
 						<string>Japanese</string>
 						<key>VALUE</key>
 						<dict>
@@ -902,17 +913,6 @@
 						<dict>
 							<key>PATH</key>
 							<string>Resources/el.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
-						<string>Simplified Chinese</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/zh_CN.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
@@ -957,6 +957,17 @@
 						<dict>
 							<key>PATH</key>
 							<string>Resources/en.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Korean</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/ko.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
