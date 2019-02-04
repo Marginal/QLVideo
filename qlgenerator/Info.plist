@@ -53,9 +53,9 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2014-2018 Jonathan Harris. Licensed under GPLv2 or later.</string>
 	<key>QLNeedsToBeRunInMainThread</key>
-	<true/>		<!-- serialize calls to keep helper process's resource usage below QuickLook's limits -->
+	<false/>	<!-- can't run on main thread! -->
 	<key>QLSupportsConcurrentRequests</key>
-	<true/>		<!-- but allow multiple helper processes -->
+	<false/>	<!-- serialize calls to keep helper process's resource usage below QuickLook's limits -->
 	<key>QLPreviewHeight</key>
 	<integer>240</integer>
 	<key>QLPreviewWidth</key>

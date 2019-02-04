@@ -6,7 +6,7 @@
 //
 //
 
-#include "Snapshotter.h"
+#import "Snapshotter.h"
 
 #include <libswscale/swscale.h>
 
