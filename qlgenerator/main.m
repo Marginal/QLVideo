@@ -43,7 +43,7 @@ const int kMinimumDuration = 5;         // Don't bother seeking clips shorter th
 const int kMinimumPeriod = 60;          // Don't create snapshots spaced more closely than this [s]. Completely arbitrary.
 
 extern int QLMemoryUsedCritical;        // From QuickLook framework
-static const int kSatelliteMemory = 150 * 1024 * 1024; // Memory threshold for our QuickLookSatellite process
+static const int kSatelliteMemory = 256 * 1024 * 1024; // Memory threshold for our QuickLookSatellite process
 
 // Globals
 BOOL brokenQLCoverFlow;
@@ -153,6 +153,9 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     hackedQLDisplay = [[[[NSFileManager defaultManager] attributesOfItemAtPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay" error:nil] objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
 
     // Hack! Give our process enough memory to handle 4K H.265 content
+#ifdef DEBUG
+    NSLog(@"QLVideo new QuickLookSatellite with QLMemoryUsedCritical = %i", QLMemoryUsedCritical);
+#endif
     if (QLMemoryUsedCritical && QLMemoryUsedCritical < kSatelliteMemory)
         QLMemoryUsedCritical = kSatelliteMemory;
 
