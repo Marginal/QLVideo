@@ -69,6 +69,6 @@ Packaged using [Packages](http://s.sudre.free.fr/Software/Packages/about.html).
 
 License
 -------
-Copyright © 2014-2016 Jonathan Harris.
+Copyright © 2014-2019 Jonathan Harris.
 
 Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
