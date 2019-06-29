@@ -709,6 +709,8 @@
 						<key>LIST</key>
 						<array>
 							<dict>
+								<key>CHILDREN</key>
+								<array/>
 								<key>DESCRIPTION</key>
 								<array/>
 								<key>OPTIONS</key>
@@ -721,8 +723,6 @@
 								<key>PACKAGE_UUID</key>
 								<string>1329BD95-2DCB-4A36-96B3-D5FDAE71E467</string>
 								<key>TITLE</key>
-								<array/>
-								<key>TOOLTIP</key>
 								<array/>
 								<key>TYPE</key>
 								<integer>0</integer>
@@ -886,17 +886,6 @@
 					</dict>
 					<dict>
 						<key>LANGUAGE</key>
-						<string>Simplified Chinese</string>
-						<key>VALUE</key>
-						<dict>
-							<key>PATH</key>
-							<string>Resources/zh_CN.lproj/conclusion.rtfd</string>
-							<key>PATH_TYPE</key>
-							<integer>1</integer>
-						</dict>
-					</dict>
-					<dict>
-						<key>LANGUAGE</key>
 						<string>Japanese</string>
 						<key>VALUE</key>
 						<dict>
@@ -913,6 +902,17 @@
 						<dict>
 							<key>PATH</key>
 							<string>Resources/el.lproj/conclusion.rtfd</string>
+							<key>PATH_TYPE</key>
+							<integer>1</integer>
+						</dict>
+					</dict>
+					<dict>
+						<key>LANGUAGE</key>
+						<string>Simplified Chinese</string>
+						<key>VALUE</key>
+						<dict>
+							<key>PATH</key>
+							<string>Resources/zh_CN.lproj/conclusion.rtfd</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
