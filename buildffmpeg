@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 OUTDIR="${TARGET_BUILD_DIR}/${TARGET_NAME}"
 if [ "${ACTION}" == "clean" ]; then
@@ -26,7 +26,7 @@ else
 		else
 			FLAGS=
 		fi
-		${SRCROOT}/ffmpeg/configure --cc=clang --cpu=core2 --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
+		${SRCROOT}/ffmpeg/configure --cc=clang --cpu=core2 --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
 	fi
 	make -j`sysctl -n hw.physicalcpu` ${ACTION}
 fi
