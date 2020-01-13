@@ -6,6 +6,7 @@
 
 // Undocumented properties
 const CFStringRef kQLThumbnailPropertyIconFlavorKey = CFSTR("IconFlavor");
+const CFStringRef kQLThumbnailPropertyIconFlavorKey_10_15 = CFSTR("icon");
 
 typedef NS_ENUM(NSInteger, QLThumbnailIconFlavor)
 {
@@ -56,7 +57,9 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
-            NSDictionary *properties = @{(__bridge NSString *) kQLThumbnailPropertyIconFlavorKey: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
+            NSOperatingSystemVersion catalina = { 10, 15, 0 };
+            CFStringRef flavor = [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:catalina] ? kQLThumbnailPropertyIconFlavorKey_10_15 : kQLThumbnailPropertyIconFlavorKey;
+            NSDictionary *properties = @{(__bridge NSString *) flavor: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
             QLThumbnailRequestSetImage(thumbnail, snapshot, (__bridge CFDictionaryRef) properties);
             CGImageRelease(snapshot);
             return kQLReturnNoError;
