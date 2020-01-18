@@ -133,6 +133,27 @@
 				<string>com.blurayplayersoftware.nuppelvideo</string>
 				<string>com.blurayplayersoftware.divx</string>
 				<string>com.blurayplayersoftware.ogv</string>
+
+				<!-- defined by IINA -->
+				<string>io.iina.flash</string>
+				<string>io.iina.realmedia</string>
+				<string>io.iina.vob</string>
+				<string>io.iina.ogg-video</string>
+				<string>io.iina.avi</string>
+				<string>io.iina.quicktime</string>
+				<string>io.iina.divx</string>
+				<string>io.iina.dv</string>
+				<string>io.iina.asf</string>
+				<string>io.iina.wmv</string>
+				<string>io.iina.wtv</string>
+				<string>io.iina.mpeg-video</string>
+				<string>io.iina.mpeg4-video</string>
+				<string>io.iina.mpeg-stream</string>
+				<string>io.iina.3gpp</string>
+				<string>io.iina.3gpp2</string>
+				<string>io.iina.mkv</string>
+				<string>io.iina.webm</string>
+
 			</array>
 		</dict>
 	</array>

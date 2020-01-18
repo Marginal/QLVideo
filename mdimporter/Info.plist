@@ -136,6 +136,26 @@
 				<string>com.blurayplayersoftware.divx</string>
 				<string>com.blurayplayersoftware.ogv</string>
 
+				<!-- defined by IINA -->
+				<string>io.iina.flash</string>
+				<string>io.iina.realmedia</string>
+				<string>io.iina.vob</string>
+				<string>io.iina.ogg-video</string>
+				<string>io.iina.avi</string>
+				<string>io.iina.quicktime</string>
+				<string>io.iina.divx</string>
+				<string>io.iina.dv</string>
+				<string>io.iina.asf</string>
+				<string>io.iina.wmv</string>
+				<string>io.iina.wtv</string>
+				<string>io.iina.mpeg-video</string>
+				<string>io.iina.mpeg4-video</string>
+				<string>io.iina.mpeg-stream</string>
+				<string>io.iina.3gpp</string>
+				<string>io.iina.3gpp2</string>
+				<string>io.iina.mkv</string>
+				<string>io.iina.webm</string>
+
 				<!-- schema:stop - stop pulling UTIs into schema.xml -->
 
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
@@ -219,6 +239,25 @@
 
 				<!-- Audio defined by Aurora Blu-ray Player for Mac -->
 				<string>com.blurayplayersoftware.ogg</string>
+
+				<!-- Audio defined by IINA -->
+				<string>io.iina.ape</string>
+				<string>io.iina.flac</string>
+				<string>io.iina.wv</string>
+				<string>io.iina.xm</string>
+				<string>io.iina.aiff</string>
+				<string>io.iina.wav</string>
+				<string>io.iina.ac3</string>
+				<string>io.iina.aac</string>
+				<string>io.iina.opus</string>
+				<string>io.iina.ogg-audio</string>
+				<string>io.iina.wma</string>
+				<string>io.iina.mpeg-audio</string>
+				<string>io.iina.mpeg4-audio</string>
+				<string>io.iina.mpeg3-audio</string>
+				<string>io.iina.mid</string>
+				<string>io.iina.mka</string>
+
 			</array>
 		</dict>
 	</array>
