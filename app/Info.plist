@@ -433,7 +433,7 @@
 				<string>public.movie</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>General Exchange Format</string>
+			<string>General eXchange Format</string>
 			<key>UTTypeIdentifier</key>
 			<string>org.smpte.gxf</string>
 			<key>UTTypeReferenceURL</key>
@@ -457,7 +457,7 @@
 				<string>public.movie</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Material Exchange Format</string>
+			<string>Material eXchange Format</string>
 			<key>UTTypeIdentifier</key>
 			<string>org.smpte.mxf</string>
 			<key>UTTypeReferenceURL</key>
