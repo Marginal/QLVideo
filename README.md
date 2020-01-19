@@ -23,6 +23,7 @@ Screenshots
 
 Limitations
 -----------
+* QuickLook under Catalina can't preview most `.avi` files and some `.dv`, `.mov`, `.mp4`, `.m4v` and `.ts` files, but won't let this plugin preview them either.
 * QuickLook under Mavericks, Yosemite and El Capitan struggles with `.mp4` files. In particular, it won't let this plugin preview `.mp4` files that it can't handle itself (e.g. containing H.265 video) or you that you have asked it not to handle via the `SnapshotAlways` [setting](#customisation). Rename your `.mp4` files as `.m4v`, or use another container for H.265 content - e.g. [Matroska](http://www.matroska.org/).
 * The QuickLook "Preview" function displays one or more static snapshots of "non-native" video files. You'll need a media player app (e.g. [VLC](http://www.videolan.org/vlc/) or [MPlayerX](http://mplayerx.org/)) to play these files.
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
