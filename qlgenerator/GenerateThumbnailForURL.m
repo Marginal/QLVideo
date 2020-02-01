@@ -89,7 +89,10 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 
     if (snapshot)
     {
-        QLThumbnailRequestSetImage(thumbnail, snapshot, NULL);
+        // explicitly request letterbox mattes for UTIs that don't derive from public.media, such as com.microsoft.advanced-systems-format
+        CFStringRef flavor = newQuickLook ? kQLThumbnailPropertyIconFlavorKey_10_15 : kQLThumbnailPropertyIconFlavorKey;
+        NSDictionary *properties = @{(__bridge NSString *) flavor: @(kQLThumbnailIconMovieFlavor) };
+        QLThumbnailRequestSetImage(thumbnail, snapshot,  (__bridge CFDictionaryRef) properties);
         CGImageRelease(snapshot);
     }
     return kQLReturnNoError;
