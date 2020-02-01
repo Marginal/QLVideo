@@ -29,8 +29,8 @@ typedef NS_ENUM(NSInteger, QLPreviewMode)
 
 
 // Limit contact sheet to 1080p to try to avoid break QuickLook's memory limit (currently 120MB).
-static const int kMaxWidth = 1920;
-static const int kMaxHeight = 1024;
+static const int kMaxWidth = 2048;
+static const int kMaxHeight = 1080;
 
 
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options);
@@ -159,8 +159,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         NSString *title = [snapshotter title];
         if (!title)
             title = [(__bridge NSURL *)url lastPathComponent];
-        CGSize size = [snapshotter displaySize];
-        NSString *theTitle = displayname(myBundle, title, size, snapshotter.duration, snapshotter.channels);
+        NSString *theTitle = displayname(myBundle, title, snapshotter.displaySize, snapshotter.duration, snapshotter.channels);
 
         // prefer landscape cover art (if present) over a static snapshot
         if (previewMode != kQLPreviewGetInfoMode && previewMode != kQLPreviewSpotlightMode && previewMode != kQLPreviewHSSpotlightMode)
@@ -181,6 +180,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 return kQLReturnNoError;    // early exit
             }
         }
+
+        CGSize size = [snapshotter previewSize];
 
         // How many images should we generate?
         NSInteger desired_image_count = [defaults integerForKey:kSettingsSnapshotCount];

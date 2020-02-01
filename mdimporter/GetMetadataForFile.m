@@ -304,12 +304,12 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             }
 
             // All recognised types
+            const char *name = NULL;
             AVCodec *codec = avcodec_find_decoder(dec_ctx->codec_id);
             if (codec)
             {
                 // Some of AVCodec.long_name can be too wordy (but .name too cryptic), so special-case some common
                 // codecs to give more compact & Applesque names
-                const char *name;
                 switch (codec->id)
                 {
                     case AV_CODEC_ID_H263:
@@ -351,14 +351,16 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                     default:
                         name = codec->long_name ? codec->long_name : codec->name;
                 }
+            }
+            else if (dec_ctx->codec_tag == MKTAG('C','R','A','W'))
+                name = "C-RAW";
 
-                if (name)
-                {
-                    const char *profile = av_get_profile_name(codec, dec_ctx->profile);
-                    NSString *nsname = profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : @(name);
-                    if (![codecs containsObject:nsname])
-                        [codecs addObject:nsname];
-                }
+            if (name)
+            {
+                const char *profile = av_get_profile_name(codec, dec_ctx->profile);
+                NSString *nsname = profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : @(name);
+                if (![codecs containsObject:nsname])
+                    [codecs addObject:nsname];
             }
 #ifdef DEBUG
             else

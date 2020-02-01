@@ -28,11 +28,18 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
     int _pictures;              // "best" video stream is pre-computed pictures (i.e. DRMed content)
     int _channels;              // number of audio channels - purely for display
     NSString *_title;           // title for dsiplay
+
+    // single pre-computed picture that ffmpeg doesn't understand or present as a stream
+    int32_t picture_size;
+    int64_t picture_off;
+    int picture_width;
+    int picture_height;
 }
 
 - (instancetype) initWithURL:(CFURLRef)url;
 - (void) dealloc;
 - (CGSize) displaySize;
+- (CGSize) previewSize;
 - (NSInteger) duration;
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;

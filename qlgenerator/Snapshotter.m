@@ -8,6 +8,8 @@
 
 #import "Snapshotter.h"
 
+#include <string.h>
+#include <libavformat/isom.h>
 #include <libswscale/swscale.h>
 
 
@@ -56,6 +58,65 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         avcodec_open2(dec_ctx, codec, NULL);
         _pictures = (stream->disposition == (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS) && ((int) stream->nb_frames > 0) ? (int) stream->nb_frames: 0);
     }
+    else
+    {
+        // Get best stream (for metadata) even though we can't view it
+        stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+        dec_ctx = fmt_ctx->streams[stream_idx]->codec;
+
+        // Special handling for Canon CRM movies which have a custom codec that ffmpeg doesn't understand, and a single JPEG preview picture
+        if ((tag = av_dict_get(fmt_ctx->metadata, "major_brand", NULL, AV_DICT_MATCH_CASE)) && !strncmp(tag->value, "crx ", 4))
+        {
+
+            MOVContext *mov = fmt_ctx->priv_data;
+            AVIOContext *pb = fmt_ctx->pb;
+            int64_t file_size = avio_size(pb);
+            avio_seek(pb, 0, SEEK_SET);
+            if (pb->seekable & AVIO_SEEKABLE_NORMAL)
+            {
+                while(avio_tell(pb) <= file_size - 8 && !avio_feof(pb))
+                {
+                    MOVAtom atom;
+                    int64_t atom_off = avio_tell(pb);    // offset of start of atom
+                    atom.size = avio_rb32(pb);
+                    atom.type = avio_rl32(pb);
+                    if (atom.size == 0)
+                        atom.size = file_size - atom_off; // size 0 -> extends to EOF
+                    else if (atom.size == 1 && avio_tell(pb) <= file_size - 16) // extended size
+                        atom.size = avio_rb64(pb);
+                    if (atom_off + atom.size > file_size)
+                        break;  // file truncated
+                    if (atom.type == MKTAG('u','u','i','d'))
+                    {
+                        static const uint8_t uuid_prvw[] = { 0xea, 0xf4, 0x2b, 0x5e, 0x1c, 0x98, 0x4b, 0x88, 0xb9, 0xfb, 0xb7, 0xdc, 0x40, 0x6e, 0x4d, 0x16 };
+                        uint8_t uuid[16];
+                        if (avio_read(pb, uuid, sizeof(uuid)) != sizeof(uuid))
+                            break;
+                        if (!memcmp(uuid, uuid_prvw, sizeof(uuid)))
+                        {
+                            MOVAtom prvw;
+                            avio_rb64(pb);  // unknown = 1
+                            prvw.size = avio_rb32(pb);
+                            prvw.type = avio_rl32(pb);
+                            if (prvw.type == MKTAG('P','R','V','W'))
+                            {
+                                avio_rb32(pb);  // unknown = 0
+                                avio_rb16(pb);  // unknown = 1
+                                picture_width = avio_rb16(pb);
+                                picture_height= avio_rb16(pb);
+                                avio_rb16(pb);  // unknown = 1
+                                picture_size = avio_rb32(pb);
+                                picture_off = avio_tell(pb);
+                                _pictures = 1;
+                                break;
+                            }
+                        };
+                    }
+                    avio_seek(pb, atom_off + atom.size, SEEK_SET);
+                }
+            }
+        }
+    }
 
     // If we can't decode the video stream, might still be able to read metadata and cover art.
     return self;
@@ -80,6 +141,15 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         return CGSizeMake(av_rescale(dec_ctx->width, sar.num, sar.den), dec_ctx->height);
     else
         return CGSizeMake(dec_ctx->width, dec_ctx->height);
+}
+
+// Native size of the preview we generate
+- (CGSize) previewSize
+{
+    if (picture_width && picture_height)
+        return CGSizeMake(picture_width, picture_height);
+    else
+        return [self displaySize];
 }
 
 // Duration [s]
@@ -262,6 +332,29 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 {
     uint8_t *picture = NULL;   // points to the RGB data
+
+    // single pre-computed picture that ffmpeg doesn't understand or present as a stream
+    if (_pictures && picture_size)
+    {
+        AVIOContext *pb = fmt_ctx->pb;
+        if (avio_seek(pb, picture_off, SEEK_SET) < 0 ||
+            !(picture = malloc(picture_size)))
+            return nil;
+        if (avio_read(pb, picture, picture_size) != picture_size)
+        {
+            free(picture);
+            return nil;
+        }
+        // wangle into a CGImage
+        CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, picture, picture_size, kCFAllocatorMalloc);
+        CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+        CGImageRef image = CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
+        CGDataProviderRelease(provider);
+        CFRelease(data);    // frees the JPEG data in "picture" too
+        return image;
+    }
+
+    // video frames or pre-computed pictures presented as a stream
     int linesize = ((3 * (int) size.width + 15) / 16) * 16; // align for efficient swscale
     if (!(picture = malloc(linesize * (int) size.height)))
         return nil;
