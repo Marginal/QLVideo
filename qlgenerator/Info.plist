@@ -154,6 +154,8 @@
 				<string>io.iina.mkv</string>
 				<string>io.iina.webm</string>
 
+				<!-- defined by Canon RAW Development -->
+				<string>com.canon.raw.movie</string>
 			</array>
 		</dict>
 	</array>

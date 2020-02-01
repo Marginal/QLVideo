@@ -519,6 +519,27 @@
 				</array>
 			</dict>
 		</dict>
+
+		<!-- defined by Canon RAW Development -->
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Canon RAW Movie</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.canon.raw.movie</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>crm</string>
+					<string>rmf</string>
+				</array>
+			</dict>
+		</dict>
+
 	</array>
 </dict>
 </plist>

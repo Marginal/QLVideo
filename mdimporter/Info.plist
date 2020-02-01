@@ -156,6 +156,9 @@
 				<string>io.iina.mkv</string>
 				<string>io.iina.webm</string>
 
+				<!-- defined by Canon RAW Development -->
+				<string>com.canon.raw.movie</string>
+
 				<!-- schema:stop - stop pulling UTIs into schema.xml -->
 
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
