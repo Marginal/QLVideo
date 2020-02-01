@@ -57,8 +57,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
-            NSOperatingSystemVersion catalina = { 10, 15, 0 };
-            CFStringRef flavor = [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:catalina] ? kQLThumbnailPropertyIconFlavorKey_10_15 : kQLThumbnailPropertyIconFlavorKey;
+            CFStringRef flavor = newQuickLook ? kQLThumbnailPropertyIconFlavorKey_10_15 : kQLThumbnailPropertyIconFlavorKey;
             NSDictionary *properties = @{(__bridge NSString *) flavor: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
             QLThumbnailRequestSetImage(thumbnail, snapshot, (__bridge CFDictionaryRef) properties);
             CGImageRelease(snapshot);

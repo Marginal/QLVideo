@@ -46,6 +46,7 @@ extern int QLMemoryUsedCritical;        // From QuickLook framework
 static const int kSatelliteMemory = 256 * 1024 * 1024; // Memory threshold for our QuickLookSatellite process
 
 // Globals
+BOOL newQuickLook;
 BOOL brokenQLCoverFlow;
 BOOL hackedQLDisplay;
 
@@ -146,9 +147,11 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     av_register_all();
 
     // Plugin intitialisation
-    NSOperatingSystemVersion yosemite = { 10, 10, 0 };
+    newQuickLook = ([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
+                    [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 10, 15, 0 }]);
+
     brokenQLCoverFlow = (!([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
-                           [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:yosemite]));
+                           [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 10, 10, 0 }]));
 
     hackedQLDisplay = [[[[NSFileManager defaultManager] attributesOfItemAtPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay" error:nil] objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
 

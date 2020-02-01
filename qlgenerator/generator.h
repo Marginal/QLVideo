@@ -27,6 +27,7 @@ extern const int kMinimumDuration;
 extern const int kMinimumPeriod;
 
 // Globals
+extern BOOL newQuickLook;       // Whether we're on Catalina or later which has new icon flavor key
 extern BOOL brokenQLCoverFlow;  // Whether we're on Mavericks which doesn't handle CoverFlow previews properly
 extern BOOL hackedQLDisplay;    // Whether the user has symlinked QTKit-based LegacyMovie.qldisplay as Movie.qldisplay
 

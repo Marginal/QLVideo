@@ -116,10 +116,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
         // If AVFoundation can play it, then hand it off to
         // /System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay
+        // On Catalina and later QuickLook only hands off UTIs to us that AVFoundation definitely can't handle.
         if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
         CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
-        if (![defaults boolForKey:kSettingsSnapshotAlways])
+        if (!(newQuickLook || [defaults boolForKey:kSettingsSnapshotAlways]))
             @autoreleasepool    // Reduce peak footprint
         {
             Player *player = [Player playerWithURL:(__bridge NSURL *)url];
