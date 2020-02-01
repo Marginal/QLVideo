@@ -189,16 +189,17 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
         NSInteger duration = [snapshotter duration];
         int image_count;
-        if ([snapshotter thumbnails])
+        if ([snapshotter pictures])
         {
-            // "best" video stream is pre-computed thumbnails
-            image_count = [snapshotter thumbnails];
+            // "best" video stream is pre-computed pictures
+            image_count = [snapshotter pictures];
             if (image_count >= kMaxSnapshotCount)
                 image_count = kDefaultSnapshotCount;
 
             // AV_DISPOSITION_TIMED_THUMBNAILS is undocumented and semantics are unclear.
             // Appears that the first thumbnail is duplicated in the stream, so read and discard.
-            [snapshotter newSnapshotWithSize:CGSizeMake(0,0) atTime:-1];
+            if (image_count > 1)
+                [snapshotter newSnapshotWithSize:CGSizeMake(0,0) atTime:-1];
         }
         else
         {
@@ -232,7 +233,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 if (QLPreviewRequestIsCancelled(preview))
                     return kQLReturnNoError;
 
-                CFDataRef png = [snapshotter newPNGWithSize:scaled atTime:[snapshotter thumbnails] ? -1 : (duration * (i + 1)) / (image_count + 1)];
+                CFDataRef png = [snapshotter newPNGWithSize:scaled atTime:(duration * (i + 1)) / (image_count + 1)];
                 if (!png && !i)
                     png = [snapshotter newPNGWithSize:scaled atTime:0];  // Failed on first frame. Try again at start.
                 if (!png)

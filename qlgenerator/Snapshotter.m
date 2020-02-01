@@ -54,7 +54,7 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         AVStream *stream = fmt_ctx->streams[stream_idx];
         dec_ctx = stream->codec;
         avcodec_open2(dec_ctx, codec, NULL);
-        _thumbnails = (stream->disposition == (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS) && ((int) stream->nb_frames > 0) ? (int) stream->nb_frames: 0);
+        _pictures = (stream->disposition == (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS) && ((int) stream->nb_frames > 0) ? (int) stream->nb_frames: 0);
     }
 
     // If we can't decode the video stream, might still be able to read metadata and cover art.
@@ -190,17 +190,17 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     // offset for our screenshot
     int64_t timestamp = (stream->start_time == AV_NOPTS_VALUE) ? 0 : stream->start_time;
     int64_t stoptime;
-    if (seconds > 0)
+    if (!_pictures && seconds > 0)      // Ignore time if we're serving pre-computed pictures
     {
-        avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
+        avcodec_flush_buffers(dec_ctx); // Discard any buffered packets left over from previous call
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
         if (av_seek_frame(fmt_ctx, stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
             return -1;
     }
-    else if (seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
+    else if (!_pictures && seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
     {
-        avcodec_flush_buffers(dec_ctx);    // Discard any buffered packets left over from previous call
+        avcodec_flush_buffers(dec_ctx); // Discard any buffered packets left over from previous call
         av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);
         stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
     }
@@ -275,6 +275,9 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
             free(picture);
             return nil;
         }
+
+        if (_pictures)  // Skip non-blank check for pre-computed pictures
+            break;
 
         // Check centre of 3x3 rectangle for not too dark or too light
         uint8_t *line = picture + linesize * ((int) size.height / 3) + (int) size.width;
