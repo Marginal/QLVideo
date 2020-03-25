@@ -119,6 +119,7 @@
 				<string>io.mpv.rmvb</string>
 				<string>io.mpv.wmv</string>
 				<string>io.mpv.xvid</string>
+				<string>io.mpv.webm</string>
 
 				<!-- defined by Media Inspector -->
 				<string>com.massanti.mediainfomac.ogv</string>
