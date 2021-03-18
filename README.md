@@ -15,7 +15,7 @@ Installation
 
 Alternatively, if you have [Homebrew](http://brew.sh/) installed, you can install using Homebrew [Cask](http://caskroom.io/):
 
-    brew cask install qlvideo
+    brew install --cask qlvideo
 
 Screenshots
 -----------
