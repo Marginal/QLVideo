@@ -1,0 +1,27 @@
+#!/bin/bash
+
+OUTDIR="${TARGET_BUILD_DIR}/${TARGET_NAME}"
+if [ "${ACTION}" == "clean" ]; then
+	echo Remove "${OUTDIR}"
+	if [ -n "${OUTDIR}" ]; then
+		rm -rf "${OUTDIR}"
+	fi
+else
+	# For cmake & yasm
+	PATH=$PATH:/usr/local/bin
+
+	if [ ! -f "${SRCROOT}/${TARGET_NAME}/CMakeLists.txt" ]; then
+		echo Clone to ${SRCROOT}/${TARGET_NAME}
+		cd "${SRCROOT}"
+		git submodule update --init
+	fi
+	echo Build in ${OUTDIR}
+	mkdir -p "${OUTDIR}"
+	cd "${OUTDIR}"
+	if [ -f CMakeCache.txt ]; then
+		echo Skipping cmake
+	else
+		cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DENABLE_SSE4_2=0 -DENABLE_AVX=0 -DENABLE_AVX2=0
+	fi
+	make -j`sysctl -n hw.physicalcpu` ${ACTION}
+fi

@@ -4,7 +4,8 @@ Building
 Prerequisites
 -------
 * Requires Xcode 6.1 and macOS 10.10 SDK or later.
-* ffmpeg requires the "yasm" assembler to build. You can obtain it through [Homebrew](https://brew.sh) via `brew install yasm`.
+* ffmpeg and its dependencies require "CMake" and the "yasm" assembler to build. You can obtain them
+  through [Homebrew](https://brew.sh) via `brew install cmake yasm`.
 
 Products
 -------

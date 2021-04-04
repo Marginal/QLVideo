@@ -26,6 +26,9 @@
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB0680CF1EDB924C00534129 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB0680CD1EDB913400534129 /* QTKit.framework */; };
 		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
+		AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
+		AB66477D261B43B500D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
+		AB66477E261B43B600D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
 		AB7C713919F8A44D0006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
 		AB7C713D19F8A4660006104E /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
@@ -91,6 +94,34 @@
 			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
 			remoteInfo = ffmpeg;
 		};
+		AB66472A261AA04400D23514 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB66470D261A88C700D23514;
+			remoteInfo = aom;
+		};
+		AB66472C261AA05C00D23514 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB66470D261A88C700D23514;
+			remoteInfo = aom;
+		};
+		AB66472E261AA06100D23514 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB66470D261A88C700D23514;
+			remoteInfo = aom;
+		};
+		AB664730261AA06C00D23514 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB66470D261A88C700D23514;
+			remoteInfo = aom;
+		};
 		ABABE2831975AF42008898A0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
@@ -146,6 +177,7 @@
 		AB36C8901A6FFB4E004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/schema.strings; sourceTree = "<group>"; };
 		AB54B963217F42B000558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libaom.a; sourceTree = "<group>"; };
 		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = libavformat/libavformat.a; sourceTree = "<group>"; };
 		AB7C713819F8A44D0006104E /* libavfilter.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavfilter.a; path = libavfilter/libavfilter.a; sourceTree = "<group>"; };
 		AB7C713C19F8A4660006104E /* libavcodec.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavcodec.a; path = libavcodec/libavcodec.a; sourceTree = "<group>"; };
@@ -216,10 +248,11 @@
 				AB0527DC1D29478A009A809B /* libavcodec.a in Frameworks */,
 				AB0527E01D294796009A809B /* libswresample.a in Frameworks */,
 				AB0527E11D294799009A809B /* libswscale.a in Frameworks */,
-				AB0527E21D2947AC009A809B /* liblzma.5.dylib in Frameworks */,
 				AB0527DF1D294793009A809B /* libavutil.a in Frameworks */,
-				AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */,
+				AB66477E261B43B600D23514 /* libaom.a in Frameworks */,
 				AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */,
+				AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */,
+				AB0527E21D2947AC009A809B /* liblzma.5.dylib in Frameworks */,
 				AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -247,10 +280,11 @@
 				AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */,
 				AB7C715319F9E2AE0006104E /* libswresample.a in Frameworks */,
 				AB7C715419F9E2B00006104E /* libswscale.a in Frameworks */,
-				ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */,
 				AB7C715519F9E2B40006104E /* libavutil.a in Frameworks */,
-				AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */,
+				AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */,
 				AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */,
+				AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */,
+				ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */,
 				AB7C715919F9E2C90006104E /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -268,11 +302,12 @@
 				AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */,
 				AB7C713D19F8A4660006104E /* libavcodec.a in Frameworks */,
 				AB7C714C19F8A7060006104E /* libswresample.a in Frameworks */,
-				ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */,
 				AB7C714D19F8A7060006104E /* libswscale.a in Frameworks */,
 				AB7C714519F8A6560006104E /* libavutil.a in Frameworks */,
-				AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */,
+				AB66477D261B43B500D23514 /* libaom.a in Frameworks */,
 				AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */,
+				AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */,
+				ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */,
 				AB7C714719F8A6730006104E /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -287,6 +322,14 @@
 			);
 			path = benchmark;
 			sourceTree = "<group>";
+		};
+		AB664719261A900600D23514 /* aom */ = {
+			isa = PBXGroup;
+			children = (
+				AB66474E261ABBB600D23514 /* libaom.a */,
+			);
+			path = aom;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		AB93B0FE196CA60500708B2E /* qlgenerator */ = {
 			isa = PBXGroup;
@@ -356,6 +399,7 @@
 		AB9FB56F1965DD7200D39647 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AB664719261A900600D23514 /* aom */,
 				ABCAEA331CDB899B004890E3 /* FFmpeg */,
 				AB7C714019F8A5C50006104E /* libbz2.dylib */,
 				AB7C714819F8A6970006104E /* libiconv.dylib */,
@@ -431,10 +475,25 @@
 			buildToolPath = ./buildffmpeg;
 			buildWorkingDirectory = "$(SRCROOT)";
 			dependencies = (
+				AB66472B261AA04400D23514 /* PBXTargetDependency */,
 			);
 			name = ffmpeg;
 			passBuildSettingsInEnvironment = 1;
 			productName = ffmpeg;
+		};
+		AB66470D261A88C700D23514 /* aom */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = AB66470E261A88C800D23514 /* Build configuration list for PBXLegacyTarget "aom" */;
+			buildPhases = (
+			);
+			buildToolPath = ./buildaom;
+			buildWorkingDirectory = "${SRCROOT}";
+			dependencies = (
+			);
+			name = aom;
+			passBuildSettingsInEnvironment = 1;
+			productName = aom;
 		};
 /* End PBXLegacyTarget section */
 
@@ -449,6 +508,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				AB664731261AA06C00D23514 /* PBXTargetDependency */,
 				AB535D5C1EDCD0C900ECB0CE /* PBXTargetDependency */,
 			);
 			name = benchmark;
@@ -487,6 +547,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				AB66472D261AA05C00D23514 /* PBXTargetDependency */,
 				AB535D5A1EDCD0C100ECB0CE /* PBXTargetDependency */,
 			);
 			name = qlgenerator;
@@ -506,6 +567,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				AB66472F261AA06100D23514 /* PBXTargetDependency */,
 				AB535D581EDCD0BD00ECB0CE /* PBXTargetDependency */,
 			);
 			name = mdimporter;
@@ -526,6 +588,11 @@
 					};
 					AB535D4D1EDC390C00ECB0CE = {
 						CreatedOnToolsVersion = 8.3.2;
+						ProvisioningStyle = Automatic;
+					};
+					AB66470D261A88C700D23514 = {
+						CreatedOnToolsVersion = 12.4;
+						DevelopmentTeam = R8954VZGV2;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -565,6 +632,7 @@
 				AB93B0F5196CA60500708B2E /* qlgenerator */,
 				AB0527CD1D294732009A809B /* benchmark */,
 				AB535D4D1EDC390C00ECB0CE /* ffmpeg */,
+				AB66470D261A88C700D23514 /* aom */,
 			);
 		};
 /* End PBXProject section */
@@ -673,6 +741,26 @@
 			isa = PBXTargetDependency;
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB535D5B1EDCD0C900ECB0CE /* PBXContainerItemProxy */;
+		};
+		AB66472B261AA04400D23514 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB66470D261A88C700D23514 /* aom */;
+			targetProxy = AB66472A261AA04400D23514 /* PBXContainerItemProxy */;
+		};
+		AB66472D261AA05C00D23514 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB66470D261A88C700D23514 /* aom */;
+			targetProxy = AB66472C261AA05C00D23514 /* PBXContainerItemProxy */;
+		};
+		AB66472F261AA06100D23514 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB66470D261A88C700D23514 /* aom */;
+			targetProxy = AB66472E261AA06100D23514 /* PBXContainerItemProxy */;
+		};
+		AB664731261AA06C00D23514 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB66470D261A88C700D23514 /* aom */;
+			targetProxy = AB664730261AA06C00D23514 /* PBXContainerItemProxy */;
 		};
 		ABABE2841975AF42008898A0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -784,6 +872,56 @@
 			};
 			name = Release;
 		};
+		AB66470F261A88C800D23514 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = R8954VZGV2;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AB664710261A88C800D23514 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = R8954VZGV2;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		AB93B0E0196B839700708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -822,6 +960,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
+				LD_RUNPATH_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.qlgenerator;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = qlgenerator;
@@ -834,6 +973,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
+				LD_RUNPATH_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.qlgenerator;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = qlgenerator;
@@ -887,6 +1027,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg",
 					ffmpeg,
+					aom/aom,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libavcodec",
@@ -895,6 +1036,7 @@
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libavutil",
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libswresample",
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libswscale",
+					"$(BUILT_PRODUCTS_DIR)/aom",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
@@ -945,6 +1087,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg",
 					ffmpeg,
+					aom/aom,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libavcodec",
@@ -953,8 +1096,10 @@
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libavutil",
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libswresample",
 					"$(BUILT_PRODUCTS_DIR)/ffmpeg/libswscale",
+					"$(BUILT_PRODUCTS_DIR)/aom",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -1002,6 +1147,15 @@
 			buildConfigurations = (
 				AB535D4E1EDC390C00ECB0CE /* Debug */,
 				AB535D4F1EDC390C00ECB0CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AB66470E261A88C800D23514 /* Build configuration list for PBXLegacyTarget "aom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB66470F261A88C800D23514 /* Debug */,
+				AB664710261A88C800D23514 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
