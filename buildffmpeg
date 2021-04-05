@@ -10,8 +10,8 @@ else
 	# For yasm
 	PATH=$PATH:/usr/local/bin
 
-	if [ ! -x "${SRCROOT}/ffmpeg/configure" ]; then
-		echo Clone to ${SRCROOT}/ffmpeg
+	if [ ! -x "${SRCROOT}/${TARGET_NAME}/configure" ]; then
+		echo Clone to ${SRCROOT}/${TARGET_NAME}
 		cd "${SRCROOT}"
 		git submodule update --init
 	fi
@@ -26,7 +26,7 @@ else
 		else
 			FLAGS=
 		fi
-		${SRCROOT}/ffmpeg/configure --cc=clang --cpu=core2 --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
+		"${SRCROOT}/${TARGET_NAME}/configure" --cc=clang --arch=x86_64 --cpu=core2 --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
 	fi
 	make -j`sysctl -n hw.physicalcpu` ${ACTION}
 fi
