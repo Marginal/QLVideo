@@ -8,7 +8,7 @@ QuickLook and Spotlight on macOS 10.9 and later understand a limited number of m
 Installation
 ------------
 * Download the `.pkg` file of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
-* Double-click on it.
+* Right-click on it and choose "Open".
 * The Installer app will walk you through the installation process.
 * To see thumbnails of video files you may need to relaunch Finder (ctrl-⌥-click on the Finder icon in the Dock and choose Relaunch) or log out and back in again.
 * You may experience high CPU and disk usage for a few minutes after installation while Spotlight re-indexes all of your "non-native" audio and video files.
