@@ -4,6 +4,7 @@ Building
 Prerequisites
 -------
 * Requires Xcode 6.1 and macOS 10.10 SDK or later.
+* Before building, update submodules with `git submodule update --init --recursive`.
 * ffmpeg and its dependencies require "CMake" and the "yasm" assembler to build. You can obtain them
   through [Homebrew](https://brew.sh) via `brew install cmake yasm`.
 

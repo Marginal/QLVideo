@@ -5,28 +5,45 @@ if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OUTDIR}"
 	if [ -n "${OUTDIR}" ]; then
 		rm -rf "${OUTDIR}"
+		for ARCH in $ARCHS; do
+			rm -rf "${OUTDIR}/${ARCH}"
+		done
 	fi
 else
-	# For yasm
-	PATH=$PATH:/usr/local/bin
+	# For yasm and gas
+	PATH=$PATH:${SRCROOT}/gas:/usr/local/bin
 
-	if [ ! -x "${SRCROOT}/${TARGET_NAME}/configure" ]; then
-		echo Clone to ${SRCROOT}/${TARGET_NAME}
-		cd "${SRCROOT}"
-		git submodule update --init
-	fi
 	echo Build in ${OUTDIR}
-	mkdir -p "${OUTDIR}"
-	cd "${OUTDIR}"
-	if [ -f config.h ]; then
-		echo Skipping configure
-	else
-		if [ "${CONFIGURATION}" == "Debug" ]; then
-			FLAGS="--disable-optimizations"
+	BUILT=""
+	for ARCH in $ARCHS; do
+		mkdir -p "${OUTDIR}/${ARCH}"
+		cd "${OUTDIR}/${ARCH}"
+		if [ -f config.h ]; then
+			echo Skipping configure
 		else
-			FLAGS=
+			if [ "${CONFIGURATION}" == "Debug" ]; then
+				FLAGS="--disable-optimizations"
+			else
+				FLAGS=
+			fi
+			if [ $ARCH == arm64 ]; then
+				FLAGS="$FLAGS --enable-cross-compile --enable-vfp --enable-neon"
+			elif [ $ARCH == x86_64 ]; then
+				FLAGS="$FLAGS --cpu=core2"
+			fi
+			"${SRCROOT}/${TARGET_NAME}/configure" --arch=${ARCH} --cc="clang -arch ${ARCH} -L${TARGET_BUILD_DIR}/aom" ${FLAGS} --extra-cflags=-I${SRCROOT}/aom --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file
 		fi
-		"${SRCROOT}/${TARGET_NAME}/configure" --cc=clang --arch=x86_64 --cpu=core2 --extra-cflags=-I${SRCROOT}/aom --extra-ldexeflags="-liconv -L${TARGET_BUILD_DIR}/aom" --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file ${FLAGS}
-	fi
-	make -j`sysctl -n hw.physicalcpu` ${ACTION}
+		make -j`sysctl -n hw.physicalcpu` ${ACTION}
+		# Assumes there aren't any material client impacting differences in config between archs
+		cp -p ${OUTDIR}/${ARCH}/config.h ${OUTDIR}/
+		cp -p ${OUTDIR}/${ARCH}/libavutil/*.h ${OUTDIR}/libavutil/
+	done
+	for LIB in libavcodec libavfilter libavformat libavutil libpostproc libswresample libswscale; do
+		BUILT=""
+		for ARCH in $ARCHS; do
+			BUILT="${BUILT} ${OUTDIR}/${ARCH}/${LIB}/${LIB}.a"
+		done
+		mkdir -p ${OUTDIR}/${LIB}
+		lipo -create $BUILT -output "${OUTDIR}/${LIB}/${LIB}.a"
+	done
 fi

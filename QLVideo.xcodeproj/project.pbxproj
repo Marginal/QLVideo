@@ -24,7 +24,6 @@
 		AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
-		AB0680CF1EDB924C00534129 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB0680CD1EDB913400534129 /* QTKit.framework */; };
 		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477D261B43B500D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
@@ -160,7 +159,6 @@
 		AB00C5D21A682FB700D71399 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB0527C81D2946F1009A809B /* bench.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bench.m; sourceTree = "<group>"; };
 		AB0527CE1D294732009A809B /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB0680CD1EDB913400534129 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = System/Library/Frameworks/QTKit.framework; sourceTree = SDKROOT; };
 		AB0B80BF1EED41F1008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0B80C11EED4204008A22DC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0B80C21EED4215008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -274,7 +272,6 @@
 				ABE23BD81D25914C004E9D26 /* AudioToolbox.framework in Frameworks */,
 				ABE23BD31D258F6C004E9D26 /* VideoToolbox.framework in Frameworks */,
 				ABE23BDB1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */,
-				AB0680CF1EDB924C00534129 /* QTKit.framework in Frameworks */,
 				AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */,
 				AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */,
 				AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */,
@@ -415,7 +412,6 @@
 				AB93B0F7196CA60500708B2E /* QuickLook.framework */,
 				AB93B0F9196CA60500708B2E /* ApplicationServices.framework */,
 				AB93B0FB196CA60500708B2E /* CoreServices.framework */,
-				AB0680CD1EDB913400534129 /* QTKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

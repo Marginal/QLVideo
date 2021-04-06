@@ -5,23 +5,28 @@ if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OUTDIR}"
 	if [ -n "${OUTDIR}" ]; then
 		rm -rf "${OUTDIR}"
+		for ARCH in $ARCHS; do
+			rm -rf "${OUTDIR}/${ARCH}"
+		done
 	fi
 else
 	# For cmake & yasm
 	PATH=$PATH:/usr/local/bin
 
-	if [ ! -f "${SRCROOT}/${TARGET_NAME}/CMakeLists.txt" ]; then
-		echo Clone to ${SRCROOT}/${TARGET_NAME}
-		cd "${SRCROOT}"
-		git submodule update --init
-	fi
 	echo Build in ${OUTDIR}
-	mkdir -p "${OUTDIR}"
-	cd "${OUTDIR}"
-	if [ -f CMakeCache.txt ]; then
-		echo Skipping cmake
-	else
-		cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DENABLE_SSE4_2=0 -DENABLE_AVX=0 -DENABLE_AVX2=0
-	fi
-	make -j`sysctl -n hw.physicalcpu` ${ACTION}
+	BUILT=""
+	for ARCH in $ARCHS; do
+		mkdir -p "${OUTDIR}/${ARCH}"
+		cd "${OUTDIR}/${ARCH}"
+		if [ -f CMakeCache.txt ]; then
+			echo Skipping cmake
+		elif [ $ARCH == arm64 ]; then
+			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DAOM_TARGET_CPU=arm64 -DCONFIG_RUNTIME_CPU_DETECT=0
+		else
+			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DENABLE_SSE4_2=0 -DENABLE_AVX=0 -DENABLE_AVX2=0
+		fi
+		make -j`sysctl -n hw.physicalcpu` ${ACTION}
+		BUILT="${BUILT} ${OUTDIR}/${ARCH}/libaom.a"
+	done
+	lipo -create $BUILT -output ${OUTDIR}/libaom.a
 fi

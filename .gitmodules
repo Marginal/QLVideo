@@ -4,3 +4,6 @@
 [submodule "aom"]
 	path = aom
 	url = https://aomedia.googlesource.com/aom
+[submodule "gas-preprocessor"]
+	path = gas
+	url = https://github.com/FFmpeg/gas-preprocessor.git
