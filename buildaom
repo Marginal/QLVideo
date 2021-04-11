@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 OUTDIR="${TARGET_BUILD_DIR}/${TARGET_NAME}"
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OUTDIR}"
