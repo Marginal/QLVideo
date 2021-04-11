@@ -161,9 +161,6 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 // Gets cover art if available, or nil.
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
 {
-    // Cover art can appear as an extra video stream (e.g. mp4, wtv) or as attachment(s) (e.g. mkv).
-    // (Note this isn't necessarily how they're encoded in the file, but how the FFmpeg codecs present them).
-
     AVStream *art_stream = NULL;
     int art_priority = 0;
 
@@ -173,15 +170,10 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         AVCodecContext *ctx = s->codec;
         if (ctx && (ctx->codec_id == AV_CODEC_ID_PNG || ctx->codec_id == AV_CODEC_ID_MJPEG))
         {
-            if (ctx->codec_type == AVMEDIA_TYPE_VIDEO &&
-                ((s->disposition & (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS)) == AV_DISPOSITION_ATTACHED_PIC))
-            {
-                if (mode != CoverArtLandscape)  // Assume that unnamed cover art is *not* landscape, so don't return it
-                    art_stream = s;
-
-                break;      // prefer first if multiple
-            }
-            else if (ctx->codec_type == AVMEDIA_TYPE_ATTACHMENT)
+            /* Depending on codec and ffmpeg version cover art may be represented as attachment or as additional video stream(s) */
+            if (ctx->codec_type == AVMEDIA_TYPE_ATTACHMENT ||
+                (ctx->codec_type == AVMEDIA_TYPE_VIDEO &&
+                 ((s->disposition & (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS)) == AV_DISPOSITION_ATTACHED_PIC)))
             {
                 // MKVs can contain multiple cover art - see http://matroska.org/technical/cover_art/index.html
                 int priority;
@@ -243,6 +235,15 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
         CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
     CGDataProviderRelease(provider);
     CFRelease(data);
+
+    if (image && (!CGImageGetWidth(image) || !CGImageGetHeight(image)))
+    {
+#ifdef DEBUG
+        NSLog(@"QLVideo Zero sized cover art %ldx%ld", CGImageGetWidth(image), CGImageGetHeight(image));
+#endif
+        CGImageRelease(image);
+        return nil;
+    }
     return image;
 }
 
