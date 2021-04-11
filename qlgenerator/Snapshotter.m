@@ -16,9 +16,29 @@
 static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for being too black or too white
 
+
+// Direct ffmpeg log output to system log
+static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
+{
+    NSLogv([@"QLVideo ffmpeg " stringByAppendingString:[[NSString alloc] initWithUTF8String:fmt]], vl);
+}
+
+
 @implementation Snapshotter
 
-- (instancetype) initWithURL:(CFURLRef)url;
++ (void) load
+{
+    NSLog(@"QLVideo Snapshotter load");
+    av_log_set_callback(av_log_callback);
+#ifndef DEBUG
+    av_log_set_level(AV_LOG_FATAL|AV_LOG_SKIP_REPEATED);
+#else
+    av_log_set_level(AV_LOG_ERROR|AV_LOG_SKIP_REPEATED);
+#endif
+    av_register_all();
+}
+
+- (instancetype) initWithURL:(CFURLRef)url
 {
     if (!(self = [super init]))
         return nil;
@@ -124,6 +144,9 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 
 - (void) dealloc
 {
+#ifdef DEBUG
+    NSLog(@"QLVideo Snapshotter dealloc");
+#endif
     avcodec_close(dec_ctx);
     avformat_close_input(&fmt_ctx);
     if (enc_ctx)

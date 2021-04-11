@@ -118,12 +118,7 @@ MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryI
     sa.sa_handler = segv_handler;
     sigaction(SIGABRT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
-
-    av_log_set_level(AV_LOG_FATAL|AV_LOG_SKIP_REPEATED);
-#else
-    av_log_set_level(AV_LOG_INFO |AV_LOG_SKIP_REPEATED);
 #endif
-    av_register_all();
 
     MetadataImporterPluginType *theNewInstance;
 
