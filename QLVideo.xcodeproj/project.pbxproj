@@ -25,6 +25,7 @@
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
+		AB539C60262359BB00C0FB1F /* QLVideo.c in Sources */ = {isa = PBXBuildFile; fileRef = AB539C5F262359BB00C0FB1F /* QLVideo.c */; };
 		AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477D261B43B500D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477E261B43B600D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
@@ -46,7 +47,6 @@
 		AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB7C715919F9E2C90006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
-		AB93B0EE196B85C800708B2E /* QLVideo in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB93B0EC196B855100708B2E /* QLVideo */; };
 		AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0F7196CA60500708B2E /* QuickLook.framework */; };
 		AB93B105196CA60500708B2E /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B104196CA60500708B2E /* GenerateThumbnailForURL.m */; };
 		AB93B107196CA60500708B2E /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */; };
@@ -137,19 +137,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		AB93B0E6196B83D200708B2E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 6;
-			files = (
-				AB93B0EE196B85C800708B2E /* QLVideo in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		AB00C5C81A682EF800D71399 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/schema.strings; sourceTree = "<group>"; };
 		AB00C5CA1A682F6800D71399 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/schema.strings; sourceTree = "<group>"; };
@@ -173,6 +160,10 @@
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		AB36C88E1A6FFB3C004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/schema.strings; sourceTree = "<group>"; };
 		AB36C8901A6FFB4E004F571E /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB4C9E8C261E831500E96EED /* QLVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QLVideo.entitlements; sourceTree = "<group>"; };
+		AB4C9EF5262315BC00E96EED /* mdimport.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = mdimport.entitlements; sourceTree = "<group>"; };
+		AB4C9EF6262315E700E96EED /* qlgenerator.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = qlgenerator.entitlements; sourceTree = "<group>"; };
+		AB539C5F262359BB00C0FB1F /* QLVideo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = QLVideo.c; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/schema.strings; sourceTree = "<group>"; };
 		AB54B963217F42B000558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libaom.a; sourceTree = "<group>"; };
@@ -189,7 +180,6 @@
 		AB82777A1A7523FC00F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB93B0B3196B839600708B2E /* QLVideo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QLVideo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		AB93B0EC196B855100708B2E /* QLVideo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = QLVideo; sourceTree = "<group>"; };
 		AB93B0F6196CA60500708B2E /* Video.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0F7196CA60500708B2E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		AB93B0F9196CA60500708B2E /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
@@ -339,6 +329,8 @@
 				AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */,
 				AB93B1191972EBF700708B2E /* Snapshotter.h */,
 				AB93B11A1972EBF700708B2E /* Snapshotter.m */,
+				AB93B10E196CA7EE00708B2E /* Info.plist */,
+				AB4C9EF6262315E700E96EED /* qlgenerator.entitlements */,
 				AB93B0FF196CA60500708B2E /* Supporting Files */,
 			);
 			path = qlgenerator;
@@ -347,7 +339,6 @@
 		AB93B0FF196CA60500708B2E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				AB93B10E196CA7EE00708B2E /* Info.plist */,
 				AB19C82B1A3A295700A14247 /* Localizable.strings */,
 			);
 			name = "Supporting Files";
@@ -356,18 +347,11 @@
 		AB984692196B432100AF6349 /* app */ = {
 			isa = PBXGroup;
 			children = (
-				AB984693196B432200AF6349 /* Supporting Files */,
+				AB9846DC196B790F00AF6349 /* Info.plist */,
+				AB539C5F262359BB00C0FB1F /* QLVideo.c */,
+				AB4C9E8C261E831500E96EED /* QLVideo.entitlements */,
 			);
 			path = app;
-			sourceTree = "<group>";
-		};
-		AB984693196B432200AF6349 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				AB93B0EC196B855100708B2E /* QLVideo */,
-				AB9846DC196B790F00AF6349 /* Info.plist */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		AB9FB5641965DD7200D39647 = {
@@ -421,6 +405,8 @@
 			children = (
 				AB9FB57E1965DD7200D39647 /* main.m */,
 				AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */,
+				AB9FB58C1965DF0700D39647 /* Info.plist */,
+				AB4C9EF5262315BC00E96EED /* mdimport.entitlements */,
 				AB9FB5791965DD7200D39647 /* Supporting Files */,
 				ABB1A29E1A1C392F00EEF82B /* Built Products */,
 			);
@@ -430,7 +416,6 @@
 		AB9FB5791965DD7200D39647 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				AB9FB58C1965DF0700D39647 /* Info.plist */,
 				ABB1A29A1A1C358500EEF82B /* buildschema */,
 				ABE4610E1A15A519006C89A2 /* schema.strings */,
 			);
@@ -519,7 +504,6 @@
 				AB93B0AF196B839600708B2E /* Sources */,
 				AB93B0B0196B839600708B2E /* Frameworks */,
 				AB93B0B1196B839600708B2E /* Resources */,
-				AB93B0E6196B83D200708B2E /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -584,12 +568,9 @@
 					};
 					AB535D4D1EDC390C00ECB0CE = {
 						CreatedOnToolsVersion = 8.3.2;
-						ProvisioningStyle = Automatic;
 					};
 					AB66470D261A88C700D23514 = {
 						CreatedOnToolsVersion = 12.4;
-						DevelopmentTeam = R8954VZGV2;
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -696,6 +677,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB539C60262359BB00C0FB1F /* QLVideo.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -878,11 +860,9 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUGGING_SYMBOLS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = R8954VZGV2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -905,10 +885,8 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = R8954VZGV2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -923,9 +901,9 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = app/QLVideo.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "QLVideo/QLVideo-Prefix.pch";
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
@@ -939,9 +917,9 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = app/QLVideo.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "QLVideo/QLVideo-Prefix.pch";
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
@@ -953,6 +931,7 @@
 		AB93B10C196CA60500708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = qlgenerator/qlgenerator.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
@@ -966,6 +945,7 @@
 		AB93B10D196CA60500708B2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = qlgenerator/qlgenerator.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
@@ -1004,9 +984,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1069,9 +1050,10 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -1103,6 +1085,7 @@
 		AB9FB58A1965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = mdimporter/mdimport.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
@@ -1116,6 +1099,7 @@
 		AB9FB58B1965DD7200D39647 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = mdimporter/mdimport.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";

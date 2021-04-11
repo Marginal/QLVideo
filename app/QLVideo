@@ -1,3 +1,0 @@
-#!/bin/sh
-# some padding to make OSX happy
-exit 0

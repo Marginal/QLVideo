@@ -43,18 +43,12 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     if (!(self = [super init]))
         return nil;
 
-    CFIndex filenamesize = CFStringGetMaximumSizeOfFileSystemRepresentation(CFURLGetString(url));
-    char *filename = malloc(filenamesize);
-    if (!filename)
-        return nil;
 
-    if (!CFURLGetFileSystemRepresentation(url, true, (UInt8*)filename, filenamesize) ||
-        avformat_open_input(&fmt_ctx, filename, NULL, NULL))
+    if (avformat_open_input(&fmt_ctx, [[(__bridge NSURL*) url path] UTF8String], NULL, NULL))
     {
-        free(filename);
+        NSLog(@"QLVideo can't open %@", [(__bridge NSURL*) url path]);
         return nil;
     }
-    free(filename);
 
     if (avformat_find_stream_info(fmt_ctx, NULL))
         return nil;
