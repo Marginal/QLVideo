@@ -26,6 +26,7 @@
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB539C60262359BB00C0FB1F /* QLVideo.c in Sources */ = {isa = PBXBuildFile; fileRef = AB539C5F262359BB00C0FB1F /* QLVideo.c */; };
+		AB539C922623AC9900C0FB1F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AB539C912623AC9900C0FB1F /* Assets.xcassets */; };
 		AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477D261B43B500D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477E261B43B600D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
@@ -164,6 +165,7 @@
 		AB4C9EF5262315BC00E96EED /* mdimport.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = mdimport.entitlements; sourceTree = "<group>"; };
 		AB4C9EF6262315E700E96EED /* qlgenerator.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = qlgenerator.entitlements; sourceTree = "<group>"; };
 		AB539C5F262359BB00C0FB1F /* QLVideo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = QLVideo.c; sourceTree = "<group>"; };
+		AB539C912623AC9900C0FB1F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/schema.strings; sourceTree = "<group>"; };
 		AB54B963217F42B000558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libaom.a; sourceTree = "<group>"; };
@@ -347,8 +349,9 @@
 		AB984692196B432100AF6349 /* app */ = {
 			isa = PBXGroup;
 			children = (
-				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB539C5F262359BB00C0FB1F /* QLVideo.c */,
+				AB539C912623AC9900C0FB1F /* Assets.xcassets */,
+				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB4C9E8C261E831500E96EED /* QLVideo.entitlements */,
 			);
 			path = app;
@@ -615,10 +618,18 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AB75CB1A261D19F2009BE894 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB93B0B1196B839600708B2E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB539C922623AC9900C0FB1F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
