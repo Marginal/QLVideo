@@ -11,9 +11,6 @@
 #import <Cocoa/Cocoa.h>
 #import <QuickLook/QuickLook.h>
 
-#include <signal.h>
-#include <dlfcn.h>
-
 #include "libavformat/avformat.h"
 #include "libavutil/log.h"
 
@@ -109,19 +106,6 @@ static QLGeneratorInterfaceStruct myInterfaceFtbl = {
 };
 
 
-void segv_handler(int signum)
-{
-    char *sCrashReporterInfo = dlsym(RTLD_DEFAULT, "__crashreporter_info__");
-
-    if (sCrashReporterInfo && *sCrashReporterInfo)
-        NSLog(@"Video.qlgenerator crashed: %s", sCrashReporterInfo);
-    else
-        NSLog(@"Video.qlgenerator crashed!");
-    
-    exit(EXIT_FAILURE);
-}
-
-
 // -----------------------------------------------------------------------------
 //	AllocQuickLookGeneratorPluginType
 // -----------------------------------------------------------------------------
@@ -131,16 +115,6 @@ void segv_handler(int signum)
 //
 QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFactoryID)
 {
-#ifndef DEBUG
-    // Install a handler to kill the QuickLookSatellite process quietly on a crash so the user isn't alarmed by a crash report.
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESETHAND;
-    sa.sa_handler = segv_handler;
-    sigaction(SIGABRT, &sa, NULL);
-    sigaction(SIGSEGV, &sa, NULL);
-#endif
-
     // Plugin intitialisation
     newQuickLook = ([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)] &&
                     [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){ 10, 15, 0 }]);

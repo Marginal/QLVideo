@@ -12,6 +12,17 @@
 #include <libavformat/isom.h>
 #include <libswscale/swscale.h>
 
+#ifndef DEBUG
+#include <pthread.h>
+#include <signal.h>
+
+void segv_handler(int signum)
+{
+    NSLog(@"QLVideo thread exiting on signal %d", signum);
+    pthread_exit(NULL);
+}
+#endif
+
 
 static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for being too black or too white
@@ -29,6 +40,18 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 + (void) load
 {
     NSLog(@"QLVideo Snapshotter load");
+
+#ifndef DEBUG
+    // Install a handler to kill this thread in the hope that other thumbnail threads in the ThumbnailsAgent process can continue
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESETHAND;
+    sa.sa_handler = segv_handler;
+    sigaction(SIGABRT, &sa, NULL);
+    sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+#endif
+
     av_log_set_callback(av_log_callback);
 #ifndef DEBUG
     av_log_set_level(AV_LOG_FATAL|AV_LOG_SKIP_REPEATED);
