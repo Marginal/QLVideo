@@ -76,6 +76,9 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     {
         // Get best stream (for metadata) even though we can't view it
         stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+        if (stream_idx < 0)
+            return nil;     // no video streams - viewable or otherwise
+
         dec_ctx = fmt_ctx->streams[stream_idx]->codec;
 
         // Special handling for Canon CRM movies which have a custom codec that ffmpeg doesn't understand, and a single JPEG preview picture
