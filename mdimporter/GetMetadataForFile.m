@@ -262,7 +262,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             }
             else if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
             {
-                if (stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
+                if (stream->disposition & (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS))
                     continue;   // Don't count cover art
 
                 if (dec_ctx->bit_rate > 0 && !attrs[(__bridge NSString *)kMDItemVideoBitRate])
