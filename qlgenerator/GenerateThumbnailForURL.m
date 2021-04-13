@@ -39,6 +39,10 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 {
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
+    // On Catalina and later the QLThumbnailGenerator application extension generates thumbnails
+    if (newQuickLook)
+        return kQLReturnNoError;
+
     CGImageRef snapshot = NULL;
 
     @autoreleasepool
