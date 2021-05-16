@@ -49,6 +49,11 @@ sudo rm -rf "/Library/Application Support/QLVideo" "/Library/QuickLook/Video.qlg
 * Press Enter.
 * Type your password and press Enter.
 
+If you installed using HomeBrew then you can remove the Cask with:
+```
+brew uninstall --cask qlvideo
+```
+
 Reporting bugs
 --------------
 * First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of macOS and back in again and see if the problem remains.
