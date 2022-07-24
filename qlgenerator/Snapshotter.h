@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "libavformat/avformat.h"
+#include "libavcodec/avcodec.h"
 
 
 typedef NS_ENUM(NSInteger, CoverArtMode)

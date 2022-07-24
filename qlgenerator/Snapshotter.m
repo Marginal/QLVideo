@@ -42,7 +42,7 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     // Find best audio stream and record channel count
     int audio_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
     if (audio_stream_idx >= 0)
-        _channels = fmt_ctx->streams[audio_stream_idx]->codec->channels;
+        _channels = fmt_ctx->streams[audio_stream_idx]->codecpar->ch_layout.nb_channels;
 
     AVDictionaryEntry *tag = av_dict_get(fmt_ctx->metadata, "title", NULL, 0);
     if (tag && tag->value)
@@ -54,7 +54,8 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     if (stream_idx >= 0)
     {
         AVStream *stream = fmt_ctx->streams[stream_idx];
-        dec_ctx = stream->codec;
+        dec_ctx = avcodec_alloc_context3(codec);
+        avcodec_parameters_to_context(dec_ctx, stream->codecpar);
         avcodec_open2(dec_ctx, codec, NULL);
         _pictures = (stream->disposition == (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS) && ((int) stream->nb_frames > 0) ? (int) stream->nb_frames: 0);
     }
@@ -62,7 +63,8 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     {
         // Get best stream (for metadata) even though we can't view it
         stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
-        dec_ctx = fmt_ctx->streams[stream_idx]->codec;
+        dec_ctx = avcodec_alloc_context3(codec);
+        avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[stream_idx]->codecpar);
 
         // Special handling for Canon CRM movies which have a custom codec that ffmpeg doesn't understand, and a single JPEG preview picture
         if ((tag = av_dict_get(fmt_ctx->metadata, "major_brand", NULL, AV_DICT_MATCH_CASE)) && !strncmp(tag->value, "crx ", 4))
@@ -124,7 +126,7 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 
 - (void) dealloc
 {
-    avcodec_close(dec_ctx);
+    avcodec_free_context(&dec_ctx);
     avformat_close_input(&fmt_ctx);
     if (enc_ctx)
         avcodec_free_context(&enc_ctx); // also closes the codec
@@ -166,11 +168,15 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
 
     AVStream *art_stream = NULL;
     int art_priority = 0;
-
+    AVCodecContext *ctx = NULL;
     for (int idx=0; idx < fmt_ctx->nb_streams; idx++)
     {
         AVStream *s = fmt_ctx->streams[idx];
-        AVCodecContext *ctx = s->codec;
+        const AVCodec *dec = avcodec_find_decoder(s->codecpar->codec_id);
+        if (ctx != NULL) {
+            avcodec_free_context(&ctx);
+        }
+        ctx = avcodec_alloc_context3(dec);
         if (ctx && (ctx->codec_id == AV_CODEC_ID_PNG || ctx->codec_id == AV_CODEC_ID_MJPEG))
         {
             if (ctx->codec_type == AVMEDIA_TYPE_VIDEO &&
@@ -234,15 +240,16 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
         data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
     else
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codec->extradata, art_stream->codec->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
+        data = CFDataCreateWithBytesNoCopy(NULL, ctx->extradata, ctx->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
 
     // wangle into a CGImage
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
-    CGImageRef image = (art_stream->codec->codec_id == AV_CODEC_ID_PNG) ?
+    CGImageRef image = (ctx->codec_id == AV_CODEC_ID_PNG) ?
         CGImageCreateWithPNGDataProvider (provider, NULL, false, kCGRenderingIntentDefault) :
         CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
     CGDataProviderRelease(provider);
     CFRelease(data);
+    avcodec_free_context(&ctx);
     return image;
 }
 
@@ -288,27 +295,31 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     if (!(frame = av_frame_alloc()))
         return -1;
 
-    int got_frame = 0;
-    while (av_read_frame(fmt_ctx, &pkt) >= 0 && !got_frame)
+    int receive_ret = -1;
+    while (av_read_frame(fmt_ctx, &pkt) >= 0 && receive_ret < 0)
     {
         if (pkt.stream_index == stream_idx)
         {
-            avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
+            if (avcodec_send_packet(dec_ctx, &pkt) < 0) {
+                continue;
+            }
+            receive_ret = avcodec_receive_frame(dec_ctx, frame);
+//            avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
 
-            if (got_frame && seconds > 0 &&
+            if (receive_ret >= 0 && seconds > 0 &&
                 (
                  // It's a small clip and we've ended up at a keyframe at start of it. Keep reading until desired time.
                  (seconds <= kMaxKeyframeTime && frame->pts < timestamp) ||
                  // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
                  ((seconds > kMaxKeyframeTime && !frame->key_frame && frame->pts < stoptime))))
             {
-                got_frame = 0;
+                receive_ret = -1;
                 av_frame_unref(frame);
             }
         }
         av_packet_unref(&pkt);
     }
-    if (!got_frame)
+    if (receive_ret < 0)
         return -1;     // Failed to find a single frame!
 
     // convert raw frame data, and rescale if necessary
@@ -438,10 +449,12 @@ static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for b
     pkt.size = 0;
 
     CFDataRef data = nil;
-    int got_pkt = 0;
-    if (!avcodec_encode_video2(enc_ctx, &pkt, rgb_frame, &got_pkt) && got_pkt)
-    {
-        data = CFDataCreateWithBytesNoCopy(NULL, pkt.data, pkt.size, kCFAllocatorMalloc);
+    int encode_ret = avcodec_send_frame(enc_ctx, rgb_frame);
+    if (encode_ret >= 0) {
+        encode_ret = avcodec_receive_packet(enc_ctx, &pkt);
+        if (encode_ret >= 0) {
+            data = CFDataCreateWithBytesNoCopy(NULL, pkt.data, pkt.size, kCFAllocatorMalloc);
+        }
     }
     av_frame_free(&rgb_frame);
     return data;

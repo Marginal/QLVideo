@@ -123,7 +123,6 @@ MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryI
 #else
     av_log_set_level(AV_LOG_INFO |AV_LOG_SKIP_REPEATED);
 #endif
-    av_register_all();
 
     MetadataImporterPluginType *theNewInstance;
 

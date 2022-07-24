@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 #include <libavutil/dict.h>
 
 
@@ -228,7 +229,9 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         for (int stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
         {
             AVStream *stream = fmt_ctx->streams[stream_idx];
-            AVCodecContext *dec_ctx = stream->codec;
+            const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+            AVCodecContext *dec_ctx = avcodec_alloc_context3(codec);
+            avcodec_parameters_to_context(dec_ctx, stream->codecpar);
 
             if (dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
             {
@@ -305,7 +308,6 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
 
             // All recognised types
             const char *name = NULL;
-            AVCodec *codec = avcodec_find_decoder(dec_ctx->codec_id);
             if (codec)
             {
                 // Some of AVCodec.long_name can be too wordy (but .name too cryptic), so special-case some common
@@ -366,6 +368,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             else
                 NSLog(@"Video.mdimporter %@: unsupported codec with id %d for stream %d", pathToFile, dec_ctx->codec_id, stream_idx);
 #endif
+            avcodec_free_context(&dec_ctx);
         }
         
         if ([codecs count])
