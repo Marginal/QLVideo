@@ -160,6 +160,9 @@
 				<!-- defined by Canon RAW Development -->
 				<string>com.canon.raw.movie</string>
 
+				<!-- defined by Infuse -->
+				<string>com.firecore.fileformat.mkv</string>
+				
 				<!-- schema:stop - stop pulling UTIs into schema.xml -->
 
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
