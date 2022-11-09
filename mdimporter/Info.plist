@@ -160,6 +160,31 @@
 				<!-- defined by Canon RAW Development -->
 				<string>com.canon.raw.movie</string>
 
+				<!-- defined by Infuse.app -->
+			       	<string>com.firecore.fileformat.dvr-ms</string>
+				<string>com.firecore.fileformat.flv</string>
+				<string>com.firecore.fileformat.mpg</string>
+				<string>com.firecore.fileformat.wmv</string>
+				<string>com.firecore.fileformat.mkv</string>
+				<string>com.firecore.fileformat.ts</string>
+				<string>com.firecore.fileformat.m2ts</string>
+				<string>com.firecore.fileformat.mts</string>
+				<string>com.firecore.fileformat.avi</string>
+				<string>com.firecore.fileformat.m4v</string>
+				<string>com.firecore.fileformat.mov</string>
+				<string>com.firecore.fileformat.mp4</string>
+				<string>com.firecore.fileformat.mpeg</string>
+				<string>com.firecore.fileformat.mod</string>
+				<string>com.firecore.fileformat.wtv</string>
+				<string>com.firecore.fileformat.ogm</string>
+				<string>com.firecore.fileformat.ogv</string>
+				<string>com.firecore.fileformat.webm</string>
+				<string>com.firecore.fileformat.asf</string>
+				<string>com.firecore.fileformat.rmvb</string>
+				<string>com.firecore.fileformat.vob</string>
+				<string>com.firecore.fileformat.mxf</string>
+				<string>com.firecore.fileformat.dvdmedia</string>
+
 				<!-- schema:stop - stop pulling UTIs into schema.xml -->
 
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
