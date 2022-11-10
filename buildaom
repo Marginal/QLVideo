@@ -1,8 +1,9 @@
 #!/bin/bash
 
 set -e
+shopt -s extglob
 
-OUTDIR="${TARGET_BUILD_DIR}/${TARGET_NAME}"
+OUTDIR="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}"
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OUTDIR}"
 	if [ -n "${OUTDIR}" ]; then
@@ -13,22 +14,23 @@ if [ "${ACTION}" == "clean" ]; then
 	fi
 else
 	# For cmake & yasm
-	PATH=$PATH:/usr/local/bin
+	PATH=$PATH:/opt/homebrew/bin:/usr/local/bin
 
 	echo Build in ${OUTDIR}
-	BUILT=""
 	for ARCH in $ARCHS; do
 		mkdir -p "${OUTDIR}/${ARCH}"
 		cd "${OUTDIR}/${ARCH}"
 		if [ -f CMakeCache.txt ]; then
 			echo Skipping cmake
-		elif [ $ARCH == arm64 ]; then
-			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DAOM_TARGET_CPU=arm64 -DCONFIG_RUNTIME_CPU_DETECT=0
 		else
-			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DENABLE_SSE4_2=0 -DENABLE_AVX=0 -DENABLE_AVX2=0
+			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_INSTALL_PREFIX="${BUILT_PRODUCTS_DIR}/${ARCH}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DAOM_TARGET_CPU=${ARCH}
 		fi
-		make -j`sysctl -n hw.physicalcpu` ${ACTION}
-		BUILT="${BUILT} ${OUTDIR}/${ARCH}/libaom.a"
+		make -j`sysctl -n hw.physicalcpu` install
 	done
-	lipo -create $BUILT -output ${OUTDIR}/libaom.a
+
+	# Combine into Universal
+	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"
+	cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/aom" "${BUILT_PRODUCTS_DIR}/universal/include/"
+	mkdir -p "${CONFIGURATION_BUILD_DIR}/universal/lib"
+	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libaom.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/libaom.a"
 fi

@@ -27,7 +27,7 @@ Limitations
 * QuickLook under Mavericks, Yosemite and El Capitan struggles with `.mp4` files. In particular, it won't let this plugin preview `.mp4` files that it can't handle itself (e.g. containing H.265 video) or you that you have asked it not to handle via the `SnapshotAlways` [setting](#customisation). Rename your `.mp4` files as `.m4v`, or use another container for H.265 content - e.g. [Matroska](http://www.matroska.org/).
 * The QuickLook "Preview" function displays one or more static snapshots of "non-native" video files. You'll need a media player app (e.g. [VLC](http://www.videolan.org/vlc/) or [MPlayerX](http://mplayerx.org/)) to play these files.
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
-* Requires macOS 10.9 or later. Use [Perian](http://github.com/MaddTheSane/perian) for equivalent functionality under 10.8 and earlier.
+* Requires macOS 10.13 "High Sierra" or later on a 2013 or newer Mac.
 
 Customisation
 -----------

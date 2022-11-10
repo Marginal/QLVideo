@@ -228,17 +228,17 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         for (int stream_idx=0; stream_idx < fmt_ctx->nb_streams; stream_idx++)
         {
             AVStream *stream = fmt_ctx->streams[stream_idx];
-            AVCodecContext *dec_ctx = stream->codec;
+            AVCodecParameters *params = stream->codecpar;
 
-            if (dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
+            if (params->codec_type == AVMEDIA_TYPE_AUDIO)
             {
                 // Assume that lower-numbered streams are primary (e.g. main track rather than commentary) so don't overwrite their values
-                if (dec_ctx->bit_rate > 0    && !attrs[(__bridge NSString *)kMDItemAudioBitRate])
-                    [attrs setValue:@(dec_ctx->bit_rate) forKey:(__bridge NSString *)kMDItemAudioBitRate];
-                if (dec_ctx->channels > 0    && !attrs[(__bridge NSString *)kMDItemAudioChannelCount])
+                if (params->bit_rate > 0    && !attrs[(__bridge NSString *)kMDItemAudioBitRate])
+                    [attrs setValue:@(params->bit_rate) forKey:(__bridge NSString *)kMDItemAudioBitRate];
+                if (params->ch_layout.nb_channels > 0    && !attrs[(__bridge NSString *)kMDItemAudioChannelCount])
                 {
                     NSNumber *channels;
-                    switch (dec_ctx->channels)
+                    switch (params->ch_layout.nb_channels)
                     {
                         // See e.g. http://help.apple.com/logicpro/mac/9.1.6/en/logicpro/usermanual/index.html#chapter=39
                         // Can't tell Quadraphonic from LCRS
@@ -249,33 +249,33 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                         case 8:
                             channels = @7.1f; break;
                         default:
-                            channels = @(dec_ctx->channels);
+                            channels = @(params->ch_layout.nb_channels);
                     }
                     [attrs setValue:channels forKey:(__bridge NSString *)kMDItemAudioChannelCount];
                 }
-                if (dec_ctx->sample_rate > 0 && !attrs[(__bridge NSString *)kMDItemAudioSampleRate])
-                    [attrs setValue:@(dec_ctx->sample_rate) forKey:(__bridge NSString *)kMDItemAudioSampleRate];
+                if (params->sample_rate > 0 && !attrs[(__bridge NSString *)kMDItemAudioSampleRate])
+                    [attrs setValue:@(params->sample_rate) forKey:(__bridge NSString *)kMDItemAudioSampleRate];
                 NSString *lang = GetLanguage(stream->metadata);
                 if (lang)
                     [languages addObject:lang];
                 [mediatypes addObject:@"Sound"];
             }
-            else if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
+            else if (params->codec_type == AVMEDIA_TYPE_VIDEO)
             {
                 if (stream->disposition & (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS))
                     continue;   // Don't count cover art
 
-                if (dec_ctx->bit_rate > 0 && !attrs[(__bridge NSString *)kMDItemVideoBitRate])
-                    [attrs setValue:@(dec_ctx->bit_rate) forKey:(__bridge NSString *)kMDItemVideoBitRate];
-                if (dec_ctx->height > 0 && !attrs[(__bridge NSString *)kMDItemPixelHeight])
+                if (params->bit_rate > 0 && !attrs[(__bridge NSString *)kMDItemVideoBitRate])
+                    [attrs setValue:@(params->bit_rate) forKey:(__bridge NSString *)kMDItemVideoBitRate];
+                if (params->height > 0 && !attrs[(__bridge NSString *)kMDItemPixelHeight])
                 {
-                    [attrs setValue:@(dec_ctx->height) forKey:(__bridge NSString *)kMDItemPixelHeight];
+                    [attrs setValue:@(params->height) forKey:(__bridge NSString *)kMDItemPixelHeight];
                     AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, stream, NULL);
                     if (sar.num && sar.den)
-                        [attrs setValue:@((int)av_rescale(dec_ctx->width, sar.num, sar.den))
+                        [attrs setValue:@((int)av_rescale(params->width, sar.num, sar.den))
                                  forKey:(__bridge NSString *)kMDItemPixelWidth];
                     else
-                        [attrs setValue:@(dec_ctx->width) forKey:(__bridge NSString *)kMDItemPixelWidth];
+                        [attrs setValue:@(params->width) forKey:(__bridge NSString *)kMDItemPixelWidth];
                 }
                 if (!attrs[kFrameRate])
                 {
@@ -288,7 +288,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 }
                 [mediatypes addObject:@"Video"];
             }
-            else if (dec_ctx->codec_type == AVMEDIA_TYPE_SUBTITLE)
+            else if (params->codec_type == AVMEDIA_TYPE_SUBTITLE)
             {
                 if (stream->disposition & AV_DISPOSITION_FORCED)
                     continue;   // Don't count forced subtitiles since they're effectively part of the video
@@ -305,7 +305,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
 
             // All recognised types
             const char *name = NULL;
-            AVCodec *codec = avcodec_find_decoder(dec_ctx->codec_id);
+            const AVCodec *codec = avcodec_find_decoder(params->codec_id);
             if (codec)
             {
                 // Some of AVCodec.long_name can be too wordy (but .name too cryptic), so special-case some common
@@ -352,19 +352,19 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                         name = codec->long_name ? codec->long_name : codec->name;
                 }
             }
-            else if (dec_ctx->codec_tag == MKTAG('C','R','A','W'))
+            else if (params->codec_tag == MKTAG('C','R','A','W'))
                 name = "C-RAW";
 
             if (name)
             {
-                const char *profile = av_get_profile_name(codec, dec_ctx->profile);
+                const char *profile = av_get_profile_name(codec, params->profile);
                 NSString *nsname = profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : @(name);
                 if (![codecs containsObject:nsname])
                     [codecs addObject:nsname];
             }
 #ifdef DEBUG
             else
-                NSLog(@"Video.mdimporter %@: unsupported codec with id %d for stream %d", pathToFile, dec_ctx->codec_id, stream_idx);
+                NSLog(@"Video.mdimporter %@: unsupported codec with id %d for stream %d", pathToFile, params->codec_id, stream_idx);
 #endif
         }
         

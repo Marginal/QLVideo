@@ -1,8 +1,9 @@
 #!/bin/bash
 
 set -e
+shopt -s extglob
 
-OUTDIR="${TARGET_BUILD_DIR}/${TARGET_NAME}"
+OUTDIR="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}"
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OUTDIR}"
 	if [ -n "${OUTDIR}" ]; then
@@ -13,7 +14,7 @@ if [ "${ACTION}" == "clean" ]; then
 	fi
 else
 	# For yasm and gas
-	PATH=$PATH:${SRCROOT}/gas:/usr/local/bin
+	PATH=$PATH:${SRCROOT}/gas:/opt/homebrew/bin:/usr/local/bin
 
 	echo Build in ${OUTDIR}
 	BUILT=""
@@ -31,22 +32,21 @@ else
 			if [ $ARCH == arm64 ]; then
 				FLAGS="$FLAGS --enable-cross-compile --enable-vfp --enable-neon"
 			elif [ $ARCH == x86_64 ]; then
-				FLAGS="$FLAGS --cpu=core2"
+				FLAGS="$FLAGS --enable-cross-compile --cpu=haswell"
 			fi
-			"${SRCROOT}/${TARGET_NAME}/configure" --arch=${ARCH} --cc="clang -arch ${ARCH} -L${TARGET_BUILD_DIR}/aom" ${FLAGS} --extra-cflags=-I${SRCROOT}/aom --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-pthreads --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
+			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH}" ${FLAGS} --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
 		fi
-		make -j`sysctl -n hw.physicalcpu` ${ACTION}
-		# Assumes there aren't any material client impacting differences in config between archs
-		mkdir -p ${OUTDIR}/libavutil
-		cp -p ${OUTDIR}/${ARCH}/config.h ${OUTDIR}/
-		cp -p ${OUTDIR}/${ARCH}/libavutil/*.h ${OUTDIR}/libavutil/
+		make -j`sysctl -n hw.physicalcpu` install
 	done
+
+	# Combine into Universal
+	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"
+	# Assumes there aren't any material client impacting differences in config between archs
+	cp -p "${OUTDIR}/${ARCHS/ */}/config.h" "${BUILT_PRODUCTS_DIR}/universal/include/"
+
+	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/lib"
 	for LIB in libavcodec libavfilter libavformat libavutil libpostproc libswresample libswscale; do
-		BUILT=""
-		for ARCH in $ARCHS; do
-			BUILT="${BUILT} ${OUTDIR}/${ARCH}/${LIB}/${LIB}.a"
-		done
-		mkdir -p ${OUTDIR}/${LIB}
-		lipo -create $BUILT -output "${OUTDIR}/${LIB}/${LIB}.a"
+		cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/${LIB}" "${BUILT_PRODUCTS_DIR}/universal/include/"
+		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/${LIB}.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${LIB}.a"
 	done
 fi

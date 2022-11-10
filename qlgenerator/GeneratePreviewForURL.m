@@ -28,9 +28,9 @@ typedef NS_ENUM(NSInteger, QLPreviewMode)
 };
 
 
-// Limit contact sheet to 1080p to try to avoid break QuickLook's memory limit (currently 120MB).
-static const int kMaxWidth = 2048;
-static const int kMaxHeight = 1080;
+// Limit contact sheet to 4K to try to avoid breaking QuickLook's memory limit
+static const int kMaxWidth = 3840;
+static const int kMaxHeight = 2160;
 
 
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options);

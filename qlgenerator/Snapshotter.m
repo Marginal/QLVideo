@@ -58,7 +58,6 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 #else
     av_log_set_level(AV_LOG_ERROR|AV_LOG_SKIP_REPEATED);
 #endif
-    av_register_all();
 }
 
 - (instancetype) initWithURL:(CFURLRef)url
@@ -79,19 +78,21 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     // Find best audio stream and record channel count
     int audio_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
     if (audio_stream_idx >= 0)
-        _channels = fmt_ctx->streams[audio_stream_idx]->codec->channels;
+        _channels = fmt_ctx->streams[audio_stream_idx]->codecpar->ch_layout.nb_channels;
 
     AVDictionaryEntry *tag = av_dict_get(fmt_ctx->metadata, "title", NULL, 0);
     if (tag && tag->value)
         _title = @(tag->value);
 
     // Find best video stream and open appropriate codec
-    AVCodec *codec = NULL;
+    const AVCodec *codec = NULL;
     stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
     if (stream_idx >= 0)
     {
         AVStream *stream = fmt_ctx->streams[stream_idx];
-        dec_ctx = stream->codec;
+        if (!(dec_ctx = avcodec_alloc_context3(NULL)))
+            return nil;
+        avcodec_parameters_to_context(dec_ctx, stream->codecpar);
         avcodec_open2(dec_ctx, codec, NULL);
         _pictures = (stream->disposition == (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS) && ((int) stream->nb_frames > 0) ? (int) stream->nb_frames: 0);
     }
@@ -102,13 +103,15 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
         if (stream_idx < 0)
             return nil;     // no video streams - viewable or otherwise
 
-        dec_ctx = fmt_ctx->streams[stream_idx]->codec;
+        if (!(dec_ctx = avcodec_alloc_context3(NULL)))
+            return nil;
+        avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[stream_idx]->codecpar);
 
         // Special handling for Canon CRM movies which have a custom codec that ffmpeg doesn't understand, and a single JPEG preview picture
         if ((tag = av_dict_get(fmt_ctx->metadata, "major_brand", NULL, AV_DICT_MATCH_CASE)) && !strncmp(tag->value, "crx ", 4))
         {
 
-            MOVContext *mov = fmt_ctx->priv_data;
+            // MOVContext *mov = fmt_ctx->priv_data;
             AVIOContext *pb = fmt_ctx->pb;
             int64_t file_size = avio_size(pb);
             avio_seek(pb, 0, SEEK_SET);
@@ -167,7 +170,7 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 #ifdef DEBUG
     NSLog(@"QLVideo Snapshotter dealloc");
 #endif
-    avcodec_close(dec_ctx);
+    avcodec_free_context(&dec_ctx);
     avformat_close_input(&fmt_ctx);
     if (enc_ctx)
         avcodec_free_context(&enc_ctx); // also closes the codec
@@ -210,12 +213,12 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     for (int idx=0; idx < fmt_ctx->nb_streams; idx++)
     {
         AVStream *s = fmt_ctx->streams[idx];
-        AVCodecContext *ctx = s->codec;
-        if (ctx && (ctx->codec_id == AV_CODEC_ID_PNG || ctx->codec_id == AV_CODEC_ID_MJPEG))
+        AVCodecParameters *params = s->codecpar;
+        if (params && (params->codec_id == AV_CODEC_ID_PNG || params->codec_id == AV_CODEC_ID_MJPEG))
         {
             /* Depending on codec and ffmpeg version cover art may be represented as attachment or as additional video stream(s) */
-            if (ctx->codec_type == AVMEDIA_TYPE_ATTACHMENT ||
-                (ctx->codec_type == AVMEDIA_TYPE_VIDEO &&
+            if (params->codec_type == AVMEDIA_TYPE_ATTACHMENT ||
+                (params->codec_type == AVMEDIA_TYPE_VIDEO &&
                  ((s->disposition & (AV_DISPOSITION_ATTACHED_PIC|AV_DISPOSITION_TIMED_THUMBNAILS)) == AV_DISPOSITION_ATTACHED_PIC)))
             {
                 // MKVs can contain multiple cover art - see http://matroska.org/technical/cover_art/index.html
@@ -269,11 +272,11 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
         data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
     else
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codec->extradata, art_stream->codec->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codecpar->extradata, art_stream->codecpar->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
 
     // wangle into a CGImage
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
-    CGImageRef image = (art_stream->codec->codec_id == AV_CODEC_ID_PNG) ?
+    CGImageRef image = (art_stream->codecpar->codec_id == AV_CODEC_ID_PNG) ?
         CGImageCreateWithPNGDataProvider (provider, NULL, false, kCGRenderingIntentDefault) :
         CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
     CGDataProviderRelease(provider);
@@ -306,7 +309,6 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     int64_t stoptime;
     if (!_pictures && seconds > 0)      // Ignore time if we're serving pre-computed pictures
     {
-        avcodec_flush_buffers(dec_ctx); // Discard any buffered packets left over from previous call
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
         if (av_seek_frame(fmt_ctx, stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
@@ -314,7 +316,6 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
     }
     else if (!_pictures && seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
     {
-        avcodec_flush_buffers(dec_ctx); // Discard any buffered packets left over from previous call
         av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);
         stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
     }
@@ -323,53 +324,62 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
         stoptime = LLONG_MAX;
     }
 
-    AVPacket pkt;
-    av_init_packet(&pkt);
-    pkt.data = NULL;   // let the demuxer allocate
-    pkt.size = 0;
+    AVPacket *pkt = NULL;
+    if (!(pkt = av_packet_alloc()))
+        return -1;
 
     AVFrame *frame;     // holds the raw frame data
     if (!(frame = av_frame_alloc()))
         return -1;
 
-    int got_frame = 0;
-    while (av_read_frame(fmt_ctx, &pkt) >= 0 && !got_frame)
+    avcodec_flush_buffers(dec_ctx); // Discard any buffered packets left over from previous call
+    do
     {
-        if (pkt.stream_index == stream_idx)
+        if (av_read_frame(fmt_ctx, pkt))
+            break;     // Failed to find a packet!
+
+        if (pkt->stream_index == stream_idx)
         {
-            avcodec_decode_video2(dec_ctx, frame, &got_frame, &pkt);
+            if (avcodec_send_packet(dec_ctx, pkt))
+                break;     // Failed to decode
 
-            if (got_frame && seconds > 0 &&
-                (
-                 // It's a small clip and we've ended up at a keyframe at start of it. Keep reading until desired time.
-                 (seconds <= kMaxKeyframeTime && frame->pts < timestamp) ||
-                 // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
-                 ((seconds > kMaxKeyframeTime && !frame->key_frame && frame->pts < stoptime))))
+            int ret;
+            ret = avcodec_receive_frame(dec_ctx, frame);
+            if (ret && ret != AVERROR(EAGAIN))
+                break;     // Failed to decode
+
+            if (ret ||
+                // It's a small clip and we've ended up at a keyframe at start of it. Keep reading until desired time.
+                (seconds > 0 && seconds <= kMaxKeyframeTime && frame->pts < timestamp) ||
+                // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
+                (seconds > kMaxKeyframeTime && !frame->key_frame && frame->pts < stoptime))
             {
-                got_frame = 0;
                 av_frame_unref(frame);
+                av_packet_unref(pkt);
+                continue;
             }
+
+            // convert raw frame data, and rescale if necessary
+            struct SwsContext *sws_ctx;
+            if (!(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
+                                           size.width, size.height, AV_PIX_FMT_RGB24,
+                                           SWS_BICUBIC, NULL, NULL, NULL)))
+                break;  // Failed to convert
+
+            sws_scale(sws_ctx, (const uint8_t *const *) frame->data, frame->linesize, 0, dec_ctx->height, dst, dstStride);
+            sws_freeContext(sws_ctx);
+            avcodec_flush_buffers(dec_ctx); // Discard any buffered packets
+            av_frame_free(&frame);
+            av_packet_free(&pkt);
+            return 0;
         }
-        av_packet_unref(&pkt);
     }
-    if (!got_frame)
-        return -1;     // Failed to find a single frame!
+    while (1);
 
-    // convert raw frame data, and rescale if necessary
-    struct SwsContext *sws_ctx;
-    if (!size.width || !size.height ||
-        !(sws_ctx = sws_getContext(dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt,
-                                   size.width, size.height, AV_PIX_FMT_RGB24,
-                                   SWS_BICUBIC, NULL, NULL, NULL)))
-    {
-        av_frame_free(&frame);
-        return -1;
-    }
-    sws_scale(sws_ctx, (const uint8_t *const *) frame->data, frame->linesize, 0, dec_ctx->height, dst, dstStride);
-    sws_freeContext(sws_ctx);
+    // Failed to decode frame
     av_frame_free(&frame);
-
-    return 0;
+    av_packet_free(&pkt);
+    return -1;
 }
 
 // Gets non-black snapshot and blocks until completion, timeout or failure.
@@ -465,7 +475,7 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 
     if (!enc_ctx || enc_ctx->width != (int) size.width || enc_ctx->height != (int) size.height)
     {
-        AVCodec *codec = avcodec_find_encoder(AV_CODEC_ID_PNG);
+        const AVCodec *codec = avcodec_find_encoder(AV_CODEC_ID_PNG);
         enc_ctx = avcodec_alloc_context3(codec);
         enc_ctx->pix_fmt = AV_PIX_FMT_RGB24;
         enc_ctx->width = (int) size.width;
@@ -476,16 +486,14 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
             return nil;
     }
 
-    AVPacket pkt;
-    av_init_packet(&pkt);
-    pkt.data = NULL;   // let the muxer allocate
-    pkt.size = 0;
+    AVPacket *pkt;
+    if (!(pkt = av_packet_alloc()))
+        return nil;
 
     CFDataRef data = nil;
-    int got_pkt = 0;
-    if (!avcodec_encode_video2(enc_ctx, &pkt, rgb_frame, &got_pkt) && got_pkt)
+    if (!avcodec_send_frame(enc_ctx, rgb_frame) && !avcodec_receive_packet(enc_ctx, pkt))
     {
-        data = CFDataCreateWithBytesNoCopy(NULL, pkt.data, pkt.size, kCFAllocatorMalloc);
+        data = CFDataCreateWithBytesNoCopy(NULL, pkt->data, pkt->size, kCFAllocatorMalloc);
     }
     av_frame_free(&rgb_frame);
     return data;
