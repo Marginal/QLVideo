@@ -912,6 +912,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = app/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -928,6 +929,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = app/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -992,6 +994,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
+				CURRENT_PROJECT_VERSION = 1.9.5;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1016,6 +1019,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 1.95;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 			};
@@ -1051,6 +1055,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CURRENT_PROJECT_VERSION = 1.9.5;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1071,6 +1076,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 1.95;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				SDKROOT = macosx;

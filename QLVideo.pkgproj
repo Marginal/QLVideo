@@ -610,6 +610,8 @@
 				</dict>
 				<key>PAYLOAD_TYPE</key>
 				<integer>0</integer>
+				<key>PRESERVE_EXTENDED_ATTRIBUTES</key>
+				<false/>
 				<key>SHOW_INVISIBLE</key>
 				<false/>
 				<key>SPLIT_FORKS</key>
@@ -659,7 +661,7 @@
 				<key>USE_HFS+_COMPRESSION</key>
 				<false/>
 				<key>VERSION</key>
-				<string>1.9.4</string>
+				<string>1.95</string>
 			</dict>
 			<key>TYPE</key>
 			<integer>0</integer>
@@ -1052,9 +1054,10 @@
 				<integer>1</integer>
 				<key>installer-script.domains:enable_localSystem</key>
 				<integer>1</integer>
-				<key>installer-script.options:hostArchitectures</key>
+				<key>installer-script.options.platforms.client:arch</key>
 				<array>
 					<string>x86_64</string>
+					<string>arm64</string>
 				</array>
 			</dict>
 			<key>BUILD_FORMAT</key>

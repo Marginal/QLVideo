@@ -301,9 +301,9 @@
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.9.4</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1.9.4</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CFPlugInDynamicRegisterFunction</key>
 	<string></string>
 	<key>CFPlugInDynamicRegistration</key>
@@ -323,6 +323,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2014-2021 Jonathan Harris. Licensed under GPLv2 or later.</string>
+	<string>© 2014-2022 Jonathan Harris. Licensed under GPLv2 or later.</string>
 </dict>
 </plist>
