@@ -58,11 +58,10 @@ Reporting bugs
 * Open a [New issue](https://github.com/Marginal/QLVideo/issues/new) and describe the problem.
 * To help diagnose the problem please run the Terminal app (found in Applications → Utilities) and type:
 ```
-        qlmanage -m
-        qlmanage -p -d1 /path/of/some/video/file
+    qlmanage -m
+    qlmanage -p -d1 /path/of/some/video/file
 ```
-        qlmanage -p -d1 /path/of/some/video/file
-but substitute the *path of some video file* by dragging a video file from the Finder and dropping it on the Terminal window.
+  but substitute the *path of some video file* by dragging a video file from the Finder and dropping it on the Terminal window.
 * In the Terminal app choose `Edit` → `Select All` then `Edit` → `Copy` and `Paste` the results in the "New issue".
 
 Acknowledgements
@@ -73,6 +72,6 @@ Packaged using [Packages](http://s.sudre.free.fr/Software/Packages/about.html).
 
 License
 -------
-Copyright © 2014-2019 Jonathan Harris.
+Copyright © 2014-2022 Jonathan Harris.
 
 Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
