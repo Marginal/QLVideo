@@ -120,7 +120,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
         CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
-        if (!(newQuickLook || [defaults boolForKey:kSettingsSnapshotAlways]))
+        if (![defaults boolForKey:kSettingsSnapshotAlways])
             @autoreleasepool    // Reduce peak footprint
         {
             Player *player = [Player playerWithURL:(__bridge NSURL *)url];

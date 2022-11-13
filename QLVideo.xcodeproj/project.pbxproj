@@ -913,7 +913,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -929,7 +929,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = app/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Application Support";
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -943,7 +943,7 @@
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				LD_RUNPATH_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.qlgenerator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = qlgenerator;
 			};
@@ -957,7 +957,7 @@
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				LD_RUNPATH_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.qlgenerator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = qlgenerator;
 			};
@@ -1085,7 +1085,7 @@
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.mdimporter;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = mdimporter;
 			};
@@ -1099,7 +1099,7 @@
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.mdimporter;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = mdimporter;
 			};
