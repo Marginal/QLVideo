@@ -3,24 +3,18 @@
 set -e
 shopt -s extglob
 
-OUTDIR="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}"
 if [ "${ACTION}" == "clean" ]; then
-	echo Remove "${OUTDIR}"
-	if [ -n "${OUTDIR}" ]; then
-		rm -rf "${OUTDIR}"
-		for ARCH in $ARCHS; do
-			rm -rf "${OUTDIR}/${ARCH}"
-		done
-	fi
+	echo Remove "${OBJECT_FILE_DIR}"
+	[ -n "${OBJECT_FILE_DIR}" -a -d "${OBJECT_FILE_DIR}" ] && rm -rf "${OBJECT_FILE_DIR}"
 else
-	# For yasm and gas
-	PATH=$PATH:${SRCROOT}/gas:/opt/homebrew/bin:/usr/local/bin
+	# For yasm and pkg-config
+	PATH=$PATH:/opt/homebrew/bin:/usr/local/bin
 
-	echo Build in ${OUTDIR}
+	echo Build in ${OBJECT_FILE_DIR}
 	BUILT=""
 	for ARCH in $ARCHS; do
-		mkdir -p "${OUTDIR}/${ARCH}"
-		cd "${OUTDIR}/${ARCH}"
+		mkdir -p "${OBJECT_FILE_DIR}/${ARCH}"
+		cd "${OBJECT_FILE_DIR}/${ARCH}"
 		if [ -f config.h ]; then
 			echo Skipping configure
 		else
@@ -40,9 +34,16 @@ else
 	done
 
 	# Combine into Universal
+	echo Installing into ${BUILT_PRODUCTS_DIR}/universal
+
+	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/bin"
+	for EXE in ffmpeg ffprobe; do
+		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/bin/${EXE}" -output "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+	done
+
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"
 	# Assumes there aren't any material client impacting differences in config between archs
-	cp -p "${OUTDIR}/${ARCHS/ */}/config.h" "${BUILT_PRODUCTS_DIR}/universal/include/"
+	cp -p "${OBJECT_FILE_DIR}/${ARCHS/ */}/config.h" "${BUILT_PRODUCTS_DIR}/universal/include/"
 
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/lib"
 	for LIB in libavcodec libavfilter libavformat libavutil libpostproc libswresample libswscale; do

@@ -221,7 +221,7 @@
 		AB539C912623AC9900C0FB1F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/schema.strings; sourceTree = "<group>"; };
 		AB54B963217F42B000558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libaom.a; path = universal/lib/libaom.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libaom.a; path = universal/lib/libaom.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		AB75CB1F261D19F2009BE894 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		AB7C713619F8A31C0006104E /* libavformat.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libavformat.a; path = universal/lib/libavformat.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -406,7 +406,8 @@
 			children = (
 				AB66474E261ABBB600D23514 /* libaom.a */,
 			);
-			path = aom;
+			name = aom;
+			path = universal/lib;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		AB93B0FE196CA60500708B2E /* qlgenerator */ = {
@@ -539,7 +540,7 @@
 				AB7C714B19F8A7060006104E /* libswscale.a */,
 			);
 			name = FFmpeg;
-			path = ffmpeg;
+			path = universal/lib;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXGroup section */

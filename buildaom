@@ -3,23 +3,17 @@
 set -e
 shopt -s extglob
 
-OUTDIR="${BUILT_PRODUCTS_DIR}/${TARGET_NAME}"
 if [ "${ACTION}" == "clean" ]; then
-	echo Remove "${OUTDIR}"
-	if [ -n "${OUTDIR}" ]; then
-		rm -rf "${OUTDIR}"
-		for ARCH in $ARCHS; do
-			rm -rf "${OUTDIR}/${ARCH}"
-		done
-	fi
+	echo Remove "${OBJECT_FILE_DIR}"
+	[ -n "${OBJECT_FILE_DIR}" -a -d "${OBJECT_FILE_DIR}" ] && rm -rf "${OBJECT_FILE_DIR}"
 else
 	# For cmake & yasm
 	PATH=$PATH:/opt/homebrew/bin:/usr/local/bin
 
-	echo Build in ${OUTDIR}
+	echo Build in ${OBJECT_FILE_DIR}
 	for ARCH in $ARCHS; do
-		mkdir -p "${OUTDIR}/${ARCH}"
-		cd "${OUTDIR}/${ARCH}"
+		mkdir -p "${OBJECT_FILE_DIR}/${ARCH}"
+		cd "${OBJECT_FILE_DIR}/${ARCH}"
 		if [ -f CMakeCache.txt ]; then
 			echo Skipping cmake
 		else
@@ -29,6 +23,7 @@ else
 	done
 
 	# Combine into Universal
+	echo Installing into ${BUILT_PRODUCTS_DIR}/universal
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"
 	cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/aom" "${BUILT_PRODUCTS_DIR}/universal/include/"
 	mkdir -p "${CONFIGURATION_BUILD_DIR}/universal/lib"
