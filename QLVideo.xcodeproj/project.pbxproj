@@ -273,8 +273,6 @@
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB49FB972923B5BB00B126C0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		AB4C9EF5262315BC00E96EED /* mdimport.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = mdimport.entitlements; sourceTree = "<group>"; };
-		AB4C9EF6262315E700E96EED /* qlgenerator.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = qlgenerator.entitlements; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/schema.strings; sourceTree = "<group>"; };
 		AB54B963217F42B000558403 /* pt_PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt_PT; path = pt_PT.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libaom.a; path = universal/lib/libaom.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -494,7 +492,6 @@
 				AB93B1191972EBF700708B2E /* Snapshotter.h */,
 				AB93B11A1972EBF700708B2E /* Snapshotter.m */,
 				AB93B10E196CA7EE00708B2E /* Info.plist */,
-				AB4C9EF6262315E700E96EED /* qlgenerator.entitlements */,
 				AB93B0FF196CA60500708B2E /* Supporting Files */,
 			);
 			path = qlgenerator;
@@ -566,7 +563,6 @@
 				AB9FB57E1965DD7200D39647 /* main.m */,
 				AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */,
 				AB9FB58C1965DF0700D39647 /* Info.plist */,
-				AB4C9EF5262315BC00E96EED /* mdimport.entitlements */,
 				AB9FB5791965DD7200D39647 /* Supporting Files */,
 				ABB1A29E1A1C392F00EEF82B /* Built Products */,
 			);
@@ -1192,7 +1188,6 @@
 		AB93B10C196CA60500708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = qlgenerator/qlgenerator.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
@@ -1206,7 +1201,6 @@
 		AB93B10D196CA60500708B2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = qlgenerator/qlgenerator.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
@@ -1366,7 +1360,6 @@
 		AB9FB58A1965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = mdimporter/mdimport.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
@@ -1380,7 +1373,6 @@
 		AB9FB58B1965DD7200D39647 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = mdimporter/mdimport.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
