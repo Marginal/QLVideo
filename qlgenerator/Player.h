@@ -21,11 +21,12 @@
 - (instancetype) initWithURL:(NSURL*)url;
 + (instancetype) playerWithURL:(NSURL*)url;
 - (void) dealloc;
-- (BOOL) playable;
-- (NSString *) title;
-- (int) channels;
-- (CGSize) displaySize;
-- (NSInteger) duration;
+
+@property (nonatomic,assign,readonly) BOOL playable;
+@property (nonatomic,assign,readonly) int channels;
+@property (nonatomic,assign,readonly) CGSize displaySize;
+@property (nonatomic,assign,readonly) NSInteger duration;
+@property (nonatomic,assign,readonly) NSString *title;
 
 @end
 

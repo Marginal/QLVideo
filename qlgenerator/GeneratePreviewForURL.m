@@ -120,6 +120,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
         CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
+#ifdef DEBUG
+        NSLog(@"QLvideo preview defaults=%@", defaults);
+        NSLog(@"QLvideo preview SnapshoCount=%ld", (long)[defaults integerForKey:kSettingsSnapshotCount]);
+#endif
+
         if (![defaults boolForKey:kSettingsSnapshotAlways])
             @autoreleasepool    // Reduce peak footprint
         {
@@ -195,7 +200,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             // "best" video stream is pre-computed pictures
             image_count = [snapshotter pictures];
             if (image_count >= kMaxSnapshotCount)
-                image_count = kDefaultSnapshotCount;
+                image_count = kMaxSnapshotCount;
 
             // AV_DISPOSITION_TIMED_THUMBNAILS is undocumented and semantics are unclear.
             // Appears that the first thumbnail is duplicated in the stream, so read and discard.

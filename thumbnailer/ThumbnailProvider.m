@@ -106,8 +106,12 @@ const int kMinimumPeriod = 60;          // Don't create snapshots spaced more cl
             scaled = CGSizeMake(round(size.width * request.maximumSize.height / size.height), request.maximumSize.height);
         CGSize pixelsize = CGSizeMake(scaled.width * request.scale, scaled.height * request.scale);
 
-        NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
+        NSBundle *myBundle = [NSBundle mainBundle];
+        NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:myBundle.infoDictionary[@"ApplicationGroup"]];
         NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
+#ifdef DEBUG
+        NSLog(@"QLVideo thumbnailer snapshotTime=%d", (int) snapshot_time);
+#endif
         if (snapshot_time <= 0)
             snapshot_time = kDefaultSnapshotTime;
 

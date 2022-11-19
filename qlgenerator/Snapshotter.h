@@ -39,15 +39,15 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 
 - (instancetype) initWithURL:(CFURLRef)url;
 - (void) dealloc;
-- (CGSize) displaySize;
-- (CGSize) previewSize;
-- (NSInteger) duration;
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 - (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
 
 @property (nonatomic,assign,readonly) int pictures;
 @property (nonatomic,assign,readonly) int channels;
+@property (nonatomic,assign,readonly) CGSize displaySize;
+@property (nonatomic,assign,readonly) CGSize previewSize;
+@property (nonatomic,assign,readonly) NSInteger duration;
 @property (nonatomic,retain,readonly) NSString *title;
 
 @end
