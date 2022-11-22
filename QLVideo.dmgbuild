@@ -1,0 +1,22 @@
+# settings file for dmgbuild -*- mode: python; -*-
+# see https://dmgbuild.readthedocs.io/en/latest/example.html
+
+import os.path
+import plistlib
+
+application = "Build/Products/Release/QuickLook Video.app"
+appname = os.path.basename(application)
+
+# Files to include
+files = [application]
+
+# Symlinks to create
+symlinks = {"Applications": "/Applications"}
+
+badge_icon = os.path.join(application, "Contents", "Resources", "AppIcon.icns")
+
+icon_locations = {appname: (140, 120), "Applications": (500, 120)}
+
+default_view = "icon-view"
+background = "builtin-arrow"
+show_icon_preview = False

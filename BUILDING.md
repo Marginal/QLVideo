@@ -7,6 +7,7 @@ Prerequisites
 * Before building, update submodules with `git submodule update --init --recursive`.
 * ffmpeg and its dependencies require "CMake", "pkg-config" and the "yasm" assembler to build. You can obtain them
   through [Homebrew](https://brew.sh) via `brew install cmake pkg-config yasm`.
+* Building and packaging require several Python modules. Install these via `pip3 install -r requirements.txt`
 
 Products
 -------

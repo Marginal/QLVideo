@@ -1,8 +1,10 @@
 Build
+notarize*
 test
-.DS_Store
-*.xcworkspace
 xcuserdata
+.DS_Store
 *.bak
-*.pkg
+*.dmg
 *.framework
+*.pkg
+*.xcworkspace

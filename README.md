@@ -3,19 +3,25 @@ QuickLook Video
 
 This package allows macOS Finder to display thumbnails, static previews, cover art and metadata for most types of video files.
 
-QuickLook and Spotlight on macOS 10.9 and later understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
+QuickLook and Spotlight understand a limited number of media files - mostly only MPEG audio and video codecs within MPEG container files. This package adds support for wide range of other codecs and "non-native" media file types, including `.asf`, `.avi`, `.flv`, `.mkv`, `.rm`, `.webm`, `.wmf` etc.
 
 Installation
 ------------
-* Download the `.pkg` file of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
-* Right-click on it and choose "Open".
-* The Installer app will walk you through the installation process.
-* To see thumbnails of video files you may need to relaunch Finder (ctrl-⌥-click on the Finder icon in the Dock and choose Relaunch) or log out and back in again.
+* Download the `.dmg` file of the [latest release](https://github.com/Marginal/QLVideo/releases/latest).
+* Open it.
+* Copy the **QuickLook Video** app to your **Applications** folder (or **Applications** → **Utilities** if you prefer).
+* Run the app from where you copied it.
+
+Alternatively, if you have [Homebrew](http://brew.sh/) installed:
+* Install with:
+   ```
+   brew install --cask qlvideo
+   ```
+* Run the **QuickLook Video** app in your **Applications** folder.
+
+You don't need to keep the app open - you just need to run it once to make macOS notice its QuickLook and Spotlight plugins.
+* To see thumbnails of video files you may need to relaunch Finder (hold ⌥/option, right-click on the Finder icon in the Dock and choose **Relaunch**) or log out and back in again.
 * You may experience high CPU and disk usage for a few minutes after installation while Spotlight re-indexes all of your "non-native" audio and video files.
-
-Alternatively, if you have [Homebrew](http://brew.sh/) installed, you can install using Homebrew [Cask](http://caskroom.io/):
-
-    brew install --cask qlvideo
 
 Screenshots
 -----------
@@ -27,30 +33,14 @@ Limitations
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
 * Requires macOS 10.13 "High Sierra" or later on a 2013 or newer Mac.
 
-Customisation
------------
-You can customise this plugin's behaviour by entering the following in the Terminal app:
-
- - `defaults write uk.org.marginal.qlvideo SnapshotAlways -bool XX` : Controls whether QuickLook "Preview" shows static snapshot(s) even if a playable preview is available. Default is `NO`.
- - `defaults write uk.org.marginal.qlvideo SnapshotCount -int XX` : Maximum number of snapshots to show in a QuickLook "Preview". Default is 10.
- - `defaults write uk.org.marginal.qlvideo SnapshotTime -int XX` : Time offset in seconds for thumbnails and for single snapshots. Unless the video clip is shorter than twice this value, in which case the snapshot is taken at the mid-point. Default is `60`.
-    This setting doesn't affect thumbnails that have already been generated - use `qlmanage -r cache` and re-start Finder to force regeneration of existing thumbnails.
-
-
 Uninstall
 ---------
-* Run the Terminal app (found in `Applications` → `Utilities`).
-* Copy the following and paste into the Terminal app:
-```
-sudo rm -rf "/Library/Application Support/QLVideo" "/Library/QuickLook/Video.qlgenerator" "/Library/Spotlight/Video.mdimporter"
-```
-* Press Enter.
-* Type your password and press Enter.
+* Drag the **QuickLook Video** app to the Trash.
 
-If you installed using HomeBrew then you can remove the Cask with:
-```
-brew uninstall --cask qlvideo
-```
+Alternatively, if you installed using [Homebrew](http://brew.sh/), uninstall with:
+   ```
+   brew remove --cask qlvideo
+   ```
 
 Reporting bugs
 --------------
@@ -68,7 +58,7 @@ Acknowledgements
 ----------------
 Uses the [FFmpeg](https://www.ffmpeg.org/about.html) libraries.
 
-Packaged using [Packages](http://s.sudre.free.fr/Software/Packages/about.html).
+Packaged using [dmgbuild](https://pypi.org/project/dmgbuild/).
 
 License
 -------
