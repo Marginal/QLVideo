@@ -11,31 +11,34 @@
         <scene sceneID="JPo-4y-FX3">
             <objects>
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
-                    <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
+                    <menu key="mainMenu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
                             <menuItem title="QuickLook Video" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="QuickLook Video" systemMenu="apple" id="uQy-DD-JDr">
                                     <items>
                                         <menuItem title="Hide QuickLook Video" keyEquivalent="h" id="Olw-nP-bQN">
+                                            <attributedString key="userComments">
+                                                <fragment content="Standard macOS menu entry"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="hide:" target="Ady-hI-5gd" id="PnN-Uc-m68"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Hide Others" keyEquivalent="h" id="Vdr-fp-XzO">
                                             <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                            <attributedString key="userComments">
+                                                <fragment content="Standard macOS menu entry"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="hideOtherApplications:" target="Ady-hI-5gd" id="VT4-aY-XCT"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Show All" id="Kd2-mp-pUS">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="unhideAllApplications:" target="Ady-hI-5gd" id="Dhg-Le-xox"/>
-                                            </connections>
-                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
                                         <menuItem title="Quit QuickLook Video" keyEquivalent="q" id="4sb-4s-VLi">
+                                            <attributedString key="userComments">
+                                                <fragment content="Standard macOS menu entry"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="terminate:" target="Ady-hI-5gd" id="Te7-pn-YzF"/>
                                             </connections>
@@ -48,49 +51,56 @@
                                 <menu key="submenu" title="File" id="bib-Uj-vzu">
                                     <items>
                                         <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
+                                            <attributedString key="userComments">
+                                                <fragment content="Standard macOS menu entry"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="performClose:" target="Ady-hI-5gd" id="HmO-Ls-i7Q"/>
                                             </connections>
                                         </menuItem>
                                     </items>
                                 </menu>
+                                <attributedString key="userComments">
+                                    <fragment content="Standard macOS menu entry"/>
+                                </attributedString>
                             </menuItem>
                             <menuItem title="Window" id="aUF-d1-5bR">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
                                     <items>
-                                        <menuItem title="Minimize" keyEquivalent="m" id="OY7-WF-poV">
-                                            <connections>
-                                                <action selector="performMiniaturize:" target="Ady-hI-5gd" id="VwT-WD-YPe"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Zoom" keyEquivalent="=" id="R4o-n2-Eq4">
-                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
-                                            <connections>
-                                                <action selector="performZoom:" target="Ady-hI-5gd" id="DIl-cC-cCs"/>
-                                            </connections>
-                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
                                         <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                             <modifierMask key="keyEquivalentModifierMask"/>
+                                            <attributedString key="userComments">
+                                                <fragment content="Standard macOS menu entry"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="arrangeInFront:" target="Ady-hI-5gd" id="DRN-fu-gQh"/>
                                             </connections>
                                         </menuItem>
                                     </items>
                                 </menu>
+                                <attributedString key="userComments">
+                                    <fragment content="Standard macOS menu entry"/>
+                                </attributedString>
                             </menuItem>
                             <menuItem title="Help" id="wpr-3q-Mcd">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                                     <items>
                                         <menuItem title="QuickLook Video Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                                            <attributedString key="userComments">
+                                                <fragment content="Standard macOS menu entry"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="showHelp:" target="Ady-hI-5gd" id="y7X-2Q-9no"/>
                                             </connections>
                                         </menuItem>
                                     </items>
                                 </menu>
+                                <attributedString key="userComments">
+                                    <fragment content="Standard macOS menu entry"/>
+                                </attributedString>
                             </menuItem>
                         </items>
                     </menu>
@@ -108,7 +118,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="360"/>
@@ -130,16 +140,16 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="QuickLook_Video" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="WmV-dt-H1D">
-                        <rect key="frame" x="0.0" y="0.0" width="450" height="442"/>
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="336"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <imageView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3RU-RR-467">
-                                <rect key="frame" x="20" y="358" width="64" height="64"/>
+                                <rect key="frame" x="20" y="252" width="64" height="64"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSApplicationIcon" id="5as-pQ-Cjp"/>
                             </imageView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CDA-iQ-xJu">
-                                <rect key="frame" x="90" y="401" width="107" height="16"/>
+                                <rect key="frame" x="90" y="295" width="107" height="16"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" alignment="left" title="QuickLook Video" usesSingleLineMode="YES" id="Kdx-DJ-xCV">
                                     <font key="font" metaFont="system"/>
@@ -148,29 +158,35 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2wh-yv-b27">
-                                <rect key="frame" x="30" y="310" width="402" height="16"/>
+                                <rect key="frame" x="30" y="204" width="402" height="16"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Thumbnails" usesSingleLineMode="YES" id="37f-qP-fvU">
                                     <font key="font" metaFont="systemBold"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
+                                <attributedString key="userComments">
+                                    <fragment content="Settings heading"/>
+                                </attributedString>
                             </textField>
                             <box fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GWr-VG-Gjb">
-                                <rect key="frame" x="17" y="228" width="416" height="92"/>
+                                <rect key="frame" x="17" y="122" width="416" height="92"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <view key="contentView" id="A73-mY-U4T">
                                     <rect key="frame" x="4" y="5" width="408" height="70"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="M7d-OX-CCg">
-                                            <rect key="frame" x="10" y="46" width="107" height="16"/>
+                                            <rect key="frame" x="10" y="44" width="107" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Snapshot time" usesSingleLineMode="YES" id="fxY-dc-4ds">
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Snapshot" usesSingleLineMode="YES" id="fxY-dc-4ds">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
+                                            <attributedString key="userComments">
+                                                <fragment content="Setting - time interval"/>
+                                            </attributedString>
                                         </textField>
                                         <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oRJ-rG-f3h" userLabel="Snapshot Time Slider" customClass="LogarithmicSlider" customModule="QuickLook_Video" customModuleProvider="target">
                                             <rect key="frame" x="146" y="38" width="179" height="28"/>
@@ -183,22 +199,25 @@
                                         <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="A0Q-Ak-81f">
                                             <rect key="frame" x="327" y="43" width="71" height="21"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="s" usesSingleLineMode="YES" id="gtj-cw-6uT">
+                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" usesSingleLineMode="YES" id="gtj-cw-6uT">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                             <attributedString key="userComments">
-                                                <fragment content="Abbreviation of &quot;seconds&quot; duration"/>
+                                                <fragment content="Abbreviation of &quot;seconds&quot; as in duration"/>
                                             </attributedString>
                                         </textField>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lHO-WE-seT">
                                             <rect key="frame" x="5" y="4" width="398" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="push" title="Regenerate thumbnails" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KHh-sh-atU">
+                                            <buttonCell key="cell" type="push" title="Refresh" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KHh-sh-atU">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
+                                            <attributedString key="userComments">
+                                                <fragment content="Regenerate thumbnails"/>
+                                            </attributedString>
                                             <connections>
                                                 <action selector="regenerateThumbnailsWithSender:" target="XfG-lQ-9wD" id="up6-lI-axf"/>
                                             </connections>
@@ -208,80 +227,38 @@
                                 <font key="titleFont" metaFont="system"/>
                             </box>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tKn-JM-thi">
-                                <rect key="frame" x="18" y="179" width="414" height="45"/>
+                                <rect key="frame" x="18" y="73" width="414" height="45"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" selectable="YES" title="To see thumbnails of video files you may need to relaunch Finder or log out and back in again." id="QE0-Cv-OSp">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
+                                <attributedString key="userComments">
+                                    <fragment content="Advice"/>
+                                </attributedString>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0R1-lL-Ou1">
-                                <rect key="frame" x="30" y="151" width="402" height="16"/>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xxx-ED-tgc" userLabel="Copyright">
+                                <rect key="frame" x="90" y="258" width="342" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" title="Previews" usesSingleLineMode="YES" id="Uf6-2H-5xe">
-                                    <font key="font" metaFont="systemBold"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" alignment="left" usesSingleLineMode="YES" id="mTL-HB-uq5">
+                                    <font key="font" metaFont="smallSystem"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <box fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yfF-Su-SY8">
-                                <rect key="frame" x="17" y="69" width="416" height="92"/>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5cg-jg-DJ5">
+                                <rect key="frame" x="90" y="272" width="107" height="16"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <view key="contentView" id="rw3-JB-YDl">
-                                    <rect key="frame" x="4" y="5" width="408" height="70"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PU4-Ly-06T">
-                                            <rect key="frame" x="10" y="46" width="107" height="16"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Snapshot count" usesSingleLineMode="YES" id="sj4-g6-i9m">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="706-wy-rme" userLabel="Snapshot Count Slider">
-                                            <rect key="frame" x="146" y="38" width="179" height="28"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="25" doubleValue="10" tickMarkPosition="above" sliderType="linear" id="skQ-P3-F6r" userLabel="Snapshot Count Slider"/>
-                                            <connections>
-                                                <action selector="snapshotCountChangedWithSender:" target="XfG-lQ-9wD" id="6zA-84-QpN"/>
-                                            </connections>
-                                        </slider>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="96f-aq-NVD">
-                                            <rect key="frame" x="337" y="46" width="60" height="16"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" alignment="right" usesSingleLineMode="YES" id="hcJ-X1-UxV">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jz7-RB-xGs">
-                                            <rect key="frame" x="10" y="10" width="317" height="16"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Show snaphots instead of playing" usesSingleLineMode="YES" id="oBV-Mh-iov">
-                                                <font key="font" metaFont="system"/>
-                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            </textFieldCell>
-                                        </textField>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KMh-EC-l4a">
-                                            <rect key="frame" x="377" y="6" width="24" height="24"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                            <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="only" inset="2" id="TlX-9Z-TUZ">
-                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="snapshotAlwaysChangedWithSender:" target="XfG-lQ-9wD" id="pjg-pq-QeS"/>
-                                            </connections>
-                                        </button>
-                                    </subviews>
-                                </view>
-                                <font key="titleFont" metaFont="system"/>
-                            </box>
+                                <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" alignment="left" title="Version" usesSingleLineMode="YES" id="9ZM-hR-Vmn">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <attributedString key="userComments">
+                                    <fragment content="Product version"/>
+                                </attributedString>
+                            </textField>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="K2S-Ch-2xk">
                                 <rect key="frame" x="18" y="20" width="414" height="45"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -291,24 +268,9 @@
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
-                            </textField>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xxx-ED-tgc" userLabel="Copyright">
-                                <rect key="frame" x="90" y="364" width="342" height="14"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" alignment="left" usesSingleLineMode="YES" id="mTL-HB-uq5">
-                                    <font key="font" metaFont="smallSystem"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5cg-jg-DJ5">
-                                <rect key="frame" x="90" y="378" width="107" height="16"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" alignment="left" title="Version" usesSingleLineMode="YES" id="9ZM-hR-Vmn">
-                                    <font key="font" metaFont="smallSystem"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
+                                <attributedString key="userComments">
+                                    <fragment content="Advice"/>
+                                </attributedString>
                             </textField>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="LwW-nV-EXH"/>
@@ -318,9 +280,6 @@
                         <outlet property="copyrightNote" destination="xxx-ED-tgc" id="ulq-Ee-mVi"/>
                         <outlet property="regenerateNote" destination="tKn-JM-thi" id="LID-ia-fre"/>
                         <outlet property="reindexingNote" destination="K2S-Ch-2xk" id="XUl-HS-oHd"/>
-                        <outlet property="snapshotAlways" destination="KMh-EC-l4a" id="loN-E6-wKt"/>
-                        <outlet property="snapshotCount" destination="706-wy-rme" id="WqN-07-Ok3"/>
-                        <outlet property="snapshotCountValue" destination="96f-aq-NVD" id="bHs-Do-ZkF"/>
                         <outlet property="snapshotTime" destination="oRJ-rG-f3h" id="BPA-iB-lUP"/>
                         <outlet property="snapshotTimeValue" destination="A0Q-Ak-81f" id="JtA-mu-sIk"/>
                         <outlet property="versionLabel" destination="5cg-jg-DJ5" id="fRK-Hu-FW2"/>
@@ -329,7 +288,7 @@
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController representsSharedInstance="YES" id="3xy-Qa-WBC"/>
             </objects>
-            <point key="canvasLocation" x="75" y="806"/>
+            <point key="canvasLocation" x="75" y="753"/>
         </scene>
     </scenes>
     <resources>

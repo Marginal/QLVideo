@@ -56,9 +56,9 @@ Reporting bugs
 
 Acknowledgements
 ----------------
-Uses the [FFmpeg](https://www.ffmpeg.org/about.html) libraries.
-
-Packaged using [dmgbuild](https://pypi.org/project/dmgbuild/).
+* Uses the [FFmpeg](https://www.ffmpeg.org/about.html) libraries.
+* Uses [OneSky](http://www.oneskyapp.com/) for [translation management](https://marginal.oneskyapp.com/collaboration/project/188351).
+* Packaged using [dmgbuild](https://pypi.org/project/dmgbuild/).
 
 License
 -------

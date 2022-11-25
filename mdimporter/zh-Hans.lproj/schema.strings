@@ -1,0 +1,5 @@
+/* Video frames per second */
+"uk_org_marginal_qlvideo_framerate" = "帧率";
+
+/* For translations see /System/Library/Frameworks/AVKit.framework/Resources/??.lproj/Localizable.strings */
+"uk_org_marginal_qlvideo_subtitles" = "字幕";

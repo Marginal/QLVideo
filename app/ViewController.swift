@@ -23,16 +23,18 @@ class ViewController: NSViewController {
 
     var defaults: UserDefaults?
 
+    lazy var snapshotTimeFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter
+    }()
+
     @IBOutlet var versionLabel: NSTextField!
     @IBOutlet var copyrightNote: NSTextField!
 
     @IBOutlet var snapshotTime: NSSlider!
     @IBOutlet var snapshotTimeValue: NSTextField!
 
-    @IBOutlet var snapshotCount: NSSlider!
-    @IBOutlet var snapshotCountValue: NSTextField!
-
-    @IBOutlet var snapshotAlways: NSButton!
     @IBOutlet var regenerateNote: NSTextField!
     @IBOutlet var reindexingNote: NSTextField!
 
@@ -64,16 +66,7 @@ class ViewController: NSViewController {
         } else {
             snapshotTime.integerValue = defaults?.integer(forKey: kSettingsSnapshotTime) ?? kDefaultSnapshotTime
         }
-        snapshotTimeValue.stringValue = "\(snapshotTime.integerValue)" + "s"
-
-        if (defaults?.integer(forKey: kSettingsSnapshotCount) ?? kDefaultSnapshotCount <= 0) {
-            snapshotCount.integerValue = kDefaultSnapshotCount
-        } else {
-            snapshotCount.integerValue = defaults?.integer(forKey: kSettingsSnapshotCount) ?? kDefaultSnapshotCount
-        }
-        snapshotCountValue.integerValue = snapshotCount.integerValue
-
-        snapshotAlways.state = (defaults?.bool(forKey: kSettingsSnapshotAlways) ?? false) ? NSControl.StateValue.on : NSControl.StateValue.off
+        snapshotTimeValue.stringValue = snapshotTimeFormatter.string(from: TimeInterval(snapshotTime.integerValue)) ?? "\(snapshotTime.integerValue)"
     }
 
     // View is displayed in a window
@@ -86,21 +79,8 @@ class ViewController: NSViewController {
     @IBAction func snapshotTimeChanged(sender: NSSlider) {
         let value = snapshotTime.intValue
         snapshotTime.intValue = value
-        snapshotTimeValue.stringValue = "\(value)" + "s"
+        snapshotTimeValue.stringValue = snapshotTimeFormatter.string(from: TimeInterval(value)) ?? "\(value)"
         defaults?.set(value, forKey: kSettingsSnapshotTime)
-    }
-
-    // snapshotCount slider changed - round to int, update text field, and update defaults
-    @IBAction func snapshotCountChanged(sender: NSSlider) {
-        let value = snapshotCount.intValue
-        snapshotCount.intValue = value
-        snapshotCountValue.intValue = value
-        defaults?.set(value, forKey: kSettingsSnapshotCount)
-    }
-
-    @IBAction func snapshotAlwaysChanged(sender: NSButton) {
-        let value = (snapshotAlways.state == NSControl.StateValue.on)
-        defaults?.set(value, forKey: kSettingsSnapshotAlways)
     }
 
     @IBAction func regenerateThumbnails(sender: NSButton) {

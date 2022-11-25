@@ -1,0 +1,45 @@
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "파일";
+
+/* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
+"Bring All to Front" = "모두 앞으로 가져오기";
+
+/* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
+"Close" = "닫기";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+"Help" = "도움말";
+
+/* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
+"Hide Others" = "기타 가리기";
+
+/* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
+"Hide QuickLook Video" = "텍스트 편집기 가리기";
+
+/* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
+"QuickLook Video Help" = "텍스트 편집기 도움말";
+
+/* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
+"Quit QuickLook Video" = "텍스트 편집기 종료";
+
+/* Settings heading (TextField: 37f-qP-fvU) */
+"Thumbnails" = "축소판";
+
+/* Advice (TextField: QE0-Cv-OSp) */
+"To see thumbnails of video files you may need to relaunch Finder or log out and back in again." = "동영상 파일의 썸네일을 보기 위해서는 Finder를 재실행하거나 로그아웃 후 다시 로그인해야 합니다.";
+
+/* Product version (TextField: 9ZM-hR-Vmn) */
+"Version" = "버전";
+
+/* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
+"Window" = "윈도우";
+
+/* Advice (TextField: wBi-TN-rGU) */
+"You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Spotlight이 시스템이 기본 지원하지 않는 오디오와 비디오 파일의 색인을 재작성하는 동안 CPU와 디스크 사용량이 몇 분간 높아질 수 있습니다.";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "새로 고침";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "스냅샷";
+

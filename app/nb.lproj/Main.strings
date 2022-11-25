@@ -1,0 +1,45 @@
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "Arkiv";
+
+/* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
+"Bring All to Front" = "Legg alle øverst";
+
+/* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
+"Close" = "Lukk";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+"Help" = "Hjelp";
+
+/* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
+"Hide Others" = "Skjul andre";
+
+/* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
+"Hide QuickLook Video" = "Skjul Tekstredigering";
+
+/* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
+"QuickLook Video Help" = "Hjelp for Tekstredigering";
+
+/* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
+"Quit QuickLook Video" = "Avslutt Tekstredigering";
+
+/* Settings heading (TextField: 37f-qP-fvU) */
+"Thumbnails" = "Miniatyrbilder";
+
+/* Advice (TextField: QE0-Cv-OSp) */
+"To see thumbnails of video files you may need to relaunch Finder or log out and back in again." = "For å se miniatyrbilder av videofiler så trenger du i noen tilfeller å starte Finder på nytt. Du kan og logge ut og inn igjen.";
+
+/* Product version (TextField: 9ZM-hR-Vmn) */
+"Version" = "Versjon";
+
+/* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
+"Window" = "Window";
+
+/* Advice (TextField: wBi-TN-rGU) */
+"You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Du kan oppleve høy CPU- og diskbruk noen minutter etter installasjonen. Dette er fordi Spotlight re-indexerer alle lyd- og videofilene som tidligere ikke var tilgjengelig i Mac OS X.";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "Oppdater";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "Øyeblikksbilde";
+

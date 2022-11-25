@@ -1,0 +1,45 @@
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "文件";
+
+/* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
+"Bring All to Front" = "前置全部窗口";
+
+/* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
+"Close" = "关闭";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+"Help" = "帮助";
+
+/* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
+"Hide Others" = "隐藏其他";
+
+/* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
+"Hide QuickLook Video" = "隐藏文本编辑";
+
+/* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
+"QuickLook Video Help" = "文本编辑帮助";
+
+/* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
+"Quit QuickLook Video" = "退出文本编辑";
+
+/* Settings heading (TextField: 37f-qP-fvU) */
+"Thumbnails" = "缩略图";
+
+/* Advice (TextField: QE0-Cv-OSp) */
+"To see thumbnails of video files you may need to relaunch Finder or log out and back in again." = "您可能需要重新启动Finder或登出账户并重新登录以显示视频缩略图。";
+
+/* Product version (TextField: 9ZM-hR-Vmn) */
+"Version" = "版本";
+
+/* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
+"Window" = "窗口";
+
+/* Advice (TextField: wBi-TN-rGU) */
+"You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "此后几分钟您的CPU和硬盘可能会出现高负荷，因为Spotlight需要重新检索您的所有非默认支持的音频和视频文件。";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "刷新";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "快照";
+

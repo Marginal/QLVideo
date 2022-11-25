@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+# -*- mode: python; -*-
+# Regenerate a .strings file for the default language from a .storyboard
+# file in a form suitable for translation, and
+# copy localised strings for all available languages into product bundle
+
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+class Entry:
+    def __init__(self, groups):
+        self.kind = groups[0].replace("NS", "").replace("Cell", "")
+        self.string = groups[1]
+        self.objectIDs = [groups[2]]
+        self.note = groups[3] and groups[3].replace(r"\"", '"')
+
+
+# Expected environment from Xcode
+assert len(sys.argv) == 2, f"Usage: {sys.argv[0]} FILE.storyboard"
+assert os.getenv("BUILT_PRODUCTS_DIR"), "$BUILT_PRODUCTS_DIR is not set"
+assert os.getenv("DEVELOPMENT_LANGUAGE"), "$DEVELOPMENT_LANGUAGE is not set"
+assert os.getenv("UNLOCALIZED_RESOURCES_FOLDER_PATH", "$UNLOCALIZED_RESOURCES_FOLDER_PATH not set")
+
+storyboard = Path(sys.argv[1])
+srcdir = storyboard.parent.parent
+name = storyboard.stem
+
+# Extract strings from storyboard
+tmpfile = tempfile.mkstemp(prefix="buildstrings.")[1]
+p = subprocess.run(["ibtool", "--generate-strings-file", tmpfile, storyboard])
+assert p.returncode == 0
+
+# Slurp and de-duplicate
+entries = {}
+with open(tmpfile, encoding="utf_16") as infile:
+    for line in infile:
+        if r := re.match(
+            r"\/\* Class = \"((?:\\.|[^\"])*)\"; title = \"((?:\\.|[^\"])*)\"; ObjectID = \"((?:\\.|[^\"])*)\"; (?:Note = \"((?:\\.|[^\"])*)\"; )?\*\/",
+            line,
+        ):
+            entry = Entry(r.groups())
+            if entry.string in entries:
+                entries[entry.string].objectIDs.append(entry.objectIDs[0])
+                if not entries[entry.string].note:
+                    # Only keep first comment
+                    entries[entry.string].note = entry.note
+            else:
+                entries[entry.string] = entry
+os.unlink(tmpfile)
+
+# Product name doesn't need/want translation
+if os.getenv("PRODUCT_NAME") and os.getenv("PRODUCT_NAME") in entries:
+    donttranslate = [entries.pop(os.getenv("PRODUCT_NAME"))]
+else:
+    donttranslate = {}
+
+# Write development language template in sorted order
+with open(
+    srcdir / f'{os.getenv("DEVELOPMENT_LANGUAGE")}.lproj' / f"{name}.strings", "w"
+) as outfile:
+    for key in sorted(entries):
+        e = entries[key]
+        outfile.write(
+            f'/* {e.note and e.note + " " or ""}({e.kind}: {", ".join(e.objectIDs)}) */\n"{e.string}" = "{e.string}";\n\n'
+        )
+
+# Copy localised strings into bundle
+for inpath in srcdir.glob(f"*.lproj/{name}.strings"):
+    outdir = (
+        Path(os.getenv("BUILT_PRODUCTS_DIR"))
+        / Path(os.getenv("UNLOCALIZED_RESOURCES_FOLDER_PATH"))
+        / inpath.parent.name
+    )
+    outdir.mkdir(exist_ok=True)
+    with open(inpath) as infile, open(
+        outdir / f"{name}.strings", "w", encoding="utf_16"
+    ) as outfile:
+        for line in infile:
+            if r := re.match(r"\/\*.* \(.+: (.+)\) \*\/", line):
+                # get objectIDs from comment line
+                objectIDs = r.group(1).split(", ")
+            elif r := re.match(r"\"((?:\\.|[^\"])*)\" += +\"((?:\\.|[^\"])*)\" *;", line):
+                for objectID in objectIDs:
+                    outfile.write(f'"{objectID}.title" = "{r.group(2)}";\n')
+            else:
+                assert not line.strip(), f'Unrecognised translation "{line.strip()}"'

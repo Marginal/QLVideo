@@ -1,0 +1,45 @@
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "File";
+
+/* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
+"Bring All to Front" = "Porta tutto in primo piano";
+
+/* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
+"Close" = "Chiudi";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+"Help" = "Aiuto";
+
+/* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
+"Hide Others" = "Nascondi altre";
+
+/* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
+"Hide QuickLook Video" = "Nascondi QuickLook Video";
+
+/* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
+"QuickLook Video Help" = "Aiuto di QuickLook Video";
+
+/* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
+"Quit QuickLook Video" = "Esci da QuickLook Video";
+
+/* Settings heading (TextField: 37f-qP-fvU) */
+"Thumbnails" = "Miniature";
+
+/* Advice (TextField: QE0-Cv-OSp) */
+"To see thumbnails of video files you may need to relaunch Finder or log out and back in again." = "Per visualizzare le miniature dei file video potrebbe essere necessario rilanciare il Finder o uscire e rientrare di nuovo.";
+
+/* Product version (TextField: 9ZM-hR-Vmn) */
+"Version" = "Versione";
+
+/* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
+"Window" = "Finestra";
+
+/* Advice (TextField: wBi-TN-rGU) */
+"You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Si può verificare unʼelevata attività del processore e del disco rigido per qualche minuto il tempo che Spotlight re-indicizza i tuoi file video e audio «non nativo».";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "Aggiorna";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "Snapshot";
+
