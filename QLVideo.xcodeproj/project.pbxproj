@@ -45,7 +45,6 @@
 		AB467D2C2625E8B600F662CE /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		AB467D322625E90200F662CE /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
-		AB49FBA32923B5DD00B126C0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB972923B5BB00B126C0 /* ViewController.swift */; };
 		AB49FBB92923CF1C00B126C0 /* Video.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* Video.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB49FBBC2923D1F700B126C0 /* Video.qlgenerator in Embed qlgenerator */ = {isa = PBXBuildFile; fileRef = AB93B0F6196CA60500708B2E /* Video.qlgenerator */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
@@ -83,7 +82,6 @@
 		ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */; };
 		ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
-		ABC8EDFD293255C800F97C3C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABC8EDFF293255C800F97C3C /* Main.storyboard */; };
 		ABE23BD31D258F6C004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
 		ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
 		ABE23BD51D259070004E9D26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
@@ -94,6 +92,9 @@
 		ABE461181A15A776006C89A2 /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABE4610E1A15A519006C89A2 /* schema.strings */; };
 		ABE504A2220757BB006202E0 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = ABE504A1220757BB006202E0 /* Player.m */; };
 		ABE504A3220757D0006202E0 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = ABE504A1220757BB006202E0 /* Player.m */; };
+		ABE72EB22937FAE4005433DF /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = ABE72EB42937FAE4005433DF /* Main.xib */; };
+		ABE72EB82938E008005433DF /* IssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE72EB72938E008005433DF /* IssueView.swift */; };
+		ABE72EC1293A32F2005433DF /* ffprobe in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EBC29392EEB005433DF /* ffprobe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -217,6 +218,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ABE72EB929392E18005433DF /* Embed Executables */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				ABE72EC1293A32F2005433DF /* ffprobe in Embed Executables */,
+			);
+			name = "Embed Executables";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -248,7 +260,6 @@
 		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		AB49FB972923B5BB00B126C0 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/schema.strings"; sourceTree = "<group>"; };
 		AB54B963217F42B000558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libaom.a; path = universal/lib/libaom.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -297,7 +308,6 @@
 		ABC22D232070E05200A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/schema.strings; sourceTree = "<group>"; };
 		ABC22D242070E06900A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABC8EDC22931900D00F97C3C /* buildstrings */ = {isa = PBXFileReference; explicitFileType = text.script.sh; path = buildstrings; sourceTree = "<group>"; };
-		ABC8EDFE293255C800F97C3C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		ABC8EE07293273ED00F97C3C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		ABC8EE082932741000F97C3C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
 		ABC8EE0929328A4D00F97C3C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
@@ -330,6 +340,10 @@
 		ABE72EAB293448CF005433DF /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
 		ABE72EAC293448D2005433DF /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Main.strings; sourceTree = "<group>"; };
 		ABE72EAD293448D8005433DF /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Main.strings; sourceTree = "<group>"; };
+		ABE72EB32937FAE4005433DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Main.xib; sourceTree = "<group>"; };
+		ABE72EB72938E008005433DF /* IssueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueView.swift; sourceTree = "<group>"; };
+		ABE72EBC29392EEB005433DF /* ffprobe */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ffprobe; path = universal/bin/ffprobe; sourceTree = BUILT_PRODUCTS_DIR; };
+		ABE72EC0293A32B5005433DF /* ffmpeg */ = {isa = PBXFileReference; lastKnownFileType = text; name = ffmpeg; path = universal/bin/ffmpeg; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -459,9 +473,9 @@
 			isa = PBXGroup;
 			children = (
 				AB49FB952923B5BB00B126C0 /* AppDelegate.swift */,
-				AB49FB972923B5BB00B126C0 /* ViewController.swift */,
+				ABE72EB72938E008005433DF /* IssueView.swift */,
 				ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */,
-				ABC8EDFF293255C800F97C3C /* Main.storyboard */,
+				ABE72EB42937FAE4005433DF /* Main.xib */,
 				ABB719E62924069600F13C24 /* Assets.xcassets */,
 				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */,
@@ -525,6 +539,8 @@
 		AB9FB56F1965DD7200D39647 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ABE72EC0293A32B5005433DF /* ffmpeg */,
+				ABE72EBC29392EEB005433DF /* ffprobe */,
 				AB17CCF4291E954B002A80AB /* include */,
 				AB664719261A900600D23514 /* aom */,
 				ABCAEA331CDB899B004890E3 /* FFmpeg */,
@@ -667,6 +683,7 @@
 				AB75CB2A261D19F3009BE894 /* Embed Foundation Extensions */,
 				AB49FBB82923CECC00B126C0 /* Embed mdimporter */,
 				AB49FBBB2923D1EC00B126C0 /* Embed qlgenerator */,
+				ABE72EB929392E18005433DF /* Embed Executables */,
 			);
 			buildRules = (
 			);
@@ -778,7 +795,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABB719E72924069600F13C24 /* Assets.xcassets in Resources */,
-				ABC8EDFD293255C800F97C3C /* Main.storyboard in Resources */,
+				ABE72EB22937FAE4005433DF /* Main.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -811,7 +828,7 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/app/buildstrings",
-				"$(SRCROOT)/app/Base.lproj/Main.storyboard",
+				"$(SRCROOT)/app/Base.lproj/Application.xib",
 			);
 			name = "Extract localization";
 			outputFileListPaths = (
@@ -821,7 +838,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/app/buildstrings ${SRCROOT}/app/Base.lproj/Main.storyboard \n";
+			shellScript = "${SRCROOT}/app/buildstrings ${SRCROOT}/app/Base.lproj/Main.xib\n";
 		};
 		ABB1A2991A1C353E00EEF82B /* Build Schema */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -868,8 +885,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */,
+				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
 				AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */,
-				AB49FBA32923B5DD00B126C0 /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -985,14 +1002,6 @@
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
-		ABC8EDFF293255C800F97C3C /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				ABC8EDFE293255C800F97C3C /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		ABC8EE06293273ED00F97C3C /* Main.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1041,6 +1050,14 @@
 				ABC8EE0F2932A92100F97C3C /* nb */,
 			);
 			name = schema.strings;
+			sourceTree = "<group>";
+		};
+		ABE72EB42937FAE4005433DF /* Main.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				ABE72EB32937FAE4005433DF /* Base */,
+			);
+			name = Main.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1143,14 +1160,14 @@
 		AB535D4E1EDC390C00ECB0CE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 			};
 			name = Debug;
 		};
 		AB535D4F1EDC390C00ECB0CE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 			};
 			name = Release;
 		};

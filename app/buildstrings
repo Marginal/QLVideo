@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- mode: python; -*-
-# Regenerate a .strings file for the default language from a .storyboard
+# Regenerate a .strings file for the default language from a .xib or .storyboard
 # file in a form suitable for translation, and
 # copy localised strings for all available languages into product bundle
 
@@ -21,7 +21,7 @@ class Entry:
 
 
 # Expected environment from Xcode
-assert len(sys.argv) == 2, f"Usage: {sys.argv[0]} FILE.storyboard"
+assert len(sys.argv) == 2, f"Usage: {sys.argv[0]} FILE.[storyboard|xib]"
 assert os.getenv("BUILT_PRODUCTS_DIR"), "$BUILT_PRODUCTS_DIR is not set"
 assert os.getenv("DEVELOPMENT_LANGUAGE"), "$DEVELOPMENT_LANGUAGE is not set"
 assert os.getenv("UNLOCALIZED_RESOURCES_FOLDER_PATH", "$UNLOCALIZED_RESOURCES_FOLDER_PATH not set")
@@ -44,7 +44,10 @@ with open(tmpfile, encoding="utf_16") as infile:
             line,
         ):
             entry = Entry(r.groups())
-            if entry.string in entries:
+            if entry.string == os.getenv("PRODUCT_NAME") or entry.note == "do not translate":
+                # doesn't need translation
+                pass
+            elif entry.string in entries:
                 entries[entry.string].objectIDs.append(entry.objectIDs[0])
                 if not entries[entry.string].note:
                     # Only keep first comment
@@ -52,12 +55,6 @@ with open(tmpfile, encoding="utf_16") as infile:
             else:
                 entries[entry.string] = entry
 os.unlink(tmpfile)
-
-# Product name doesn't need/want translation
-if os.getenv("PRODUCT_NAME") and os.getenv("PRODUCT_NAME") in entries:
-    donttranslate = [entries.pop(os.getenv("PRODUCT_NAME"))]
-else:
-    donttranslate = {}
 
 # Write development language template in sorted order
 with open(

@@ -39,6 +39,12 @@ else
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/bin"
 	for EXE in ffmpeg ffprobe; do
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/bin/${EXE}" -output "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+        if [ -n "$DEVELOPMENT_TEAM" -a -n "$PRODUCT_BUNDLE_IDENTIFIER" ]; then
+            ENTITLEMENTS=`mktemp -t buildffmpeg`
+            echo -e '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+            codesign -s "${DEVELOPMENT_TEAM}" -i "${PRODUCT_BUNDLE_IDENTIFIER}.${EXE}" -o runtime --entitlements "${ENTITLEMENTS}" "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+            rm "${ENTITLEMENTS}"
+        fi
 	done
 
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"

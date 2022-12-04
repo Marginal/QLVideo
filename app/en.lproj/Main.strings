@@ -1,8 +1,14 @@
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "Bring All to Front";
 
+/* Generating a bug report: Button (Button: TjD-TN-u0A) */
+"Cancel" = "Cancel";
+
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Close";
+
+/* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
+"Drop a problematic video file here" = "Drop a problematic video file here";
 
 /* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
 "File" = "File";
@@ -16,6 +22,9 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "Hide QuickLook Video";
 
+/* Generating a bug report: Guidance note (TextField: dCn-U3-hOJ) */
+"Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission." = "Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission.";
+
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "QuickLook Video Help";
 
@@ -24,6 +33,12 @@
 
 /* Regenerate thumbnails (Button: KHh-sh-atU) */
 "Refresh" = "Refresh";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Report";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Report an Issue";
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Snapshot";

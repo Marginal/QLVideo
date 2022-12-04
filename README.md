@@ -42,17 +42,9 @@ Alternatively, if you installed using [Homebrew](http://brew.sh/), uninstall wit
    brew remove --cask qlvideo
    ```
 
-Reporting bugs
---------------
-* First, please check that you're running the [latest version](https://github.com/Marginal/QLVideo/releases/latest), log out of macOS and back in again and see if the problem remains.
-* Open a [New issue](https://github.com/Marginal/QLVideo/issues/new) and describe the problem.
-* To help diagnose the problem please run the Terminal app (found in Applications → Utilities) and type:
-```
-    qlmanage -m
-    qlmanage -p -d1 /path/of/some/video/file
-```
-  but substitute the *path of some video file* by dragging a video file from the Finder and dropping it on the Terminal window.
-* In the Terminal app choose `Edit` → `Select All` then `Edit` → `Copy` and `Paste` the results in the "New issue".
+Troubleshooting
+---------------
+* See [here](https://github.com/Marginal/QLVideo/wiki/Troubleshooting).
 
 Acknowledgements
 ----------------
