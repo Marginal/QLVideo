@@ -73,6 +73,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             snapshotTime.integerValue = defaults?.integer(forKey: kSettingsSnapshotTime) ?? kDefaultSnapshotTime
         }
         snapshotTimeValue.stringValue = snapshotTimeFormatter.string(from: TimeInterval(snapshotTime.integerValue)) ?? "\(snapshotTime.integerValue)"
+
+        // Check if unsupported hardware and don't do further setup if so
+        if sysCtl("hw.machine") == "x86_64" && sysCtl("hw.optional.avx2_0") != "yes" {
+            let alert = NSAlert()
+            alert.alertStyle = .critical
+            alert.messageText = "QuickLook Video requires a late-2013 Mac or newer, with AVX2 support"
+            alert.informativeText = "The QuickLook and Spotlight plugins will crash!"
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

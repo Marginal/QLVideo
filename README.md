@@ -31,7 +31,7 @@ Limitations
 -----------
 * The QuickLook "Preview" function displays one or more static snapshots of "non-native" video files. You'll need a media player app (e.g. [VLC](http://www.videolan.org/vlc/) or [MPlayerX](http://mplayerx.org/)) to play these files.
 * Interlaced content is sometimes not de-interlaced in QuickLook thumbnails and previews.
-* Requires macOS 10.13 "High Sierra" or later on a 2013 or newer Mac.
+* Requires macOS 10.13 "High Sierra" or later on a late-2013 or newer Mac.
 
 Uninstall
 ---------
