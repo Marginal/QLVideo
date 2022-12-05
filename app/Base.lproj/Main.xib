@@ -19,6 +19,7 @@
                 <outlet property="copyrightNote" destination="EvW-Wd-eNE" id="dQy-0Q-YOS"/>
                 <outlet property="issueWindow" destination="Gye-Xd-78R" id="7cO-cg-aw0"/>
                 <outlet property="mainWindow" destination="F0z-JX-Cv5" id="RVg-cO-eDi"/>
+                <outlet property="oldVersionWindow" destination="zsS-mw-BMN" id="j0y-Gp-kcH"/>
                 <outlet property="regenerateNote" destination="sv1-Bp-axZ" id="0YR-1j-FPp"/>
                 <outlet property="reindexingNote" destination="ha4-53-wyh" id="JJY-iA-orc"/>
                 <outlet property="snapshotTime" destination="Ao2-4O-GKj" id="Sov-Cd-Jnv"/>
@@ -339,7 +340,7 @@
                         <color key="fillColor" name="selectedContentBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </box>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tQK-bT-JPm">
-                        <rect key="frame" x="197" y="13" width="76" height="32"/>
+                        <rect key="frame" x="190" y="13" width="84" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TjD-TN-u0A">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -349,18 +350,21 @@ Gw
 </string>
                         </buttonCell>
                         <attributedString key="userComments">
-                            <fragment content="Generating a bug report: Button"/>
+                            <fragment content="Dismiss dialog"/>
                         </attributedString>
                         <connections>
-                            <action selector="cancelReportWithSender:" target="tVa-j8-h9O" id="le9-Q1-bIg"/>
+                            <action selector="dismessReportWithSender:" target="tVa-j8-h9O" id="ixF-t9-e9c"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="IDV-oo-hDx">
-                        <rect key="frame" x="289" y="13" width="75" height="32"/>
+                        <rect key="frame" x="287" y="13" width="84" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Report" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="N0n-6K-3kI">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
                         </buttonCell>
                         <attributedString key="userComments">
                             <fragment content="Generating a bug report: Submission button"/>
@@ -378,8 +382,99 @@ Gw
             </view>
             <point key="canvasLocation" x="-278" y="220"/>
         </window>
+        <window title="Old version detected" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="zsS-mw-BMN">
+            <windowStyleMask key="styleMask" titled="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="283" y="305" width="400" height="270"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
+            <view key="contentView" id="Lyx-Zb-GPe" customClass="OldVersionView" customModule="QuickLook_Video" customModuleProvider="target">
+                <rect key="frame" x="0.0" y="0.0" width="400" height="270"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r24-4V-vLk">
+                        <rect key="frame" x="20" y="186" width="64" height="64"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSCaution" id="Yoi-Hi-wNg"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jNe-iF-dxE">
+                        <rect key="frame" x="52" y="186" width="32" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSApplicationIcon" id="xbh-fc-T4P"/>
+                    </imageView>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hDI-Jw-mj6">
+                        <rect key="frame" x="18" y="50" width="364" height="128"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" id="elO-ga-k4P">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <string key="title">There are older versions of the QuickLook and Spotlight plugins that this app supplies installed on your Mac.
+These may prevent Finder from showing thumbails and metadata for your video files.
+
+Press Help for advice on how to delete these older plugins.</string>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <attributedString key="userComments">
+                            <fragment content="Old plugins dialog: Guidance note"/>
+                        </attributedString>
+                    </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8tT-AM-MPw">
+                        <rect key="frame" x="192" y="13" width="84" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ScK-fP-kjN">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                        <attributedString key="userComments">
+                            <fragment content="Dismiss dialog"/>
+                        </attributedString>
+                        <connections>
+                            <action selector="dismessWithSender:" target="Lyx-Zb-GPe" id="uEe-UQ-R1t"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i7C-Tb-Wnf">
+                        <rect key="frame" x="292" y="13" width="80" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Help" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sf8-Ko-Xhb">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                            <connections>
+                                <action selector="helpWithSender:" target="Lyx-Zb-GPe" id="zum-dd-mGy"/>
+                            </connections>
+                        </buttonCell>
+                    </button>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HOM-gG-Uur">
+                        <rect key="frame" x="90" y="207" width="292" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" title="QuickLook Video would like to clean up old plugins" usesSingleLineMode="YES" id="R1n-Z4-BMI">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <attributedString key="userComments">
+                            <fragment content="Old plugins dialog: Request for authorization"/>
+                        </attributedString>
+                    </textField>
+                </subviews>
+                <connections>
+                    <outlet property="advice" destination="hDI-Jw-mj6" id="NjJ-qd-VOZ"/>
+                    <outlet property="authorizationPrompt" destination="HOM-gG-Uur" id="s4N-SZ-E3j"/>
+                    <outlet property="helpButton" destination="i7C-Tb-Wnf" id="iNC-AS-IfS"/>
+                </connections>
+            </view>
+            <attributedString key="userComments">
+                <fragment content="Old plugins dialog: Window title"/>
+            </attributedString>
+            <point key="canvasLocation" x="209" y="220"/>
+        </window>
     </objects>
     <resources>
         <image name="NSApplicationIcon" width="32" height="32"/>
+        <image name="NSCaution" width="32" height="32"/>
     </resources>
 </document>

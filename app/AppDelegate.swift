@@ -36,6 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // Help
     @IBOutlet var issueWindow: NSWindow!
+    @IBOutlet var oldVersionWindow: NSWindow!
 
     var defaults: UserDefaults?
 
@@ -60,12 +61,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let suiteName: String = myBundle.infoDictionary!["ApplicationGroup"] as! String
         defaults = UserDefaults(suiteName: suiteName)
-        if (defaults == nil) {
-            NSLog("QLVideo preview can't access defaults for application group \(suiteName)")
-        } else {
-            maybeResetCache(version)
-            maybeResetSpotlight(version)
-        }
 
         if (defaults?.integer(forKey: kSettingsSnapshotTime) ?? kDefaultSnapshotTime <= 0) {
             snapshotTime.integerValue = kDefaultSnapshotTime
@@ -82,6 +77,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             alert.informativeText = "The QuickLook and Spotlight plugins will crash!"
             alert.addButton(withTitle: "OK")
             alert.runModal()
+            return
+        }
+
+        // Remove old plugins
+        if !cleanup() {
+            // Will fail if Sandboxed or if user refuses to authorize
+            mainWindow.beginSheet(oldVersionWindow, completionHandler: nil)
+        }
+
+        if (defaults == nil) {
+                NSLog("QLVideo app can't access defaults for application group \(suiteName)")
+        } else {
+            maybeResetCache(version)
+            maybeResetSpotlight(version)
         }
     }
 
@@ -101,7 +110,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func regenerateThumbnails(sender: NSButton) {
         defaults?.synchronize()
-        regenerateNote.isHidden = !resetCache()
+        if resetCache() {
+            do {
+                try helper("/usr/bin/killall", args: ["Finder"])
+            } catch {
+                // Managed to tell QuickLook to regenerate cache, but couldn't restart Finder - Sandboxed?
+                regenerateNote.isHidden = false
+                return
+            }
+        }
+        regenerateNote.isHidden = true
     }
 
     @IBAction func showHelp(sender: NSMenuItem) {
@@ -117,6 +135,45 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK:- plugin management
+
+    func cleanup() -> Bool {
+        let fm = FileManager.default
+        let home = fm.homeDirectoryForCurrentUser.path
+        do {
+            if fm.fileExists(atPath: home + "/Library/Application Support/QLVideo") {
+                try fm.removeItem(atPath: home + "/Library/Application Support/QLVideo")
+            }
+            if fm.fileExists(atPath: home + "/Library/QuickLook/Video.qlgenerator") {
+                try fm.removeItem(atPath: home + "/Library/QuickLook/Video.qlgenerator")
+            }
+            if fm.fileExists(atPath: home + "/Library/Spotlight/Video.mdimporter") {
+                try fm.removeItem(atPath: home + "/Library/Spotlight/Video.mdimporter")
+            }
+        } catch {
+            // Can't happen :)
+            NSLog("QLVideo app couldn't remove old user plugins \(error)")
+        }
+
+        if (fm.fileExists(atPath: "/Library/Application Support/QLVideo") ||
+            fm.fileExists(atPath: "/Library/QuickLook/Video.qlgenerator") ||
+            fm.fileExists(atPath: "/Library/Spotlight/Video.mdimporter")) {
+            // AuthorizationExecuteWithPrivileges isn't available in Swift. Just do this instead:
+            let prompt = (oldVersionWindow.contentView as! OldVersionView).authorizationPrompt.stringValue.replacingOccurrences(of: "\"", with: "\\\"")
+            if let script = NSAppleScript(source: "do shell script \"/bin/rm -rf /Library/Application\\\\ Support/QLVideo /Library/QuickLook/Video.qlgenerator /Library/Spotlight/Video.mdimporter\" with prompt \"\(prompt)\" with administrator privileges") {
+                var error: NSDictionary?
+                script.executeAndReturnError(&error)
+                if (error == nil) {
+                    return true;
+                } else {
+                    NSLog("QLVideo app couldn't remove old system plugins \(String(describing: error!))")
+                }
+            }
+        } else {
+            return true
+        }
+
+        return false
+    }
 
     // Reset the QuickLook cache if this is the first time this version of the app is run
     func maybeResetCache(_ currentVersion: String) {

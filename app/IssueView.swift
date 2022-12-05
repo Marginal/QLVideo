@@ -25,10 +25,10 @@ class IssueView: NSView {
                                                                             .paragraphStyle: style])
     }
 
-    @IBAction func cancelReport(sender: NSButton) {
+    @IBAction func dismessReport(sender: NSButton) {
         reset()
         let delegate = NSApp.delegate as! AppDelegate
-        delegate.issueWindow.close()
+        delegate.mainWindow.endSheet(self.window!)
     }
 
     @IBAction func sendReport(sender: NSButton) {
@@ -73,7 +73,7 @@ class IssueView: NSView {
 
         reset()
         let delegate = NSApp.delegate as! AppDelegate
-        delegate.issueWindow.close()
+        delegate.mainWindow.endSheet(self.window!)
     }
 
     func reset() {
@@ -108,6 +108,7 @@ class DropTarget: NSImageView {
             if parent.files.count > 0 {
                 self.image = NSImage(named: "NSMultipleDocuments")
                 parent.sendButton.isEnabled = true
+                parent.sendButton.setAccessibilityFocused(true)
                 return true
             }
         }
