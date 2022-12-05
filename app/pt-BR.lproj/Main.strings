@@ -7,7 +7,7 @@
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Fechar";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
 "Help" = "Ajuda";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -28,6 +28,9 @@
 /* Advice (TextField: QE0-Cv-OSp) */
 "To see thumbnails of video files you may need to relaunch Finder or log out and back in again." = "Para ver miniaturas dos vídeos você precisa reiniciar o Finder ou finalizar sessão e iniciar novamente.";
 
+/* Product version (TextField: 9ZM-hR-Vmn) */
+"Version" = "Versão";
+
 /* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
 "Window" = "Janela";
 
@@ -39,4 +42,13 @@
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Captura";
+
+/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
+"Cancel" = "Cancelar";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Comunicar";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Comunicar Problema";
 

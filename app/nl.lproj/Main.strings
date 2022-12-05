@@ -7,7 +7,7 @@
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Sluit";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
 "Help" = "Help";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -32,7 +32,7 @@
 "Version" = "Versie";
 
 /* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
-"Window" = "Window";
+"Window" = "Venster";
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "In de komende minuten kan uw processor- en schijfactiviteit sterk toenemen, omdat Spotlight eerst alle niet-ondersteunde audio- en videobestanden indexeert.";
@@ -42,4 +42,13 @@
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Momentopname";
+
+/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
+"Cancel" = "Annuleer";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Meld";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Meld een probleem";
 

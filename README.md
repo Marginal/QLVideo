@@ -49,7 +49,7 @@ Troubleshooting
 Acknowledgements
 ----------------
 * Uses the [FFmpeg](https://www.ffmpeg.org/about.html) libraries.
-* Uses [OneSky](http://www.oneskyapp.com/) for [translation management](https://marginal.oneskyapp.com/collaboration/project/188351).
+* Uses [OneSky](http://www.oneskyapp.com/) for translation management. See [here](https://github.com/Marginal/QLVideo/wiki/Translations)  if you'd like to translate QuickLook Video into your language or correct an existing translation.
 * Packaged using [dmgbuild](https://pypi.org/project/dmgbuild/).
 
 License

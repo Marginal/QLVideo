@@ -7,7 +7,7 @@
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Zavřít";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
 "Help" = "Nápověda";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -42,4 +42,13 @@
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Snímek";
+
+/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
+"Cancel" = "Zrušit";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Nahlásit";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Nahlásit problém";
 

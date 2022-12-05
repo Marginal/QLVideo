@@ -7,7 +7,7 @@
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Lukk";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
 "Help" = "Hjelp";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -32,7 +32,7 @@
 "Version" = "Versjon";
 
 /* Standard macOS menu entry (Menu: Td7-aD-5lo, aUF-d1-5bR) */
-"Window" = "Window";
+"Window" = "Vindu";
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Du kan oppleve høy CPU- og diskbruk noen minutter etter installasjonen. Dette er fordi Spotlight re-indexerer alle lyd- og videofilene som tidligere ikke var tilgjengelig i Mac OS X.";
@@ -42,4 +42,13 @@
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Øyeblikksbilde";
+
+/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
+"Cancel" = "Avbryt";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Rapporter";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Rapporter et problem";
 
