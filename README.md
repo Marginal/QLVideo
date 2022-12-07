@@ -25,7 +25,8 @@ You don't need to keep the app open - you just need to run it once to make macOS
 
 Screenshots
 -----------
-![Finder screenshot](img/finder.jpeg) ![Get Info](img/info.jpeg) ![Preview](img/preview.jpeg)
+<img src="img/finder.jpeg" alt="Finder" width="508"/> &nbsp; <img src="img/info.jpeg" alt="Finder Info" width="267"/>
+<img src="img/preview.jpeg" alt="QuickLook preview" width="962"/>
 
 Limitations
 -----------
