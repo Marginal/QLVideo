@@ -26,7 +26,7 @@ else
 			if [ $ARCH == arm64 ]; then
 				FLAGS="$FLAGS --enable-cross-compile --enable-vfp --enable-neon"
 			elif [ $ARCH == x86_64 ]; then
-				FLAGS="$FLAGS --enable-cross-compile --cpu=haswell"
+				FLAGS="$FLAGS --enable-cross-compile --cpu=westmere"
 			fi
 			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH}" ${FLAGS} --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
 		fi
