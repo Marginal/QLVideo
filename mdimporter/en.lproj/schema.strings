@@ -1,5 +1,5 @@
-/* Video frames per second */
+/* Finder Info window: Video frames per second */
 "uk_org_marginal_qlvideo_framerate" = "Frame rate";
 
-/* For translations see /System/Library/Frameworks/AVKit.framework/Resources/??.lproj/Localizable.strings */
+/* Finder Info window: Subtitle languages */
 "uk_org_marginal_qlvideo_subtitles" = "Subtitles";

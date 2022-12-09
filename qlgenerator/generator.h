@@ -9,6 +9,8 @@
 #ifndef generator_h
 #define generator_h
 
+#include <os/log.h>
+
 // Constants defined in main.c
 
 // Settings
@@ -30,5 +32,8 @@ extern const int kMinimumPeriod;
 extern BOOL newQuickLook;       // Whether we're on Catalina or later which has new icon flavor key
 extern BOOL brokenQLCoverFlow;  // Whether we're on Mavericks which doesn't handle CoverFlow previews properly
 extern BOOL hackedQLDisplay;    // Whether the user has symlinked QTKit-based LegacyMovie.qldisplay as Movie.qldisplay
+
+// Logging
+extern os_log_t logger;
 
 #endif /* generator_h */

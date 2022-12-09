@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#include <os/log.h>
 
 #include <libavcodec/avcodec.h>
 #include "libavformat/avformat.h"

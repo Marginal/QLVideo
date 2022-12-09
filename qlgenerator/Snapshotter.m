@@ -15,31 +15,74 @@
 #ifndef DEBUG
 #include <pthread.h>
 #include <signal.h>
-
-void segv_handler(int signum)
-{
-    NSLog(@"QLVideo thread exiting on signal %d", signum);
-    pthread_exit(NULL);
-}
 #endif
 
+static os_log_t logger = NULL;
 
 static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
 static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for being too black or too white
 
-
 // Direct ffmpeg log output to system log
 static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 {
-    NSLogv([@"QLVideo ffmpeg " stringByAppendingString:[[NSString alloc] initWithUTF8String:fmt]], vl);
+    int print_prefix = 0;
+    char *line = NULL;
+
+    if (level > av_log_get_level())
+        return;
+
+    int line_size = av_log_format_line2(avcl, level, fmt, vl, line, 0, &print_prefix);
+    if (line_size <= 0 || !(line = malloc(line_size + 1)))
+        return; // Can't log!
+
+    print_prefix = 0;
+    if (av_log_format_line2(avcl, level, fmt, vl, line, line_size + 1, &print_prefix) > 0)
+    {
+        switch (level)
+        {
+            case AV_LOG_PANIC:
+                os_log_fault(logger, "%{public}s", line);
+                break;
+
+            case AV_LOG_FATAL:
+                os_log_error(logger, "%{public}s", line);
+                break;
+
+            case AV_LOG_ERROR:
+            case AV_LOG_WARNING:
+            case AV_LOG_INFO:
+                os_log_info(logger, "%{public}s", line);
+                break;
+
+            case AV_LOG_VERBOSE:
+            case AV_LOG_DEBUG:
+            case AV_LOG_TRACE:
+            default:
+                os_log_debug(logger, "%{public}s", line);
+        }
+    }
+    free(line);
 }
+
+
+#ifndef DEBUG
+void segv_handler(int signum)
+{
+    if (logger)
+        os_log_fault(logger, "Thread exiting on signal %{darwin.signal}d", signum);
+    pthread_exit(NULL);
+}
+#endif
 
 
 @implementation Snapshotter
 
 + (void) load
 {
-    NSLog(@"QLVideo Snapshotter load");
+    if (!logger)
+        logger = os_log_create("uk.org.marginal.qlvideo", "snapshotter");
+
+    os_log_debug(logger, "Snapshotter load");
 
 #ifndef DEBUG
     // Install a handler to kill this thread in the hope that other thumbnail threads in the ThumbnailsAgent process can continue
@@ -54,9 +97,9 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 
     av_log_set_callback(av_log_callback);
 #ifndef DEBUG
-    av_log_set_level(AV_LOG_FATAL|AV_LOG_SKIP_REPEATED);
+    av_log_set_level(AV_LOG_WARNING|AV_LOG_SKIP_REPEATED);
 #else
-    av_log_set_level(AV_LOG_ERROR|AV_LOG_SKIP_REPEATED);
+    av_log_set_level(AV_LOG_DEBUG|AV_LOG_SKIP_REPEATED);
 #endif
 }
 
@@ -68,7 +111,7 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 
     if (avformat_open_input(&fmt_ctx, [[(__bridge NSURL*) url path] UTF8String], NULL, NULL))
     {
-        NSLog(@"QLVideo can't open %@", [(__bridge NSURL*) url path]);
+        os_log_error(logger, "Can't open %@", [(__bridge NSURL*) url path]);
         return nil;
     }
 
@@ -167,9 +210,7 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 
 - (void) dealloc
 {
-#ifdef DEBUG
-    NSLog(@"QLVideo Snapshotter dealloc");
-#endif
+    os_log_debug(logger, "Snapshotter dealloc");
     avcodec_free_context(&dec_ctx);
     avformat_close_input(&fmt_ctx);
     if (enc_ctx)
@@ -284,9 +325,7 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
 
     if (image && (!CGImageGetWidth(image) || !CGImageGetHeight(image)))
     {
-#ifdef DEBUG
-        NSLog(@"QLVideo Zero sized cover art %ldx%ld", CGImageGetWidth(image), CGImageGetHeight(image));
-#endif
+        os_log_info(logger, "Zero sized cover art %ldx%ld", CGImageGetWidth(image), CGImageGetHeight(image));
         CGImageRelease(image);
         return nil;
     }

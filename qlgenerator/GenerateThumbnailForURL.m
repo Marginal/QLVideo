@@ -39,17 +39,17 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 {
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
+#ifndef DEBUG   // Skip this check to enable debugging with qlmanage -t ...
     // On Catalina and later the QLThumbnailGenerator application extension generates thumbnails
     if (newQuickLook)
         return kQLReturnNoError;
+#endif
 
     CGImageRef snapshot = NULL;
 
     @autoreleasepool
     {
-#ifdef DEBUG
-        NSLog(@"QLVideo options=%@ size=%dx%d %@", options, (int) maxSize.width, (int) maxSize.height, url);
-#endif
+        os_log_info(logger, "Thumbnail with options=%{public}@ UTI=%{public}@ size=%dx%d for %{public}@", options, contentTypeUTI, (int) maxSize.width, (int) maxSize.height, url);
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) return kQLReturnNoError;
 

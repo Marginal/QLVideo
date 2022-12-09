@@ -47,6 +47,9 @@ BOOL newQuickLook;
 BOOL brokenQLCoverFlow;
 BOOL hackedQLDisplay;
 
+// Logging
+os_log_t logger;
+
 
 //
 // Below is the generic glue code for all plug-ins.
@@ -124,10 +127,10 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
 
     hackedQLDisplay = [[[[NSFileManager defaultManager] attributesOfItemAtPath:@"/System/Library/Frameworks/Quartz.framework/Frameworks/QuickLookUI.framework/PlugIns/Movie.qldisplay" error:nil] objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
 
+    logger = os_log_create("uk.org.marginal.qlvideo", "qlgenerator");
+
     // Hack! Give our process enough memory to handle 4K H.265 content
-#ifdef DEBUG
-    NSLog(@"QLVideo new QuickLookSatellite with QLMemoryUsedCritical = %i", QLMemoryUsedCritical);
-#endif
+    os_log_info(logger, "New QuickLookSatellite with QLMemoryUsedCritical = %{bytes}i", QLMemoryUsedCritical);
     if (QLMemoryUsedCritical && QLMemoryUsedCritical < kSatelliteMemory)
         QLMemoryUsedCritical = kSatelliteMemory;
 

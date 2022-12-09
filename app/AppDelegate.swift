@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import OSLog
 
 
 // Settings
@@ -39,15 +40,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var oldVersionWindow: NSWindow!
 
     var defaults: UserDefaults?
+    var logger: OSLog?
 
     lazy var snapshotTimeFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter
     }()
-    // View is loaded but not yet displayed - read settings
 
+    // View is loaded but not yet displayed - read settings
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+
+        logger = OSLog(subsystem: "uk.org.marginal.qlvideo", category: "app")
+        os_log("applicationDidFinishLaunching", log: logger!, type: .info)
 
         // Remove the searchable Help entry
         NSApplication.shared.helpMenu = NSMenu(title: "Unused")
@@ -87,7 +92,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if (defaults == nil) {
-                NSLog("QLVideo app can't access defaults for application group \(suiteName)")
+            os_log("Can't access defaults for application group %{public}s", log: logger!, type: .error, suiteName)
         } else {
             maybeResetCache(version)
             maybeResetSpotlight(version)
@@ -151,7 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } catch {
             // Can't happen :)
-            NSLog("QLVideo app couldn't remove old user plugins \(error)")
+            os_log("Couldn't remove old user plugins: %{public}s", log: logger!, type: .error, String(describing: error))
         }
 
         if (fm.fileExists(atPath: "/Library/Application Support/QLVideo") ||
@@ -165,7 +170,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 if (error == nil) {
                     return true;
                 } else {
-                    NSLog("QLVideo app couldn't remove old system plugins \(String(describing: error!))")
+                    os_log("Couldn't remove old system plugins: %{public}s", log: logger!, type: .error, String(describing: error!))
+
                 }
             }
         } else {

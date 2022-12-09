@@ -24,6 +24,9 @@ const int kMaxSnapshotCount = 100;
 const int kMinimumDuration = 5;         // Don't bother seeking clips shorter than this [s]. Completely arbitrary.
 const int kMinimumPeriod = 60;          // Don't create snapshots spaced more closely than this [s]. Completely arbitrary.
 
+// Logging
+static os_log_t logger = NULL;
+
 
 // Hack - Use undocumented property to set icon flavor
 @implementation QLThumbnailReply(MyThumbnailReply)
@@ -52,23 +55,22 @@ const int kMinimumPeriod = 60;          // Don't create snapshots spaced more cl
 @implementation ThumbnailProvider
 
 - (void)provideThumbnailForFileRequest:(QLFileThumbnailRequest *)request completionHandler:(void (^)(QLThumbnailReply * _Nullable, NSError * _Nullable))handler API_AVAILABLE(macos(10.15)) {
-#ifdef DEBUG
-    NSLog(@"QLVideo thumbnailer attributes=%@ scale=%.2lf minimumSize=%dx%d maximumSize=%dx%d %@",
-          request.attributeKeys,
-          request.scale,
-          (int) request.minimumSize.width, (int) request.minimumSize.height,
-          (int) request.maximumSize.width, (int) request.maximumSize.height,
-          request.fileURL);
-#endif
+
+    if (!logger)
+        logger = os_log_create("uk.org.marginal.qlvideo", "thumbnailer");
+
+    os_log_info(logger, "Thumbnailer with attributes=%{public}@ scale=%.2lf minimumSize=%dx%d maximumSize=%dx%d for %{public}@",
+                request.attributeKeys, request.scale,
+                (int) request.minimumSize.width, (int) request.minimumSize.height,
+                (int) request.maximumSize.width, (int) request.maximumSize.height,
+                request.fileURL);
 
     // @autoreleasepool
     {
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:(__bridge CFURLRef) request.fileURL];
         if (!snapshotter)
         {
-#ifdef DEBUG
-            NSLog(@"QLVideo can't supply anything for %@", request.fileURL);
-#endif
+            os_log_error(logger, "Can't supply anything for %@", request.fileURL);
             return;
         }
 
@@ -83,9 +85,8 @@ const int kMinimumPeriod = 60;          // Don't create snapshots spaced more cl
             else
                 scaled = CGSizeMake(round(size.width * request.maximumSize.height / size.height), request.maximumSize.height);
             CGSize pixelsize = CGSizeMake(scaled.width * request.scale, scaled.height * request.scale);
-#ifdef DEBUG
-            NSLog(@"QLVideo supplying %dx%d cover art for %@", (int) pixelsize.width, (int) pixelsize.height, request.fileURL);
-#endif
+            os_log_info(logger, "Supplying %dx%d cover art for %{public}@", (int) pixelsize.width, (int) pixelsize.height, request.fileURL);
+
             // suppress letterbox mattes
             handler([QLThumbnailReply replyWithContextSizeAndFlavor:scaled flavor:kQLThumbnailIconGlossFlavor drawingBlock:^BOOL(CGContextRef  _Nonnull context) {
                 (void) [snapshotter previewSize]; // retain underlying data for the duration of this block
@@ -109,9 +110,8 @@ const int kMinimumPeriod = 60;          // Don't create snapshots spaced more cl
         NSBundle *myBundle = [NSBundle mainBundle];
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:myBundle.infoDictionary[@"ApplicationGroup"]];
         NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
-#ifdef DEBUG
-        NSLog(@"QLVideo thumbnailer snapshotTime=%d", (int) snapshot_time);
-#endif
+        os_log_debug(logger, "SnapshotTime=%d", (int) snapshot_time);
+
         if (snapshot_time <= 0)
             snapshot_time = kDefaultSnapshotTime;
 
@@ -122,9 +122,8 @@ const int kMinimumPeriod = 60;          // Don't create snapshots spaced more cl
             snapshot = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
         if (snapshot)
         {
-#ifdef DEBUG
-            NSLog(@"QLVideo supplying %dx%d %s for %@", (int) pixelsize.width, (int) pixelsize.height, [snapshotter pictures] ? "picture" : "snapshot", request.fileURL);
-#endif
+            os_log_info(logger, "Supplying %dx%d %s for %{public}@", (int) pixelsize.width, (int) pixelsize.height, [snapshotter pictures] ? "picture" : "snapshot", request.fileURL);
+
             // explicitly request letterbox mattes for UTIs that don't derive from public.media, such as com.microsoft.advanced-systems-format
             handler([QLThumbnailReply replyWithContextSizeAndFlavor:scaled flavor:kQLThumbnailIconMovieFlavor drawingBlock:^BOOL(CGContextRef  _Nonnull context) {
                 (void) [snapshotter previewSize]; // retain underlying data for the duration of this block
@@ -136,9 +135,7 @@ const int kMinimumPeriod = 60;          // Don't create snapshots spaced more cl
             return;
         }
 
-#ifdef DEBUG
-        NSLog(@"QLVideo couldn't get thumbnail for %@", request.fileURL);
-#endif
+        os_log_error(logger, "Couldn't get thumbnail for %@", request.fileURL);
     }
 }
 

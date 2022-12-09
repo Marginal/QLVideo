@@ -6,10 +6,6 @@
 //
 //
 
-
-
-
-
 //==============================================================================
 //
 //	DO NO MODIFY THE CONTENT OF THIS FILE
@@ -19,19 +15,22 @@
 //
 //==============================================================================
 
+#include "GetMetadataForFile.h"
 
-#import <Cocoa/Cocoa.h>
+os_log_t logger = NULL;
 
-#include <signal.h>
-#include <dlfcn.h>
-
-#include "libavformat/avformat.h"
-#include "libavutil/log.h"
+#ifndef DEBUG
+void segv_handler(int signum)
+{
+    if (logger)
+        os_log_fault(logger, "Thread exiting on signal %{darwin.signal}d", signum);
+    pthread_exit(NULL);
+}
+#endif
 
 // -----------------------------------------------------------------------------
 //	constants
 // -----------------------------------------------------------------------------
-
 
 #define PLUGIN_ID "3BD30E87-1D12-4322-AFCE-F58CB4B56096"
 
@@ -86,19 +85,6 @@ static MDImporterInterfaceStruct testInterfaceFtbl = {
     MetadataImporterPluginRelease,
     GetMetadataForFile
 };
-
-
-void segv_handler(int signum)
-{
-    char *sCrashReporterInfo = dlsym(RTLD_DEFAULT, "__crashreporter_info__");
-    
-    if (sCrashReporterInfo && *sCrashReporterInfo)
-        NSLog(@"Video.mdimporter crashed: %s", sCrashReporterInfo);
-    else
-        NSLog(@"Video.mdimporter crashed!");
-    
-    exit(EXIT_FAILURE);
-}
 
 
 // -----------------------------------------------------------------------------

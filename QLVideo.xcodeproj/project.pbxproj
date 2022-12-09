@@ -346,6 +346,7 @@
 		ABE72EBC29392EEB005433DF /* ffprobe */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ffprobe; path = universal/bin/ffprobe; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EC0293A32B5005433DF /* ffmpeg */ = {isa = PBXFileReference; lastKnownFileType = text; name = ffmpeg; path = universal/bin/ffmpeg; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EC2293D1DC6005433DF /* OldVersionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldVersionView.swift; sourceTree = "<group>"; };
+		ABE72ED6294379D1005433DF /* GetMetadataForFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetMetadataForFile.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -572,6 +573,7 @@
 			isa = PBXGroup;
 			children = (
 				AB9FB57E1965DD7200D39647 /* main.m */,
+				ABE72ED6294379D1005433DF /* GetMetadataForFile.h */,
 				AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */,
 				AB9FB58C1965DF0700D39647 /* Info.plist */,
 				ABB1A29A1A1C358500EEF82B /* buildschema */,

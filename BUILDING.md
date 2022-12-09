@@ -11,22 +11,24 @@ Prerequisites
 
 Products
 -------
-The "QLVideo" scheme in the Xcode project `QLVideo.xcodeproj` builds the following Products:
+The Xcode project `QLVideo.xcodeproj` builds the following Products:
 
-* ffmpeg - The [FFmpeg](http://ffmpeg.org/) libraries. The plugins depend on these.
-* QLVideo.app - Launch Services won't read [Uniform Type Identifiers](http://developer.apple.com/library/mac/documentation/General/Conceptual/DevPedia-CocoaCore/UniformTypeIdentifier.html) from plugin bundles, so this dummy app serves to register the UTIs of the media types that the plugins understand. Should be installed in `/Library/Application Support/QLVideo/`.
-* Video.mdimporter - Spotlight plugin. Should be installed in `/Library/Spotlight/`.
-* Video.qlgenerator - QuickLook plugin. Should be installed in `/Library/QuickLook/`.
-
-The `resetmds` and `resetquicklood` post-installation scripts can be run to inform Launch Services, SpotLight and QuickLook respectively of any changes.
+* QuickLook Video.app - App that hosts plugins and registers the
+  [Uniform Type Identifiers](http://developer.apple.com/library/mac/documentation/General/Conceptual/DevPedia-CocoaCore/UniformTypeIdentifier.html)
+  of the media types that the plugins understand.
+* mdimporter - Spotlight plugin provides metadata.
+* qlgenerator - QuickLook plugin provides static previews and, on macOS versions prior to Catalina, thumbnails.
+* thumbnailer - QuickLook plugin provides thumbnails on macOS Catalina and later.
+* benchmark - Simple executable for benchmarking, not included in the app.
+* ffmpeg - The [FFmpeg](http://ffmpeg.org/) libraries. The plugins depend on these. Also builds a standalone version of the `ffprobe` executable for bug reporting.
+* aom - Support for the [AV1](https://en.wikipedia.org/wiki/AV1) codec. ffmpeg depends on this.
 
 Debugging
 ---------
-The Spotlight and QuickLook processes cannot be debugged on 10.11 and later due to System Integrity Protection. Copy `mdimport` or `qlmanage` from `/usr/local` to the project directory, and use this copy to debug the plugin.
-
-Packaging
----------
-The [Packages](http://s.sudre.free.fr/Software/Packages/about.html) project `QLVideo.pkgproj` packages the above targets into a flat `.pkg` file for distribution. The `.pkg` file includes the post-installation scripts.
+All plugins produce output in the system log. Use the filter `subsystem:uk.org.marginal.qlvideo` in the Console app.
+* mdimporter - Invoke for debugging with `mdimport -n -d3 <testfile>`
+* glgenerator - Invoke for debugging with `qlmanage -p <testfile>`
+* thumbnailer - Invoke for debugging with `qlmanage -t -f2 <testfile>`
 
 Notes
 -----

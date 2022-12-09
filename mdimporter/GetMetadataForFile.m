@@ -6,11 +6,7 @@
 //
 //
 
-#import <Cocoa/Cocoa.h>
-
-#include <libavformat/avformat.h>
-#include <libavutil/dict.h>
-
+#include "GetMetadataForFile.h"
 
 // Custom attributes
 NSString *kFrameRate = @"uk_org_marginal_qlvideo_framerate";
@@ -19,14 +15,19 @@ NSString *kSubtitles = @"uk_org_marginal_qlvideo_subtitles";
 
 Boolean die(CFStringRef pathToFile, int err)
 {
-#ifdef DEBUG
     char errbuf[AV_ERROR_MAX_STRING_SIZE];
     const char *errbuf_ptr = errbuf;
 
-    if (av_strerror(err, errbuf, sizeof(errbuf)) < 0)
-        errbuf_ptr = strerror(AVUNERROR(err));
-    NSLog(@"Video.mdimporter %@: %s", pathToFile, errbuf_ptr);
-#endif
+    if (!logger)
+    {}
+    else if (!av_strerror(err, errbuf, sizeof(errbuf)))
+    {
+        os_log_error(logger, "%@: %{public}s", pathToFile, errbuf);
+    }
+    else
+    {
+        os_log_error(logger, "%@: %{darwin.errno}d", pathToFile, err);
+    }
     return false;
 }
 
@@ -134,6 +135,10 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
         NSMutableData *filename = [NSMutableData dataWithLength:CFStringGetMaximumSizeOfFileSystemRepresentation(pathToFile)];
         if (!filename || !CFStringGetFileSystemRepresentation(pathToFile, [filename mutableBytes], [filename length]))
             return false;
+
+        if (!logger)
+            logger = os_log_create("uk.org.marginal.qlvideo", "mdimporter");
+        os_log_info(logger, "Import with UTI=%{public}@ for %{public}@", contentTypeUTI, pathToFile);
 
         AVFormatContext *fmt_ctx = NULL;
         int err;
@@ -362,10 +367,8 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 if (![codecs containsObject:nsname])
                     [codecs addObject:nsname];
             }
-#ifdef DEBUG
             else
-                NSLog(@"Video.mdimporter %@: unsupported codec with id %d for stream %d", pathToFile, params->codec_id, stream_idx);
-#endif
+                os_log_info(logger, "Unsupported codec with id %d for stream %d in %{public}@", params->codec_id, stream_idx, pathToFile);
         }
         
         if ([codecs count])
