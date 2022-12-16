@@ -77,6 +77,10 @@ void segv_handler(int signum)
 
 @implementation Snapshotter
 
+@synthesize fmt_ctx;
+@synthesize audio_stream_idx;
+@synthesize video_stream_idx;
+
 + (void) load
 {
     if (!logger)
@@ -119,7 +123,7 @@ void segv_handler(int signum)
         return nil;
 
     // Find best audio stream and record channel count
-    int audio_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
+    audio_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
     if (audio_stream_idx >= 0)
         _channels = fmt_ctx->streams[audio_stream_idx]->codecpar->ch_layout.nb_channels;
 
@@ -129,10 +133,10 @@ void segv_handler(int signum)
 
     // Find best video stream and open appropriate codec
     const AVCodec *codec = NULL;
-    stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
-    if (stream_idx >= 0)
+    video_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0);
+    if (video_stream_idx >= 0)
     {
-        AVStream *stream = fmt_ctx->streams[stream_idx];
+        AVStream *stream = fmt_ctx->streams[video_stream_idx];
         if (!(dec_ctx = avcodec_alloc_context3(NULL)))
             return nil;
         avcodec_parameters_to_context(dec_ctx, stream->codecpar);
@@ -142,13 +146,13 @@ void segv_handler(int signum)
     else
     {
         // Get best stream (for metadata) even though we can't view it
-        stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
-        if (stream_idx < 0)
+        video_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+        if (video_stream_idx < 0)
             return nil;     // no video streams - viewable or otherwise
 
         if (!(dec_ctx = avcodec_alloc_context3(NULL)))
             return nil;
-        avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[stream_idx]->codecpar);
+        avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[video_stream_idx]->codecpar);
 
         // Special handling for Canon CRM movies which have a custom codec that ffmpeg doesn't understand, and a single JPEG preview picture
         if ((tag = av_dict_get(fmt_ctx->metadata, "major_brand", NULL, AV_DICT_MATCH_CASE)) && !strncmp(tag->value, "crx ", 4))
@@ -220,10 +224,10 @@ void segv_handler(int signum)
 // Native frame size, adjusting for anamorphic
 - (CGSize) displaySize
 {
-    if (stream_idx < 0)
+    if (video_stream_idx < 0)
         return CGSizeMake(0,0);
 
-    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, fmt_ctx->streams[stream_idx], NULL);
+    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, fmt_ctx->streams[video_stream_idx], NULL);
     if (sar.num > 1 && sar.den > 1)
         return CGSizeMake(av_rescale(dec_ctx->width, sar.num, sar.den), dec_ctx->height);
     else
@@ -246,7 +250,55 @@ void segv_handler(int signum)
 }
 
 // Gets cover art if available, or nil.
-- (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
+- (NSData *) dataCoverArtWithMode:(CoverArtMode)mode
+{
+    AVStream *art_stream = [self coverArtStreamWithMode: mode];
+
+    // Extract data
+    NSData *data;
+    if (!art_stream)
+        return nil;
+    else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
+        data = [NSData dataWithBytes: art_stream->attached_pic.data length: art_stream->attached_pic.size];
+    else
+        data = [NSData dataWithBytes: art_stream->codecpar->extradata length: art_stream->codecpar->extradata_size];
+    return data;
+}
+
+// Gets cover art if available, or nil.
+- (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode
+{
+    AVStream *art_stream = [self coverArtStreamWithMode: mode];
+
+    // Extract data
+    CFDataRef data;
+    if (!art_stream)
+        return nil;
+    else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
+    else
+        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codecpar->extradata, art_stream->codecpar->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
+
+    // wangle into a CGImage
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+    CGImageRef image = (art_stream->codecpar->codec_id == AV_CODEC_ID_PNG) ?
+        CGImageCreateWithPNGDataProvider (provider, NULL, false, kCGRenderingIntentDefault) :
+        CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
+    CGDataProviderRelease(provider);
+    CFRelease(data);
+
+    if (image && (!CGImageGetWidth(image) || !CGImageGetHeight(image)))
+    {
+        os_log_info(logger, "Zero sized cover art %ldx%ld", CGImageGetWidth(image), CGImageGetHeight(image));
+        CGImageRelease(image);
+        return nil;
+    }
+    return image;
+
+}
+
+// Find stream with best cover art, or -1
+- (AVStream*) coverArtStreamWithMode:(CoverArtMode)mode
 {
     AVStream *art_stream = NULL;
     int art_priority = 0;
@@ -306,39 +358,16 @@ void segv_handler(int signum)
         }
     }
 
-    // Extract data
-    CFDataRef data;
-    if (!art_stream)
-        return nil;
-    else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
-    else
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codecpar->extradata, art_stream->codecpar->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
-
-    // wangle into a CGImage
-    CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
-    CGImageRef image = (art_stream->codecpar->codec_id == AV_CODEC_ID_PNG) ?
-        CGImageCreateWithPNGDataProvider (provider, NULL, false, kCGRenderingIntentDefault) :
-        CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);
-    CGDataProviderRelease(provider);
-    CFRelease(data);
-
-    if (image && (!CGImageGetWidth(image) || !CGImageGetHeight(image)))
-    {
-        os_log_info(logger, "Zero sized cover art %ldx%ld", CGImageGetWidth(image), CGImageGetHeight(image));
-        CGImageRelease(image);
-        return nil;
-    }
-    return image;
+    return art_stream;
 }
 
 
 // Private method. Gets snapshot as raw RGB, blocking until completion, timeout or failure.
 - (int) newImageWithSize:(CGSize)size atTime:(NSInteger)seconds to:(uint8_t *const [])dst withStride:(const int [])dstStride
 {
-    if (stream_idx < 0)
+    if (video_stream_idx < 0)
         return -1;
-    AVStream *stream = fmt_ctx->streams[stream_idx];
+    AVStream *stream = fmt_ctx->streams[video_stream_idx];
 
     if (!dec_ctx || !avcodec_is_open(dec_ctx))
         return -1;      // Can't decode video stream
@@ -350,12 +379,12 @@ void segv_handler(int signum)
     {
         timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
         stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
-        if (av_seek_frame(fmt_ctx, stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
+        if (av_seek_frame(fmt_ctx, video_stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
             return -1;
     }
     else if (!_pictures && seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
     {
-        av_seek_frame(fmt_ctx, stream_idx, 0, AVSEEK_FLAG_BYTE);
+        av_seek_frame(fmt_ctx, video_stream_idx, 0, AVSEEK_FLAG_BYTE);
         stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
     }
     else    // Don't seek
@@ -377,7 +406,7 @@ void segv_handler(int signum)
         if (av_read_frame(fmt_ctx, pkt))
             break;     // Failed to find a packet!
 
-        if (pkt->stream_index == stream_idx)
+        if (pkt->stream_index == video_stream_idx)
         {
             if (avcodec_send_packet(dec_ctx, pkt))
                 break;     // Failed to decode

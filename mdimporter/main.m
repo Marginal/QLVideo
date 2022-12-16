@@ -19,15 +19,6 @@
 
 os_log_t logger = NULL;
 
-#ifndef DEBUG
-void segv_handler(int signum)
-{
-    if (logger)
-        os_log_fault(logger, "Thread exiting on signal %{darwin.signal}d", signum);
-    pthread_exit(NULL);
-}
-#endif
-
 // -----------------------------------------------------------------------------
 //	constants
 // -----------------------------------------------------------------------------
@@ -96,16 +87,6 @@ static MDImporterInterfaceStruct testInterfaceFtbl = {
 //
 MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryID)
 {
-#ifndef DEBUG
-    // Install a handler to kill the mdworker process quietly on a crash so the user isn't alarmed by a crash report.
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESETHAND;
-    sa.sa_handler = segv_handler;
-    sigaction(SIGABRT, &sa, NULL);
-    sigaction(SIGSEGV, &sa, NULL);
-#endif
-
     MetadataImporterPluginType *theNewInstance;
 
     theNewInstance = (MetadataImporterPluginType *)malloc(sizeof(MetadataImporterPluginType));

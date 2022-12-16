@@ -78,6 +78,7 @@
 		AB9730241A3A2C550067C886 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB19C82B1A3A295700A14247 /* Localizable.strings */; };
 		AB9FB57F1965DD7200D39647 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.m */; };
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */; };
+		ABA82A4A294CD9530093D8A9 /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */; };
 		ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
@@ -914,6 +915,7 @@
 			files = (
 				AB9FB57F1965DD7200D39647 /* main.m in Sources */,
 				AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */,
+				ABA82A4A294CD9530093D8A9 /* Snapshotter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,10 +23,8 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 
 @interface Snapshotter : NSObject
 {
-    AVFormatContext *fmt_ctx;
     AVCodecContext *dec_ctx;
     AVCodecContext *enc_ctx;    // Only allocated if needed
-    int stream_idx;             // index of "best" video stream
     int _pictures;              // "best" video stream is pre-computed pictures (i.e. DRMed content)
     int _channels;              // number of audio channels - purely for display
     NSString *_title;           // title for dsiplay
@@ -41,8 +39,15 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 - (instancetype) initWithURL:(CFURLRef)url;
 - (void) dealloc;
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
+- (NSData*) dataCoverArtWithMode:(CoverArtMode)mode;
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
 - (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
+
+// Really should be internal, but handy to share with csimporter
+- (AVStream*) coverArtStreamWithMode:(CoverArtMode)mode;
+@property (nonatomic,assign,readonly) AVFormatContext *fmt_ctx;
+@property (nonatomic,assign,readonly) int audio_stream_idx;       // index of "best" audio stream
+@property (nonatomic,assign,readonly) int video_stream_idx;       // index of "best" video stream
 
 @property (nonatomic,assign,readonly) int pictures;
 @property (nonatomic,assign,readonly) int channels;
