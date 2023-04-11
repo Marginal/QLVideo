@@ -14,13 +14,13 @@
 "Hide Others" = "Verberg andere";
 
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
-"Hide QuickLook Video" = "Verberg Teksteditor";
+"Hide Quick Look Video" = "Verberg Teksteditor";
 
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
-"QuickLook Video Help" = "Teksteditor Help";
+"Quick Look Video Help" = "Teksteditor Help";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
-"Quit QuickLook Video" = "Stop Teksteditor";
+"Quit Quick Look Video" = "Stop Teksteditor";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Miniaturen";

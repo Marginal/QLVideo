@@ -16,9 +16,9 @@ The "QLVideo" scheme in the Xcode project `QLVideo.xcodeproj` builds the followi
 * ffmpeg - The [FFmpeg](http://ffmpeg.org/) libraries. The plugins depend on these.
 * QLVideo.app - Launch Services won't read [Uniform Type Identifiers](http://developer.apple.com/library/mac/documentation/General/Conceptual/DevPedia-CocoaCore/UniformTypeIdentifier.html) from plugin bundles, so this dummy app serves to register the UTIs of the media types that the plugins understand. Should be installed in `/Library/Application Support/QLVideo/`.
 * Video.mdimporter - Spotlight plugin. Should be installed in `/Library/Spotlight/`.
-* Video.qlgenerator - QuickLook plugin. Should be installed in `/Library/QuickLook/`.
+* Video.qlgenerator - Quick Look plugin. Should be installed in `/Library/QuickLook/`.
 
-The `resetmds` and `resetquicklood` post-installation scripts can be run to inform Launch Services, SpotLight and QuickLook respectively of any changes.
+The `resetmds` and `resetquicklood` post-installation scripts can be run to inform Launch Services, SpotLight and Quick Look respectively of any changes.
 
 Debugging
 ---------

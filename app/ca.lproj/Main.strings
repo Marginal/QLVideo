@@ -14,13 +14,13 @@
 "Hide Others" = "Ocultar la resta";
 
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
-"Hide QuickLook Video" = "Ocultar QuickLook Video";
+"Hide Quick Look Video" = "Ocultar Quick Look Video";
 
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
-"QuickLook Video Help" = "Ajuda QuickLook Video";
+"Quick Look Video Help" = "Ajuda Quick Look Video";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
-"Quit QuickLook Video" = "Sortir de QuickLook Video";
+"Quit Quick Look Video" = "Sortir de Quick Look Video";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Miniatures";

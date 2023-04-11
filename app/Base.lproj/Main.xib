@@ -28,7 +28,7 @@
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-        <window title="QuickLook Video" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5" userLabel="QuickLook Video">
+        <window title="Quick Look Video" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5" userLabel="Quick Look Video">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="450" height="336"/>
@@ -148,7 +148,7 @@
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FLx-gS-M0f">
                         <rect key="frame" x="90" y="295" width="107" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" alignment="left" title="QuickLook Video" usesSingleLineMode="YES" id="ITY-zm-xdB">
+                        <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" alignment="left" title="Quick Look Video" usesSingleLineMode="YES" id="ITY-zm-xdB">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -172,11 +172,11 @@
         </window>
         <menu systemMenu="main" id="W3o-Zv-NUI">
             <items>
-                <menuItem title="QuickLook Video" localization="NO" mirroring="NO" id="UL9-nd-8H1">
+                <menuItem title="Quick Look Video" localization="NO" mirroring="NO" id="UL9-nd-8H1">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="QuickLook Video" systemMenu="apple" id="Fud-2w-ffl">
+                    <menu key="submenu" title="Quick Look Video" systemMenu="apple" id="Fud-2w-ffl">
                         <items>
-                            <menuItem title="Hide QuickLook Video" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide Quick Look Video" keyEquivalent="h" id="Olw-nP-bQN">
                                 <attributedString key="userComments">
                                     <fragment content="Standard macOS menu entry"/>
                                 </attributedString>
@@ -194,7 +194,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="NXt-7W-lXD"/>
-                            <menuItem title="Quit QuickLook Video" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit Quick Look Video" keyEquivalent="q" id="4sb-4s-VLi">
                                 <attributedString key="userComments">
                                     <fragment content="Standard macOS menu entry"/>
                                 </attributedString>
@@ -247,7 +247,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="QuickLook Video Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                            <menuItem title="Quick Look Video Help" keyEquivalent="?" id="FKE-Sm-Kum">
                                 <attributedString key="userComments">
                                     <fragment content="Standard macOS menu entry"/>
                                 </attributedString>
@@ -406,7 +406,7 @@ DQ
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" id="elO-ga-k4P">
                             <font key="font" usesAppearanceFont="YES"/>
-                            <string key="title">There are older versions of the QuickLook and Spotlight plugins that this app supplies installed on your Mac.
+                            <string key="title">There are older versions of the Quick Look and Spotlight plugins that this app supplies installed on your Mac.
 These may prevent Finder from showing thumbails and metadata for your video files.
 
 Press Help for advice on how to delete these older plugins.</string>
@@ -451,7 +451,7 @@ DQ
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HOM-gG-Uur">
                         <rect key="frame" x="90" y="207" width="292" height="21"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" title="QuickLook Video would like to clean up old plugins" usesSingleLineMode="YES" id="R1n-Z4-BMI">
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" title="Quick Look Video would like to clean up old plugins" usesSingleLineMode="YES" id="R1n-Z4-BMI">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>

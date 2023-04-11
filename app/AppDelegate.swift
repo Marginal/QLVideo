@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  QuickLook Video
+//  Quick Look Video
 //
 //  Created by Jonathan Harris on 15/11/2022.
 //
@@ -73,7 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if sysCtl("hw.machine") == "x86_64" && sysCtl("hw.optional.avx2_0") != "yes" {
             let alert = NSAlert()
             alert.alertStyle = .critical
-            alert.messageText = "QuickLook Video requires a late-2013 Mac or newer, with AVX2 support"
+            alert.messageText = "Quick Look Video requires a late-2013 Mac or newer, with AVX2 support"
             alert.informativeText = "The QuickLook and Spotlight plugins will crash!"
             alert.addButton(withTitle: "OK")
             alert.runModal()

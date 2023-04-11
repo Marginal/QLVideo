@@ -1,6 +1,6 @@
 //
 //  IssueView.swift
-//  QuickLook Video
+//  Quick Look Video
 //
 //  Created by Jonathan Harris on 01/12/2022.
 //

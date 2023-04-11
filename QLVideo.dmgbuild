@@ -4,7 +4,7 @@
 import os.path
 import plistlib
 
-application = "Build/Products/Release/QuickLook Video.app"
+application = "Build/Products/Release/Quick Look Video.app"
 appname = os.path.basename(application)
 
 # Files to include
