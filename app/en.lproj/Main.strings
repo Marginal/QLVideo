@@ -20,7 +20,7 @@
 "Hide Others" = "Hide Others";
 
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
-"Hide QuickLook Video" = "Hide QuickLook Video";
+"Hide Quick Look Video" = "Hide Quick Look Video";
 
 /* Generating a bug report: Guidance note (TextField: dCn-U3-hOJ) */
 "Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission." = "Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission.";
@@ -29,13 +29,13 @@
 "Old version detected" = "Old version detected";
 
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
-"QuickLook Video Help" = "QuickLook Video Help";
+"Quick Look Video Help" = "Quick Look Video Help";
 
 /* Old plugins dialog: Request for authorization (TextField: R1n-Z4-BMI) */
-"QuickLook Video would like to clean up old plugins" = "QuickLook Video would like to clean up old plugins";
+"Quick Look Video would like to clean up old plugins" = "Quick Look Video would like to clean up old plugins";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
-"Quit QuickLook Video" = "Quit QuickLook Video";
+"Quit Quick Look Video" = "Quit Quick Look Video";
 
 /* Regenerate thumbnails (Button: KHh-sh-atU) */
 "Refresh" = "Refresh";
@@ -50,7 +50,7 @@
 "Snapshot" = "Snapshot";
 
 /* Old plugins dialog: Guidance note (TextField: elO-ga-k4P) */
-"There are older versions of the QuickLook and Spotlight plugins that this app supplies installed on your Mac.\nThese may prevent Finder from showing thumbails and metadata for your video files.\n\nPress Help for advice on how to delete these older plugins." = "There are older versions of the QuickLook and Spotlight plugins that this app supplies installed on your Mac.\nThese may prevent Finder from showing thumbails and metadata for your video files.\n\nPress Help for advice on how to delete these older plugins.";
+"There are older versions of the Quick Look and Spotlight plugins that this app supplies installed on your Mac.\nThese may prevent Finder from showing thumbails and metadata for your video files.\n\nPress Help for advice on how to delete these older plugins." = "There are older versions of the Quick Look and Spotlight plugins that this app supplies installed on your Mac.\nThese may prevent Finder from showing thumbails and metadata for your video files.\n\nPress Help for advice on how to delete these older plugins.";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Thumbnails";

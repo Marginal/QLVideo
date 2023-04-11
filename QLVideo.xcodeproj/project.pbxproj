@@ -258,7 +258,7 @@
 		AB467C9A2625D0AF00F662CE /* ThumbnailProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ThumbnailProvider.m; sourceTree = "<group>"; };
 		AB467C9C2625D0AF00F662CE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB467C9D2625D0AF00F662CE /* thumbnailer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = thumbnailer.entitlements; sourceTree = "<group>"; };
-		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB49FB6F2922769F00B126C0 /* Quick Look Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Quick Look Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/schema.strings"; sourceTree = "<group>"; };
@@ -534,7 +534,7 @@
 				AB93B0F6196CA60500708B2E /* Video.qlgenerator */,
 				AB0527CE1D294732009A809B /* benchmark */,
 				AB467C952625D0AF00F662CE /* thumbnailer.appex */,
-				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
+				AB49FB6F2922769F00B126C0 /* Quick Look Video.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -675,9 +675,9 @@
 			productReference = AB467C952625D0AF00F662CE /* thumbnailer.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		AB49FB6E2922769F00B126C0 /* QuickLook Video */ = {
+		AB49FB6E2922769F00B126C0 /* Quick Look Video */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "QuickLook Video" */;
+			buildConfigurationList = AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "Quick Look Video" */;
 			buildPhases = (
 				AB48E688293156BC004B2E82 /* Extract localization */,
 				AB49FB6B2922769F00B126C0 /* Sources */,
@@ -695,9 +695,9 @@
 				AB49FB812922770100B126C0 /* PBXTargetDependency */,
 				AB48E687293156B3004B2E82 /* PBXTargetDependency */,
 			);
-			name = "QuickLook Video";
-			productName = "QuickLook Video";
-			productReference = AB49FB6F2922769F00B126C0 /* QuickLook Video.app */;
+			name = "Quick Look Video";
+			productName = "Quick Look Video";
+			productReference = AB49FB6F2922769F00B126C0 /* Quick Look Video.app */;
 			productType = "com.apple.product-type.application";
 		};
 		AB93B0F5196CA60500708B2E /* qlgenerator */ = {
@@ -744,6 +744,8 @@
 /* Begin PBXProject section */
 		AB9FB5651965DD7200D39647 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
@@ -774,7 +776,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AB49FB6E2922769F00B126C0 /* QuickLook Video */,
+				AB49FB6E2922769F00B126C0 /* Quick Look Video */,
 				AB9FB56C1965DD7200D39647 /* mdimporter */,
 				AB93B0F5196CA60500708B2E /* qlgenerator */,
 				AB467C942625D0AF00F662CE /* thumbnailer */,
@@ -1099,11 +1101,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = thumbnailer/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo.thumbnailer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -1111,11 +1118,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = thumbnailer/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo.thumbnailer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
@@ -1124,7 +1136,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = app/QuickLookVideo.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = app/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -1134,7 +1150,8 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
+				OTHER_CODE_SIGN_FLAGS = "--deep";
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -1145,7 +1162,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = app/QuickLookVideo.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = app/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -1155,7 +1176,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -1164,14 +1185,14 @@
 		AB535D4E1EDC390C00ECB0CE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo;
 			};
 			name = Debug;
 		};
 		AB535D4F1EDC390C00ECB0CE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo;
 			};
 			name = Release;
 		};
@@ -1224,12 +1245,17 @@
 		AB93B10C196CA60500708B2E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				LD_RUNPATH_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo.qlgenerator;
 				PRODUCT_NAME = Video;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
 			name = Debug;
@@ -1237,12 +1263,17 @@
 		AB93B10D196CA60500708B2E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				LD_RUNPATH_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo.qlgenerator;
 				PRODUCT_NAME = Video;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
 			name = Release;
@@ -1397,12 +1428,17 @@
 		AB9FB58A1965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo.mdimporter;
 				PRODUCT_NAME = Video;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = mdimporter;
 			};
 			name = Debug;
@@ -1410,12 +1446,17 @@
 		AB9FB58B1965DD7200D39647 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 6M5BCW6QH8;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.dnicolson.qlvideo.mdimporter;
 				PRODUCT_NAME = Video;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = mdimporter;
 			};
 			name = Release;
@@ -1441,7 +1482,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "QuickLook Video" */ = {
+		AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "Quick Look Video" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AB49FB7B292276A100B126C0 /* Debug */,

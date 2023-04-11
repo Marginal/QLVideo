@@ -14,13 +14,13 @@
 "Hide Others" = "隐藏其他";
 
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
-"Hide QuickLook Video" = "隐藏文本编辑";
+"Hide Quick Look Video" = "隐藏文本编辑";
 
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
-"QuickLook Video Help" = "文本编辑帮助";
+"Quick Look Video Help" = "文本编辑帮助";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
-"Quit QuickLook Video" = "退出文本编辑";
+"Quit Quick Look Video" = "退出文本编辑";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "缩略图";

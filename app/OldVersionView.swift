@@ -1,6 +1,6 @@
 //
 //  OldVersionView.swift
-//  QuickLook Video
+//  Quick Look Video
 //
 //  Created by Jonathan Harris on 04/12/2022.
 //
