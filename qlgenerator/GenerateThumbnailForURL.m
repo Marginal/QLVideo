@@ -42,7 +42,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 #ifndef DEBUG   // Skip this check to enable debugging with qlmanage -t ...
     // On Catalina and later the QLThumbnailGenerator application extension generates thumbnails. On Ventura and later this isn't even called.
     if (newQuickLook) {
-        os_log_info(logger, "Ignoring thumbnail with options=%{public}@ UTI=%{public}@ size=%dx%d for %{public}@", options, contentTypeUTI, (int) maxSize.width, (int) maxSize.height, url);
+        os_log_info(logger, "Ignoring thumbnail request for " LOGPRIVATE " with options=%{public}@ UTI=%{public}@ size=%dx%d", url, options, contentTypeUTI, (int) maxSize.width, (int) maxSize.height);
         return kQLReturnNoError;
     }
 #endif
@@ -51,7 +51,7 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 
     @autoreleasepool
     {
-        os_log_info(logger, "Thumbnail with options=%{public}@ UTI=%{public}@ size=%dx%d for %{public}@", options, contentTypeUTI, (int) maxSize.width, (int) maxSize.height, url);
+        os_log_info(logger, "Thumbnail " LOGPRIVATE " with options=%{public}@ UTI=%{public}@ size=%dx%d", url, options, contentTypeUTI, (int) maxSize.width, (int) maxSize.height);
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) return kQLReturnNoError;
 
@@ -59,6 +59,8 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
         snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
         if (snapshot)
         {
+            os_log_info(logger, "Supplying %ldx%ld cover art for " LOGPRIVATE, CGImageGetWidth(snapshot), CGImageGetHeight(snapshot), url);
+
             CFStringRef flavor = newQuickLook ? kQLThumbnailPropertyIconFlavorKey_10_15 : kQLThumbnailPropertyIconFlavorKey;
             NSDictionary *properties = @{(__bridge NSString *) flavor: @(kQLThumbnailIconGlossFlavor) }; // suppress letterbox mattes
             QLThumbnailRequestSetImage(thumbnail, snapshot, (__bridge CFDictionaryRef) properties);
@@ -95,6 +97,8 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
 
     if (snapshot)
     {
+        os_log_info(logger, "Supplying %ldx%ld snapshot/picture for " LOGPRIVATE, CGImageGetWidth(snapshot), CGImageGetHeight(snapshot), url);
+
         // explicitly request letterbox mattes for UTIs that don't derive from public.media, such as com.microsoft.advanced-systems-format
         CFStringRef flavor = newQuickLook ? kQLThumbnailPropertyIconFlavorKey_10_15 : kQLThumbnailPropertyIconFlavorKey;
         NSDictionary *properties = @{(__bridge NSString *) flavor: @(kQLThumbnailIconMovieFlavor) };

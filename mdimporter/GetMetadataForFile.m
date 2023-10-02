@@ -160,12 +160,12 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
     {
         if (!logger)
             logger = os_log_create("uk.org.marginal.qlvideo", "mdimporter");
-        os_log_info(logger, "Import with UTI=%{public}@ for %{public}@", contentTypeUTI, pathToFile);
+        os_log_info(logger, "Import " LOGPRIVATE " with UTI=%{public}@", pathToFile, contentTypeUTI);
 
         CFURLRef url = CFURLCreateWithFileSystemPath(NULL, pathToFile, kCFURLPOSIXPathStyle, false);
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:url];
         if (!snapshotter) {
-            os_log_error(logger, "Can't import %@", pathToFile);
+            os_log_error(logger, "Can't import " LOGPRIVATE, pathToFile);
             return false;
         }
 
@@ -242,7 +242,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
             } else if (!strcasecmp(tag->key, "wm/mediaoriginalbroadcastdatetime")) {
                 attrs[(__bridge NSString *)kMDItemRecordingDate] = dateString(@(tag->value));
             } else {
-                os_log_info(logger, "Skipping unknown tag %{public}s=%{public}s in %{public}@", tag->key, tag->value, pathToFile);
+                os_log_info(logger, "Skipping unknown tag %{public}s=%{public}s in " LOGPRIVATE, tag->key, tag->value, pathToFile);
             }
         }
 
@@ -326,7 +326,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                     break;
 
                 default:
-                    os_log_info(logger, "Skipping unknown stream #%d:%{public}s in %{public}@", stream_idx, title ? title->value : "", pathToFile);
+                    os_log_info(logger, "Skipping unknown stream #%d:%{public}s in " LOGPRIVATE, stream_idx, title ? title->value : "", pathToFile);
             }
 
             // All recognised types
@@ -389,7 +389,7 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
                 const char *profile = av_get_profile_name(codec, params->profile);
                 addArrayAttributeNoDupes(attrs, (__bridge NSString *)kMDItemCodecs, profile ? [NSString stringWithFormat:@"%s [%s]", name, profile] : @(name));
             } else {
-                os_log_info(logger, "Unsupported codec with id %d for stream #%d:%{public}s in %{public}@", params->codec_id, stream_idx, title ? title->value : "", pathToFile);
+                os_log_info(logger, "Unsupported codec with id %d for stream #%d:%{public}s in " LOGPRIVATE, params->codec_id, stream_idx, title ? title->value : "", pathToFile);
             }
         } // From each stream
     }

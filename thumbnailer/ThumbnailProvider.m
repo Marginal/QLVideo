@@ -59,18 +59,18 @@ static os_log_t logger = NULL;
     if (!logger)
         logger = os_log_create("uk.org.marginal.qlvideo", "thumbnailer");
 
-    os_log_info(logger, "Thumbnailer with attributes=%{public}@ scale=%.2lf minimumSize=%dx%d maximumSize=%dx%d for %{public}@",
+    os_log_info(logger, "Thumbnailer " LOGPRIVATE " with attributes=%{public}@ scale=%.2lf minimumSize=%dx%d maximumSize=%dx%d",
+                request.fileURL,
                 request.attributeKeys, request.scale,
                 (int) request.minimumSize.width, (int) request.minimumSize.height,
-                (int) request.maximumSize.width, (int) request.maximumSize.height,
-                request.fileURL);
+                (int) request.maximumSize.width, (int) request.maximumSize.height);
 
     // @autoreleasepool
     {
         Snapshotter *snapshotter = [[Snapshotter alloc] initWithURL:(__bridge CFURLRef) request.fileURL];
         if (!snapshotter)
         {
-            os_log_error(logger, "Can't supply anything for %@", request.fileURL);
+            os_log_error(logger, "Can't supply anything for " LOGPRIVATE, request.fileURL);
             return;
         }
 
@@ -122,7 +122,7 @@ static os_log_t logger = NULL;
         }
 
         if (snapshot) {
-            os_log_info(logger, "Supplying %dx%d %s for %{public}@", (int) snapshotsize.width, (int) snapshotsize.height,
+            os_log_info(logger, "Supplying %dx%d %s for " LOGPRIVATE, (int) snapshotsize.width, (int) snapshotsize.height,
                         isCoverArt ? "cover art" : ([snapshotter pictures] ? "picture" : "snapshot"), request.fileURL);
 
             // explicitly request letterbox mattes for UTIs that don't derive from public.media such as com.microsoft.advanced-systems-format, and explicitly suppress them for cover art
@@ -138,7 +138,7 @@ static os_log_t logger = NULL;
             return;
         }
 
-        os_log_error(logger, "Couldn't get thumbnail for %@", request.fileURL);
+        os_log_error(logger, "Couldn't get thumbnail for " LOGPRIVATE, request.fileURL);
     }
 }
 

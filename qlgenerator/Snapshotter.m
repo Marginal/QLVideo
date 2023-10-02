@@ -112,10 +112,10 @@ void segv_handler(int signum)
     if (!(self = [super init]))
         return nil;
 
-
-    if (avformat_open_input(&fmt_ctx, [[(__bridge NSURL*) url path] UTF8String], NULL, NULL))
+    int ret;
+    if ((ret = avformat_open_input(&fmt_ctx, [[(__bridge NSURL*) url path] UTF8String], NULL, NULL)))
     {
-        os_log_error(logger, "Can't open %@", [(__bridge NSURL*) url path]);
+        os_log_error(logger, "Can't open " LOGPRIVATE " - %{public}s", [(__bridge NSURL*) url path], av_err2str(ret));
         return nil;
     }
 

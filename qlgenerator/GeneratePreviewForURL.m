@@ -86,7 +86,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
     @autoreleasepool
     {
-        os_log_info(logger, "Preview with options=%{public}@ UTI=%{public}@ for %{public}@", options, contentTypeUTI, [(__bridge NSURL*)url path]);
+        os_log_info(logger, "Preview " LOGPRIVATE " with options=%{public}@ UTI=%{public}@", [(__bridge NSURL*)url path], options, contentTypeUTI);
         Snapshotter *snapshotter = nil;
 
         // Prefer any cover art (if present) over a playable preview or static snapshot in Finder and Spotlight views
@@ -100,7 +100,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             if (cover)
             {
                 CGSize coversize = CGSizeMake(CGImageGetWidth(cover), CGImageGetHeight(cover));
-                os_log_info(logger, "Supplying %dx%d cover art for %{public}@", (int) coversize.width, (int) coversize.height, [(__bridge NSURL*)url path]);
+                os_log_info(logger, "Supplying %dx%d cover art for " LOGPRIVATE, (int) coversize.width, (int) coversize.height, [(__bridge NSURL*)url path]);
                 CGContextRef context = QLPreviewRequestCreateContext(preview, coversize, true, nil);
                 CGContextDrawImage(context, CGRectMake(0, 0, coversize.width, coversize.height), cover);
                 QLPreviewRequestFlushContext(preview, context);
@@ -116,8 +116,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (QLPreviewRequestIsCancelled(preview)) return kQLReturnNoError;
         CFBundleRef myBundle = QLPreviewRequestGetGeneratorBundle(preview);
         NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:kSettingsSuiteName];
-        os_log_debug(logger, "QLvideo preview defaults=%@", defaults);
-        os_log_debug(logger, "QLvideo preview SnapshoCount=%ld", (long)[defaults integerForKey:kSettingsSnapshotCount]);
+        os_log_debug(logger, "QLvideo preview defaults=%{public}@", defaults);
+        os_log_debug(logger, "QLvideo preview SnapshotCount=%ld", (long)[defaults integerForKey:kSettingsSnapshotCount]);
 
         if (![defaults boolForKey:kSettingsSnapshotAlways])
             @autoreleasepool    // Reduce peak footprint
@@ -126,7 +126,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
             if (player.playable)
             {
-                os_log_info(logger, "Handing off %{public}@ to AVFoundation", [(__bridge NSURL*)url path]);
+                os_log_info(logger, "Handing off " LOGPRIVATE " to AVFoundation", [(__bridge NSURL*)url path]);
                 NSString *title = [player title];
                 if (!title)
                     title = [(__bridge NSURL *)url lastPathComponent];
@@ -165,7 +165,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             if (cover)
             {
                 CGSize coversize = CGSizeMake(CGImageGetWidth(cover), CGImageGetHeight(cover));
-                os_log_info(logger, "Supplying %dx%d cover art for %{public}@", (int) coversize.width, (int) coversize.height, [(__bridge NSURL*)url path]);
+                os_log_info(logger, "Supplying %dx%d cover art for " LOGPRIVATE, (int) coversize.width, (int) coversize.height, [(__bridge NSURL*)url path]);
                 NSDictionary *properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: theTitle};
                 CGContextRef context = QLPreviewRequestCreateContext(preview, coversize, true, (__bridge CFDictionaryRef) properties);
                 CGContextDrawImage(context, CGRectMake(0, 0, coversize.width, coversize.height), cover);
@@ -247,7 +247,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                                          (__bridge NSString *) kQLPreviewPropertyPageElementXPathKey: @"/html/body/div",
                                          (NSString *) kQLPreviewPropertyPDFStyleKey: @(kQLPreviewPDFPagesWithThumbnailsOnLeftStyle),
                                          (NSString *) kQLPreviewPropertyAttachmentsKey: attachments};
-            os_log_info(logger, "Supplying %lu %dx%d images for %{public}@", [properties[(NSString *) kQLPreviewPropertyAttachmentsKey] count], (int) scaled.width, (int) scaled.height, [(__bridge NSURL*)url path]);
+            os_log_info(logger, "Supplying %lu %dx%d images for " LOGPRIVATE, [properties[(NSString *) kQLPreviewPropertyAttachmentsKey] count], (int) scaled.width, (int) scaled.height, [(__bridge NSURL*)url path]);
             QLPreviewRequestSetDataRepresentation(preview, (__bridge CFDataRef) [html dataUsingEncoding:NSUTF8StringEncoding], kUTTypeHTML,
                                                   (__bridge CFDictionaryRef) properties);
             return kQLReturnNoError;    // early exit
@@ -275,7 +275,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
             else
                 size = CGSizeMake(round(original.width * kMaxHeight / original.height), kMaxHeight);
 # endif
-            os_log_info(logger, "Supplying %dx%d image for %{public}@", (int) size.width, (int) size.height, [(__bridge NSURL*)url path]);
+            os_log_info(logger, "Supplying %dx%d image for " LOGPRIVATE, (int) size.width, (int) size.height, [(__bridge NSURL*)url path]);
             NSDictionary *properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: theTitle};
             CGContextRef context = QLPreviewRequestCreateContext(preview, size, true, (__bridge CFDictionaryRef) properties);
             CGContextDrawImage(context, CGRectMake(0, 0, size.width, size.height), thePreview);
@@ -285,7 +285,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         }
         else
         {
-            os_log_error(logger, "Can't supply anything for %@", [(__bridge NSURL*)url path]);
+            os_log_error(logger, "Can't supply anything for " LOGPRIVATE, [(__bridge NSURL*)url path]);
         }
     }
     return kQLReturnNoError;

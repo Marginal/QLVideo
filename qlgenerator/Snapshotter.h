@@ -13,6 +13,13 @@
 #include "libavformat/avformat.h"
 
 
+#ifdef DEBUG
+    #define LOGPRIVATE "%{public}@"
+#else
+    #define LOGPRIVATE "%{mask.hash}@"
+#endif
+
+
 typedef NS_ENUM(NSInteger, CoverArtMode)
 {
     CoverArtDefault     = 0,
