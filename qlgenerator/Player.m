@@ -54,7 +54,10 @@
     // AVAsset.playable and AVAssetTrack.playable return false negatives for some HEVC content on Mojave.
     // AVAsset.playable and AVPlayerItem.status return false positives for content where only the audio is playable (e.g.
     // Eutelsat.Demo.HEVC.ts) but in this case either AVAsset says there's no video tracks or AVPlayerItem.presentationSize is zero.
-    return (_playerItem.status == AVPlayerItemStatusReadyToPlay && _playerItem.presentationSize.width && [_asset tracksWithMediaType:AVMediaTypeVideo].firstObject);
+    return (_playerItem.status == AVPlayerItemStatusReadyToPlay &&
+            _playerItem.presentationSize.width &&
+            [_asset tracksWithMediaType:AVMediaTypeVideo].firstObject &&
+            ![_asset hasProtectedContent]);
 }
 
 - (NSString *) title
