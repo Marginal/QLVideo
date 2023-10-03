@@ -28,7 +28,7 @@ else
 			elif [ $ARCH == x86_64 ]; then
 				FLAGS="$FLAGS --enable-cross-compile --cpu=haswell"
 			fi
-			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH}" ${FLAGS} --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --enable-hardcoded-tables --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
+			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH}" ${FLAGS} --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-filter=scale --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
 		fi
 		make -j`sysctl -n hw.physicalcpu` install
 	done
@@ -41,7 +41,11 @@ else
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/bin/${EXE}" -output "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
         if [ -n "$DEVELOPMENT_TEAM" -a -n "$PRODUCT_BUNDLE_IDENTIFIER" ]; then
             ENTITLEMENTS=`mktemp -t buildffmpeg`
-            echo -e '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+            if [ "${CONFIGURATION}" == "Debug" ]; then
+                echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n<key>com.apple.security.get-task-allow</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+            else
+                echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+            fi
             codesign -s "${DEVELOPMENT_TEAM}" -i "${PRODUCT_BUNDLE_IDENTIFIER}.${EXE}" -o runtime --entitlements "${ENTITLEMENTS}" "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
             rm "${ENTITLEMENTS}"
         fi

@@ -747,6 +747,10 @@
 /* Begin PBXProject section */
 		AB9FB5651965DD7200D39647 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
