@@ -9,6 +9,10 @@
 
 #import "Player.h"
 
+#ifdef DEBUG
+#  include <os/log.h>
+extern os_log_t logger;
+#endif
 
 @implementation Player
 
@@ -54,6 +58,15 @@
     // AVAsset.playable and AVAssetTrack.playable return false negatives for some HEVC content on Mojave.
     // AVAsset.playable and AVPlayerItem.status return false positives for content where only the audio is playable (e.g.
     // Eutelsat.Demo.HEVC.ts) but in this case either AVAsset says there's no video tracks or AVPlayerItem.presentationSize is zero.
+
+#ifdef DEBUG
+    AVAssetTrack *videotrack = [_asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
+    os_log_info(logger, "\nAsset playable=%d, readable=%d, protected=%d\nTrack %{public}@, playable=%d, decodable=%d, enabled=%d\nPlayerItem status=%ld, width=%d, error=%{public}@",
+                _asset.playable, _asset.readable, _asset.hasProtectedContent,
+                videotrack, videotrack.playable, videotrack.decodable, videotrack.enabled,
+                (long)_playerItem.status, (int) _playerItem.presentationSize.width, _playerItem.error);
+#endif
+
     return (_playerItem.status == AVPlayerItemStatusReadyToPlay &&
             _playerItem.presentationSize.width &&
             [_asset tracksWithMediaType:AVMediaTypeVideo].firstObject &&

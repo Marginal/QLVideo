@@ -25,6 +25,7 @@ typedef NS_ENUM(NSInteger, QLPreviewMode)
     // From 10.13 High Sierra:
     kQLPreviewHSQuicklookMode	= 6,	// File -> Quick Look in Finder
     kQLPreviewHSSpotlightMode	= 9,	// Desktop Spotlight search context bubble
+    kQLPreviewHSCoverFlowMode	= 10,	// Finder's Cover Flow view
 };
 
 
@@ -135,6 +136,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
                 return kQLReturnNoError;    // early exit
             }
 
+            os_log_info(logger, "Can't hand off " LOGPRIVATE " status=%ld, width=%d, playable=%d, protected=%d, error=%{public}@, track=%{public}@",
+                        [(__bridge NSURL*)url path], (long) player->_playerItem.status, (int) player->_playerItem.presentationSize.width,
+                        player->_asset.playable, player->_asset.hasProtectedContent, player->_playerItem.error, [player->_asset tracksWithMediaType:AVMediaTypeVideo].firstObject);
+
             // kQLPreviewCoverFlowMode is broken for "non-native" files on Mavericks - the user gets a blank window
             // if they invoke QuickLook soon after. Presumably QuickLookUI is caching and getting confused?
             // If we return nothing we get called again with no QLPreviewMode option. This somehow forces QuickLookUI to
@@ -157,6 +162,20 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (!title)
             title = [(__bridge NSURL *)url lastPathComponent];
         NSString *theTitle = displayname(myBundle, title, snapshotter.displaySize, snapshotter.duration, snapshotter.channels);
+
+        // Special handling for MPEGTS with AAC audio which AVFoundation claims above not to be able to play, but which actually preview fine
+        if (!strcmp(snapshotter.fmt_ctx->iformat->name, "mpegts") && snapshotter.video_stream_idx >= 0)
+        {
+            const AVStream *stream = snapshotter.fmt_ctx->streams[snapshotter.video_stream_idx];
+            const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+            if (codec && codec->id == AV_CODEC_ID_H264)
+            {
+                os_log_info(logger, "Handing off " LOGPRIVATE " to AVFoundation anyway", [(__bridge NSURL*)url path]);
+                NSDictionary *properties = @{(NSString *) kQLPreviewPropertyDisplayNameKey: theTitle};
+                QLPreviewRequestSetURLRepresentation(preview, url, contentTypeUTI, (__bridge CFDictionaryRef) properties);
+                return kQLReturnNoError;    // early exit
+            }
+        }
 
         // prefer landscape cover art (if present) over a static snapshot
         if (previewMode != kQLPreviewGetInfoMode && previewMode != kQLPreviewSpotlightMode && previewMode != kQLPreviewHSSpotlightMode)

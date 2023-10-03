@@ -12,9 +12,11 @@
 
 @interface Player : NSObject
 {
+@public // For debugging
     AVURLAsset *_asset;
     AVPlayerItem *_playerItem;
     AVPlayer *_player;
+@protected
     dispatch_semaphore_t _semaphore;
 }
 
