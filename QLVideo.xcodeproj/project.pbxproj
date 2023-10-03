@@ -833,7 +833,7 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/app/buildstrings",
-				"$(SRCROOT)/app/Base.lproj/Application.xib",
+				"$(SRCROOT)/app/Base.lproj/Main.xib",
 			);
 			name = "Extract localization";
 			outputFileListPaths = (
@@ -1104,6 +1104,7 @@
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = thumbnailer/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video thumbnails";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1116,6 +1117,7 @@
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = thumbnailer/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video thumbnails";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1128,6 +1130,7 @@
 				CODE_SIGN_ENTITLEMENTS = app/QuickLookVideo.entitlements;
 				DEVELOPMENT_ASSET_PATHS = "";
 				INFOPLIST_FILE = app/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1149,6 +1152,7 @@
 				CODE_SIGN_ENTITLEMENTS = app/QuickLookVideo.entitlements;
 				DEVELOPMENT_ASSET_PATHS = "";
 				INFOPLIST_FILE = app/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1228,6 +1232,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video previews";
 				INSTALL_PATH = /Library/QuickLook;
 				LD_RUNPATH_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
@@ -1241,6 +1246,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlgenerator/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video previews";
 				INSTALL_PATH = /Library/QuickLook;
 				LD_RUNPATH_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
@@ -1257,7 +1263,7 @@
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -1332,7 +1338,7 @@
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -1401,6 +1407,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video metadata";
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
@@ -1414,6 +1421,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video metadata";
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
