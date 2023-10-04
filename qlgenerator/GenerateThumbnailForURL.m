@@ -40,9 +40,11 @@ OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thum
     // https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/Quicklook_Programming_Guide/Articles/QLImplementationOverview.html
 
 #ifndef DEBUG   // Skip this check to enable debugging with qlmanage -t ...
-    // On Catalina and later the QLThumbnailGenerator application extension generates thumbnails
-    if (newQuickLook)
+    // On Catalina and later the QLThumbnailGenerator application extension generates thumbnails. On Ventura and later this isn't even called.
+    if (newQuickLook) {
+        os_log_info(logger, "Ignoring thumbnail with options=%{public}@ UTI=%{public}@ size=%dx%d for %{public}@", options, contentTypeUTI, (int) maxSize.width, (int) maxSize.height, url);
         return kQLReturnNoError;
+    }
 #endif
 
     CGImageRef snapshot = NULL;

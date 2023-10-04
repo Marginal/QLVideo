@@ -74,60 +74,63 @@ static os_log_t logger = NULL;
             return;
         }
 
+        BOOL isCoverArt = false;
+
         // Use cover art if present
         CGImageRef snapshot = [snapshotter newCoverArtWithMode:CoverArtThumbnail];
-        if (snapshot)
-        {
-            CGSize size = CGSizeMake(CGImageGetWidth(snapshot), CGImageGetHeight(snapshot));
-            CGSize scaled;
-            if (size.width/request.maximumSize.width > size.height/request.maximumSize.height)
-                scaled = CGSizeMake(request.maximumSize.width, round(size.height * request.maximumSize.width / size.width));
-            else
-                scaled = CGSizeMake(round(size.width * request.maximumSize.height / size.height), request.maximumSize.height);
-            CGSize pixelsize = CGSizeMake(scaled.width * request.scale, scaled.height * request.scale);
-            os_log_info(logger, "Supplying %dx%d cover art for %{public}@", (int) pixelsize.width, (int) pixelsize.height, request.fileURL);
-
-            // suppress letterbox mattes
-            handler([QLThumbnailReply replyWithContextSizeAndFlavor:scaled flavor:kQLThumbnailIconGlossFlavor drawingBlock:^BOOL(CGContextRef  _Nonnull context) {
-                (void) [snapshotter previewSize]; // retain underlying data for the duration of this block
-                CGContextDrawImage(context, CGRectMake(0, 0, pixelsize.width, pixelsize.height), snapshot);
-                CGImageRelease(snapshot);
-                return YES;
-            }], nil);
-
-            return;
+        CGSize size; // Size in pixels of the source snapshot
+        if (snapshot) {
+            isCoverArt = true;
+            size = CGSizeMake(CGImageGetWidth(snapshot), CGImageGetHeight(snapshot));
+        } else {
+            size = [snapshotter previewSize];
         }
 
-        // No cover art - generate snapshot
-        CGSize size = [snapshotter previewSize];
-        CGSize scaled;
-        if (size.width/request.maximumSize.width > size.height/request.maximumSize.height)
-            scaled = CGSizeMake(request.maximumSize.width, round(size.height * request.maximumSize.width / size.width));
-        else
-            scaled = CGSizeMake(round(size.width * request.maximumSize.height / size.height), request.maximumSize.height);
-        CGSize pixelsize = CGSizeMake(scaled.width * request.scale, scaled.height * request.scale);
+        CGSize contextsize; // Size of the returned context - unscaled
+        if (size.width/request.maximumSize.width > size.height/request.maximumSize.height) {
+            contextsize = CGSizeMake(request.maximumSize.width, round(size.height * request.maximumSize.width / size.width));
+        } else {
+            contextsize = CGSizeMake(round(size.width * request.maximumSize.height / size.height), request.maximumSize.height);
+        }
+        CGSize snapshotsize = CGSizeMake(contextsize.width * request.scale, contextsize.height * request.scale);    // Size in pixels of the proportionally scaled snapshot
 
-        NSBundle *myBundle = [NSBundle mainBundle];
-        NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:myBundle.infoDictionary[@"ApplicationGroup"]];
-        NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
-        os_log_debug(logger, "SnapshotTime=%d", (int) snapshot_time);
+        CGSize imagesize;   // Size in pixels of the returned context - scaled
+        if ((request.minimumSize.width == request.maximumSize.width) || (request.minimumSize.height == request.maximumSize.height)) {
+            // Spotlight wants image centered in exactly sized context
+            contextsize = request.maximumSize;
+            imagesize = CGSizeMake(request.scale * request.maximumSize.width, request.scale * request.maximumSize.height);
+        } else {
+            // Finder wants proportionally sized context
+            imagesize = snapshotsize;
+        }
 
-        if (snapshot_time <= 0)
-            snapshot_time = kDefaultSnapshotTime;
-
-        NSInteger duration = [snapshotter duration];
-        NSInteger time = duration < kMinimumDuration ? -1 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
-        snapshot = [snapshotter newSnapshotWithSize:scaled atTime:time];
-        if (!snapshot && time > 0)
-            snapshot = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
-        if (snapshot)
+        if (!snapshot)
         {
-            os_log_info(logger, "Supplying %dx%d %s for %{public}@", (int) pixelsize.width, (int) pixelsize.height, [snapshotter pictures] ? "picture" : "snapshot", request.fileURL);
+            // No cover art - generate snapshot
+            NSBundle *myBundle = [NSBundle mainBundle];
+            NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:myBundle.infoDictionary[@"ApplicationGroup"]];
+            NSInteger snapshot_time = [defaults integerForKey:kSettingsSnapshotTime];
+            os_log_debug(logger, "SnapshotTime=%d", (int) snapshot_time);
+            if (snapshot_time <= 0)
+                snapshot_time = kDefaultSnapshotTime;
 
-            // explicitly request letterbox mattes for UTIs that don't derive from public.media, such as com.microsoft.advanced-systems-format
-            handler([QLThumbnailReply replyWithContextSizeAndFlavor:scaled flavor:kQLThumbnailIconMovieFlavor drawingBlock:^BOOL(CGContextRef  _Nonnull context) {
+            NSInteger duration = [snapshotter duration];
+            NSInteger time = duration < kMinimumDuration ? -1 : (duration < 2 * snapshot_time ? duration/2 : snapshot_time);
+            snapshot = [snapshotter newSnapshotWithSize:snapshotsize atTime:time];
+            if (!snapshot && time > 0)
+                snapshot = [snapshotter newSnapshotWithSize:size atTime:0];    // Failed. Try again at start.
+        }
+
+        if (snapshot) {
+            os_log_info(logger, "Supplying %dx%d %s for %{public}@", (int) snapshotsize.width, (int) snapshotsize.height,
+                        isCoverArt ? "cover art" : ([snapshotter pictures] ? "picture" : "snapshot"), request.fileURL);
+
+            // explicitly request letterbox mattes for UTIs that don't derive from public.media such as com.microsoft.advanced-systems-format, and explicitly suppress them for cover art
+            handler([QLThumbnailReply replyWithContextSizeAndFlavor:contextsize flavor:(isCoverArt ? kQLThumbnailIconGlossFlavor : kQLThumbnailIconMovieFlavor) drawingBlock:^BOOL(CGContextRef  _Nonnull context) {
                 (void) [snapshotter previewSize]; // retain underlying data for the duration of this block
-                CGContextDrawImage(context, CGRectMake(0, 0, pixelsize.width, pixelsize.height), snapshot);
+                int offx = (imagesize.width - snapshotsize.width) / 2;
+                int offy = (imagesize.height - snapshotsize.height) / 2;
+                CGContextDrawImage(context, CGRectMake(offx, offy, snapshotsize.width, snapshotsize.height), snapshot);
                 CGImageRelease(snapshot);
                 return YES;
             }], nil);
