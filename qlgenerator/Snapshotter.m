@@ -19,8 +19,8 @@
 
 static os_log_t logger = NULL;
 
-static const int kMaxKeyframeTime = 4;  // How far to look for a keyframe [s]
-static const int kMaxKeyframeBlankSkip = 2;  // How many keyframes to skip for being too black or too white
+static const int kMaxKeyframeTime = 5;  // How far to look for a keyframe [s]
+static const int kMaxKeyframeBlankSkip = 4;  // How many keyframes to skip for being too black or too white
 
 // Direct ffmpeg log output to system log
 static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
@@ -119,8 +119,11 @@ void segv_handler(int signum)
         return nil;
     }
 
-    if (avformat_find_stream_info(fmt_ctx, NULL))
+    if ((ret = avformat_find_stream_info(fmt_ctx, NULL)))
+    {
+        os_log_error(logger, "Can't find stream info for " LOGPRIVATE " - %{public}s", [(__bridge NSURL*) url path], av_err2str(ret));
         return nil;
+    }
 
     // Find best audio stream and record channel count
     audio_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
@@ -373,54 +376,77 @@ void segv_handler(int signum)
         return -1;      // Can't decode video stream
 
     // offset for our screenshot
-    int64_t timestamp = (stream->start_time == AV_NOPTS_VALUE) ? 0 : stream->start_time;
-    int64_t stoptime;
-    if (!_pictures && seconds > 0)      // Ignore time if we're serving pre-computed pictures
+    if (!_pictures && seconds >= 0)      // Ignore time if we're serving pre-computed pictures
     {
-        timestamp += av_rescale(seconds, stream->time_base.den, stream->time_base.num);
-        stoptime = timestamp + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
-        if (av_seek_frame(fmt_ctx, video_stream_idx, timestamp, AVSEEK_FLAG_BACKWARD) < 0)    // AVSEEK_FLAG_BACKWARD is more reliable for MP4 container
+        int ret;
+        int64_t timestamp = ((fmt_ctx->start_time == AV_NOPTS_VALUE) ? 0 : fmt_ctx->start_time) + seconds * AV_TIME_BASE;
+        if ((ret = avformat_seek_file(fmt_ctx, -1, INT64_MIN, timestamp, timestamp, 0) < 0))
+        {
+            os_log_info(logger, "Can't seek to %lds - %{public}s", (long)seconds, av_err2str(ret));
             return -1;
-    }
-    else if (!_pictures && seconds == 0 && !(fmt_ctx->iformat->flags & AVFMT_NO_BYTE_SEEK))  // rewind
-    {
-        av_seek_frame(fmt_ctx, video_stream_idx, 0, AVSEEK_FLAG_BYTE);
-        stoptime = av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
-    }
-    else    // Don't seek
-    {
-        stoptime = LLONG_MAX;
+        }
     }
 
     AVPacket *pkt = NULL;
     if (!(pkt = av_packet_alloc()))
         return -1;
 
-    AVFrame *frame;     // holds the raw frame data
+    AVFrame *frame = NULL; // holds the raw frame data
     if (!(frame = av_frame_alloc()))
         return -1;
 
+    int64_t stop_pts = 0;
     avcodec_flush_buffers(dec_ctx); // Discard any buffered packets left over from previous call
     do
     {
-        if (av_read_frame(fmt_ctx, pkt))
-            break;     // Failed to find a packet!
+        int ret;
 
-        if (pkt->stream_index == video_stream_idx)
+        if ((ret = av_read_frame(fmt_ctx, pkt)))
         {
-            if (avcodec_send_packet(dec_ctx, pkt))
-                break;     // Failed to decode
+            os_log_info(logger, "Failed to extract a packet starting at %lds - %{public}s", (long)seconds, av_err2str(ret));
+            break;
+        }
+        else if (pkt->stream_index == video_stream_idx)
+        {
+            if (!stop_pts)
+            {
+                stop_pts = pkt->pts + av_rescale(kMaxKeyframeTime, stream->time_base.den, stream->time_base.num);
+            }
 
-            int ret;
-            ret = avcodec_receive_frame(dec_ctx, frame);
-            if (ret && ret != AVERROR(EAGAIN))
-                break;     // Failed to decode
+            if ((ret = avcodec_send_packet(dec_ctx, pkt)))
+            {
+                // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for a decodable frame.
+                if (pkt->pts > stop_pts)
+                {
+                    os_log_info(logger, "Can't decode a packet - giving up!");
+                    break;    // Failed to decode
+                }
+                else
+                {
+                    os_log_debug(logger, "Can't decode packet with PTS=%lld - %{public}s", pkt->pts, av_err2str(ret));
+                    av_packet_unref(pkt);
+                    continue;
+                }
+            }
 
-            if (ret ||
-                // It's a small clip and we've ended up at a keyframe at start of it. Keep reading until desired time.
-                (seconds > 0 && seconds <= kMaxKeyframeTime && frame->pts < timestamp) ||
-                // MPEG TS demuxer doesn't necessarily seek to keyframes. So keep looking for one.
-                (seconds > kMaxKeyframeTime && !frame->key_frame && frame->pts < stoptime))
+            if ((ret = avcodec_receive_frame(dec_ctx, frame)))
+            {
+                if (ret == AVERROR(EAGAIN))
+                {
+                    av_frame_unref(frame);
+                    av_packet_unref(pkt);
+                    continue; // Keep trying
+                }
+                else
+                {
+                    os_log_info(logger, "Can't get frame at PTS=%lld - %{public}s", pkt->pts, av_err2str(ret));
+                    break;    // Failed to decode
+                }
+            }
+
+            // We have a frame but it won't be useful if it's not a keyframe, which can happen because MPEG TS demuxer doesn't
+            // necessarily seek to keyframes, or because we skipped a frame for being blank. So keep looking for a keyframe.
+            if (!frame->key_frame && pkt->pts < stop_pts)
             {
                 av_frame_unref(frame);
                 av_packet_unref(pkt);
@@ -440,6 +466,10 @@ void segv_handler(int signum)
             av_frame_free(&frame);
             av_packet_free(&pkt);
             return 0;
+        }
+        else // not a video packet
+        {
+            av_packet_unref(pkt);
         }
     }
     while (1);
@@ -505,9 +535,14 @@ void segv_handler(int signum)
         }
         unsigned avg = sum / ((int) size.width * ((int) size.height / 3));
         if  (avg < 16 || avg > 240)   // arbitrary thresholds
+        {
+            os_log_debug(logger, "Skipping blank frame");
             seconds = -1;   // next keyframe
+        }
         else
+        {
             break;
+        }
     }
 
     // wangle into a CGImage
