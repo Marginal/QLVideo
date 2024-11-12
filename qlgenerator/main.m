@@ -11,6 +11,8 @@
 #import <Cocoa/Cocoa.h>
 #import <QuickLook/QuickLook.h>
 
+#include <dlfcn.h>
+
 #include "libavformat/avformat.h"
 #include "libavutil/log.h"
 
@@ -39,7 +41,7 @@ const int kMaxSnapshotCount = 100;
 const int kMinimumDuration = 5;         // Don't bother seeking clips shorter than this [s]. Completely arbitrary.
 const int kMinimumPeriod = 60;          // Don't create snapshots spaced more closely than this [s]. Completely arbitrary.
 
-extern int QLMemoryUsedCritical;        // From QuickLook framework
+static int* QLMemoryUsedCritical;   // From QuickLook framework
 static const int kSatelliteMemory = 256 * 1024 * 1024; // Memory threshold for our QuickLookSatellite process
 
 // Globals
@@ -130,9 +132,25 @@ QuickLookGeneratorPluginType *AllocQuickLookGeneratorPluginType(CFUUIDRef inFact
     logger = os_log_create("uk.org.marginal.qlvideo", "qlgenerator");
 
     // Hack! Give our process enough memory to handle 4K H.265 content
-    os_log_info(logger, "New QuickLookSatellite with QLMemoryUsedCritical = %{bytes}i", QLMemoryUsedCritical);
-    if (QLMemoryUsedCritical && QLMemoryUsedCritical < kSatelliteMemory)
-        QLMemoryUsedCritical = kSatelliteMemory;
+    void *qlhandle = dlopen("/System/Library/Frameworks/QuickLook.framework/Versions/A/QuickLook", RTLD_LOCAL);
+    if (qlhandle)
+    {
+        QLMemoryUsedCritical = dlsym(qlhandle, "QLMemoryUsedCritical");
+        if (QLMemoryUsedCritical)
+        {
+            os_log_info(logger, "New QuickLookSatellite with QLMemoryUsedCritical = %{bytes}i", *QLMemoryUsedCritical);
+            if (*QLMemoryUsedCritical < kSatelliteMemory)
+                *QLMemoryUsedCritical = kSatelliteMemory;
+        }
+        else
+        {
+            os_log_info(logger, "New QuickLookSatellite with no QLMemoryUsedCritical setting");
+        }
+    }
+    else
+    {
+        os_log_info(logger, "New QuickLookSatellite - can't open QuickLook Framework");
+    }
 
     /* the rest of this function is standard boilderplate */
     QuickLookGeneratorPluginType *theNewInstance;
