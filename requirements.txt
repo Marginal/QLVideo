@@ -1,0 +1,2 @@
+dmgbuild>=1.6.0
+pyobjc-framework-Quartz>=7.3

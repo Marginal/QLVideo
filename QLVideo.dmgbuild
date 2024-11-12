@@ -20,3 +20,7 @@ icon_locations = {appname: (140, 120), "Applications": (500, 120)}
 default_view = "icon-view"
 background = "builtin-arrow"
 show_icon_preview = False
+show_pathbar = False
+show_status_bar = False
+show_tab_view = False
+show_toolbar = False

@@ -446,7 +446,7 @@ void segv_handler(int signum)
 
             // We have a frame but it won't be useful if it's not a keyframe, which can happen because MPEG TS demuxer doesn't
             // necessarily seek to keyframes, or because we skipped a frame for being blank. So keep looking for a keyframe.
-            if (!frame->key_frame && pkt->pts < stop_pts)
+            if (!(frame->flags & AV_FRAME_FLAG_KEY) && (pkt->pts < stop_pts))
             {
                 av_frame_unref(frame);
                 av_packet_unref(pkt);

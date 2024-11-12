@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
     @autoreleasepool {
 
         av_log_set_level(AV_LOG_ERROR|AV_LOG_SKIP_REPEATED);
-        av_register_all();
 
         CFURLRef url;
         if (argc != 2 || !(url = CFURLCreateWithFileSystemPath(NULL, CFStringCreateWithBytes(NULL, (UInt8*) argv[1], strlen(argv[1]), kCFStringEncodingUTF8, false), kCFURLPOSIXPathStyle , false)))
