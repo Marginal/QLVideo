@@ -48,15 +48,6 @@ static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
                 os_log_error(logger, "%{public}s", line);
                 break;
 
-            case AV_LOG_ERROR:
-            case AV_LOG_WARNING:
-            case AV_LOG_INFO:
-                os_log_info(logger, "%{public}s", line);
-                break;
-
-            case AV_LOG_VERBOSE:
-            case AV_LOG_DEBUG:
-            case AV_LOG_TRACE:
             default:
                 os_log_debug(logger, "%{public}s", line);
         }
