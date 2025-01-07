@@ -237,6 +237,32 @@ void segv_handler(int signum)
         return [self displaySize];
 }
 
+// Size of the cover art if any
+- (CGSize) coverArtSizeWithMode:(CoverArtMode)mode
+{
+    AVStream *art_stream = [self coverArtStreamWithMode: mode];
+    if (!art_stream)
+        return CGSizeMake(0,0);
+
+    AVCodecContext *avctx = avcodec_alloc_context3(NULL);
+    if (!avctx)
+        return CGSizeMake(0,0);
+
+    if (avcodec_parameters_to_context(avctx, art_stream->codecpar) < 0) {
+        avcodec_free_context(&avctx);
+        return CGSizeMake(0,0);
+    }
+
+    CGSize ret;
+    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, art_stream, NULL);
+    if (sar.num > 1 && sar.den > 1)
+        ret = CGSizeMake(av_rescale(avctx->width, sar.num, sar.den), avctx->height);
+    else
+        ret = CGSizeMake(avctx->width, avctx->height);
+    avcodec_free_context(&avctx);
+    return ret;
+}
+
 // Duration [s]
 - (NSInteger) duration
 {
@@ -253,9 +279,9 @@ void segv_handler(int signum)
     if (!art_stream)
         return nil;
     else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
-        data = [NSData dataWithBytes: art_stream->attached_pic.data length: art_stream->attached_pic.size];
+        data = [NSData dataWithBytesNoCopy: art_stream->attached_pic.data length: art_stream->attached_pic.size freeWhenDone:FALSE];   // we'll dealloc when fmt_ctx is closed
     else
-        data = [NSData dataWithBytes: art_stream->codecpar->extradata length: art_stream->codecpar->extradata_size];
+        data = [NSData dataWithBytesNoCopy: art_stream->codecpar->extradata length: art_stream->codecpar->extradata_size freeWhenDone:FALSE];   // we'll dealloc when fmt_ctx is closed
     return data;
 }
 
@@ -325,11 +351,15 @@ void segv_handler(int signum)
                         priority = 1;
                     break;
 
-                case CoverArtLandscape:    // Only return large landscape.
-                    if (filename && filename->value && !strncasecmp(filename->value, "cover_land.", 11))
+                case CoverArtLandscape:    // Prefer large landscape.
+                    if (!filename || !filename->value)
+                        priority = 1;
+                    else if (!strncasecmp(filename->value, "cover_land.", 11))
                         priority = 3;
+                    else if (!strncasecmp(filename->value, "cover.", 6))
+                        priority = 2;
                     else
-                        priority = 0;
+                        priority = 1;
                     break;
 
                 default:    // CoverArtDefault  Prefer large square/portrait.
@@ -551,6 +581,22 @@ void segv_handler(int signum)
 // Gets snapshot and blocks until completion, timeout or failure.
 - (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
 {
+    // single pre-computed picture that ffmpeg doesn't understand or present as a stream
+    if (_pictures && picture_size)
+    {
+        uint8_t *picture = NULL;   // points to the RGB data
+        AVIOContext *pb = fmt_ctx->pb;
+        if (avio_seek(pb, picture_off, SEEK_SET) < 0 ||
+            !(picture = malloc(picture_size)))
+            return nil;
+        if (avio_read(pb, picture, picture_size) != picture_size)
+        {
+            free(picture);
+            return nil;
+        }
+        return CFDataCreateWithBytesNoCopy(NULL, picture, picture_size, kCFAllocatorMalloc);
+    }
+
     // Allocate temporary frame for decoded RGB data
     AVFrame *rgb_frame = av_frame_alloc();
     if (!rgb_frame)

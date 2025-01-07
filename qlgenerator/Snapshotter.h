@@ -45,10 +45,11 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 
 - (instancetype) initWithURL:(CFURLRef)url;
 - (void) dealloc;
-- (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode;
-- (NSData*) dataCoverArtWithMode:(CoverArtMode)mode;
-- (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds;
-- (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds;
+- (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode CF_RETURNS_RETAINED;
+- (NSData*) dataCoverArtWithMode:(CoverArtMode)mode CF_RETURNS_RETAINED;
+- (CGSize) coverArtSizeWithMode:(CoverArtMode)mode;
+- (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds CF_RETURNS_RETAINED;
+- (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds CF_RETURNS_RETAINED;
 
 // Really should be internal, but handy to share with csimporter
 - (AVStream*) coverArtStreamWithMode:(CoverArtMode)mode;
