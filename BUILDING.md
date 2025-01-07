@@ -28,7 +28,6 @@ Debugging
 All plugins produce output in the system log. Use the filter `subsystem:uk.org.marginal.qlvideo` in the Console app.
 * mdimporter - Invoke for debugging with `mdimport -n -d3 <testfile>`
 * glgenerator - Invoke for debugging with `qlmanage -p <testfile>`
-* thumbnailer - Invoke for debugging with `qlmanage -t -f2 <testfile>`
 
 Notes
 -----
