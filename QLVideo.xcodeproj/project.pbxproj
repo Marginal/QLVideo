@@ -3,12 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 74;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		AB0527D51D294751009A809B /* bench.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0527C81D2946F1009A809B /* bench.m */; };
-		AB0527D61D294756009A809B /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		AB0527D71D29476C009A809B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
 		AB0527D81D294772009A809B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB0527D91D294776009A809B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
@@ -24,11 +23,9 @@
 		AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
-		AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB467C962625D0AF00F662CE /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */; };
 		AB467C972625D0AF00F662CE /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1F261D19F2009BE894 /* Quartz.framework */; };
-		AB467C9B2625D0AF00F662CE /* ThumbnailProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = AB467C9A2625D0AF00F662CE /* ThumbnailProvider.m */; };
-		AB467CA02625D0AF00F662CE /* thumbnailer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB467C952625D0AF00F662CE /* thumbnailer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AB467CA02625D0AF00F662CE /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB467CF22625E73500F662CE /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
 		AB467CF32625E73800F662CE /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
 		AB467CF42625E75600F662CE /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
@@ -42,12 +39,9 @@
 		AB467D1F2625E78700F662CE /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB467D202625E78A00F662CE /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		AB467D212625E78E00F662CE /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
-		AB467D2C2625E8B600F662CE /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		AB467D322625E90200F662CE /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* Video.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* Video.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AB49FBBC2923D1F700B126C0 /* Video.qlgenerator in Embed qlgenerator */ = {isa = PBXBuildFile; fileRef = AB93B0F6196CA60500708B2E /* Video.qlgenerator */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477D261B43B500D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB66477E261B43B600D23514 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
 		AB7C713719F8A31C0006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
@@ -59,40 +53,33 @@
 		AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB7C714C19F8A7060006104E /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
 		AB7C714D19F8A7060006104E /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
-		AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
-		AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
-		AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
-		AB7C715319F9E2AE0006104E /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
-		AB7C715419F9E2B00006104E /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
-		AB7C715519F9E2B40006104E /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714419F8A6560006104E /* libavutil.a */; };
-		AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
-		AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
-		AB7C715919F9E2C90006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
-		AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0F7196CA60500708B2E /* QuickLook.framework */; };
-		AB93B105196CA60500708B2E /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B104196CA60500708B2E /* GenerateThumbnailForURL.m */; };
-		AB93B107196CA60500708B2E /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */; };
-		AB93B109196CA60500708B2E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B108196CA60500708B2E /* main.m */; };
-		AB93B11C1972EBF700708B2E /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		AB93B11F1972EFAB00708B2E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
-		AB93B1201972EFAC00708B2E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
-		AB9730241A3A2C550067C886 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB19C82B1A3A295700A14247 /* Localizable.strings */; };
 		AB9FB57F1965DD7200D39647 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.m */; };
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */; };
-		ABA82A4A294CD9530093D8A9 /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB93B11A1972EBF700708B2E /* Snapshotter.m */; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */; };
-		ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
-		ABE23BD31D258F6C004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
 		ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
 		ABE23BD51D259070004E9D26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		ABE23BD71D25914C004E9D26 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
-		ABE23BD81D25914C004E9D26 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
 		ABE23BDA1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
-		ABE23BDB1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
 		ABE461181A15A776006C89A2 /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABE4610E1A15A519006C89A2 /* schema.strings */; };
-		ABE504A2220757BB006202E0 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = ABE504A1220757BB006202E0 /* Player.m */; };
-		ABE504A3220757D0006202E0 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = ABE504A1220757BB006202E0 /* Player.m */; };
+		ABE69D252D2A350700CE6C69 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1F261D19F2009BE894 /* Quartz.framework */; };
+		ABE69D322D2A350700CE6C69 /* QLVideo Previewer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		ABE69DBE2D2C6E4E00CE6C69 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713C19F8A4660006104E /* libavcodec.a */; };
+		ABE69DBF2D2C6E5000CE6C69 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713819F8A44D0006104E /* libavfilter.a */; };
+		ABE69DC02D2C6E5300CE6C69 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C713619F8A31C0006104E /* libavformat.a */; };
+		ABE69DC12D2C6E5600CE6C69 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714419F8A6560006104E /* libavutil.a */; };
+		ABE69DC22D2C6E5900CE6C69 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714A19F8A7060006104E /* libswresample.a */; };
+		ABE69DC32D2C6E5C00CE6C69 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714B19F8A7060006104E /* libswscale.a */; };
+		ABE69DC42D2C6E6000CE6C69 /* libaom.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB66474E261ABBB600D23514 /* libaom.a */; };
+		ABE69DC52D2C6E6700CE6C69 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
+		ABE69DC62D2C6E6A00CE6C69 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
+		ABE69DC72D2C6E6C00CE6C69 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
+		ABE69DC82D2C6E7000CE6C69 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
+		ABE69DC92D2C704500CE6C69 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
+		ABE69DCA2D2C704800CE6C69 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
+		ABE69DCC2D2C707300CE6C69 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
 		ABE72EB22937FAE4005433DF /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = ABE72EB42937FAE4005433DF /* Main.xib */; };
 		ABE72EB82938E008005433DF /* IssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE72EB72938E008005433DF /* IssueView.swift */; };
 		ABE72EC1293A32F2005433DF /* ffprobe in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EBC29392EEB005433DF /* ffprobe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -128,21 +115,7 @@
 			remoteGlobalIDString = AB9FB56C1965DD7200D39647;
 			remoteInfo = mdimporter;
 		};
-		AB49FB802922770100B126C0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB93B0F5196CA60500708B2E;
-			remoteInfo = qlgenerator;
-		};
 		AB535D571EDCD0BD00ECB0CE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
-			remoteInfo = ffmpeg;
-		};
-		AB535D591EDCD0C100ECB0CE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
 			proxyType = 1;
@@ -163,13 +136,6 @@
 			remoteGlobalIDString = AB66470D261A88C700D23514;
 			remoteInfo = aom;
 		};
-		AB66472C261AA05C00D23514 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB66470D261A88C700D23514;
-			remoteInfo = aom;
-		};
 		AB66472E261AA06100D23514 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
@@ -183,6 +149,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = AB66470D261A88C700D23514;
 			remoteInfo = aom;
+		};
+		ABE69D302D2A350700CE6C69 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABE69D232D2A350700CE6C69;
+			remoteInfo = previewer;
+		};
+		ABE69DB92D2C6DE700CE6C69 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB66470D261A88C700D23514;
+			remoteInfo = aom;
+		};
+		ABE69DBB2D2C6DEB00CE6C69 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
+			remoteInfo = ffmpeg;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -204,7 +191,6 @@
 			dstPath = Contents/Library/QuickLook;
 			dstSubfolderSpec = 1;
 			files = (
-				AB49FBBC2923D1F700B126C0 /* Video.qlgenerator in Embed qlgenerator */,
 			);
 			name = "Embed qlgenerator";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -215,7 +201,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				AB467CA02625D0AF00F662CE /* thumbnailer.appex in Embed Foundation Extensions */,
+				ABE69D322D2A350700CE6C69 /* QLVideo Previewer.appex in Embed Foundation Extensions */,
+				AB467CA02625D0AF00F662CE /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -237,33 +224,19 @@
 		AB00C5C81A682EF800D71399 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/schema.strings; sourceTree = "<group>"; };
 		AB00C5CA1A682F6800D71399 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/schema.strings; sourceTree = "<group>"; };
 		AB00C5CB1A682F7200D71399 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/schema.strings; sourceTree = "<group>"; };
-		AB00C5CC1A682F9400D71399 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB00C5D11A682FAF00D71399 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB00C5D21A682FB700D71399 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB0527C81D2946F1009A809B /* bench.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bench.m; sourceTree = "<group>"; };
 		AB0527CE1D294732009A809B /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB0B80BF1EED41F1008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0B80C11EED4204008A22DC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/schema.strings; sourceTree = "<group>"; };
-		AB0B80C21EED4215008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB0B80C41EED4220008A22DC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB0E0D3C1A15B0300056CC24 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0E0D3D1A15B03B0056CC24 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/schema.strings; sourceTree = "<group>"; };
 		AB17CCF4291E954B002A80AB /* include */ = {isa = PBXFileReference; lastKnownFileType = text; name = include; path = universal/include; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB19C82C1A3A295700A14247 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB19C82E1A3A29FC00A14247 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB19C8301A3A2A7F00A14247 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB19C8311A3A2AB200A14247 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		AB467C952625D0AF00F662CE /* thumbnailer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = thumbnailer.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB467C992625D0AF00F662CE /* ThumbnailProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThumbnailProvider.h; sourceTree = "<group>"; };
-		AB467C9A2625D0AF00F662CE /* ThumbnailProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ThumbnailProvider.m; sourceTree = "<group>"; };
-		AB467C9C2625D0AF00F662CE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AB467C9D2625D0AF00F662CE /* thumbnailer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = thumbnailer.entitlements; sourceTree = "<group>"; };
+		AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "QLVideo Thumbnailer.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/schema.strings"; sourceTree = "<group>"; };
-		AB54B963217F42B000558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		AB66474E261ABBB600D23514 /* libaom.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libaom.a; path = universal/lib/libaom.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		AB75CB1F261D19F2009BE894 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
@@ -277,22 +250,11 @@
 		AB7C714A19F8A7060006104E /* libswresample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswresample.a; path = universal/lib/libswresample.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB7C714B19F8A7060006104E /* libswscale.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libswscale.a; path = universal/lib/libswscale.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB8277781A7523F300F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/schema.strings; sourceTree = "<group>"; };
-		AB82777A1A7523FC00F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		AB93B0F6196CA60500708B2E /* Video.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB93B0F7196CA60500708B2E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		AB93B0F9196CA60500708B2E /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		AB93B0FB196CA60500708B2E /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
-		AB93B104196CA60500708B2E /* GenerateThumbnailForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GenerateThumbnailForURL.m; sourceTree = "<group>"; };
-		AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeneratePreviewForURL.m; sourceTree = "<group>"; };
-		AB93B108196CA60500708B2E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		AB93B10E196CA7EE00708B2E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AB93B1191972EBF700708B2E /* Snapshotter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Snapshotter.h; sourceTree = "<group>"; };
-		AB93B11A1972EBF700708B2E /* Snapshotter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Snapshotter.m; sourceTree = "<group>"; };
 		AB96EE6B2183810500694152 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/schema.strings; sourceTree = "<group>"; };
-		AB96EE6C2183811800694152 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB9730211A3A2BB00067C886 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		AB9730221A3A2BF40067C886 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB97CDD21A3A059C005FECB1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/schema.strings; sourceTree = "<group>"; };
 		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB9FB56D1965DD7200D39647 /* Video.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -308,26 +270,20 @@
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
 		ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABC22D232070E05200A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/schema.strings; sourceTree = "<group>"; };
-		ABC22D242070E06900A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABC8EDC22931900D00F97C3C /* buildstrings */ = {isa = PBXFileReference; explicitFileType = text.script.sh; path = buildstrings; sourceTree = "<group>"; };
 		ABC8EE07293273ED00F97C3C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		ABC8EE082932741000F97C3C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
 		ABC8EE0929328A4D00F97C3C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
 		ABC8EE0A29328A4D00F97C3C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/schema.strings"; sourceTree = "<group>"; };
-		ABC8EE0B29328A4D00F97C3C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABC8EE0C29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		ABC8EE0D29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/schema.strings"; sourceTree = "<group>"; };
-		ABC8EE0E29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABC8EE0F2932A92100F97C3C /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/schema.strings; sourceTree = "<group>"; };
-		ABC8EE102932A93800F97C3C /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		ABE23BDD1D274D9A004E9D26 /* generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = generator.h; sourceTree = "<group>"; };
 		ABE4610F1A15A519006C89A2 /* en */ = {isa = PBXFileReference; explicitFileType = text.plist.strings; name = en; path = en.lproj/schema.strings; sourceTree = "<group>"; };
-		ABE504A022075780006202E0 /* Player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
-		ABE504A1220757BB006202E0 /* Player.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
+		ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "QLVideo Previewer.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EA0293448AF005433DF /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Main.strings; sourceTree = "<group>"; };
 		ABE72EA1293448B3005433DF /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Main.strings; sourceTree = "<group>"; };
 		ABE72EA2293448B6005433DF /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Main.strings; sourceTree = "<group>"; };
@@ -349,6 +305,50 @@
 		ABE72EC2293D1DC6005433DF /* OldVersionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldVersionView.swift; sourceTree = "<group>"; };
 		ABE72ED6294379D1005433DF /* GetMetadataForFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetMetadataForFile.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				/Localized/Localizable.strings,
+				Info.plist,
+			);
+			target = ABE69D232D2A350700CE6C69 /* previewer */;
+		};
+		ABE69DD72D2CB27F00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ThumbnailProvider.m,
+			);
+			target = AB467C942625D0AF00F662CE /* thumbnailer */;
+		};
+		ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Snapshotter.m,
+			);
+			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
+		};
+		ABE69E052D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Snapshotter.m,
+			);
+			target = AB467C942625D0AF00F662CE /* thumbnailer */;
+		};
+		ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Snapshotter.m,
+			);
+			target = AB0527CD1D294732009A809B /* benchmark */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		ABE69D262D2A350700CE6C69 /* previewer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E052D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = previewer; sourceTree = "<group>"; };
+		ABE69DD52D2CB27E00CE6C69 /* thumbnailer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABE69DD72D2CB27F00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = thumbnailer; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AB0527CB1D294732009A809B /* Frameworks */ = {
@@ -404,30 +404,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB93B0F1196CA60500708B2E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB93B0F8196CA60500708B2E /* QuickLook.framework in Frameworks */,
-				AB93B1201972EFAC00708B2E /* Cocoa.framework in Frameworks */,
-				AB2ACD9E1A696F72002411DF /* AVFoundation.framework in Frameworks */,
-				ABE23BD81D25914C004E9D26 /* AudioToolbox.framework in Frameworks */,
-				ABE23BD31D258F6C004E9D26 /* VideoToolbox.framework in Frameworks */,
-				ABE23BDB1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */,
-				AB7C715019F9E2A50006104E /* libavfilter.a in Frameworks */,
-				AB7C715119F9E2A80006104E /* libavformat.a in Frameworks */,
-				AB7C715219F9E2AB0006104E /* libavcodec.a in Frameworks */,
-				AB7C715319F9E2AE0006104E /* libswresample.a in Frameworks */,
-				AB7C715419F9E2B00006104E /* libswscale.a in Frameworks */,
-				AB7C715519F9E2B40006104E /* libavutil.a in Frameworks */,
-				AB66474F261ABBCB00D23514 /* libaom.a in Frameworks */,
-				AB7C715819F9E2C60006104E /* libbz2.dylib in Frameworks */,
-				AB7C715619F9E2BF0006104E /* libiconv.dylib in Frameworks */,
-				ABBC10DF1C1DF5F600B25E28 /* liblzma.5.dylib in Frameworks */,
-				AB7C715919F9E2C90006104E /* libz.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB9FB56A1965DD7200D39647 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -451,6 +427,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ABE69D212D2A350700CE6C69 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ABE69D252D2A350700CE6C69 /* Quartz.framework in Frameworks */,
+				ABE69DC92D2C704500CE6C69 /* AudioToolbox.framework in Frameworks */,
+				ABE69DCA2D2C704800CE6C69 /* VideoToolbox.framework in Frameworks */,
+				ABE69DCC2D2C707300CE6C69 /* CoreMedia.framework in Frameworks */,
+				ABE69DBE2D2C6E4E00CE6C69 /* libavcodec.a in Frameworks */,
+				ABE69DBF2D2C6E5000CE6C69 /* libavfilter.a in Frameworks */,
+				ABE69DC02D2C6E5300CE6C69 /* libavformat.a in Frameworks */,
+				ABE69DC12D2C6E5600CE6C69 /* libavutil.a in Frameworks */,
+				ABE69DC22D2C6E5900CE6C69 /* libswresample.a in Frameworks */,
+				ABE69DC32D2C6E5C00CE6C69 /* libswscale.a in Frameworks */,
+				ABE69DC42D2C6E6000CE6C69 /* libaom.a in Frameworks */,
+				ABE69DC52D2C6E6700CE6C69 /* libbz2.dylib in Frameworks */,
+				ABE69DC62D2C6E6A00CE6C69 /* libiconv.dylib in Frameworks */,
+				ABE69DC72D2C6E6C00CE6C69 /* liblzma.5.dylib in Frameworks */,
+				ABE69DC82D2C6E7000CE6C69 /* libz.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -460,17 +458,6 @@
 				AB0527C81D2946F1009A809B /* bench.m */,
 			);
 			path = benchmark;
-			sourceTree = "<group>";
-		};
-		AB467C982625D0AF00F662CE /* thumbnailer */ = {
-			isa = PBXGroup;
-			children = (
-				AB467C992625D0AF00F662CE /* ThumbnailProvider.h */,
-				AB467C9A2625D0AF00F662CE /* ThumbnailProvider.m */,
-				AB467C9C2625D0AF00F662CE /* Info.plist */,
-				AB467C9D2625D0AF00F662CE /* thumbnailer.entitlements */,
-			);
-			path = thumbnailer;
 			sourceTree = "<group>";
 		};
 		AB49FB70292276A000B126C0 /* app */ = {
@@ -499,31 +486,14 @@
 			path = universal/lib;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		AB93B0FE196CA60500708B2E /* qlgenerator */ = {
-			isa = PBXGroup;
-			children = (
-				ABE23BDD1D274D9A004E9D26 /* generator.h */,
-				AB93B108196CA60500708B2E /* main.m */,
-				ABE504A022075780006202E0 /* Player.h */,
-				ABE504A1220757BB006202E0 /* Player.m */,
-				AB93B104196CA60500708B2E /* GenerateThumbnailForURL.m */,
-				AB93B106196CA60500708B2E /* GeneratePreviewForURL.m */,
-				AB93B1191972EBF700708B2E /* Snapshotter.h */,
-				AB93B11A1972EBF700708B2E /* Snapshotter.m */,
-				AB93B10E196CA7EE00708B2E /* Info.plist */,
-				AB19C82B1A3A295700A14247 /* Localizable.strings */,
-			);
-			path = qlgenerator;
-			sourceTree = "<group>";
-		};
 		AB9FB5641965DD7200D39647 = {
 			isa = PBXGroup;
 			children = (
 				AB49FB70292276A000B126C0 /* app */,
 				AB0527CF1D294732009A809B /* benchmark */,
 				AB9FB5781965DD7200D39647 /* mdimporter */,
-				AB93B0FE196CA60500708B2E /* qlgenerator */,
-				AB467C982625D0AF00F662CE /* thumbnailer */,
+				ABE69DD52D2CB27E00CE6C69 /* thumbnailer */,
+				ABE69D262D2A350700CE6C69 /* previewer */,
 				AB9FB56F1965DD7200D39647 /* Frameworks */,
 				AB9FB56E1965DD7200D39647 /* Products */,
 			);
@@ -533,10 +503,10 @@
 			isa = PBXGroup;
 			children = (
 				AB9FB56D1965DD7200D39647 /* Video.mdimporter */,
-				AB93B0F6196CA60500708B2E /* Video.qlgenerator */,
 				AB0527CE1D294732009A809B /* benchmark */,
-				AB467C952625D0AF00F662CE /* thumbnailer.appex */,
+				AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */,
 				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
+				ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -675,7 +645,7 @@
 			);
 			name = thumbnailer;
 			productName = thumbnailer;
-			productReference = AB467C952625D0AF00F662CE /* thumbnailer.appex */;
+			productReference = AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		AB49FB6E2922769F00B126C0 /* QuickLook Video */ = {
@@ -695,32 +665,13 @@
 			);
 			dependencies = (
 				AB49FB7F2922770100B126C0 /* PBXTargetDependency */,
-				AB49FB812922770100B126C0 /* PBXTargetDependency */,
 				AB48E687293156B3004B2E82 /* PBXTargetDependency */,
+				ABE69D312D2A350700CE6C69 /* PBXTargetDependency */,
 			);
 			name = "QuickLook Video";
 			productName = "QuickLook Video";
 			productReference = AB49FB6F2922769F00B126C0 /* QuickLook Video.app */;
 			productType = "com.apple.product-type.application";
-		};
-		AB93B0F5196CA60500708B2E /* qlgenerator */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AB93B10B196CA60500708B2E /* Build configuration list for PBXNativeTarget "qlgenerator" */;
-			buildPhases = (
-				AB93B0F0196CA60500708B2E /* Sources */,
-				AB93B0F1196CA60500708B2E /* Frameworks */,
-				AB9730231A3A2C510067C886 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AB66472D261AA05C00D23514 /* PBXTargetDependency */,
-				AB535D5A1EDCD0C100ECB0CE /* PBXTargetDependency */,
-			);
-			name = qlgenerator;
-			productName = qlvideo.qlgenerator;
-			productReference = AB93B0F6196CA60500708B2E /* Video.qlgenerator */;
-			productType = "com.apple.product-type.bundle";
 		};
 		AB9FB56C1965DD7200D39647 /* mdimporter */ = {
 			isa = PBXNativeTarget;
@@ -742,6 +693,30 @@
 			productReference = AB9FB56D1965DD7200D39647 /* Video.mdimporter */;
 			productType = "com.apple.product-type.bundle";
 		};
+		ABE69D232D2A350700CE6C69 /* previewer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ABE69D342D2A350700CE6C69 /* Build configuration list for PBXNativeTarget "previewer" */;
+			buildPhases = (
+				ABE69D202D2A350700CE6C69 /* Sources */,
+				ABE69D212D2A350700CE6C69 /* Frameworks */,
+				ABE69D222D2A350700CE6C69 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */,
+				ABE69DBA2D2C6DE700CE6C69 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				ABE69D262D2A350700CE6C69 /* previewer */,
+			);
+			name = previewer;
+			packageProductDependencies = (
+			);
+			productName = previewer;
+			productReference = ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -749,10 +724,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1610;
+				TargetAttributes = {
+					ABE69D232D2A350700CE6C69 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
 			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -777,13 +757,14 @@
 				"zh-Hans",
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
+			preferredProjectObjectVersion = 46;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				AB49FB6E2922769F00B126C0 /* QuickLook Video */,
 				AB9FB56C1965DD7200D39647 /* mdimporter */,
-				AB93B0F5196CA60500708B2E /* qlgenerator */,
+				ABE69D232D2A350700CE6C69 /* previewer */,
 				AB467C942625D0AF00F662CE /* thumbnailer */,
 				AB0527CD1D294732009A809B /* benchmark */,
 				AB535D4D1EDC390C00ECB0CE /* ffmpeg */,
@@ -809,19 +790,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB9730231A3A2C510067C886 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB9730241A3A2C550067C886 /* Localizable.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		ABE461151A15A711006C89A2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				ABE461181A15A776006C89A2 /* schema.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABE69D222D2A350700CE6C69 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -875,8 +855,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABE504A3220757D0006202E0 /* Player.m in Sources */,
-				AB0527D61D294756009A809B /* Snapshotter.m in Sources */,
 				AB0527D51D294751009A809B /* bench.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -885,8 +863,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB467C9B2625D0AF00F662CE /* ThumbnailProvider.m in Sources */,
-				AB467D2C2625E8B600F662CE /* Snapshotter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -901,25 +877,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB93B0F0196CA60500708B2E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB93B105196CA60500708B2E /* GenerateThumbnailForURL.m in Sources */,
-				AB93B107196CA60500708B2E /* GeneratePreviewForURL.m in Sources */,
-				AB93B109196CA60500708B2E /* main.m in Sources */,
-				ABE504A2220757BB006202E0 /* Player.m in Sources */,
-				AB93B11C1972EBF700708B2E /* Snapshotter.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB9FB5691965DD7200D39647 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				AB9FB57F1965DD7200D39647 /* main.m in Sources */,
 				AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */,
-				ABA82A4A294CD9530093D8A9 /* Snapshotter.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABE69D202D2A350700CE6C69 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -946,20 +916,10 @@
 			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
 			targetProxy = AB49FB7E2922770100B126C0 /* PBXContainerItemProxy */;
 		};
-		AB49FB812922770100B126C0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB93B0F5196CA60500708B2E /* qlgenerator */;
-			targetProxy = AB49FB802922770100B126C0 /* PBXContainerItemProxy */;
-		};
 		AB535D581EDCD0BD00ECB0CE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB535D571EDCD0BD00ECB0CE /* PBXContainerItemProxy */;
-		};
-		AB535D5A1EDCD0C100ECB0CE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
-			targetProxy = AB535D591EDCD0C100ECB0CE /* PBXContainerItemProxy */;
 		};
 		AB535D5C1EDCD0C900ECB0CE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -971,11 +931,6 @@
 			target = AB66470D261A88C700D23514 /* aom */;
 			targetProxy = AB66472A261AA04400D23514 /* PBXContainerItemProxy */;
 		};
-		AB66472D261AA05C00D23514 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB66470D261A88C700D23514 /* aom */;
-			targetProxy = AB66472C261AA05C00D23514 /* PBXContainerItemProxy */;
-		};
 		AB66472F261AA06100D23514 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB66470D261A88C700D23514 /* aom */;
@@ -986,34 +941,24 @@
 			target = AB66470D261A88C700D23514 /* aom */;
 			targetProxy = AB664730261AA06C00D23514 /* PBXContainerItemProxy */;
 		};
+		ABE69D312D2A350700CE6C69 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ABE69D232D2A350700CE6C69 /* previewer */;
+			targetProxy = ABE69D302D2A350700CE6C69 /* PBXContainerItemProxy */;
+		};
+		ABE69DBA2D2C6DE700CE6C69 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB66470D261A88C700D23514 /* aom */;
+			targetProxy = ABE69DB92D2C6DE700CE6C69 /* PBXContainerItemProxy */;
+		};
+		ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
+			targetProxy = ABE69DBB2D2C6DEB00CE6C69 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		AB19C82B1A3A295700A14247 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				AB19C82C1A3A295700A14247 /* en */,
-				AB19C82E1A3A29FC00A14247 /* fr */,
-				AB19C8301A3A2A7F00A14247 /* it */,
-				AB19C8311A3A2AB200A14247 /* sv */,
-				AB9730211A3A2BB00067C886 /* ja */,
-				AB9730221A3A2BF40067C886 /* es */,
-				AB00C5CC1A682F9400D71399 /* de */,
-				AB00C5D11A682FAF00D71399 /* nl */,
-				AB00C5D21A682FB700D71399 /* el */,
-				AB82777A1A7523FC00F1D9F4 /* ca */,
-				AB0B80C21EED4215008A22DC /* cs */,
-				AB0B80C41EED4220008A22DC /* ru */,
-				ABC22D242070E06900A2D884 /* hu */,
-				AB54B963217F42B000558403 /* pt-PT */,
-				AB96EE6C2183811800694152 /* ko */,
-				ABC8EE0B29328A4D00F97C3C /* pt-BR */,
-				ABC8EE0E29328B2800F97C3C /* zh-Hans */,
-				ABC8EE102932A93800F97C3C /* nb */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
 		ABC8EE06293273ED00F97C3C /* Main.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1109,10 +1054,10 @@
 				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = thumbnailer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video thumbnails";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "QLVideo Thumbnailer";
 			};
 			name = Debug;
 		};
@@ -1122,10 +1067,10 @@
 				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = thumbnailer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video thumbnails";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "QLVideo Thumbnailer";
 			};
 			name = Release;
 		};
@@ -1233,34 +1178,6 @@
 			};
 			name = Release;
 		};
-		AB93B10C196CA60500708B2E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = qlgenerator/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video previews";
-				INSTALL_PATH = /Library/QuickLook;
-				LD_RUNPATH_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
-				PRODUCT_NAME = Video;
-				WRAPPER_EXTENSION = qlgenerator;
-			};
-			name = Debug;
-		};
-		AB93B10D196CA60500708B2E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = qlgenerator/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video previews";
-				INSTALL_PATH = /Library/QuickLook;
-				LD_RUNPATH_SEARCH_PATHS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.qlgenerator;
-				PRODUCT_NAME = Video;
-				WRAPPER_EXTENSION = qlgenerator;
-			};
-			name = Release;
-		};
 		AB9FB5871965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1324,8 +1241,8 @@
 				);
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 2.00;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1396,8 +1313,8 @@
 				);
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 2.00;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1435,6 +1352,61 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
 				PRODUCT_NAME = Video;
 				WRAPPER_EXTENSION = mdimporter;
+			};
+			name = Release;
+		};
+		ABE69D352D2A350700CE6C69 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_ENTITLEMENTS = previewer/previewer.entitlements;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = previewer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Video previews";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.previewer;
+				PRODUCT_NAME = "QLVideo Previewer";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "previewer/previewer-bridge.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		ABE69D362D2A350700CE6C69 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_ENTITLEMENTS = previewer/previewer.entitlements;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = previewer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Video previews";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.previewer;
+				PRODUCT_NAME = "QLVideo Previewer";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "previewer/previewer-bridge.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -1486,15 +1458,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB93B10B196CA60500708B2E /* Build configuration list for PBXNativeTarget "qlgenerator" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AB93B10C196CA60500708B2E /* Debug */,
-				AB93B10D196CA60500708B2E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1509,6 +1472,15 @@
 			buildConfigurations = (
 				AB9FB58A1965DD7200D39647 /* Debug */,
 				AB9FB58B1965DD7200D39647 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ABE69D342D2A350700CE6C69 /* Build configuration list for PBXNativeTarget "previewer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ABE69D352D2A350700CE6C69 /* Debug */,
+				ABE69D362D2A350700CE6C69 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

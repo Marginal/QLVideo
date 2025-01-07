@@ -1,0 +1,20 @@
+/* QuickLook preview titlebar - video has no audio */
+"🔇"     = "🔇";
+
+/* QuickLook preview titlebar - video has mono audio */
+"mono"   = "μονο";
+
+/* QuickLook preview titlebar - video has stereo audio */
+"stereo" = "στερεο";
+
+/* QuickLook preview titlebar - video has 5.1 channel audio */
+"5.1"    = "5.1";
+
+/* QuickLook preview titlebar - video has 6.1 channel audio */
+"6.1"    = "6.1";
+
+/* QuickLook preview titlebar - video has 7.1 channel audio */
+"7.1"    = "7.1";
+
+/* QuickLook preview titlebar - video has "\(channels)" channel audio i.e. Quadraphonic, LCRS or something else */
+"\(channels)🔉"   = "\(channels)🔉";
