@@ -30,8 +30,7 @@
 		<dict>
 			<key>QLSupportedContentTypes</key>	<!-- Keep in sync with mdimporter -->
 			<array>
-				<!-- Try to handle everything; Audio & CoreMedia importers will grab the more specific UTIs that they want to handle -->
-				<string>public.audiovisual-content</string>
+				<!-- Try to handle everything -->
 				<string>public.movie</string>
 
 				<!-- Core movie types not handled by CoreMedia importer -->
@@ -212,6 +211,6 @@
 		<string>ThumbnailProvider</string>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2014-2022 Jonathan Harris. Licensed under GPLv2 or later.</string>
+	<string>${INFOPLIST_KEY_NSHumanReadableCopyright}</string>
 </dict>
 </plist>

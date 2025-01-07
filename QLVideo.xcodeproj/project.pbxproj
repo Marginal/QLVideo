@@ -1322,6 +1322,7 @@
 					"$(BUILT_PRODUCTS_DIR)/universal/include",
 					ffmpeg,
 				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 2.00;
@@ -1393,6 +1394,7 @@
 					"$(BUILT_PRODUCTS_DIR)/universal/include",
 					ffmpeg,
 				);
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 2.00;

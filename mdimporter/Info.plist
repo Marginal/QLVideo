@@ -15,8 +15,7 @@
 			<string>MDImporter</string>
 			<key>LSItemContentTypes</key>	<!-- Keep in sync with qlgenerator -->
 			<array>
-				<!-- Try to handle everything; Audio & CoreMedia importers will grab the more specific UTIs that they want to handle -->
-				<string>public.audiovisual-content</string>
+				<!-- Try to handle everything; CoreMedia importer will grab the more specific UTIs that it wants to handle -->
 				<string>public.movie</string>
 
 				<!-- schema:start - pull following UTIs into schema.xml for display in Get Info dialog -->
@@ -191,6 +190,9 @@
 
 				<!-- schema:stop - stop pulling UTIs into schema.xml -->
 
+				<!-- Try to handle everything; Audio importer will grab the more specific UTIs that it wants to handle -->
+				<string>public.audiovisual-content</string>
+
 				<!-- Core audio types not handled by Audio importer in 10.9 -->
 				<string>com.microsoft.windows-media-wma</string>
 				<string>com.real.realaudio</string>
@@ -327,6 +329,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2014-2022 Jonathan Harris. Licensed under GPLv2 or later.</string>
+	<string>${INFOPLIST_KEY_NSHumanReadableCopyright}</string>
 </dict>
 </plist>
