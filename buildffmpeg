@@ -3,6 +3,10 @@
 set -e
 shopt -s extglob
 
+SCRIPT=`readlink -fn "$0"`
+EXES="ffmpeg ffprobe"
+LIBS="libavcodec libavfilter libavformat libavutil libpostproc libswresample libswscale"
+
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OBJECT_FILE_DIR}"
 	[ -n "${OBJECT_FILE_DIR}" -a -d "${OBJECT_FILE_DIR}" ] && rm -rf "${OBJECT_FILE_DIR}"
@@ -15,7 +19,7 @@ else
 	for ARCH in $ARCHS; do
 		mkdir -p "${OBJECT_FILE_DIR}/${ARCH}"
 		cd "${OBJECT_FILE_DIR}/${ARCH}"
-		if [ -f config.h ]; then
+		if [ -f config.h -a config.h -nt "${SCRIPT}" ]; then
 			echo Skipping configure
 		else
 			if [ "${CONFIGURATION}" == "Debug" ]; then
@@ -37,18 +41,19 @@ else
 	echo Installing into ${BUILT_PRODUCTS_DIR}/universal
 
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/bin"
-	for EXE in ffmpeg ffprobe; do
+	for EXE in $EXES; do
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/bin/${EXE}" -output "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
-        if [ -n "$DEVELOPMENT_TEAM" -a -n "$PRODUCT_BUNDLE_IDENTIFIER" ]; then
-            ENTITLEMENTS=`mktemp -t buildffmpeg`
-            if [ "${CONFIGURATION}" == "Debug" ]; then
-                echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n<key>com.apple.security.get-task-allow</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
-            else
-                echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
-            fi
-            codesign -s "${DEVELOPMENT_TEAM}" -i "${PRODUCT_BUNDLE_IDENTIFIER}.${EXE}" -o runtime --entitlements "${ENTITLEMENTS}" "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
-            rm "${ENTITLEMENTS}"
-        fi
+		if [ -n "$DEVELOPMENT_TEAM" -a -n "$PRODUCT_BUNDLE_IDENTIFIER" ]; then
+			# Add sandbox entitlement suitable for a helper app
+			ENTITLEMENTS=`mktemp -t buildffmpeg`
+			if [ "${CONFIGURATION}" == "Debug" ]; then
+				echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n<key>com.apple.security.get-task-allow</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+			else
+				echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+			fi
+			codesign -s "${DEVELOPMENT_TEAM}" -i "${PRODUCT_BUNDLE_IDENTIFIER}.${EXE}" -o runtime --entitlements "${ENTITLEMENTS}" "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+			rm "${ENTITLEMENTS}"
+		fi
 	done
 
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"
@@ -56,7 +61,7 @@ else
 	cp -p "${OBJECT_FILE_DIR}/${ARCHS/ */}/config.h" "${BUILT_PRODUCTS_DIR}/universal/include/"
 
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/lib"
-	for LIB in libavcodec libavfilter libavformat libavutil libpostproc libswresample libswscale; do
+	for LIB in $LIBS; do
 		cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/${LIB}" "${BUILT_PRODUCTS_DIR}/universal/include/"
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/${LIB}.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${LIB}.a"
 	done

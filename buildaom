@@ -3,6 +3,8 @@
 set -e
 shopt -s extglob
 
+SCRIPT=`readlink -fn "$0"`
+
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OBJECT_FILE_DIR}"
 	[ -n "${OBJECT_FILE_DIR}" -a -d "${OBJECT_FILE_DIR}" ] && rm -rf "${OBJECT_FILE_DIR}"
@@ -14,7 +16,7 @@ else
 	for ARCH in $ARCHS; do
 		mkdir -p "${OBJECT_FILE_DIR}/${ARCH}"
 		cd "${OBJECT_FILE_DIR}/${ARCH}"
-		if [ -f CMakeCache.txt ]; then
+		if [ -f CMakeCache.txt -a CMakeCache.txt -nt "${SCRIPT}" ]; then
 			echo Skipping cmake
 		else
 			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_INSTALL_PREFIX="${BUILT_PRODUCTS_DIR}/${ARCH}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DAOM_TARGET_CPU=${ARCH}
