@@ -22,8 +22,9 @@ else
 		if [ -f config.h -a config.h -nt "${SCRIPT}" ]; then
 			echo Skipping configure
 		else
+			rm -f config.h
 			if [ "${CONFIGURATION}" == "Debug" ]; then
-				FLAGS="--disable-optimizations"
+				FLAGS="--disable-optimizations --disable-stripping"
 			else
 				FLAGS=
 			fi
@@ -32,9 +33,17 @@ else
 			elif [ $ARCH == x86_64 ]; then
 				FLAGS="$FLAGS --enable-cross-compile --cpu=haswell"
 			fi
-			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH}" ${FLAGS} --extra-ldexeflags=-liconv --disable-stripping --enable-gpl --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-filter=scale --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
+			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH} -fapplication-extension" ${FLAGS} --enable-shared --enable-rpath --install-name-dir=@rpath --extra-ldflags=-liconv --enable-gpl --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libaom --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-filter=scale --enable-muxer=image2 --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
 		fi
 		make -j`sysctl -n hw.physicalcpu` install
+
+		# Add rpath for install-time location of executables
+		for LIB in $LIBS; do
+			install_name_tool -delete_rpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib" `realpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib/${LIB}.dylib"`
+		done
+		for EXE in $EXES; do
+			install_name_tool -rpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib" @executable_path/../Frameworks "${BUILT_PRODUCTS_DIR}/${ARCH}/bin/${EXE}"
+		done
 	done
 
 	# Combine into Universal
@@ -64,5 +73,8 @@ else
 	for LIB in $LIBS; do
 		cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/${LIB}" "${BUILT_PRODUCTS_DIR}/universal/include/"
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/${LIB}.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${LIB}.a"
+		# Install using the dylib's "install name" since that's what other FFmpeg dylibs will look for
+		DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/${LIB}.dylib`)
+		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/${LIB}.dylib" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
 	done
 fi

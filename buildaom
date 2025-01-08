@@ -19,7 +19,8 @@ else
 		if [ -f CMakeCache.txt -a CMakeCache.txt -nt "${SCRIPT}" ]; then
 			echo Skipping cmake
 		else
-			cmake "${SRCROOT}/${TARGET_NAME}" -DCMAKE_INSTALL_PREFIX="${BUILT_PRODUCTS_DIR}/${ARCH}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DAOM_TARGET_CPU=${ARCH}
+			rm -f CMakeCache.txt
+			cmake "${SRCROOT}/${TARGET_NAME}" -Wno-deprecated -DCMAKE_INSTALL_PREFIX="${BUILT_PRODUCTS_DIR}/${ARCH}" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_C_FLAGS=-fapplication-extension -DBUILD_SHARED_LIBS=1 -DCMAKE_OSX_ARCHITECTURES=${ARCH} -DCONFIG_AV1_ENCODER=0 -DENABLE_DOCS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 -DAOM_TARGET_CPU=${ARCH}
 		fi
 		make -j`sysctl -n hw.physicalcpu` install
 	done
@@ -28,6 +29,10 @@ else
 	echo Installing into ${BUILT_PRODUCTS_DIR}/universal
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/include"
 	cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/aom" "${BUILT_PRODUCTS_DIR}/universal/include/"
+
 	mkdir -p "${CONFIGURATION_BUILD_DIR}/universal/lib"
 	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libaom.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/libaom.a"
+	# Install using the dylib's "install name" since that's what other FFmpeg dylibs will look for
+	DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/libaom.dylib`)
+	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libaom.dylib" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
 fi
