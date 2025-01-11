@@ -1,14 +1,32 @@
+/* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
+"Add" = "Add";
+
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "Bring All to Front";
 
-/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
+/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A, a7M-WT-Cyx) */
 "Cancel" = "Cancel";
 
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Close";
 
+/* (Window: XG0-j0-Zcf) */
+"Cover Art" = "Cover Art";
+
+/* (MenuItem: bIO-Lx-JiA) */
+"Cover Art..." = "Cover Art...";
+
+/* Guidance note in cover art dialog (TextField: X7T-Dc-xUC) */
+"Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file." = "Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file.";
+
 /* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
 "Drop a problematic video file here" = "Drop a problematic video file here";
+
+/* Prompt in cover art dialog (TextField: TX8-mu-sca) */
+"Drop file to use as cover art here.\nLeave empty to remove existing cover art." = "Drop file to use as cover art here.\nLeave empty to remove existing cover art.";
+
+/* Prompt in cover art dialog (TextField: SDg-KK-0Nv) */
+"Drop video file here" = "Drop video file here";
 
 /* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
 "File" = "File";

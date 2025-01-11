@@ -10,7 +10,7 @@ import Cocoa
 
 class IssueView: NSView {
 
-    @IBOutlet weak var dropTarget: DropTarget!
+    @IBOutlet weak var dropTarget: IssueDropTarget!
     @IBOutlet weak var advice: NSTextField!
     @IBOutlet weak var sendButton: NSButton!
 
@@ -84,13 +84,13 @@ class IssueView: NSView {
 }
 
 // https://www.appcoda.com/nspasteboard-macos/
-class DropTarget: NSImageView {
+class IssueDropTarget: NSImageView {
 
     weak var parent: IssueView!
 
     override func awakeFromNib() {
         parent = (window?.contentView as! IssueView)
-        registerForDraggedTypes([NSPasteboard.PasteboardType.fileURL])
+        registerForDraggedTypes([.fileURL])
     }
 
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
@@ -106,7 +106,7 @@ class DropTarget: NSImageView {
                 }
             }
             if parent.files.count > 0 {
-                self.image = NSImage(named: "NSMultipleDocuments")
+                self.image = NSImage(named: "Document")
                 parent.sendButton.isEnabled = true
                 parent.sendButton.setAccessibilityFocused(true)
                 return true

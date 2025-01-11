@@ -35,8 +35,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var regenerateNote: NSTextField!
     @IBOutlet var reindexingNote: NSTextField!
 
-    // Help
+    // Dialogs
     @IBOutlet var issueWindow: NSWindow!
+    @IBOutlet var coverArtWindow: NSWindow!
     @IBOutlet var oldVersionWindow: NSWindow!
 
     var defaults: UserDefaults?
@@ -137,6 +138,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func reportIssue(sender: NSMenuItem) {
         mainWindow.beginSheet(issueWindow, completionHandler: nil)
+    }
+
+    @IBAction func coverArt(sender: NSMenuItem) {
+        coverArtWindow.makeKeyAndOrderFront(self)
     }
 
     // MARK:- plugin management
@@ -277,7 +282,7 @@ func helper(_ exe: String, args: [String]) throws -> String {
     } catch {
         throw NSError(domain: "uk.org.marginal.qlvideo",
                       code: -1,
-                      userInfo:["executable": exe, "status": "\(error)"])
+                      userInfo:[NSLocalizedFailureReasonErrorKey: "\(error)"])
     }
 
     let stdout = String(data: (task.standardOutput as! Pipe).fileHandleForReading.readDataToEndOfFile(),
@@ -287,7 +292,7 @@ func helper(_ exe: String, args: [String]) throws -> String {
     if (task.terminationStatus != 0) {
         throw NSError(domain: "uk.org.marginal.qlvideo",
                       code: Int(task.terminationStatus),
-                      userInfo:["executable": exe, "status": task.terminationStatus])
+                      userInfo:[NSLocalizedFailureReasonErrorKey: stderr])
     }
 
     return stdout + stderr

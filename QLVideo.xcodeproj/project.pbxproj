@@ -65,6 +65,8 @@
 		ABA141F62D2EF8E70040A4E6 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141ED2D2EF8E70040A4E6 /* libavfilter.a */; };
 		ABA141F72D2EF8E70040A4E6 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EE2D2EF8E70040A4E6 /* libavformat.a */; };
 		ABA141F82D2EF8E70040A4E6 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EF2D2EF8E70040A4E6 /* libavutil.a */; };
+		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
+		ABA142002D301E670040A4E6 /* ffmpeg in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EC0293A32B5005433DF /* ffmpeg */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
@@ -224,6 +226,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				ABA142002D301E670040A4E6 /* ffmpeg in Embed Executables */,
 				ABE72EC1293A32F2005433DF /* ffprobe in Embed Executables */,
 			);
 			name = "Embed Executables";
@@ -254,6 +257,7 @@
 		AB7C714619F8A6730006104E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		AB7C714819F8A6970006104E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = /usr/lib/libiconv.dylib; sourceTree = "<absolute>"; };
 		AB8277781A7523F300F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/schema.strings; sourceTree = "<group>"; };
+		AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "snapshotter-bridge.h"; sourceTree = "<group>"; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		AB93B0F7196CA60500708B2E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		AB93B0F9196CA60500708B2E /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
@@ -283,6 +287,7 @@
 		ABA141F02D2EF8E70040A4E6 /* libpostproc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpostproc.a; sourceTree = "<group>"; };
 		ABA141F12D2EF8E70040A4E6 /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswresample.a; sourceTree = "<group>"; };
 		ABA141F22D2EF8E70040A4E6 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
+		ABA141FE2D3016480040A4E6 /* CoverArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArtView.swift; sourceTree = "<group>"; };
 		ABB1A29A1A1C358500EEF82B /* buildschema */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 4; path = buildschema; sourceTree = "<group>"; };
 		ABB1A29C1A1C392400EEF82B /* schema.xml */ = {isa = PBXFileReference; explicitFileType = text.xml; fileEncoding = 4; name = schema.xml; path = Video.mdimporter/Contents/Resources/schema.xml; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB719E62924069600F13C24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -477,9 +482,11 @@
 			children = (
 				AB49FB952923B5BB00B126C0 /* AppDelegate.swift */,
 				ABE72EB72938E008005433DF /* IssueView.swift */,
+				ABA141FE2D3016480040A4E6 /* CoverArtView.swift */,
 				ABE72EC2293D1DC6005433DF /* OldVersionView.swift */,
 				ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */,
 				ABE72EB42937FAE4005433DF /* Main.xib */,
+				AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */,
 				ABB719E62924069600F13C24 /* Assets.xcassets */,
 				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */,
@@ -894,6 +901,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */,
+				ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */,
 				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
 				AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */,
 				ABE72EC3293D1DC6005433DF /* OldVersionView.swift in Sources */,
@@ -1097,6 +1105,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "app/snapshotter-bridge.h";
 			};
 			name = Debug;
 		};
@@ -1119,6 +1128,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "app/snapshotter-bridge.h";
 			};
 			name = Release;
 		};
