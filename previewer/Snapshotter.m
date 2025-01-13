@@ -151,7 +151,6 @@ void segv_handler(int signum)
         // Special handling for Canon CRM movies which have a custom codec that ffmpeg doesn't understand, and a single JPEG preview picture
         if ((tag = av_dict_get(fmt_ctx->metadata, "major_brand", NULL, AV_DICT_MATCH_CASE)) && !strncmp(tag->value, "crx ", 4))
         {
-
             // MOVContext *mov = fmt_ctx->priv_data;
             AVIOContext *pb = fmt_ctx->pb;
             int64_t file_size = avio_size(pb);
@@ -290,16 +289,16 @@ void segv_handler(int signum)
 {
     AVStream *art_stream = [self coverArtStreamWithMode: mode];
 
-    // Extract data
+    // Take a copy of the compressed data otherwise lifetime issues become too difficult :(
     CFDataRef data;
     if (!art_stream)
         return nil;
     else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->attached_pic.data, art_stream->attached_pic.size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
+        data = CFDataCreate(kCFAllocatorDefault, art_stream->attached_pic.data, art_stream->attached_pic.size);
     else
-        data = CFDataCreateWithBytesNoCopy(NULL, art_stream->codecpar->extradata, art_stream->codecpar->extradata_size, kCFAllocatorNull);   // we'll dealloc when fmt_ctx is closed
+        data = CFDataCreate(kCFAllocatorDefault, art_stream->codecpar->extradata, art_stream->codecpar->extradata_size);
 
-    // wangle into a CGImage
+    // decompress into a CGImage
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
     CGImageRef image = (art_stream->codecpar->codec_id == AV_CODEC_ID_PNG) ?
         CGImageCreateWithPNGDataProvider (provider, NULL, false, kCGRenderingIntentDefault) :
@@ -354,10 +353,10 @@ void segv_handler(int signum)
                 case CoverArtLandscape:    // Prefer large landscape.
                     if (!filename || !filename->value)
                         priority = 1;
-                    else if (!strncasecmp(filename->value, "cover_land.", 11))
-                        priority = 3;
                     else if (!strncasecmp(filename->value, "cover.", 6))
                         priority = 2;
+                    else if (!strncasecmp(filename->value, "cover_land.", 11))
+                        priority = 3;
                     else
                         priority = 1;
                     break;
@@ -365,9 +364,9 @@ void segv_handler(int signum)
                 default:    // CoverArtDefault  Prefer large square/portrait.
                     if (!filename || !filename->value)
                         priority = 1;
-                    else if (!strncasecmp(filename->value, "small_cover.", 12))
+                    else if (!strncasecmp(filename->value, "cover_land.", 11))
                         priority = 2;
-                    else if (!strncasecmp(filename->value, "cover.", 6))
+                    else if (!strncasecmp(filename->value, "cover.", 11))
                         priority = 3;
                     else
                         priority = 1;
@@ -518,7 +517,7 @@ void segv_handler(int signum)
             free(picture);
             return nil;
         }
-        // wangle into a CGImage
+        // decompress into a CGImage
         CFDataRef data = CFDataCreateWithBytesNoCopy(NULL, picture, picture_size, kCFAllocatorMalloc);
         CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
         CGImageRef image = CGImageCreateWithJPEGDataProvider(provider, NULL, false, kCGRenderingIntentDefault);

@@ -11,7 +11,6 @@ import Quartz
 import OSLog
 
 // Settings
-var kSettingsSuiteName     = "uk.org.marginal.qlvideo";
 var kSettingsSnapshotTime  = "SnapshotTime";      // Seek offset for thumbnails and single Previews [s].
 
 // Constants
@@ -176,14 +175,16 @@ class PreviewProvider: QLPreviewProvider, QLPreviewingController {
         }
 
         // Just a single snapshot
-        var snapshot_time = kDefaultSnapshotTime
-        if let defaults = UserDefaults(suiteName: kSettingsSuiteName) {
-            snapshot_time = defaults.integer(forKey: kSettingsSnapshotTime)
-            if (snapshot_time <= 0) {
-                snapshot_time = kDefaultSnapshotTime
+        var snapshotTime = kDefaultSnapshotTime
+        if let info = Bundle.main.infoDictionary,
+           let suiteName = info["ApplicationGroup"] as? String,
+           let defaults = UserDefaults(suiteName: suiteName) {
+            snapshotTime = defaults.integer(forKey: kSettingsSnapshotTime)
+            if (snapshotTime <= 0) {
+                snapshotTime = kDefaultSnapshotTime
             }
         }
-        let time = snapshotter.duration < kMinimumDuration ? -1 : (snapshotter.duration < 2 * snapshot_time ? snapshotter.duration/2 : snapshot_time)
+        let time = snapshotter.duration < kMinimumDuration ? -1 : (snapshotter.duration < 2 * snapshotTime ? snapshotter.duration/2 : snapshotTime)
 
         var thePreview = snapshotter.newSnapshot(with:snapshotter.previewSize, atTime:time)
         if thePreview == nil {

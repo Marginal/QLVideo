@@ -12,30 +12,32 @@
 		AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
-		AB467C962625D0AF00F662CE /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */; };
-		AB467CA02625D0AF00F662CE /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		AB467D1E2625E78300F662CE /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
-		AB467D1F2625E78700F662CE /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
-		AB467D202625E78A00F662CE /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
-		AB467D212625E78E00F662CE /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* Video.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* Video.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB57AACF2D344DDF00E785D8 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */; };
+		AB57AAD82D344DDF00E785D8 /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AB748ED92D349AE6001F6921 /* libaom.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libaom.3.dylib */; };
+		AB748EDA2D349AEB001F6921 /* libavcodec.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.61.dylib */; };
+		AB748EDB2D349AF0001F6921 /* libavfilter.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C12D2EE49D0040A4E6 /* libavfilter.10.dylib */; };
+		AB748EDC2D349AF4001F6921 /* libavformat.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.61.dylib */; };
+		AB748EDD2D349AF7001F6921 /* libavutil.59.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.59.dylib */; };
+		AB748EDF2D349AFE001F6921 /* libswresample.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.5.dylib */; };
+		AB748EE02D349B02001F6921 /* libswscale.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.8.dylib */; };
+		AB748EE62D34B0C3001F6921 /* libaom.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libaom.3.dylib */; };
+		AB748EE82D34B0CB001F6921 /* libavfilter.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C12D2EE49D0040A4E6 /* libavfilter.10.dylib */; };
+		AB748EE92D34B0E5001F6921 /* libavcodec.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.61.dylib */; };
+		AB748EEA2D34B0EA001F6921 /* libavformat.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.61.dylib */; };
+		AB748EEB2D34B0EE001F6921 /* libavutil.59.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.59.dylib */; };
+		AB748EEC2D34B0F2001F6921 /* libswresample.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.5.dylib */; };
+		AB748EED2D34B0F7001F6921 /* libswscale.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.8.dylib */; };
 		AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB7C714719F8A6730006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
-		AB93B11F1972EFAB00708B2E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB93B0B4196B839600708B2E /* Cocoa.framework */; };
 		AB9FB57F1965DD7200D39647 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.m */; };
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */; };
 		ABA141BB2D2EE41B0040A4E6 /* libaom.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libaom.3.dylib */; };
-		ABA141BD2D2EE41B0040A4E6 /* libaom.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libaom.3.dylib */; };
 		ABA141BE2D2EE41B0040A4E6 /* libaom.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libaom.3.dylib */; };
 		ABA141BF2D2EE47E0040A4E6 /* libaom.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libaom.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		ABA141C72D2EE49D0040A4E6 /* libswresample.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.5.dylib */; };
-		ABA141C82D2EE49D0040A4E6 /* libavcodec.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.61.dylib */; };
-		ABA141C92D2EE49D0040A4E6 /* libswscale.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.8.dylib */; };
-		ABA141CA2D2EE49D0040A4E6 /* libavutil.59.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.59.dylib */; };
-		ABA141CB2D2EE49D0040A4E6 /* libavformat.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.61.dylib */; };
-		ABA141CC2D2EE49D0040A4E6 /* libavfilter.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C12D2EE49D0040A4E6 /* libavfilter.10.dylib */; };
 		ABA141CE2D2EE49D0040A4E6 /* libswresample.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.5.dylib */; };
 		ABA141CF2D2EE49D0040A4E6 /* libavcodec.61.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.61.dylib */; };
 		ABA141D02D2EE49D0040A4E6 /* libswscale.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.8.dylib */; };
@@ -67,15 +69,10 @@
 		ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */; };
-		ABE23BD51D259070004E9D26 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		ABE23BD71D25914C004E9D26 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */; };
 		ABE23BDA1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */; };
 		ABE461181A15A776006C89A2 /* schema.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABE4610E1A15A519006C89A2 /* schema.strings */; };
 		ABE69D322D2A350700CE6C69 /* QLVideo Previewer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		ABE69DC52D2C6E6700CE6C69 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
-		ABE69DC62D2C6E6A00CE6C69 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
-		ABE69DC72D2C6E6C00CE6C69 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
-		ABE69DC82D2C6E7000CE6C69 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		ABE72EB22937FAE4005433DF /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = ABE72EB42937FAE4005433DF /* Main.xib */; };
 		ABE72EB82938E008005433DF /* IssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE72EB72938E008005433DF /* IssueView.swift */; };
 		ABE72EC1293A32F2005433DF /* ffprobe in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EBC29392EEB005433DF /* ffprobe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -83,27 +80,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		AB0FE0A929201528004026B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB66470D261A88C700D23514;
-			remoteInfo = aom;
-		};
-		AB0FE0AB2920152B004026B2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
-			remoteInfo = ffmpeg;
-		};
-		AB48E686293156B3004B2E82 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB467C942625D0AF00F662CE;
-			remoteInfo = thumbnailer;
-		};
 		AB49FB7E2922770100B126C0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
@@ -125,6 +101,13 @@
 			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
 			remoteInfo = ffmpeg;
 		};
+		AB57AAD62D344DDF00E785D8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB57AACD2D344DDF00E785D8;
+			remoteInfo = thumbnailer;
+		};
 		AB66472A261AA04400D23514 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
@@ -140,6 +123,20 @@
 			remoteInfo = aom;
 		};
 		AB664730261AA06C00D23514 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB66470D261A88C700D23514;
+			remoteInfo = aom;
+		};
+		AB748EE12D349B1D001F6921 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
+			remoteInfo = ffmpeg;
+		};
+		AB748EE32D349B20001F6921 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
 			proxyType = 1;
@@ -198,7 +195,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				ABE69D322D2A350700CE6C69 /* QLVideo Previewer.appex in Embed Foundation Extensions */,
-				AB467CA02625D0AF00F662CE /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */,
+				AB57AAD82D344DDF00E785D8 /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -246,11 +243,11 @@
 		AB0E0D3D1A15B03B0056CC24 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/schema.strings; sourceTree = "<group>"; };
 		AB17CCF4291E954B002A80AB /* include */ = {isa = PBXFileReference; lastKnownFileType = text; name = include; path = universal/include; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "QLVideo Thumbnailer.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/schema.strings"; sourceTree = "<group>"; };
+		AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "QLVideo Thumbnailer.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		AB75CB1F261D19F2009BE894 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		AB7C714019F8A5C50006104E /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = /usr/lib/libbz2.dylib; sourceTree = "<absolute>"; };
@@ -330,6 +327,27 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AB748F1A2D354CFE001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Snapshotter.m,
+			);
+			target = AB57AACD2D344DDF00E785D8 /* thumbnailer */;
+		};
+		AB748F722D35509F001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Snapshotter.m,
+			);
+			target = AB49FB6E2922769F00B126C0 /* QuickLook Video */;
+		};
+		ABA53BFE2D37F38A0040C621 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AB57AACD2D344DDF00E785D8 /* thumbnailer */;
+		};
 		ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -338,26 +356,12 @@
 			);
 			target = ABE69D232D2A350700CE6C69 /* previewer */;
 		};
-		ABE69DD72D2CB27F00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ThumbnailProvider.m,
-			);
-			target = AB467C942625D0AF00F662CE /* thumbnailer */;
-		};
 		ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Snapshotter.m,
 			);
 			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
-		};
-		ABE69E052D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Snapshotter.m,
-			);
-			target = AB467C942625D0AF00F662CE /* thumbnailer */;
 		};
 		ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
@@ -369,8 +373,8 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		ABE69D262D2A350700CE6C69 /* previewer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E052D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = previewer; sourceTree = "<group>"; };
-		ABE69DD52D2CB27E00CE6C69 /* thumbnailer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABE69DD72D2CB27F00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = thumbnailer; sourceTree = "<group>"; };
+		AB748F162D354C5A001F6921 /* thumbnailer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABA53BFE2D37F38A0040C621 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = thumbnailer; sourceTree = "<group>"; };
+		ABE69D262D2A350700CE6C69 /* previewer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB748F722D35509F001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB748F1A2D354CFE001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = previewer; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -393,29 +397,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB467C922625D0AF00F662CE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB467C962625D0AF00F662CE /* QuickLookThumbnailing.framework in Frameworks */,
-				ABA141BD2D2EE41B0040A4E6 /* libaom.3.dylib in Frameworks */,
-				ABA141C72D2EE49D0040A4E6 /* libswresample.5.dylib in Frameworks */,
-				ABA141C82D2EE49D0040A4E6 /* libavcodec.61.dylib in Frameworks */,
-				ABA141C92D2EE49D0040A4E6 /* libswscale.8.dylib in Frameworks */,
-				ABA141CA2D2EE49D0040A4E6 /* libavutil.59.dylib in Frameworks */,
-				ABA141CB2D2EE49D0040A4E6 /* libavformat.61.dylib in Frameworks */,
-				ABA141CC2D2EE49D0040A4E6 /* libavfilter.10.dylib in Frameworks */,
-				AB467D1E2625E78300F662CE /* libbz2.dylib in Frameworks */,
-				AB467D1F2625E78700F662CE /* libiconv.dylib in Frameworks */,
-				AB467D202625E78A00F662CE /* liblzma.5.dylib in Frameworks */,
-				AB467D212625E78E00F662CE /* libz.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB49FB6C2922769F00B126C0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB748EE62D34B0C3001F6921 /* libaom.3.dylib in Frameworks */,
+				AB748EE92D34B0E5001F6921 /* libavcodec.61.dylib in Frameworks */,
+				AB748EE82D34B0CB001F6921 /* libavfilter.10.dylib in Frameworks */,
+				AB748EEA2D34B0EA001F6921 /* libavformat.61.dylib in Frameworks */,
+				AB748EEB2D34B0EE001F6921 /* libavutil.59.dylib in Frameworks */,
+				AB748EEC2D34B0F2001F6921 /* libswresample.5.dylib in Frameworks */,
+				AB748EED2D34B0F7001F6921 /* libswscale.8.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB57AACB2D344DDF00E785D8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB57AACF2D344DDF00E785D8 /* QuickLookThumbnailing.framework in Frameworks */,
+				AB748ED92D349AE6001F6921 /* libaom.3.dylib in Frameworks */,
+				AB748EDA2D349AEB001F6921 /* libavcodec.61.dylib in Frameworks */,
+				AB748EDB2D349AF0001F6921 /* libavfilter.10.dylib in Frameworks */,
+				AB748EDC2D349AF4001F6921 /* libavformat.61.dylib in Frameworks */,
+				AB748EDD2D349AF7001F6921 /* libavutil.59.dylib in Frameworks */,
+				AB748EDF2D349AFE001F6921 /* libswresample.5.dylib in Frameworks */,
+				AB748EE02D349B02001F6921 /* libswscale.8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,8 +430,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB93B11F1972EFAB00708B2E /* Cocoa.framework in Frameworks */,
-				ABE23BD51D259070004E9D26 /* AVFoundation.framework in Frameworks */,
 				ABE23BD71D25914C004E9D26 /* AudioToolbox.framework in Frameworks */,
 				ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */,
 				ABE23BDA1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */,
@@ -453,10 +458,6 @@
 				ABA141D12D2EE49D0040A4E6 /* libavutil.59.dylib in Frameworks */,
 				ABA141D22D2EE49D0040A4E6 /* libavformat.61.dylib in Frameworks */,
 				ABA141D32D2EE49D0040A4E6 /* libavfilter.10.dylib in Frameworks */,
-				ABE69DC52D2C6E6700CE6C69 /* libbz2.dylib in Frameworks */,
-				ABE69DC62D2C6E6A00CE6C69 /* libiconv.dylib in Frameworks */,
-				ABE69DC72D2C6E6C00CE6C69 /* liblzma.5.dylib in Frameworks */,
-				ABE69DC82D2C6E7000CE6C69 /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -504,8 +505,8 @@
 				AB49FB70292276A000B126C0 /* app */,
 				AB0527CF1D294732009A809B /* benchmark */,
 				AB9FB5781965DD7200D39647 /* mdimporter */,
-				ABE69DD52D2CB27E00CE6C69 /* thumbnailer */,
 				ABE69D262D2A350700CE6C69 /* previewer */,
+				AB748F162D354C5A001F6921 /* thumbnailer */,
 				AB9FB56F1965DD7200D39647 /* Frameworks */,
 				AB9FB56E1965DD7200D39647 /* Products */,
 			);
@@ -516,9 +517,9 @@
 			children = (
 				AB9FB56D1965DD7200D39647 /* Video.mdimporter */,
 				AB0527CE1D294732009A809B /* benchmark */,
-				AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */,
 				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
 				ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */,
+				AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -649,25 +650,6 @@
 			productReference = AB0527CE1D294732009A809B /* benchmark */;
 			productType = "com.apple.product-type.tool";
 		};
-		AB467C942625D0AF00F662CE /* thumbnailer */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AB467CA12625D0AF00F662CE /* Build configuration list for PBXNativeTarget "thumbnailer" */;
-			buildPhases = (
-				AB467C912625D0AF00F662CE /* Sources */,
-				AB467C922625D0AF00F662CE /* Frameworks */,
-				AB467C932625D0AF00F662CE /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AB0FE0AA29201528004026B2 /* PBXTargetDependency */,
-				AB0FE0AC2920152B004026B2 /* PBXTargetDependency */,
-			);
-			name = thumbnailer;
-			productName = thumbnailer;
-			productReference = AB467C952625D0AF00F662CE /* QLVideo Thumbnailer.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		AB49FB6E2922769F00B126C0 /* QuickLook Video */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "QuickLook Video" */;
@@ -686,13 +668,37 @@
 			);
 			dependencies = (
 				AB49FB7F2922770100B126C0 /* PBXTargetDependency */,
-				AB48E687293156B3004B2E82 /* PBXTargetDependency */,
 				ABE69D312D2A350700CE6C69 /* PBXTargetDependency */,
+				AB57AAD72D344DDF00E785D8 /* PBXTargetDependency */,
 			);
 			name = "QuickLook Video";
 			productName = "QuickLook Video";
 			productReference = AB49FB6F2922769F00B126C0 /* QuickLook Video.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AB57AACD2D344DDF00E785D8 /* thumbnailer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB57AAD92D344DDF00E785D8 /* Build configuration list for PBXNativeTarget "thumbnailer" */;
+			buildPhases = (
+				AB57AACA2D344DDF00E785D8 /* Sources */,
+				AB57AACB2D344DDF00E785D8 /* Frameworks */,
+				AB57AACC2D344DDF00E785D8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AB748EE42D349B20001F6921 /* PBXTargetDependency */,
+				AB748EE22D349B1D001F6921 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AB748F162D354C5A001F6921 /* thumbnailer */,
+			);
+			name = thumbnailer;
+			packageProductDependencies = (
+			);
+			productName = thumbnailer;
+			productReference = AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		AB9FB56C1965DD7200D39647 /* mdimporter */ = {
 			isa = PBXNativeTarget;
@@ -748,6 +754,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
+					AB57AACD2D344DDF00E785D8 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					ABE69D232D2A350700CE6C69 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -786,7 +795,7 @@
 				AB49FB6E2922769F00B126C0 /* QuickLook Video */,
 				AB9FB56C1965DD7200D39647 /* mdimporter */,
 				ABE69D232D2A350700CE6C69 /* previewer */,
-				AB467C942625D0AF00F662CE /* thumbnailer */,
+				AB57AACD2D344DDF00E785D8 /* thumbnailer */,
 				AB0527CD1D294732009A809B /* benchmark */,
 				AB535D4D1EDC390C00ECB0CE /* ffmpeg */,
 				AB66470D261A88C700D23514 /* aom */,
@@ -795,19 +804,19 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		AB467C932625D0AF00F662CE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB49FB6D2922769F00B126C0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				ABB719E72924069600F13C24 /* Assets.xcassets in Resources */,
 				ABE72EB22937FAE4005433DF /* Main.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB57AACC2D344DDF00E785D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -880,13 +889,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB467C912625D0AF00F662CE /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB49FB6B2922769F00B126C0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -895,6 +897,13 @@
 				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
 				AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */,
 				ABE72EC3293D1DC6005433DF /* OldVersionView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB57AACA2D344DDF00E785D8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -917,21 +926,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		AB0FE0AA29201528004026B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB66470D261A88C700D23514 /* aom */;
-			targetProxy = AB0FE0A929201528004026B2 /* PBXContainerItemProxy */;
-		};
-		AB0FE0AC2920152B004026B2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
-			targetProxy = AB0FE0AB2920152B004026B2 /* PBXContainerItemProxy */;
-		};
-		AB48E687293156B3004B2E82 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB467C942625D0AF00F662CE /* thumbnailer */;
-			targetProxy = AB48E686293156B3004B2E82 /* PBXContainerItemProxy */;
-		};
 		AB49FB7F2922770100B126C0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
@@ -947,6 +941,11 @@
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB535D5B1EDCD0C900ECB0CE /* PBXContainerItemProxy */;
 		};
+		AB57AAD72D344DDF00E785D8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB57AACD2D344DDF00E785D8 /* thumbnailer */;
+			targetProxy = AB57AAD62D344DDF00E785D8 /* PBXContainerItemProxy */;
+		};
 		AB66472B261AA04400D23514 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB66470D261A88C700D23514 /* aom */;
@@ -961,6 +960,16 @@
 			isa = PBXTargetDependency;
 			target = AB66470D261A88C700D23514 /* aom */;
 			targetProxy = AB664730261AA06C00D23514 /* PBXContainerItemProxy */;
+		};
+		AB748EE22D349B1D001F6921 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
+			targetProxy = AB748EE12D349B1D001F6921 /* PBXContainerItemProxy */;
+		};
+		AB748EE42D349B20001F6921 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB66470D261A88C700D23514 /* aom */;
+			targetProxy = AB748EE32D349B20001F6921 /* PBXContainerItemProxy */;
 		};
 		ABE69D312D2A350700CE6C69 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1069,40 +1078,6 @@
 			};
 			name = Release;
 		};
-		AB467CA22625D0AF00F662CE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
-				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = thumbnailer/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
-				PRODUCT_NAME = "QLVideo Thumbnailer";
-			};
-			name = Debug;
-		};
-		AB467CA32625D0AF00F662CE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
-				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = thumbnailer/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
-				PRODUCT_NAME = "QLVideo Thumbnailer";
-			};
-			name = Release;
-		};
 		AB49FB7B292276A100B126C0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1158,6 +1133,42 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
+			};
+			name = Release;
+		};
+		AB57AADA2D344DDF00E785D8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
+				INFOPLIST_FILE = thumbnailer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
+				PRODUCT_NAME = "QLVideo Thumbnailer";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "thumbnailer/thumbnailer-bridge.h";
+			};
+			name = Debug;
+		};
+		AB57AADB2D344DDF00E785D8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
+				INFOPLIST_FILE = thumbnailer/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.thumbnailer;
+				PRODUCT_NAME = "QLVideo Thumbnailer";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "thumbnailer/thumbnailer-bridge.h";
 			};
 			name = Release;
 		};
@@ -1447,15 +1458,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB467CA12625D0AF00F662CE /* Build configuration list for PBXNativeTarget "thumbnailer" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AB467CA22625D0AF00F662CE /* Debug */,
-				AB467CA32625D0AF00F662CE /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "QuickLook Video" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1470,6 +1472,15 @@
 			buildConfigurations = (
 				AB535D4E1EDC390C00ECB0CE /* Debug */,
 				AB535D4F1EDC390C00ECB0CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AB57AAD92D344DDF00E785D8 /* Build configuration list for PBXNativeTarget "thumbnailer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB57AADA2D344DDF00E785D8 /* Debug */,
+				AB57AADB2D344DDF00E785D8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
