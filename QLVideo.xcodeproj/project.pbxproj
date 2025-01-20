@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 74;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -356,7 +356,6 @@
 		ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				/Localized/Localizable.strings,
 				Info.plist,
 			);
 			target = ABE69D232D2A350700CE6C69 /* previewer */;
@@ -770,6 +769,7 @@
 				};
 			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -794,7 +794,6 @@
 				"zh-Hans",
 			);
 			mainGroup = AB9FB5641965DD7200D39647;
-			preferredProjectObjectVersion = 46;
 			productRefGroup = AB9FB56E1965DD7200D39647 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

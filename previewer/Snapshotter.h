@@ -36,7 +36,7 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
     int _channels;              // number of audio channels - purely for display
     NSString *_title;           // title for dsiplay
 
-    // single pre-computed picture that ffmpeg doesn't understand or present as a stream
+    // single pre-computed picture that ffmpeg doesn't understand or present as a stream, and that we treat like a timed thumbnail
     int32_t picture_size;
     int64_t picture_off;
     int picture_width;
@@ -46,8 +46,6 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 - (instancetype) initWithURL:(CFURLRef)url;
 - (void) dealloc;
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode CF_RETURNS_RETAINED;
-- (NSData*) dataCoverArtWithMode:(CoverArtMode)mode CF_RETURNS_RETAINED;
-- (CGSize) coverArtSizeWithMode:(CoverArtMode)mode;
 - (CGImageRef) newSnapshotWithSize:(CGSize)size atTime:(NSInteger)seconds CF_RETURNS_RETAINED;
 - (CFDataRef) newPNGWithSize:(CGSize)size atTime:(NSInteger)seconds CF_RETURNS_RETAINED;
 

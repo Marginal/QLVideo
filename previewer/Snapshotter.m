@@ -236,52 +236,10 @@ void segv_handler(int signum)
         return [self displaySize];
 }
 
-// Size of the cover art if any
-- (CGSize) coverArtSizeWithMode:(CoverArtMode)mode
-{
-    AVStream *art_stream = [self coverArtStreamWithMode: mode];
-    if (!art_stream)
-        return CGSizeMake(0,0);
-
-    AVCodecContext *avctx = avcodec_alloc_context3(NULL);
-    if (!avctx)
-        return CGSizeMake(0,0);
-
-    if (avcodec_parameters_to_context(avctx, art_stream->codecpar) < 0) {
-        avcodec_free_context(&avctx);
-        return CGSizeMake(0,0);
-    }
-
-    CGSize ret;
-    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx, art_stream, NULL);
-    if (sar.num > 1 && sar.den > 1)
-        ret = CGSizeMake(av_rescale(avctx->width, sar.num, sar.den), avctx->height);
-    else
-        ret = CGSizeMake(avctx->width, avctx->height);
-    avcodec_free_context(&avctx);
-    return ret;
-}
-
 // Duration [s]
 - (NSInteger) duration
 {
     return fmt_ctx->duration > 0 ? (fmt_ctx->duration / AV_TIME_BASE) : 0; // We're not interested in sub-second accuracy
-}
-
-// Gets cover art if available, or nil.
-- (NSData *) dataCoverArtWithMode:(CoverArtMode)mode
-{
-    AVStream *art_stream = [self coverArtStreamWithMode: mode];
-
-    // Extract data
-    NSData *data;
-    if (!art_stream)
-        return nil;
-    else if (art_stream->disposition & AV_DISPOSITION_ATTACHED_PIC)
-        data = [NSData dataWithBytesNoCopy: art_stream->attached_pic.data length: art_stream->attached_pic.size freeWhenDone:FALSE];   // we'll dealloc when fmt_ctx is closed
-    else
-        data = [NSData dataWithBytesNoCopy: art_stream->codecpar->extradata length: art_stream->codecpar->extradata_size freeWhenDone:FALSE];   // we'll dealloc when fmt_ctx is closed
-    return data;
 }
 
 // Gets cover art if available, or nil.

@@ -29,7 +29,7 @@ All plugins produce output in the system log. Use the filter `subsystem:marginal
 
 To debug in Xcode:
 * mdimporter - Edit the "Run" scheme for the "mdimporter" target as follows: "Executable": `/usr/bin/mdimport`, "Debug executable": ✔, "Arguments": `-n -d3 <testfile>`.
-* previewer - Run the "previewer" target in Xcode, then `qlmanage -p <testfile>` at the command-line.
+* previewer - Run the "previewer" target in Xcode. When prompted, choose "Finder" as the app to run. In any Finder window press Space to preview a non-native video file.
 * thumbnailer - Doesn't seem possible to debug in Xcode. Good luck!
 
 Notes
