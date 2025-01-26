@@ -62,7 +62,6 @@
 		ABA141F32D2EF8E70040A4E6 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141F12D2EF8E70040A4E6 /* libswresample.a */; };
 		ABA141F42D2EF8E70040A4E6 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EC2D2EF8E70040A4E6 /* libavcodec.a */; };
 		ABA141F52D2EF8E70040A4E6 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141F22D2EF8E70040A4E6 /* libswscale.a */; };
-		ABA141F62D2EF8E70040A4E6 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141ED2D2EF8E70040A4E6 /* libavfilter.a */; };
 		ABA141F72D2EF8E70040A4E6 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EE2D2EF8E70040A4E6 /* libavformat.a */; };
 		ABA141F82D2EF8E70040A4E6 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EF2D2EF8E70040A4E6 /* libavutil.a */; };
 		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
@@ -117,13 +116,6 @@
 			remoteGlobalIDString = AB66470D261A88C700D23514;
 			remoteInfo = aom;
 		};
-		AB66472E261AA06100D23514 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB66470D261A88C700D23514;
-			remoteInfo = aom;
-		};
 		AB664730261AA06C00D23514 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
@@ -138,26 +130,12 @@
 			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
 			remoteInfo = ffmpeg;
 		};
-		AB748EE32D349B20001F6921 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB66470D261A88C700D23514;
-			remoteInfo = aom;
-		};
 		ABE69D302D2A350700CE6C69 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = ABE69D232D2A350700CE6C69;
 			remoteInfo = previewer;
-		};
-		ABE69DB92D2C6DE700CE6C69 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB66470D261A88C700D23514;
-			remoteInfo = aom;
 		};
 		ABE69DBB2D2C6DEB00CE6C69 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -438,11 +416,10 @@
 				ABE23BD41D25903D004E9D26 /* VideoToolbox.framework in Frameworks */,
 				ABE23BDA1D2591F8004E9D26 /* CoreMedia.framework in Frameworks */,
 				ABA141EB2D2EF8CA0040A4E6 /* libaom.a in Frameworks */,
-				ABA141F32D2EF8E70040A4E6 /* libswresample.a in Frameworks */,
 				ABA141F42D2EF8E70040A4E6 /* libavcodec.a in Frameworks */,
-				ABA141F52D2EF8E70040A4E6 /* libswscale.a in Frameworks */,
-				ABA141F62D2EF8E70040A4E6 /* libavfilter.a in Frameworks */,
 				ABA141F72D2EF8E70040A4E6 /* libavformat.a in Frameworks */,
+				ABA141F32D2EF8E70040A4E6 /* libswresample.a in Frameworks */,
+				ABA141F52D2EF8E70040A4E6 /* libswscale.a in Frameworks */,
 				ABA141F82D2EF8E70040A4E6 /* libavutil.a in Frameworks */,
 				AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */,
 				AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */,
@@ -456,12 +433,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABA141BE2D2EE41B0040A4E6 /* libaom.3.dylib in Frameworks */,
-				ABA141CE2D2EE49D0040A4E6 /* libswresample.5.dylib in Frameworks */,
 				ABA141CF2D2EE49D0040A4E6 /* libavcodec.61.dylib in Frameworks */,
-				ABA141D02D2EE49D0040A4E6 /* libswscale.8.dylib in Frameworks */,
-				ABA141D12D2EE49D0040A4E6 /* libavutil.59.dylib in Frameworks */,
-				ABA141D22D2EE49D0040A4E6 /* libavformat.61.dylib in Frameworks */,
 				ABA141D32D2EE49D0040A4E6 /* libavfilter.10.dylib in Frameworks */,
+				ABA141D22D2EE49D0040A4E6 /* libavformat.61.dylib in Frameworks */,
+				ABA141D12D2EE49D0040A4E6 /* libavutil.59.dylib in Frameworks */,
+				ABA141CE2D2EE49D0040A4E6 /* libswresample.5.dylib in Frameworks */,
+				ABA141D02D2EE49D0040A4E6 /* libswscale.8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,7 +670,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				AB748EE42D349B20001F6921 /* PBXTargetDependency */,
 				AB748EE22D349B1D001F6921 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -718,7 +694,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				AB66472F261AA06100D23514 /* PBXTargetDependency */,
 				AB535D581EDCD0BD00ECB0CE /* PBXTargetDependency */,
 			);
 			name = mdimporter;
@@ -738,7 +713,6 @@
 			);
 			dependencies = (
 				ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */,
-				ABE69DBA2D2C6DE700CE6C69 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				ABE69D262D2A350700CE6C69 /* previewer */,
@@ -769,7 +743,7 @@
 				};
 			};
 			buildConfigurationList = AB9FB5681965DD7200D39647 /* Build configuration list for PBXProject "QLVideo" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -958,11 +932,6 @@
 			target = AB66470D261A88C700D23514 /* aom */;
 			targetProxy = AB66472A261AA04400D23514 /* PBXContainerItemProxy */;
 		};
-		AB66472F261AA06100D23514 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB66470D261A88C700D23514 /* aom */;
-			targetProxy = AB66472E261AA06100D23514 /* PBXContainerItemProxy */;
-		};
 		AB664731261AA06C00D23514 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB66470D261A88C700D23514 /* aom */;
@@ -973,20 +942,10 @@
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB748EE12D349B1D001F6921 /* PBXContainerItemProxy */;
 		};
-		AB748EE42D349B20001F6921 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB66470D261A88C700D23514 /* aom */;
-			targetProxy = AB748EE32D349B20001F6921 /* PBXContainerItemProxy */;
-		};
 		ABE69D312D2A350700CE6C69 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = ABE69D232D2A350700CE6C69 /* previewer */;
 			targetProxy = ABE69D302D2A350700CE6C69 /* PBXContainerItemProxy */;
-		};
-		ABE69DBA2D2C6DE700CE6C69 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB66470D261A88C700D23514 /* aom */;
-			targetProxy = ABE69DB92D2C6DE700CE6C69 /* PBXContainerItemProxy */;
 		};
 		ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1184,46 +1143,12 @@
 		AB66470F261A88C800D23514 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				COPY_PHASE_STRIP = NO;
-				DEBUGGING_SYMBOLS = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
 		AB664710261A88C800D23514 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -1284,10 +1209,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(BUILT_PRODUCTS_DIR)/universal/include",
-					ffmpeg,
-				);
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/include";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
@@ -1356,10 +1278,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(BUILT_PRODUCTS_DIR)/universal/include",
-					ffmpeg,
-				);
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/include";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
@@ -1420,7 +1339,6 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.previewer;
 				PRODUCT_NAME = "QLVideo Previewer";
 				SKIP_INSTALL = YES;

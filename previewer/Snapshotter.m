@@ -9,7 +9,6 @@
 #import "Snapshotter.h"
 
 #include <string.h>
-#include <libavformat/isom.h>
 #include <libswscale/swscale.h>
 
 #ifndef DEBUG
@@ -21,6 +20,14 @@ static os_log_t logger = NULL;
 
 static const int kMaxKeyframeTime = 5;  // How far to look for a keyframe [s]
 static const int kMaxKeyframeBlankSkip = 4;  // How many keyframes to skip for being too black or too white
+
+
+// From libavformat/isom.h */
+typedef struct MOVAtom {
+    uint32_t type;
+    int64_t size; /* total size (excluding the size and type fields) */
+} MOVAtom;
+
 
 // Direct ffmpeg log output to system log
 static void av_log_callback(void *avcl, int level, const char *fmt, va_list vl)
