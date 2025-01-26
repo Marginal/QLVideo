@@ -16,7 +16,8 @@ let kMinimumDuration = 5  // Don't bother seeking clips shorter than this [s].
 let kDefaultSnapshotCount = 10
 let kMinimumPeriod = 60  // Don't create snapshots spaced more closely than this [s].
 
-let kWindowHeightThreshhold: CGFloat = 150  // Whether will produce a QLPreviewViewStyle.normal or .compact
+let kWindowWidthThreshhold: CGFloat = 600  // Finder Column view max width = 560
+let kWindowHeightThreshhold: CGFloat = 160  // Get Info height = 128, QuickLook minimum window height = 180
 
 // Window title helper
 func displayname(title: String, size: CGSize, duration: Int, channels: Int) -> String {
@@ -79,7 +80,8 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         logger.debug("PreviewViewController.loadView")
         super.loadView()
         // Do any additional setup after loading the view.
-        sidebarCollection.backgroundColors = [NSColor.clear]
+        snapshot.layer!.backgroundColor = .black  // CoreMedia previewer does this in Finder's Column & Gallery views
+        sidebarCollection.backgroundColors = [.clear]
         sidebarCollection.register(NSNib(nibNamed: "SidebarItem", bundle: nil), forItemWithIdentifier: SidebarItem.identifier)
     }
 
@@ -149,10 +151,9 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         snapshotSize = snapshotter.previewSize
 
         // Should we prepare a full-sized (QLPreviewViewStyle.normal) preview for e.g. Finder's QuickLook
-        // or a single image (QLPreviewViewStyle.compact) for e.g. Finder's Get Info panel.
-        // Don't know how to get hold of QLPreviewViewStyle from here, so use window height to decide -
-        // Get Info height = 128, QuickLook minimum window height = 180
-        if view.frame.height < kWindowHeightThreshhold {
+        // or a single image (QLPreviewViewStyle.compact) for e.g. Finder's Column view and Get Info panel.
+        // Don't know how to get hold of QLPreviewViewStyle from here, so use window size to decide
+        if view.frame.width < kWindowWidthThreshhold || view.frame.height < kWindowHeightThreshhold {
             // QLPreviewViewStyle.compact
             if let coverart = snapshotter.newCoverArt(with: view.frame.width < kWindowHeightThreshhold ? .thumbnail : .default) {
                 snapshotSize = CGSize(width: coverart.width, height: coverart.height)
@@ -194,6 +195,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
             }
             sidebar.removeFromSuperview()  // Don't want sidebar
             snapshot.frame = NSRect(origin: CGPointZero, size: view.frame.size)
+            // Fit to width
             preferredContentSize = NSSize(
                 width: view.frame.width, height: view.frame.width * snapshotSize.height / snapshotSize.width)
             return
