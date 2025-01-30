@@ -598,7 +598,7 @@ void segv_handler(int signum)
 
 - (NSString*) videoCodec
 {
-    if (video_stream_idx < 0 || !dec_ctx)
+    if (video_stream_idx < 0 || !fmt_ctx)
         return nil;
         
     AVStream *s = fmt_ctx->streams[video_stream_idx];
