@@ -596,4 +596,17 @@ void segv_handler(int signum)
     return data;
 }
 
+- (NSString*) videoCodec
+{
+    if (video_stream_idx < 0 || !dec_ctx)
+        return nil;
+        
+    AVStream *s = fmt_ctx->streams[video_stream_idx];
+    AVCodecParameters *params = s->codecpar;
+    if (!params)
+        return nil;
+    enum AVCodecID codecID = params->codec_id;
+    return @(avcodec_get_name(codecID));
+}
+
 @end

@@ -6,6 +6,7 @@
 //
 
 import QuickLookUI
+import WebKit
 
 // Settings
 let kSettingsSnapshotTime = "SnapshotTime"  // Seek offset for thumbnails and single Previews [s].
@@ -70,7 +71,8 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
     @IBOutlet weak var sidebar: NSScrollView!
     @IBOutlet weak var sidebarCollection: NSCollectionView!
     @IBOutlet weak var snapshot: NSImageView!
-
+    @IBOutlet weak var webView: WKWebView!
+    
     override var nibName: NSNib.Name? {
         return NSNib.Name("PreviewViewController")
     }
@@ -81,6 +83,9 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         // Do any additional setup after loading the view.
         sidebarCollection.backgroundColors = [NSColor.clear]
         sidebarCollection.register(NSNib(nibNamed: "SidebarItem", bundle: nil), forItemWithIdentifier: SidebarItem.identifier)
+        webView.isHidden = true
+        webView.underPageBackgroundColor = NSColor.clear
+        webView.enclosingScrollView?.backgroundColor = NSColor.clear
     }
 
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -132,7 +137,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 "preparePreviewOfFile \(url.path, privacy:.private(mask:.hash))"
             )
         #endif
-
+        
         guard let snapshotter = Snapshotter(url: url as CFURL) else {
             #if DEBUG
                 logger.info(
@@ -147,7 +152,15 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 domain: "uk.org.marginal.qlvideo", code: -1, userInfo: [NSLocalizedFailureReasonErrorKey: "Failed to open"])
         }
         snapshotSize = snapshotter.previewSize
-
+        let videoCodec = snapshotter.videoCodec
+        
+        // if extension of the file is webm, use WebView to load it
+        if url.pathExtension == "webm" && (videoCodec == "vp8" || videoCodec == "vp9") {
+            preferredContentSize = snapshotSize
+            webView.isHidden = false
+            webView.loadFileURL(url, allowingReadAccessTo: url)
+            return
+        }
         // Should we prepare a full-sized (QLPreviewViewStyle.normal) preview for e.g. Finder's QuickLook
         // or a single image (QLPreviewViewStyle.compact) for e.g. Finder's Get Info panel.
         // Don't know how to get hold of QLPreviewViewStyle from here, so use window height to decide -

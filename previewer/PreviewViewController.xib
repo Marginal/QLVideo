@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="23504"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -12,6 +13,7 @@
                 <outlet property="sidebarCollection" destination="3dx-Gy-fyQ" id="Q5R-As-Txa"/>
                 <outlet property="snapshot" destination="htc-cm-SN2" id="kNk-dX-aF9"/>
                 <outlet property="view" destination="c22-O7-iKe" id="xvY-uO-s8O"/>
+                <outlet property="webView" destination="AS2-Sv-Of1" id="qEO-N7-1mI"/>
             </connections>
         </customObject>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
@@ -55,6 +57,14 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" id="d9s-ZW-k0c"/>
                 </imageView>
+                <wkWebView wantsLayer="YES" allowsLinkPreview="NO" allowsMagnification="YES" id="AS2-Sv-Of1">
+                    <rect key="frame" x="0.0" y="0.0" width="800" height="600"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <wkWebViewConfiguration key="configuration">
+                        <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" video="YES"/>
+                        <wkPreferences key="preferences"/>
+                    </wkWebViewConfiguration>
+                </wkWebView>
             </subviews>
             <point key="canvasLocation" x="139" y="-36"/>
         </customView>
