@@ -60,7 +60,7 @@ typedef NS_ENUM(NSInteger, CoverArtMode)
 @property (nonatomic,assign,readonly) CGSize displaySize;
 @property (nonatomic,assign,readonly) CGSize previewSize;
 @property (nonatomic,assign,readonly) NSInteger duration;
-@property (nonatomic,retain,readonly) NSString *title;
 @property (nonatomic,retain,readonly,nullable) NSString *videoCodec;
+@property (nonatomic,retain,readonly) NSString *title;
 
 @end

@@ -20,6 +20,8 @@ let kMinimumPeriod = 60  // Don't create snapshots spaced more closely than this
 let kWindowWidthThreshhold: CGFloat = 600  // Finder Column view max width = 560
 let kWindowHeightThreshhold: CGFloat = 160  // Get Info height = 128, QuickLook minimum window height = 180
 
+enum PreviewType { case snapshot, webView, contactSheet }
+
 // Window title helper
 func displayname(title: String, size: CGSize, duration: Int, channels: Int) -> String {
     var channelstring: String
@@ -85,9 +87,6 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         snapshot.layer!.backgroundColor = .black  // CoreMedia previewer does this in Finder's Column & Gallery views
         sidebarCollection.backgroundColors = [.clear]
         sidebarCollection.register(NSNib(nibNamed: "SidebarItem", bundle: nil), forItemWithIdentifier: SidebarItem.identifier)
-        webView.isHidden = true
-        webView.underPageBackgroundColor = NSColor.clear
-        webView.enclosingScrollView?.backgroundColor = NSColor.clear
     }
 
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -115,6 +114,20 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
             logger.debug("rightMouseDown with \(event)")
         }
     #endif
+
+    // Hide Views other than the one we want to show
+    func setupPreview(_ previewType: PreviewType) {
+        switch previewType {
+        case .snapshot:
+            sidebar.removeFromSuperview()
+            webView.removeFromSuperview()
+        case .webView:
+            sidebar.removeFromSuperview()
+            snapshot.removeFromSuperview()
+        case .contactSheet:
+            webView.removeFromSuperview()
+        }
+    }
 
     func preparePreviewOfSearchableItem(identifier: String, queryString: String?) async throws {
         // Implement this method and set QLSupportsSearchableItems to YES in the Info.plist of the extension if you support CoreSpotlight.
@@ -156,19 +169,33 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         snapshotSize = snapshotter.previewSize
         let videoCodec = snapshotter.videoCodec
 
-        // if extension of the file is webm, use WebView to load it
-        if url.pathExtension == "webm" && (videoCodec == "vp8" || videoCodec == "vp9") {
-            preferredContentSize = snapshotSize
-            webView.isHidden = false
-            webView.loadFileURL(url, allowingReadAccessTo: url)
-            return
-        }
         // Should we prepare a full-sized (QLPreviewViewStyle.normal) preview for e.g. Finder's QuickLook
         // or a single image (QLPreviewViewStyle.compact) for e.g. Finder's Column view and Get Info panel.
         // Don't know how to get hold of QLPreviewViewStyle from here, so use window size to decide
         if view.frame.width < kWindowWidthThreshhold || view.frame.height < kWindowHeightThreshhold {
             // QLPreviewViewStyle.compact
-            if let coverart = snapshotter.newCoverArt(with: view.frame.width < kWindowHeightThreshhold ? .thumbnail : .default) {
+
+            // use WebView to load WEBM files
+            if url.pathExtension.caseInsensitiveCompare("webm") == .orderedSame && (videoCodec == "vp8" || videoCodec == "vp9") {
+                // Fit to width
+                let size = NSSize(width: view.frame.width, height: view.frame.width * snapshotSize.height / snapshotSize.width)
+                setupPreview(.webView)
+                webView.loadFileURL(url, allowingReadAccessTo: url)
+                webView.loadHTMLString(
+                    """
+                    <html>
+                    <meta name="viewport" content="width=\(size.width), height=\(size.height)" />
+                    <body style="background-color:black;margin:0;padding:0;">
+                        <video controls width="width=\(size.width)" height="\(size.height)">
+                            <source src="\(url.lastPathComponent)" type="video/webm" />
+                    </body>
+                    </html>
+                    """, baseURL: url.deletingLastPathComponent())
+                preferredContentSize = size
+                return
+            } else if let coverart = snapshotter.newCoverArt(
+                with: view.frame.width < kWindowHeightThreshhold ? .thumbnail : .default)
+            {
                 snapshotSize = CGSize(width: coverart.width, height: coverart.height)
                 snapshot.image = NSImage(cgImage: coverart, size: .zero)
             } else {
@@ -206,7 +233,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                         userInfo: [NSLocalizedFailureReasonErrorKey: "Can't supply anything"])
                 }
             }
-            sidebar.removeFromSuperview()  // Don't want sidebar
+            setupPreview(.snapshot)
             snapshot.frame = NSRect(origin: CGPointZero, size: view.frame.size)
             // Fit to width
             preferredContentSize = NSSize(
@@ -222,6 +249,24 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         view.window?.title = displayname(
             title: snapshotter.title ?? url.lastPathComponent, size: snapshotter.displaySize, duration: snapshotter.duration,
             channels: Int(snapshotter.channels))
+
+        // use WebView to load WEBM files
+        if url.pathExtension.caseInsensitiveCompare("webm") == .orderedSame && (videoCodec == "vp8" || videoCodec == "vp9") {
+            setupPreview(.webView)
+            webView.loadFileURL(url, allowingReadAccessTo: url)
+            webView.loadHTMLString(
+                """
+                <html>
+                <meta name="viewport" content="width=\(snapshotSize.width), height=\(snapshotSize.height)" />
+                <body style="background-color:black;margin:0;padding:0;">
+                    <video controls autoplay width="width=\(snapshotSize.width)" height="\(snapshotSize.height)">
+                        <source src="\(url.lastPathComponent)" type="video/webm" />
+                </body>
+                </html>
+                """, baseURL: url.deletingLastPathComponent())
+            preferredContentSize = NSSize(width: snapshotSize.width, height: snapshotSize.height)
+            return
+        }
 
         var imageCount = 0
 
@@ -278,11 +323,12 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 domain: "uk.org.marginal.qlvideo", code: -1, userInfo: [NSLocalizedFailureReasonErrorKey: "Can't supply anything"]
             )
         } else if images.count == 1 {
+            setupPreview(.snapshot)
             snapshot.image = images[0]
-            sidebar.removeFromSuperview()  // no need for sidebar
             snapshot.frame = NSRect(origin: CGPointZero, size: view.frame.size)
             preferredContentSize = snapshotSize
         } else {
+            setupPreview(.contactSheet)
             snapshot.image = images[0]
             if snapshotSize.width / snapshotSize.height > 4.0 / 3.0 {
                 (sidebarCollection.collectionViewLayout as! NSCollectionViewFlowLayout).itemSize = CGSize(

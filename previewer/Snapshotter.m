@@ -249,6 +249,19 @@ void segv_handler(int signum)
     return fmt_ctx->duration > 0 ? (fmt_ctx->duration / AV_TIME_BASE) : 0; // We're not interested in sub-second accuracy
 }
 
+- (NSString*) videoCodec
+{
+    if (video_stream_idx < 0 || !fmt_ctx)
+        return nil;
+
+    AVStream *s = fmt_ctx->streams[video_stream_idx];
+    AVCodecParameters *params = s->codecpar;
+    if (!params)
+        return nil;
+    enum AVCodecID codecID = params->codec_id;
+    return @(avcodec_get_name(codecID));
+}
+
 // Gets cover art if available, or nil.
 - (CGImageRef) newCoverArtWithMode:(CoverArtMode)mode
 {
@@ -601,19 +614,6 @@ void segv_handler(int signum)
     }
     av_frame_free(&rgb_frame);
     return data;
-}
-
-- (NSString*) videoCodec
-{
-    if (video_stream_idx < 0 || !fmt_ctx)
-        return nil;
-
-    AVStream *s = fmt_ctx->streams[video_stream_idx];
-    AVCodecParameters *params = s->codecpar;
-    if (!params)
-        return nil;
-    enum AVCodecID codecID = params->codec_id;
-    return @(avcodec_get_name(codecID));
 }
 
 @end
