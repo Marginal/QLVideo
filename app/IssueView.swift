@@ -7,22 +7,24 @@
 
 import Cocoa
 
-
 class IssueView: NSView {
 
     @IBOutlet weak var dropTarget: IssueDropTarget!
     @IBOutlet weak var advice: NSTextField!
     @IBOutlet weak var sendButton: NSButton!
 
-    var files:[String] = []
+    var files: [String] = []
 
     override func awakeFromNib() {
         // Reformat list items in advice
         let style = NSMutableParagraphStyle()
         style.headIndent = NSAttributedString(string: " • ", attributes: [.font: advice.font!]).size().width
-        advice.attributedStringValue = NSAttributedString.init(string: advice.stringValue.replacingOccurrences(of: "\n- ", with: "\n • "),
-                                                               attributes: [.font: advice.font!,
-                                                                            .paragraphStyle: style])
+        advice.attributedStringValue = NSAttributedString.init(
+            string: advice.stringValue.replacingOccurrences(of: "\n- ", with: "\n • "),
+            attributes: [
+                .font: advice.font!,
+                .paragraphStyle: style,
+            ])
     }
 
     @IBAction func dismessReport(sender: NSButton) {
@@ -36,30 +38,36 @@ class IssueView: NSView {
         let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
         let macOS = ProcessInfo().operatingSystemVersionString
         let machine = sysCtl("hw.machine")
-        var hardware = "\(sysCtl("hw.model")) \(machine)"
+        var hardware = "\(sysCtl("hw.model")), \(sysCtl("machdep.cpu.brand_string")),"
         if machine == "arm64" {
             hardware = hardware + " neon=\(sysCtl("hw.optional.neon"))"
         } else if machine == "x86_64" {
             hardware = hardware + " avx2=\(sysCtl("hw.optional.avx2_0")) avx512f=\(sysCtl("hw.optional.avx512f"))"
         }
-        var report = "Your description of the problem here!\n\n\n---\nQLVideo: \(version)\nmacOS: \(macOS)\nHardware: \(hardware)\n"
+        var report =
+            "Your description of the problem here!\n\n\n---\nQLVideo: \(version)\nmacOS: \(macOS)\nHardware: \(hardware)\n"
 
         // limit to one file to try to avoid hitting GitHub POST character limit
         for filenum in 0..<1 {
             var filereport = ""
             let videofile = files[filenum]
             do {
-                try filereport.append("mdimport: \(helper("/usr/bin/mdimport", args: ["-n", "-d1"] + [videofile]).replacingOccurrences(of: "\n", with: " ")).\n")
+                try filereport.append(
+                    "mdimport: \(helper("/usr/bin/mdimport", args: ["-n", "-d1"] + [videofile]).replacingOccurrences(of: "\n", with: " "))\n"
+                )
             } catch {
                 filereport.append("mdimport: \(error)\n")
             }
             do {
-                try filereport.append("```json\n\(helper(Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!, args: ["-loglevel", "error", "-print_format", "json", "-show_entries", "format=format_name,duration,size,bit_rate,probe_score:stream=codec_type,codec_name,profile,codec_tag_string,pix_fmt,sample_fmt,channel_layout,language,width,height,display_aspect_ratio:stream_disposition=default,attached_pic,timed_thumbnails"] + [videofile]).replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "    ", with: "  "))```\n")
+                try filereport.append(
+                    "```json\n\(helper(Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!, args: ["-loglevel", "error", "-print_format", "json", "-show_entries", "stream=codec_type,codec_name,profile,codec_tag_string,pix_fmt,sample_fmt,channel_layout,language,width,height,display_aspect_ratio:stream_disposition=default,attached_pic,timed_thumbnails:chapter=start_time,end_time:format=format_name,duration,size,bit_rate,probe_score"] + [videofile]).replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "    ", with: "  "))```\n"
+                )
             } catch {
                 filereport.append("ffprobe: \(error)\n")
             }
-            filereport = filereport.replacingOccurrences(of: videofile,
-                                                         with: "*file*.\(NSString(string: videofile).pathExtension)")
+            filereport = filereport.replacingOccurrences(
+                of: videofile,
+                with: "*file*.\(NSString(string: videofile).pathExtension)")
             report.append("\(filereport)\n")
         }
 
@@ -98,7 +106,9 @@ class IssueDropTarget: NSImageView {
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        if let items = sender.draggingPasteboard.readObjects(forClasses: [NSURL.self], options:[NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true]) {
+        if let items = sender.draggingPasteboard.readObjects(
+            forClasses: [NSURL.self], options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true])
+        {
             for item in items {
                 let path = (item as! NSURL).path
                 if path != nil {
@@ -112,7 +122,6 @@ class IssueDropTarget: NSImageView {
                 return true
             }
         }
-        return false;
+        return false
     }
 }
-
