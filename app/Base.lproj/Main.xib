@@ -89,6 +89,8 @@
                                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ao2-4O-GKj" userLabel="Snapshot Time Slider" customClass="LogarithmicSlider" customModule="QuickLook_Video" customModuleProvider="target">
                                     <rect key="frame" x="146" y="38" width="179" height="28"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <string key="toolTip">The time at which to take a snapshot for thumbnails in Finder windows.
+Only for files that don't contain cover art.</string>
                                     <sliderCell key="cell" continuous="YES" alignment="left" minValue="1" maxValue="1800" doubleValue="997.65869455645156" tickMarkPosition="above" sliderType="linear" id="ecQ-ky-N4c" userLabel="Snapshot Time Slider"/>
                                     <connections>
                                         <action selector="snapshotTimeChangedWithSender:" target="jrs-wu-C8P" id="CnA-sj-WB8"/>
@@ -106,7 +108,7 @@
                                         <fragment content="Abbreviation of &quot;seconds&quot; as in duration"/>
                                     </attributedString>
                                 </textField>
-                                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ChQ-Kj-tnn">
+                                <button toolTip="Relaunch Finder and regenerate thumbnails." verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ChQ-Kj-tnn">
                                     <rect key="frame" x="5" y="4" width="398" height="32"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="push" title="Refresh" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KHh-sh-atU">
