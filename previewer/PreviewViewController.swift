@@ -129,6 +129,21 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         }
     }
 
+    // returns MIME type for format&codec combinations that a webView will render in a <video> tag
+    func webViewSupports(ext: String, codec: String?) -> String? {
+        // av1 codec is only supported (in mp4/m4v only?) on M3 and later
+        if codec == nil {
+            return nil
+        } else if ext.caseInsensitiveCompare("webm") == .orderedSame && (codec == "vp8" || codec == "vp9") {
+            return "video/webm"
+        } else if ext.caseInsensitiveCompare("mp4") == .orderedSame && (codec == "h264" || codec == "hevc") {
+            return "video/mp4"
+        } else if ext.caseInsensitiveCompare("m4v") == .orderedSame && (codec == "h264" || codec == "hevc") {
+            return "video/x-m4v"
+        }
+        return nil
+    }
+
     func preparePreviewOfSearchableItem(identifier: String, queryString: String?) async throws {
         // Implement this method and set QLSupportsSearchableItems to YES in the Info.plist of the extension if you support CoreSpotlight.
         #if DEBUG
@@ -167,7 +182,6 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 domain: "uk.org.marginal.qlvideo", code: -1, userInfo: [NSLocalizedFailureReasonErrorKey: "Failed to open"])
         }
         snapshotSize = snapshotter.previewSize
-        let videoCodec = snapshotter.videoCodec
 
         // Should we prepare a full-sized (QLPreviewViewStyle.normal) preview for e.g. Finder's QuickLook
         // or a single image (QLPreviewViewStyle.compact) for e.g. Finder's Column view and Get Info panel.
@@ -175,8 +189,8 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         if view.frame.width < kWindowWidthThreshhold || view.frame.height < kWindowHeightThreshhold {
             // QLPreviewViewStyle.compact
 
-            // use WebView to load WEBM files
-            if url.pathExtension.caseInsensitiveCompare("webm") == .orderedSame && (videoCodec == "vp8" || videoCodec == "vp9") {
+            // use WebView to load supported files
+            if let mimeType = webViewSupports(ext: url.pathExtension, codec: snapshotter.videoCodec) {
                 // Fit to width
                 let size = NSSize(width: view.frame.width, height: view.frame.width * snapshotSize.height / snapshotSize.width)
                 setupPreview(.webView)
@@ -187,7 +201,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                     <meta name="viewport" content="width=\(size.width), height=\(size.height)" />
                     <body style="background-color:black;margin:0;padding:0;">
                         <video controls width="width=\(size.width)" height="\(size.height)">
-                            <source src="\(url.lastPathComponent)" type="video/webm" />
+                            <source src="\(url.lastPathComponent)" type="\(mimeType)" />
                     </body>
                     </html>
                     """, baseURL: url.deletingLastPathComponent())
@@ -250,8 +264,8 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
             title: snapshotter.title ?? url.lastPathComponent, size: snapshotter.displaySize, duration: snapshotter.duration,
             channels: Int(snapshotter.channels))
 
-        // use WebView to load WEBM files
-        if url.pathExtension.caseInsensitiveCompare("webm") == .orderedSame && (videoCodec == "vp8" || videoCodec == "vp9") {
+        // use WebView to load supported files
+        if let mimeType = webViewSupports(ext: url.pathExtension, codec: snapshotter.videoCodec) {
             setupPreview(.webView)
             webView.loadFileURL(url, allowingReadAccessTo: url)
             webView.loadHTMLString(
@@ -260,7 +274,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 <meta name="viewport" content="width=\(snapshotSize.width), height=\(snapshotSize.height)" />
                 <body style="background-color:black;margin:0;padding:0;">
                     <video controls autoplay width="width=\(snapshotSize.width)" height="\(snapshotSize.height)">
-                        <source src="\(url.lastPathComponent)" type="video/webm" />
+                        <source src="\(url.lastPathComponent)" type="\(mimeType)" />
                 </body>
                 </html>
                 """, baseURL: url.deletingLastPathComponent())
