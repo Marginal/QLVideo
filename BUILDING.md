@@ -5,9 +5,9 @@ Prerequisites
 -------
 * Requires Xcode with macOS 12 SDK or later.
 * Before building, update submodules with `git submodule update --init --recursive`.
-* ffmpeg and its dependencies require "CMake", "pkg-config" and the "yasm" assembler to build. You can obtain them
-  through [Homebrew](https://brew.sh) via `brew install cmake pkg-config yasm`.
-* Packaging require several Python modules. Install these via `pip3 install -r requirements.txt`
+* ffmpeg and its dependencies require "Meson", "Ninja", "pkg-config" and the "nasm" assembler to build. You can obtain them
+  through [Homebrew](https://brew.sh) via `brew install meson ninja pkg-config nasm`.
+* Packaging requires several Python modules. Install these via `pip3 install -r requirements.txt`
 
 Products
 -------
@@ -21,7 +21,7 @@ The Xcode project `QLVideo.xcodeproj` builds the following Products:
 * thumbnailer - QuickLook app extension provides thumbnails.
 * benchmark - Simple executable for benchmarking, not included in the app.
 * ffmpeg - The [FFmpeg](http://ffmpeg.org/) libraries. The plugins depend on these. Also builds a standalone version of the `ffprobe` executable for bug reporting.
-* aom - Support for the [AV1](https://en.wikipedia.org/wiki/AV1) codec. ffmpeg depends on this.
+* dav1d - Support for the [AV1](https://en.wikipedia.org/wiki/AV1) codec. ffmpeg depends on this.
 
 Debugging
 ---------
