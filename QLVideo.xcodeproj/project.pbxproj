@@ -14,7 +14,7 @@
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EA2D2EF8CA0040A4E6 /* libdav1d.a */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
-		AB49FBB92923CF1C00B126C0 /* Video.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* Video.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB49FBB92923CF1C00B126C0 /* QLVideo.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB57AACF2D344DDF00E785D8 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */; };
 		AB57AAD82D344DDF00E785D8 /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB748ED92D349AE6001F6921 /* libdav1d.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; };
@@ -151,7 +151,7 @@
 			dstPath = Contents/Library/Spotlight;
 			dstSubfolderSpec = 1;
 			files = (
-				AB49FBB92923CF1C00B126C0 /* Video.mdimporter in Embed mdimporter */,
+				AB49FBB92923CF1C00B126C0 /* QLVideo.mdimporter in Embed mdimporter */,
 			);
 			name = "Embed mdimporter";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -240,7 +240,7 @@
 		AB96EE6B2183810500694152 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/schema.strings; sourceTree = "<group>"; };
 		AB97CDD21A3A059C005FECB1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/schema.strings; sourceTree = "<group>"; };
 		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AB9FB56D1965DD7200D39647 /* Video.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Video.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QLVideo.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB9FB5721965DD7200D39647 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		AB9FB5761965DD7200D39647 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		AB9FB57E1965DD7200D39647 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -492,7 +492,7 @@
 		AB9FB56E1965DD7200D39647 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AB9FB56D1965DD7200D39647 /* Video.mdimporter */,
+				AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */,
 				AB0527CE1D294732009A809B /* benchmark */,
 				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
 				ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */,
@@ -690,7 +690,7 @@
 			);
 			name = mdimporter;
 			productName = Video;
-			productReference = AB9FB56D1965DD7200D39647 /* Video.mdimporter */;
+			productReference = AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */;
 			productType = "com.apple.product-type.bundle";
 		};
 		ABE69D232D2A350700CE6C69 /* previewer */ = {
@@ -723,7 +723,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					AB57AACD2D344DDF00E785D8 = {
@@ -812,7 +812,6 @@
 /* Begin PBXShellScriptBuildPhase section */
 		AB48E688293156BC004B2E82 /* Extract localization */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -1050,12 +1049,11 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "app/snapshotter-bridge.h";
 			};
 			name = Debug;
@@ -1074,12 +1072,11 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				REGISTER_APP_GROUPS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "app/snapshotter-bridge.h";
 			};
 			name = Release;
@@ -1298,7 +1295,7 @@
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
-				PRODUCT_NAME = Video;
+				PRODUCT_NAME = QLVideo;
 				WRAPPER_EXTENSION = mdimporter;
 			};
 			name = Debug;
@@ -1312,7 +1309,7 @@
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
-				PRODUCT_NAME = Video;
+				PRODUCT_NAME = QLVideo;
 				WRAPPER_EXTENSION = mdimporter;
 			};
 			name = Release;
@@ -1323,6 +1320,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = previewer/previewer.entitlements;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1349,6 +1347,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = previewer/previewer.entitlements;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = previewer/Info.plist;
