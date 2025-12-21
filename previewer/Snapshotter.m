@@ -94,6 +94,7 @@ void segv_handler(int signum) {
 #else
     av_log_set_level(AV_LOG_DEBUG | AV_LOG_SKIP_REPEATED);
 #endif
+    MTRegisterProfessionalVideoWorkflowFormatReaders();
 }
 
 - (instancetype)initWithURL:(CFURLRef)url {
