@@ -28,6 +28,9 @@ struct SimplePlayer: App {
 struct ContentView: View {
     @State private var player = AVPlayer()
     @State private var showingOpenPanel = false
+    @State private var statusObserver: NSKeyValueObservation?
+    @State private var emptyObserver: NSKeyValueObservation?
+    @State private var fullObserver: NSKeyValueObservation?
 
     var body: some View {
         VStack {
@@ -52,13 +55,12 @@ struct ContentView: View {
                     }
                     defer { url.stopAccessingSecurityScopedResource() }
 
-                    //printTrackInfo(url: url)
-                    //printAudioInfo(url: url)
+                    printTrackInfo(url: url)
 
                     let item = AVPlayerItem(url: url)
 
                     // Observe status to surface errors from AVPlayerItem
-                    let _ = item.observe(\.status, options: [.new]) { item, _ in
+                    statusObserver = item.observe(\.status, options: [.new]) { item, _ in
                         switch item.status {
                         case .readyToPlay:
                             print("AVPlayerItem is ready to play")
@@ -67,8 +69,36 @@ struct ContentView: View {
                         case .unknown:
                             print("AVPlayerItem status is unknown")
                         @unknown default:
-                            print("AVPlayerItem status is an unknown new case")
+                            print("AVPlayerItem status is an unknown new case \(item.status.rawValue)")
                         }
+                    }
+                    emptyObserver = item.observe(\.isPlaybackBufferEmpty, options: [.new]) { item, change in
+                        print("AVPlayerItem playbackBufferEmpty=\(change.newValue, default: "unknown")")
+                    }
+                    fullObserver = item.observe(\.isPlaybackBufferFull, options: [.new]) { item, change in
+                        print("AVPlayerItem playbackBufferFull=\(change.newValue, default: "unknown")")
+                    }
+
+                    NotificationCenter.default.addObserver(
+                        forName: AVPlayerItem.didPlayToEndTimeNotification,
+                        object: item,
+                        queue: .main
+                    ) { notification in
+                        print("AVPlayerItem didPlayToEndTimeNotification \(notification)")
+                    }
+                    NotificationCenter.default.addObserver(
+                        forName: AVPlayerItem.failedToPlayToEndTimeNotification,
+                        object: item,
+                        queue: .main
+                    ) { notification in
+                        print("AVPlayerItem failedToPlayToEndTimeNotification \(notification)")
+                    }
+                    NotificationCenter.default.addObserver(
+                        forName: AVPlayerItem.newErrorLogEntryNotification,
+                        object: item,
+                        queue: .main
+                    ) { notification in
+                        print("AVPlayerItem newErrorLogEntryNotification \(notification)")
                     }
 
                     self.player.replaceCurrentItem(with: item)
@@ -83,12 +113,17 @@ struct ContentView: View {
 
 func printTrackInfo(url: URL) {
     let asset = AVURLAsset(url: url)
-    // let tracks = asset.loadTracks(withMediaType: .any)
     for track in asset.tracks {
         for format in track.formatDescriptions {
             print(format)
             let format = format as! CMFormatDescription
-            print(format.extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms]?["esds" as CFString] as Any)
+            if let atoms = format.extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] as? [CFString: Data] {
+                for (key, value) in atoms {
+                    print(
+                        "\(key): length=\(value.count) \(value.reduce("data=", { result, byte in String(format: "%@ %02x", result, byte) }))"
+                    )
+                }
+            }
         }
     }
 }
