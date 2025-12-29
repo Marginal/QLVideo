@@ -17,6 +17,9 @@ import MediaExtension
 // In practice loadSampleBufferContainingSamples() never seems to get called for audio packets(?)
 let SAMPLE_CURSOR_USE_LOADSAMPLE: Bool = false
 
+// Selected FFmpeg constants that we need but that Swift bridging can't figure out
+let AV_NOPTS_VALUE: Int64 = Int64.min
+
 extension CMTime: @retroactive CustomStringConvertible {
 
     // Convert AVPacket timestamps into CMTime

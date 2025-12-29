@@ -11,10 +11,6 @@ import OSLog
 
 let logger = Logger(subsystem: "uk.org.marginal.qlvideo", category: "formatreader")
 
-// Selected FFmpeg constants that we need but that Swift bridging can't figure out
-let AVERROR_EOF: Int32 = -0x2046_4f45  // "EOF "
-let AV_NOPTS_VALUE: Int64 = Int64.min
-
 class FormatReaderFactory: NSObject, MEFormatReaderExtension {
 
     required override init() {
