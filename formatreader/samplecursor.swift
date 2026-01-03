@@ -14,7 +14,6 @@ import MediaExtension
 #endif
 
 // Serve up packet data using loadSampleBufferContainingSamples() rather than sampleLocation()
-// In practice loadSampleBufferContainingSamples() never seems to get called for audio packets(?)
 let SAMPLE_CURSOR_USE_LOADSAMPLE: Bool = false
 
 // Selected FFmpeg constants that we need but that Swift bridging can't figure out
@@ -73,7 +72,11 @@ class SampleCursor: NSObject, MESampleCursor {
         self.timeBase = track.stream.time_base
         self.instance = SampleCursor.instanceCount
         SampleCursor.instanceCount += 1
-        self.qi = format.packetQueue!.seek(stream: index, pts: presentationTimeStamp)
+        // Creating a SampleCursor means that CoreMedia will want packets. So start demuxing.
+        if format.packetQueue == nil {
+            format.packetQueue = PacketQueue(format.fmt_ctx!)
+        }
+        self.qi = format.packetQueue!.seek(stream: index, presentationTimeStamp: presentationTimeStamp)
         // (current, error) = format.packetQueue!.seek(stream: index, to: presentationTimeStamp)
         if TRACE_SAMPLE_CURSOR {
             logger.debug("SampleCursor \(self.instance) stream \(index) init at presentationTimeStamp:\(presentationTimeStamp)")
@@ -296,15 +299,32 @@ class SampleCursor: NSObject, MESampleCursor {
                 return completionHandler(nil, error)
             }
             var sampleBuffer: CMSampleBuffer? = nil
+            var timingInfo = CMSampleTimingInfo(
+                duration: CMTime(value: 1, timescale: track!.stream.codecpar.pointee.sample_rate),
+                presentationTimeStamp: CMTime(value: current.pointee.dts, timeBase: timeBase),
+                decodeTimeStamp: .invalid
+            )
+            var sampleSize = Int(track!.stream.codecpar.pointee.bits_per_coded_sample >> 3)
+            /* TODO: Consider:
+            let blockbuffer = CMReadOnlyDataBlockBuffer(data: current.pointee.data, length: current.pointee.size)
+            CMReadySampleBuffer(
+                audioDataBuffer: blockbuffer,
+                formatDescription: track!.formatDescription!,
+                sampleCount: Int(track!.stream.codecpar.pointee.frame_size * track!.stream.codecpar.pointee.ch_layout.nb_channels),
+                presentationTimeStamp: CMTime(value: current.pointee.dts, timeBase: timeBase)
+            )
+             */
             status = CMSampleBufferCreateReady(
                 allocator: kCFAllocatorDefault,
                 dataBuffer: blockBuffer,
-                formatDescription: currentSampleFormatDescription,
-                sampleCount: 0,  // Hopefully it can work this out, otherwise = duration * sample_rate / time_base
-                sampleTimingEntryCount: 0,
-                sampleTimingArray: nil,
-                sampleSizeEntryCount: 0,
-                sampleSizeArray: nil,
+                formatDescription: track!.formatDescription,
+                sampleCount: CMItemCount(
+                    track!.stream.codecpar.pointee.frame_size * track!.stream.codecpar.pointee.ch_layout.nb_channels
+                ),
+                sampleTimingEntryCount: 1,
+                sampleTimingArray: &timingInfo,
+                sampleSizeEntryCount: 1,
+                sampleSizeArray: &sampleSize,
                 sampleBufferOut: &sampleBuffer
             )
             guard status == noErr else {
@@ -329,49 +349,59 @@ class SampleCursor: NSObject, MESampleCursor {
     // MARK: navigation
 
     func stepInDecodeOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
-        let ret = format!.packetQueue!.step(stream: index, from: qi)
-        if ret > qi {
-            qi = ret
-            if TRACE_SAMPLE_CURSOR {
-                let current = format!.packetQueue!.get(stream: self.index, qi: self.qi)
-                logger.debug(
-                    "SampleCursor \(self.instance) stream \(self.index) stepInDecodeOrder by \(stepCount) -> \(CMTime(value: current!.pointee.dts, timeBase: self.timeBase))"
-                )
-            }
-            return completionHandler(1, nil)
-        } else {
-            if TRACE_SAMPLE_CURSOR {
-                logger.debug("SampleCursor \(self.instance) stream \(self.index) stepInDecodeOrder by \(stepCount) -> no packet")
-            }
-            return completionHandler(0, nil)
+        let oldqi = qi
+        qi = format!.packetQueue!.step(stream: index, from: qi, by: Int(stepCount))
+        if TRACE_SAMPLE_CURSOR {
+            let current = format!.packetQueue!.get(stream: self.index, qi: self.qi)
+            logger.debug(
+                "SampleCursor \(self.instance) stream \(self.index) stepInDecodeOrder by \(stepCount) -> \(CMTime(value: current!.pointee.dts, timeBase: self.timeBase))"
+            )
         }
+        // https://developer.apple.com/documentation/avfoundation/avsamplecursor/stepindecodeorder(bycount:)
+        // "If the cursor reaches the beginning or the end of the sample sequence before the requested number of samples was
+        // traversed, the absolute value of the result will be less than the absolute value of the specified step count"
+        return completionHandler(Int64(qi - oldqi), nil)
     }
 
     func stepInPresentationOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
-        let ret = format!.packetQueue!.step(stream: index, from: qi)
-        if ret > qi {
-            qi = ret
-            if TRACE_SAMPLE_CURSOR {
-                let current = format!.packetQueue!.get(stream: self.index, qi: self.qi)
-                logger.debug(
-                    "SampleCursor \(self.instance) stream \(self.index) stepInPresentationOrder by \(stepCount) -> \(CMTime(value: current!.pointee.pts, timeBase: self.timeBase))"
-                )
-            }
-            return completionHandler(1, nil)
-        } else {
-            if TRACE_SAMPLE_CURSOR {
-                logger.debug(
-                    "SampleCursor \(self.instance) stream \(self.index) stepInPresentationOrder by \(stepCount) -> no packet"
-                )
-            }
-            return completionHandler(0, nil)
+        let oldqi = qi
+        qi = format!.packetQueue!.step(stream: index, from: qi, by: Int(stepCount))
+        if TRACE_SAMPLE_CURSOR {
+            let current = format!.packetQueue!.get(stream: self.index, qi: self.qi)
+            logger.error(
+                "SampleCursor \(self.instance) stream \(self.index) stepInPresentationOrder by \(stepCount) -> \(CMTime(value: current!.pointee.dts, timeBase: self.timeBase))"
+            )
         }
+        // https://developer.apple.com/documentation/avfoundation/avsamplecursor/stepinpresentationorder(bycount:)
+        // "If the cursor reaches the beginning or the end of the sample sequence before the requested number of samples was
+        // traversed, the absolute value of the result will be less than the absolute value of the specified step count"
+        return completionHandler(Int64(qi - oldqi), nil)
     }
 
     func stepByDecodeTime(_ deltaDecodeTime: CMTime, completionHandler: @escaping @Sendable (CMTime, Bool, (any Error)?) -> Void)
     {
-        if TRACE_SAMPLE_CURSOR {
-            logger.debug("SampleCursor \(self.instance) stream \(self.index) stepByDecodeTime by \(deltaDecodeTime)")
+        if let current = format!.packetQueue!.get(stream: index, qi: qi) {
+            var pinned: Bool
+            if !deltaDecodeTime.isNumeric || deltaDecodeTime.timescale != timeBase.den {
+                logger.error("SampleCursor \(self.instance) stream \(self.index) stepByDecodeTime by \(deltaDecodeTime) invalid")
+                return completionHandler(.zero, false, MEError(.invalidParameter))
+            }
+            let decodeTimeStamp = CMTime(value: current.pointee.dts, timeBase: timeBase) + deltaDecodeTime
+            (qi, pinned) = format!.packetQueue!.seek(stream: index, decodeTimeStamp: decodeTimeStamp)
+            let newpkt = format!.packetQueue!.get(stream: index, qi: qi)
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug(
+                    "SampleCursor \(self.instance) stream \(self.index) stepByDecodeTime by \(deltaDecodeTime) -> \(CMTime(value: newpkt!.pointee.dts, timeBase: self.timeBase)) pinned:\(pinned)"
+                )
+            }
+            return completionHandler(CMTime(value: newpkt!.pointee.dts, timeBase: self.timeBase), pinned, nil)
+        } else {
+            if TRACE_SAMPLE_CURSOR {
+                logger.error(
+                    "SampleCursor \(self.instance) stream \(self.index) stepByDecodeTime by \(deltaDecodeTime) no packet"
+                )
+            }
+            return completionHandler(.invalid, false, MEError(.invalidParameter))
         }
     }
 

@@ -50,7 +50,7 @@ class PacketQueue: @unchecked Sendable {
     init(_ fmt_ctx: UnsafeMutablePointer<AVFormatContext>) {
         self.fmt_ctx = fmt_ctx
 
-        if String(cString: fmt_ctx.pointee.iformat.pointee.mime_type).contains("x-matroska") {
+        if String(cString: fmt_ctx.pointee.iformat.pointee.name).contains("matroska") {
             // matroska_parse_frame() appears to have a bug where it sets AVPacket->pos to the
             // enclosing EBML element ID preceding the packet data
             pkt_fixup = 4
@@ -131,6 +131,7 @@ class PacketQueue: @unchecked Sendable {
         run.signal()
     }
 
+    /*
     // timestamp in AV_TIME_BASE units (i.e. µs)
     func timestamp(_ pkt: UnsafeMutablePointer<AVPacket>) -> Int64 {
         let timestamp = pkt.pointee.pts != AV_NOPTS_VALUE ? pkt.pointee.pts : pkt.pointee.dts
@@ -141,6 +142,7 @@ class PacketQueue: @unchecked Sendable {
                 + Int64(Double(timestamp) * av_q2d(fmt_ctx.pointee.streams[Int(pkt.pointee.stream_index)]!.pointee.time_base))
         }
     }
+     */
 
     private func append(_ pkt: UnsafeMutablePointer<AVPacket>) {
         let idx = Int(pkt.pointee.stream_index)
@@ -151,24 +153,45 @@ class PacketQueue: @unchecked Sendable {
         return qi >= queue[stream].count ? nil : queue[stream][qi]
     }
 
-    func step(stream: Int, from: Int) -> Int {
-        if from >= queue[stream].count - 1 {
-            return -1
-        } else {
-            return (from + 1)
-        }
+    func step(stream: Int, from: Int, by: Int) -> Int {
+        return min(max(from + by, 0), queue[stream].count - 1)
     }
 
-    func seek(stream: Int, pts: CMTime) -> Int {
-        if CMTimeCompare(pts, .positiveInfinity) == 0 {
+    func seek(stream: Int, presentationTimeStamp: CMTime) -> Int {
+        if CMTimeCompare(presentationTimeStamp, .zero) == 0 {
+            // common case
+            return 0
+        } else if CMTimeCompare(presentationTimeStamp, .positiveInfinity) == 0 {
+            // called to find the DTS, PTS and duration of the last packet
+            return queue[stream].count - 1
+        } else {
+            let timeBase = fmt_ctx.pointee.streams[stream]!.pointee.time_base
+            let pts = Int64(presentationTimeStamp.seconds * av_q2d(av_inv_q(timeBase)))  // in stream timeBase units
+            // The new sample cursor points to the last sample with a presentation time stamp (PTS) less than or equal to presentationTimeStamp
             for i in (0..<queue[stream].count).reversed() {
-                if queue[stream][i].pointee.flags & AV_PKT_FLAG_KEY != 0 {
-                    return i // Simplify by only seeking to keyframes
+                if queue[stream][i].pointee.flags & AV_PKT_FLAG_KEY != 0 && queue[stream][i].pointee.pts <= pts {
+                    return i  // Simplify decoding by only seeking to keyframes
                 }
             }
-            return 0 // "if there are no such samples, the first sample in PTS order"
-        } else { // TODO: Other values
-            return 0
+        }
+        return 0  // "if there are no such samples, the first sample in PTS order"
+    }
+
+    func seek(stream: Int, decodeTimeStamp: CMTime) -> (Int, Bool) {
+        // Assumes common timebase denominator
+        let timeBase = fmt_ctx.pointee.streams[stream]!.pointee.time_base
+        let dts = Int32(decodeTimeStamp.value) * timeBase.num  // in stream timeBase units
+        if dts < queue[stream][0].pointee.dts {
+            return (0, true)
+        } else if dts > queue[stream].last!.pointee.dts {
+            return (queue[stream].count - 1, true)
+        } else {
+            for i in (0..<queue[stream].count).reversed() {
+                if queue[stream][i].pointee.dts <= dts {
+                    return (i, false)
+                }
+            }
+            return (0, true)
         }
     }
 
