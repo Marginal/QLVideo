@@ -23,11 +23,14 @@ class TrackReader: NSObject, METrackReader {
         self.format = format
         self.stream = stream
         super.init()
-        logger.debug("TrackReader init for stream #\(index)")
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("TrackReader init for stream #\(index)")
+        }
     }
 
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
-        return completionHandler(nil, nil)
+        logger.error("TrackReader loadTrackInfo called")
+        return completionHandler(nil, MEError(.internalFailure))
     }
 
     func loadUneditedDuration(completionHandler: @escaping (CMTime, (any Error)?) -> Void) {
@@ -52,7 +55,9 @@ class TrackReader: NSObject, METrackReader {
         atPresentationTimeStamp presentationTimeStamp: CMTime,
         completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
     ) {
-        logger.debug("TrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp)")
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("TrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp)")
+        }
         return completionHandler(
             SampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: presentationTimeStamp),
             nil
@@ -62,7 +67,9 @@ class TrackReader: NSObject, METrackReader {
     func generateSampleCursorAtFirstSampleInDecodeOrder(
         completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
     ) {
-        logger.debug("TrackReader stream \(self.index) generateSampleCursorAtFirstSampleInDecodeOrder")
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("TrackReader stream \(self.index) generateSampleCursorAtFirstSampleInDecodeOrder")
+        }
         return completionHandler(
             SampleCursor(
                 format: format,
@@ -78,15 +85,11 @@ class TrackReader: NSObject, METrackReader {
     func generateSampleCursorAtLastSampleInDecodeOrder(
         completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
     ) {
-        logger.debug("TrackReader stream \(self.index) generateSampleCursorAtLastSampleInDecodeOrder")
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("TrackReader stream \(self.index) generateSampleCursorAtLastSampleInDecodeOrder")
+        }
         return completionHandler(
-            SampleCursor(
-                format: format,
-                track: self,
-                index: index,
-                atPresentationTimeStamp: stream.duration != AV_NOPTS_VALUE
-                    ? CMTime(value: stream.duration, timeBase: stream.time_base) : .positiveInfinity
-            ),
+            SampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
             nil
         )
     }

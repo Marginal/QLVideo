@@ -70,12 +70,14 @@ class SampleCursor: NSObject, MESampleCursor {
         self.format = format
         self.track = track
         self.index = index
-        self.timeBase = format.fmt_ctx!.pointee.streams[index]!.pointee.time_base
+        self.timeBase = track.stream.time_base
         self.instance = SampleCursor.instanceCount
         SampleCursor.instanceCount += 1
         self.qi = format.packetQueue!.seek(stream: index, pts: presentationTimeStamp)
-        logger.debug("SampleCursor \(self.instance) stream \(index) init at pts:\(presentationTimeStamp)")
         // (current, error) = format.packetQueue!.seek(stream: index, to: presentationTimeStamp)
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("SampleCursor \(self.instance) stream \(index) init at presentationTimeStamp:\(presentationTimeStamp)")
+        }
     }
 
     init(copying: SampleCursor) {
@@ -83,7 +85,7 @@ class SampleCursor: NSObject, MESampleCursor {
         self.format = copying.format
         self.track = copying.track
         self.index = copying.index
-        self.timeBase = copying.format!.fmt_ctx!.pointee.streams[index]!.pointee.time_base
+        self.timeBase = copying.track!.stream.time_base
         //if copying.current != nil { self.current = av_packet_clone(copying.current) }
         self.qi = copying.qi
         self.error = copying.error
@@ -105,10 +107,9 @@ class SampleCursor: NSObject, MESampleCursor {
     deinit {
         if TRACE_SAMPLE_CURSOR {
             if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
-                logger
-                    .debug(
-                        "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.pts, timeBase: self.timeBase)) deinit"
-                    )
+                logger.debug(
+                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.pts, timeBase: self.timeBase)) deinit"
+                )
             } else {
                 logger.debug("SampleCursor \(self.instance) stream \(self.index) at no packet deinit")
             }
@@ -174,13 +175,31 @@ class SampleCursor: NSObject, MESampleCursor {
     }
 
     var currentSampleFormatDescription: CMFormatDescription? {
-        let current = format!.packetQueue!.get(stream: self.index, qi: self.qi)
-        return current != nil ? track?.formatDescription : nil
+        if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug(
+                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) currentSampleFormatDescription = \(self.track!.formatDescription!.mediaSubType)"
+                )
+            }
+            return track!.formatDescription
+        } else {
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug("SampleCursor \(self.instance) stream \(self.index) currentSampleFormatDescription = no packet")
+            }
+            return nil
+        }
     }
 
     // MARK: Retrieving samples
 
     func sampleLocation() throws -> MESampleLocation {
+        if SAMPLE_CURSOR_USE_LOADSAMPLE && track!.stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO {
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug("SampleCursor \(self.instance) stream \(self.index) sampleLocation = not available")
+            }
+            throw MEError(.locationNotAvailable)
+        }
+
         if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
             if SAMPLE_CURSOR_USE_LOADSAMPLE {
                 if TRACE_SAMPLE_CURSOR {
@@ -200,7 +219,7 @@ class SampleCursor: NSObject, MESampleCursor {
             }
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.debug("SampleCursor \(self.instance) stream \(self.index) sampleLocation = no packet")
+                logger.error("SampleCursor \(self.instance) stream \(self.index) sampleLocation = no packet")
             }
             throw MEError(.endOfStream)
         }
@@ -211,6 +230,8 @@ class SampleCursor: NSObject, MESampleCursor {
             logger.debug(
                 "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) estimatedSampleLocation"
             )
+        } else {
+            logger.error("SampleCursor \(self.instance) stream \(self.index) estimatedSampleLocation at no packet")
         }
         throw MEError(.locationNotAvailable)
     }
@@ -297,7 +318,7 @@ class SampleCursor: NSObject, MESampleCursor {
             return completionHandler(sampleBuffer, nil)
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.debug(
+                logger.error(
                     "SampleCursor \(self.instance) stream \(self.index) loadSampleBufferContainingSamples to \(endSampleCursor?.presentationTimeStamp ?? CMTime.indefinite) no packet"
                 )
             }
@@ -359,10 +380,11 @@ class SampleCursor: NSObject, MESampleCursor {
         completionHandler: @escaping @Sendable (CMTime, Bool, (any Error)?) -> Void
     ) {
         if TRACE_SAMPLE_CURSOR {
-            logger.debug(
+            logger.error(
                 "SampleCursor \(self.instance) stream \(self.index) stepByPresentationTime by \(deltaPresentationTime)"
             )
         }
+        return completionHandler(.invalid, false, MEError(.unsupportedFeature))
     }
 
     // MARK: GOP
@@ -376,15 +398,40 @@ class SampleCursor: NSObject, MESampleCursor {
             )
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) AVSampleCursorSyncInfo sampleIsFullSync:\(info.sampleIsFullSync) sampleIsDroppable:\(info.sampleIsDroppable)"
+                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) syncInfo sampleIsFullSync:\(info.sampleIsFullSync) sampleIsDroppable:\(info.sampleIsDroppable)"
                 )
             }
             return info
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.debug("SampleCursor \(self.instance) stream \(self.index) AVSampleCursorSyncInfo no packet")
+                logger.error("SampleCursor \(self.instance) stream \(self.index) syncInfo no packet")
             }
             return AVSampleCursorSyncInfo(sampleIsFullSync: false, sampleIsPartialSync: false, sampleIsDroppable: true)
+        }
+    }
+
+    var dependencyInfo: AVSampleCursorDependencyInfo {
+        if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
+            let info = AVSampleCursorDependencyInfo(
+                sampleIndicatesWhetherItHasDependentSamples: true,
+                sampleHasDependentSamples: false,
+                sampleIndicatesWhetherItDependsOnOthers: true,
+                sampleDependsOnOthers: false,
+                sampleIndicatesWhetherItHasRedundantCoding: true,
+                sampleHasRedundantCoding: false
+            )
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug(
+                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) dependencyInfo sampleHasDependentSamples:\(info.sampleHasDependentSamples) sampleDependsOnOthers:\(info.sampleDependsOnOthers)"
+                )
+            }
+            return info
+        } else {
+            let info = AVSampleCursorDependencyInfo()
+            if TRACE_SAMPLE_CURSOR {
+                logger.error("SampleCursor \(self.instance) stream \(self.index) dependencyInfo no packet")
+            }
+            return info
         }
     }
 
@@ -396,12 +443,12 @@ class SampleCursor: NSObject, MESampleCursor {
         {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "SampleCursor \(cursor.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) samplesWithEarlierDTSsMayHaveLaterPTSs than presentationTimeStamp \(CMTime(value: other.pointee.dts, timeBase: self.timeBase))"
+                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) samplesWithEarlierDTSsMayHaveLaterPTSs than SampleCursor \(cursor.instance) at presentationTimeStamp \(CMTime(value: other.pointee.pts, timeBase: self.timeBase))"
                 )
             }
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.debug(
+                logger.error(
                     "SampleCursor \(cursor.instance) stream \(self.index) samplesWithEarlierDTSsMayHaveLaterPTSs no packet"
                 )
             }
@@ -417,12 +464,12 @@ class SampleCursor: NSObject, MESampleCursor {
         {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "SampleCursor \(cursor.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) samplesWithLaterDTSsMayHaveEarlierPTSs than presentationTimeStamp \(CMTime(value: other.pointee.dts, timeBase: self.timeBase))"
+                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase)) samplesWithLaterDTSsMayHaveEarlierPTSs than SampleCursor \(cursor.instance) at presentationTimeStamp \(CMTime(value: other.pointee.pts, timeBase: self.timeBase))"
                 )
             }
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.debug(
+                logger.error(
                     "SampleCursor \(cursor.instance) stream \(self.index) samplesWithLaterDTSsMayHaveEarlierPTSs no packet"
                 )
             }
