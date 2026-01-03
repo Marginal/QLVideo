@@ -130,9 +130,6 @@ class FormatReader: NSObject, MEFormatReader {
             return completionHandler(nil, err)
         }
 
-        // Start demuxing packets
-        packetQueue = PacketQueue(fmt_ctx!)
-
         let fileInfo = MEFileInfo()
         fileInfo.duration = CMTime(value: fmt_ctx!.pointee.duration, timescale: AV_TIME_BASE)
         fileInfo.fragmentsStatus = .couldNotContainFragments
