@@ -171,7 +171,7 @@ class FormatReader: NSObject, MEFormatReader {
             Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_SUBTITLE, -1, -1, &decoder, 0)),
         ]
         for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
-            guard let stream = fmt_ctx!.pointee.streams[i]?.pointee else { continue }
+            guard var stream = fmt_ctx!.pointee.streams[i]?.pointee else { continue }
             let params = stream.codecpar.pointee
             // Only add supported stream types
             switch params.codec_type {
@@ -207,6 +207,7 @@ class FormatReader: NSObject, MEFormatReader {
             //    }
 
             default:
+                stream.discard = AVDISCARD_ALL // no point demuxing or seeking streams that we can't handle
                 logger.info(
                     "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(FormatReader.avcodec_name(params.codec_id), privacy:.public)"
                 )
