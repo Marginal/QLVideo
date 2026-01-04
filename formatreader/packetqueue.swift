@@ -88,7 +88,7 @@ class PacketQueue: @unchecked Sendable {
                     let pkt = pkt!.pointee
                     let stream = fmt_ctx.pointee.streams[Int(pkt.stream_index)]!.pointee
                     logger.debug(
-                        "PacketQueue queue: stream \(pkt.stream_index) dts:\(pkt.dts) pts:\(pkt.pts) duration:\(pkt.duration == AV_NOPTS_VALUE ? -1 : pkt.duration) time_base:\(stream.time_base.num)/\(stream.time_base.den) pos:0x\(UInt64(pkt.pos), format:.hex) size:0x\(UInt(pkt.size), format:.hex) flags:\(pkt.flags & AV_PKT_FLAG_KEY != 0 ? "K" : "_")\(pkt.flags & AV_PKT_FLAG_DISCARD != 0 ? "D" : "_")\(pkt.flags & AV_PKT_FLAG_CORRUPT != 0 ? "C" : "_")"
+                        "PacketQueue queue: stream \(pkt.stream_index) dts:\(pkt.dts) pts:\(pkt.pts) duration:\(pkt.duration == AV_NOPTS_VALUE ? -1 : pkt.duration) time_base:\(stream.time_base.num)/\(stream.time_base.den) pos:0x\(UInt64(pkt.pos), format:.hex) size:0x\(UInt(pkt.size), format:.hex) flags:\(pkt.flags & AV_PKT_FLAG_KEY != 0 ? "K" : "_", privacy: .public)\(pkt.flags & AV_PKT_FLAG_DISCARD != 0 ? "D" : "_", privacy: .public)\(pkt.flags & AV_PKT_FLAG_CORRUPT != 0 ? "C" : "_", privacy: .public)"
                     )
                 }
                 append(pkt!)
