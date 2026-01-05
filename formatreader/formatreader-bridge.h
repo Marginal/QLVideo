@@ -7,9 +7,10 @@
 
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
 
 // FFmpeg internals
-#include "libavcodec/h264_parse.h"
+#include <libavutil/pixdesc.h>
 
 // this project
 #include "callbacks.h"
