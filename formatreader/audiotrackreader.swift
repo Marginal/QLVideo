@@ -253,7 +253,7 @@ class AudioTrackReader: TrackReader {
         //   frame = set of time-coincident samples for all channels in the stream e.g. 2 samples for a stereo channel
 
         // From CoreAudioBaseTypes.h: "In non-interleaved [=planar] audio, the per frame fields identify one channel".
-        let uncompressed = [kAudioFormatLinearPCM, kAudioFormatALaw, kAudioFormatULaw].contains(
+        uncompressed = [kAudioFormatLinearPCM, kAudioFormatALaw, kAudioFormatULaw].contains(
             AudioTrackReader.fourcc[params.codec_id]
         )
         let flags =

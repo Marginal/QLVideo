@@ -15,7 +15,8 @@ class TrackReader: NSObject, METrackReader {
     var isEnabled: Bool = false
     var format: FormatReader
     var stream: AVStream
-    @objc var formatDescription: CMFormatDescription? = nil
+    var uncompressed: Bool = false
+    var formatDescription: CMFormatDescription? = nil
 
     init(format: FormatReader, stream: AVStream, index: Int, enabled: Bool) {
         self.index = index

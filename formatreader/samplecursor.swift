@@ -14,7 +14,7 @@ import MediaExtension
 #endif
 
 // Serve up packet data using loadSampleBufferContainingSamples() rather than sampleLocation()
-let SAMPLE_CURSOR_USE_LOADSAMPLE: Bool = false
+let SAMPLE_CURSOR_USE_LOADSAMPLE: Bool = true
 
 // Selected FFmpeg constants that we need but that Swift bridging can't figure out
 let AV_NOPTS_VALUE: Int64 = Int64.min
@@ -196,7 +196,7 @@ class SampleCursor: NSObject, MESampleCursor {
     // MARK: Retrieving samples
 
     func sampleLocation() throws -> MESampleLocation {
-        if SAMPLE_CURSOR_USE_LOADSAMPLE && track!.stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO {
+        if SAMPLE_CURSOR_USE_LOADSAMPLE {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug("SampleCursor \(self.instance) stream \(self.index) sampleLocation = not available")
             }
@@ -298,32 +298,32 @@ class SampleCursor: NSObject, MESampleCursor {
                 logger.error("CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)")
                 return completionHandler(nil, error)
             }
+
+            let mediaType = track!.stream.codecpar.pointee.codec_type
             var sampleBuffer: CMSampleBuffer? = nil
             var timingInfo = CMSampleTimingInfo(
-                duration: CMTime(value: 1, timescale: track!.stream.codecpar.pointee.sample_rate),
-                presentationTimeStamp: CMTime(value: current.pointee.dts, timeBase: timeBase),
-                decodeTimeStamp: .invalid
+                duration: CMTime(value: current.pointee.duration, timeBase: timeBase),
+                presentationTimeStamp: CMTime(value: current.pointee.pts, timeBase: timeBase),
+                decodeTimeStamp: CMTime(value: current.pointee.dts, timeBase: timeBase)
+            )
+            let frameCount = CMItemCount(
+                mediaType == AVMEDIA_TYPE_VIDEO
+                    ? 1
+                    : (track!.uncompressed
+                        ? current.pointee.size
+                            / ((track!.stream.codecpar.pointee.bits_per_coded_sample >> 3)
+                                * track!.stream.codecpar.pointee.ch_layout.nb_channels)
+                        : track!.stream.codecpar.pointee.frame_size)
             )
             var sampleSize = Int(track!.stream.codecpar.pointee.bits_per_coded_sample >> 3)
-            /* TODO: Consider:
-            let blockbuffer = CMReadOnlyDataBlockBuffer(data: current.pointee.data, length: current.pointee.size)
-            CMReadySampleBuffer(
-                audioDataBuffer: blockbuffer,
-                formatDescription: track!.formatDescription!,
-                sampleCount: Int(track!.stream.codecpar.pointee.frame_size * track!.stream.codecpar.pointee.ch_layout.nb_channels),
-                presentationTimeStamp: CMTime(value: current.pointee.dts, timeBase: timeBase)
-            )
-             */
             status = CMSampleBufferCreateReady(
                 allocator: kCFAllocatorDefault,
                 dataBuffer: blockBuffer,
                 formatDescription: track!.formatDescription,
-                sampleCount: CMItemCount(
-                    track!.stream.codecpar.pointee.frame_size * track!.stream.codecpar.pointee.ch_layout.nb_channels
-                ),
+                sampleCount: frameCount,
                 sampleTimingEntryCount: 1,
                 sampleTimingArray: &timingInfo,
-                sampleSizeEntryCount: 1,
+                sampleSizeEntryCount: mediaType == AVMEDIA_TYPE_VIDEO ? 0 : 1,
                 sampleSizeArray: &sampleSize,
                 sampleBufferOut: &sampleBuffer
             )
@@ -439,31 +439,32 @@ class SampleCursor: NSObject, MESampleCursor {
             return AVSampleCursorSyncInfo(sampleIsFullSync: false, sampleIsPartialSync: false, sampleIsDroppable: true)
         }
     }
-
-    var dependencyInfo: AVSampleCursorDependencyInfo {
-        if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
-            let info = AVSampleCursorDependencyInfo(
-                sampleIndicatesWhetherItHasDependentSamples: true,
-                sampleHasDependentSamples: false,
-                sampleIndicatesWhetherItDependsOnOthers: true,
-                sampleDependsOnOthers: false,
-                sampleIndicatesWhetherItHasRedundantCoding: true,
-                sampleHasRedundantCoding: false
-            )
-            if TRACE_SAMPLE_CURSOR {
-                logger.debug(
-                    "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) dependencyInfo sampleHasDependentSamples:\(info.sampleHasDependentSamples, privacy: .public) sampleDependsOnOthers:\(info.sampleDependsOnOthers, privacy: .public)"
+    #if false
+        var dependencyInfo: AVSampleCursorDependencyInfo {
+            if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
+                let info = AVSampleCursorDependencyInfo(
+                    sampleIndicatesWhetherItHasDependentSamples: true,
+                    sampleHasDependentSamples: ObjCBool((current.pointee.flags & AV_PKT_FLAG_KEY) != 0),
+                    sampleIndicatesWhetherItDependsOnOthers: true,
+                    sampleDependsOnOthers: ObjCBool((current.pointee.flags & AV_PKT_FLAG_KEY) == 0),
+                    sampleIndicatesWhetherItHasRedundantCoding: true,
+                    sampleHasRedundantCoding: false
                 )
+                if TRACE_SAMPLE_CURSOR {
+                    logger.debug(
+                        "SampleCursor \(self.instance) stream \(self.index) at decodeTimeStamp \(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) dependencyInfo sampleHasDependentSamples:\(info.sampleHasDependentSamples, privacy: .public) sampleDependsOnOthers:\(info.sampleDependsOnOthers, privacy: .public)"
+                    )
+                }
+                return info
+            } else {
+                let info = AVSampleCursorDependencyInfo()
+                if TRACE_SAMPLE_CURSOR {
+                    logger.error("SampleCursor \(self.instance) stream \(self.index) dependencyInfo no packet")
+                }
+                return info
             }
-            return info
-        } else {
-            let info = AVSampleCursorDependencyInfo()
-            if TRACE_SAMPLE_CURSOR {
-                logger.error("SampleCursor \(self.instance) stream \(self.index) dependencyInfo no packet")
-            }
-            return info
         }
-    }
+    #endif
 
     // whether any sample earlier in decode order than the current sample can have a later presentation time than the current sample of the specified cursor
     func samplesWithEarlierDTSsMayHaveLaterPTSs(than cursor: any MESampleCursor) -> Bool {
