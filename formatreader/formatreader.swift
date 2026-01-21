@@ -49,9 +49,6 @@ class FormatReader: NSObject, MEFormatReader {
     var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
     var packetQueue: PacketQueue? = nil
 
-    // FFmpeg produces AVPackets identified by stream index. Maintain a mapping so we can find the Track they belong to
-    var tracks: [Int: TrackReader] = [:]
-
     init(primaryByteSource: MEByteSource) {
         byteSource = primaryByteSource
         super.init()
@@ -66,11 +63,6 @@ class FormatReader: NSObject, MEFormatReader {
             avio_close(avio_ctx)  // also frees the underlying buffer
         }
     }
-
-    //class func av_err2str(_ errnum: Int32) -> String {
-    //    var buf = [CChar](repeating: 0, count: Int(AV_ERROR_MAX_STRING_SIZE))
-    //    return String(cString: av_make_error_string(&buf, Int(AV_ERROR_MAX_STRING_SIZE), errnum))
-    //}
 
     class func av_fourcc2str(_ fourcc: UInt32) -> String {
         var buf = [CChar](repeating: 0, count: Int(AV_FOURCC_MAX_STRING_SIZE))

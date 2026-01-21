@@ -9,7 +9,7 @@ import Foundation
 import MediaExtension
 import OSLog
 
-class VideoTrackReader: TrackReader {
+class VideoTrackReader: TrackReader, METrackReader {
 
     // AVCodecParameters.codec_tag can be zero(!) so prefer .codec_id for common types known to AVFoundation
     // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
@@ -42,7 +42,7 @@ class VideoTrackReader: TrackReader {
         AV_CODEC_ID_AV1: "av1C",  // https://aomediacodec.github.io/av1-isobmff/#av1codecconfigurationbox-section
     ]
 
-    override func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
+    func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
 
         let params = stream.codecpar.pointee
         guard params.codec_type == AVMEDIA_TYPE_VIDEO else {
@@ -127,12 +127,12 @@ class VideoTrackReader: TrackReader {
                 { result, byte in String(format: "%@ %02x", result, byte) }
             )
             logger.debug(
-                "loadTrackInfo unhandled extradata \(params.extradata_size) bytes with codec \"\(FormatReader.avcodec_name(params.codec_id), privacy:.public)\": \(hex, privacy:.public)"
+                "VideoTrackReader stream \(self.index) loadTrackInfo unhandled extradata \(params.extradata_size) bytes with codec \"\(FormatReader.avcodec_name(params.codec_id), privacy:.public)\": \(hex, privacy:.public)"
             )
         }
 
         logger.debug(
-            "loadTrackInfo for stream #\(self.index) enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(VideoTrackReader.fourcc[params.codec_id] ?? params.codec_tag), privacy: .public)\" extensions:\(description, privacy:.public) timescale:\(self.stream.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.avg_frame_rate), format:.fixed(precision:2))fps"
+            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(VideoTrackReader.fourcc[params.codec_id] ?? params.codec_tag), privacy: .public)\" extensions:\(description, privacy:.public) timescale:\(self.stream.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.avg_frame_rate), format:.fixed(precision:2))fps"
         )
         if params.codec_id == AV_CODEC_ID_VP9 || params.codec_id == AV_CODEC_ID_VP8 {
             VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9)
@@ -151,7 +151,9 @@ class VideoTrackReader: TrackReader {
         )
         guard status == noErr else {
             let err = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-            logger.error("CMVideoFormatDescriptionCreate returned \(err, privacy:.public)")
+            logger.error(
+                "VideoTrackReader stream \(self.index) loadTrackInfo CMVideoFormatDescriptionCreate returned \(err, privacy:.public)"
+            )
             return completionHandler(nil, err)
         }
         let trackInfo = METrackInfo(
@@ -160,7 +162,7 @@ class VideoTrackReader: TrackReader {
             formatDescriptions: [formatDescription!]
         )
         trackInfo.isEnabled = isEnabled
-        // TODO: set extendedLanguageTag from stream metadata "language" tag
+        // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
         trackInfo.naturalSize = CGSize(width: Int(params.width), height: Int(params.height))
         trackInfo.naturalTimescale = stream.time_base.den
         let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream, nil)
@@ -171,7 +173,61 @@ class VideoTrackReader: TrackReader {
         trackInfo.nominalFrameRate = Float32(av_q2d(stream.avg_frame_rate))
         trackInfo.requiresFrameReordering = true  // TODO: do we need this?
 
-        format.tracks[index] = self
         completionHandler(trackInfo, nil)
     }
+
+    // MARK: Navigation
+
+    // The new sample cursor points to the last sample with a presentation time stamp (PTS) less than or equal to
+    // presentationTimeStamp, or if there are no such samples, the first sample in PTS order.
+    func generateSampleCursor(
+        atPresentationTimeStamp presentationTimeStamp: CMTime,
+        completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
+    ) {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug(
+                "VideoTrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp, privacy: .public)"
+            )
+        }
+        return completionHandler(
+            SampleCursor(
+                format: format,
+                track: self,
+                index: index,
+                atPresentationTimeStamp: presentationTimeStamp
+            ),
+            nil
+        )
+    }
+
+    func generateSampleCursorAtFirstSampleInDecodeOrder(
+        completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
+    ) {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("VideoTrackReader stream \(self.index) generateSampleCursorAtFirstSampleInDecodeOrder")
+        }
+        return completionHandler(
+            SampleCursor(
+                format: format,
+                track: self,
+                index: index,
+                atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
+                    ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+            ),
+            nil
+        )
+    }
+
+    func generateSampleCursorAtLastSampleInDecodeOrder(
+        completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
+    ) {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("VideoTrackReader stream \(self.index) generateSampleCursorAtLastSampleInDecodeOrder")
+        }
+        return completionHandler(
+            SampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
+            nil
+        )
+    }
+
 }

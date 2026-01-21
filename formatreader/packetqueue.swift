@@ -83,9 +83,7 @@ class PacketQueue: @unchecked Sendable {
                     break
                 }
             } else {
-                if !SAMPLE_CURSOR_USE_LOADSAMPLE {
-                    pkt!.pointee.pos += pkt_fixup
-                }
+                pkt!.pointee.pos += pkt_fixup
                 if TRACE_PACKET_QUEUE {
                     let pkt = pkt!.pointee
                     let stream = fmt_ctx.pointee.streams[Int(pkt.stream_index)]!.pointee
@@ -113,7 +111,7 @@ class PacketQueue: @unchecked Sendable {
 
         // Fix up invalid leading DTSs to be negative
         for q in queue {
-            if q[0].pointee.dts == AV_NOPTS_VALUE && q[0].pointee.duration != AV_NOPTS_VALUE {
+            if !q.isEmpty && q[0].pointee.dts == AV_NOPTS_VALUE && q[0].pointee.duration != AV_NOPTS_VALUE {
                 for i in 0..<q.count {
                     var dts = q[i].pointee.dts
                     if dts != AV_NOPTS_VALUE {

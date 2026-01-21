@@ -9,11 +9,11 @@ import Foundation
 import MediaExtension
 import OSLog
 
-class AudioTrackReader: TrackReader {
+class AudioTrackReader: TrackReader, METrackReader {
 
     // AVCodecParameters.codec_tag can be zero(!) so prefer .codec_id for common types known to AVFoundation
     // See https://ffmpeg.org/doxygen/8.0/matroska_8c_source.html#l00027 for the codec_ids that FFmpeg expects in a Matroska container
-    static let fourcc: [AVCodecID: AudioFormatID] = [
+    static let formatIDs: [AVCodecID: AudioFormatID] = [
         AV_CODEC_ID_PCM_S8: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_U8: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_S16BE: kAudioFormatLinearPCM,
@@ -164,9 +164,17 @@ class AudioTrackReader: TrackReader {
         AV_SAMPLE_FMT_S64P: kAudioFormatFlagIsNonInterleaved | kAudioFormatFlagIsSignedInteger,
     ]
 
-    override func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
+    deinit {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("AudioTrackReader deinit for stream #\(self.index)")
+        }
+        if dec_ctx != nil { avcodec_free_context(&dec_ctx) }
+        if swr_ctx != nil { swr_free(&swr_ctx) }
+    }
 
-        let params = stream.codecpar.pointee
+    func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
+
+        var params = stream.codecpar.pointee
         guard params.codec_type == AVMEDIA_TYPE_AUDIO else {
             logger.error("Can't get stream parameters for stream #\(self.index)")
             preconditionFailure("Can't get stream parameters for stream #\(self.index)")
@@ -177,9 +185,75 @@ class AudioTrackReader: TrackReader {
                 String(format: "%02x", $0)
             }.joined(separator: " ")
             logger.debug(
-                "loadTrackInfo for stream #\(self.index) enabled:\(self.isEnabled) time_base:\(self.stream.time_base.num)/\(self.stream.time_base.den) start_time:\(self.stream.start_time) duration:\(self.stream.duration == AV_NOPTS_VALUE ? -1 : self.stream.duration) disposition:\(UInt(self.stream.disposition), format:.hex) codecpar: codec_id:\(String(cString:avcodec_get_name(params.codec_id)), privacy: .public) codec_tag:\"\(FormatReader.av_fourcc2str(params.codec_tag), privacy:.public)\" format:\(String(cString: av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy:.public) sample_rate:\(params.sample_rate) frame_size:\(params.frame_size) bits_per_coded_sample:\(params.bits_per_coded_sample) bits_per_raw_sample:\(params.bits_per_raw_sample) layout: order:\(params.ch_layout.order.rawValue) nb_channels:\(params.ch_layout.nb_channels) mask:\(params.ch_layout.u.mask, format: .hex) extradata \(params.extradata_size) bytes: \(hex)"
+                "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) time_base:\(self.stream.time_base.num)/\(self.stream.time_base.den) start_time:\(self.stream.start_time) duration:\(self.stream.duration == AV_NOPTS_VALUE ? -1 : self.stream.duration) disposition:\(UInt(self.stream.disposition), format:.hex) codecpar: codec_id:\(String(cString:avcodec_get_name(params.codec_id)), privacy: .public) codec_tag:\"\(FormatReader.av_fourcc2str(params.codec_tag), privacy:.public)\" format:\(String(cString: av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy:.public) sample_rate:\(params.sample_rate) frame_size:\(params.frame_size) bits_per_coded_sample:\(params.bits_per_coded_sample) bits_per_raw_sample:\(params.bits_per_raw_sample) layout: order:\(params.ch_layout.order.rawValue) nb_channels:\(params.ch_layout.nb_channels) mask:\(params.ch_layout.u.mask, format: .hex) extradata \(params.extradata_size) bytes: \(hex)"
             )
         #endif
+
+        // Check that we can decode
+
+        let formatID = AudioTrackReader.formatIDs[params.codec_id]  // Can macOS decode?
+        if formatID == nil {
+            // macOS can't decode - prepare an AVCodecContext for FFmpeg decoding and SwrContext for resampling
+            guard let codec = avcodec_find_decoder(params.codec_id) else {
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: No decoder for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
+                )
+                return completionHandler(nil, MEError(.unsupportedFeature))
+            }
+
+            dec_ctx = avcodec_alloc_context3(codec)
+            if dec_ctx == nil {
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create decoder context for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
+                )
+                return completionHandler(nil, MEError(.unsupportedFeature))
+            }
+            var ret = avcodec_parameters_to_context(dec_ctx, &params)
+            if ret < 0 {
+                let err = AVERROR(errorCode: ret)
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription)"
+                )
+                return completionHandler(nil, err)
+            }
+            ret = avcodec_open2(dec_ctx, codec, nil)
+            if ret < 0 {
+                let err = AVERROR(errorCode: ret)
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec codec_id: \(params.codec_id.rawValue) \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription)"
+                )
+                return completionHandler(nil, err)
+            }
+
+            ret = swr_alloc_set_opts2(
+                &swr_ctx,
+                &params.ch_layout,
+                av_get_packed_sample_fmt(AVSampleFormat(params.format)),  // out
+                params.sample_rate,
+                &params.ch_layout,
+                AVSampleFormat(params.format),  // in
+                params.sample_rate,
+                0,
+                nil
+            )
+            if ret < 0 {
+                let err = AVERROR(errorCode: ret)
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.localizedDescription)"
+                )
+                return completionHandler(nil, err)
+            }
+            ret = swr_init(swr_ctx)
+            if ret < 0 {
+                let err = AVERROR(errorCode: ret)
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't initialise resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.localizedDescription)"
+                )
+                return completionHandler(nil, err)
+            }
+        }
+
+        // Determine channel layout
 
         var layoutTag = kAudioChannelLayoutTag_Unknown
         if params.ch_layout.order == AV_CHANNEL_ORDER_NATIVE {
@@ -200,7 +274,7 @@ class AudioTrackReader: TrackReader {
             }
         } else if params.ch_layout.order == AV_CHANNEL_ORDER_CUSTOM {
             // TODO: layoutTag = kAudioChannelLayoutTag_UseChannelDescriptions
-            logger.error("loadTrackInfo for stream #\(self.index): unhandled custom channel layout")
+            logger.error("AudioTrackReader stream \(self.index) loadTrackInfo: unhandled custom channel layout")
         } else if params.ch_layout.order == AV_CHANNEL_ORDER_UNSPEC {
             // AVFoundation won't play with unknown layout, so make some assumptions
             switch params.ch_layout.nb_channels {
@@ -209,7 +283,7 @@ class AudioTrackReader: TrackReader {
             case 2:
                 layoutTag = kAudioChannelLayoutTag_Stereo
             default:
-                logger.error("loadTrackInfo for stream #\(self.index): unspecified channel layout")
+                logger.error("AudioTrackReader stream \(self.index) loadTrackInfo: unspecified channel layout")
             }
         }
 
@@ -251,38 +325,47 @@ class AudioTrackReader: TrackReader {
         // See definitions at https://developer.apple.com/documentation/CoreAudioTypes/AudioStreamBasicDescription#overview
         //   sample = a single value for a single channel
         //   frame = set of time-coincident samples for all channels in the stream e.g. 2 samples for a stereo channel
-
-        // From CoreAudioBaseTypes.h: "In non-interleaved [=planar] audio, the per frame fields identify one channel".
-        uncompressed = [kAudioFormatLinearPCM, kAudioFormatALaw, kAudioFormatULaw].contains(
-            AudioTrackReader.fourcc[params.codec_id]
+        // From CoreAudioBaseTypes.h:
+        //   "In uncompressed audio, a Packet is one frame", "In compressed audio, a Packet is an indivisible chunk of compressed data"
+        //   "In non-interleaved [=planar] audio, the per frame fields identify one channel".
+        //
+        // 3 cases:
+        //   - Audio that CoreMedia doesn't understand - uncompressed=true, decoding=true
+        //     * Get FFmpeg to decode, and supply the uncompressed data via DecodedSampleCuresor.loadSampleBufferContainingSamples
+        //   - Compressed audio that macOS understands
+        //     * Can't supply the compressed data in loadSampleBufferContainingSamples since CoreMedia expects CMSampleBuffer
+        //       to contain sample count and sizes which we don't know (see CMSampleBufferCreate in CMSampleBuffer.h).
+        //       Could decode as above, but then it would show up as PCM rather than e.g. AAC in media players.
+        //       So supply data via PassthruSampleBuffer.sampleLocation (which unfortunately means it gets copied twice).
+        //   - Uncompressed - uncompressed=true
+        //     * We could use loadSampleBufferContainingSamples, but just supply the data via PassthruSampleBuffer.sampleLocation
+        //
+        let uncompressed = [kAudioFormatLinearPCM, kAudioFormatALaw, kAudioFormatULaw, nil].contains(formatID)
+        let decoding = formatID == nil
+        let bytes = UInt32(
+            decoding
+                ? av_get_bytes_per_sample(AVSampleFormat(params.format))  // size of the decoded samples
+                : av_get_bits_per_sample(params.codec_id) >> 3  // returns zero for compressed formats
         )
         let flags =
-            AudioTrackReader.formatFlags[
-                uncompressed ? AVSampleFormat(params.format) : av_get_packed_sample_fmt(AVSampleFormat(params.format))
-            ]
-            ?? 0  // FFmpeg reports compressed data e.g. AAC as planar but CoreAudio disagrees
+            AudioTrackReader.formatFlags[av_get_packed_sample_fmt(AVSampleFormat(params.format))]!  // CoreAudio doesn't consider compressed formats as planar, and can't handle planar decoded PCM so we have to resample
+            | (params.bits_per_raw_sample == params.bits_per_coded_sample
+                ? kAudioFormatFlagIsPacked : kAudioFormatFlagIsAlignedHigh)
         let planar = (flags & kAudioFormatFlagIsNonInterleaved) != 0
         var asbd = AudioStreamBasicDescription(
             mSampleRate: Float64(params.sample_rate),
-            mFormatID: AudioTrackReader.fourcc[params.codec_id] ?? params.codec_tag,
-            mFormatFlags: flags
-                | (params.bits_per_raw_sample == params.bits_per_coded_sample
-                    ? kAudioFormatFlagIsPacked : kAudioFormatFlagIsAlignedHigh),
-            mBytesPerPacket: uncompressed
-                ? UInt32(params.bits_per_coded_sample >> 3) * UInt32(planar ? 1 : params.ch_layout.nb_channels)
-                : 0,
+            mFormatID: formatID ?? kAudioFormatLinearPCM,
+            mFormatFlags: flags,
+            mBytesPerPacket: bytes * UInt32(planar ? 1 : params.ch_layout.nb_channels),  // "To indicate variable packet size, set this field to 0"
             mFramesPerPacket: UInt32(uncompressed ? 1 : params.frame_size),  // "In uncompressed audio, a Packet is one frame"
-            mBytesPerFrame: uncompressed
-                ? UInt32(params.bits_per_coded_sample >> 3) * UInt32(planar ? 1 : params.ch_layout.nb_channels)
-                : 0,
+            mBytesPerFrame: bytes * UInt32(planar ? 1 : params.ch_layout.nb_channels),  // "Set this field to 0 for compressed formats"
             mChannelsPerFrame: UInt32(params.ch_layout.nb_channels),
-            mBitsPerChannel: UInt32(params.bits_per_raw_sample),  // e.g. 24
+            mBitsPerChannel: bytes << 3,  // "Set the number of bits to 0 for compressed formats"
             mReserved: 0
         )
         logger.debug(
-            "loadTrackInfo for stream #\(self.index) enabled:\(self.isEnabled) timescale:\(self.stream.time_base.den) layout:0x\(layoutTag, format:.hex) absd: sampleRate:\(Int(asbd.mSampleRate)) formatID:\"\(FormatReader.av_fourcc2str(asbd.mFormatID), privacy: .public)\" formatFlags:0x\(asbd.mFormatFlags, format: .hex) bytesPerPacket:\(asbd.mBytesPerPacket) framesPerPacket:\(asbd.mFramesPerPacket) bytesPerFrame:\(asbd.mBytesPerFrame) channelsPerFrame:\(asbd.mChannelsPerFrame) bitsPerChannel:\(asbd.mBitsPerChannel)"
+            "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) timescale:\(self.stream.time_base.den) layout:0x\(layoutTag, format:.hex) absd: sampleRate:\(Int(asbd.mSampleRate)) formatID:\"\(FormatReader.av_fourcc2str(asbd.mFormatID), privacy: .public)\" formatFlags:0x\(asbd.mFormatFlags, format: .hex) bytesPerPacket:\(asbd.mBytesPerPacket) framesPerPacket:\(asbd.mFramesPerPacket) bytesPerFrame:\(asbd.mBytesPerFrame) channelsPerFrame:\(asbd.mChannelsPerFrame) bitsPerChannel:\(asbd.mBitsPerChannel)"
         )
-
         let status = CMAudioFormatDescriptionCreate(
             allocator: kCFAllocatorDefault,
             asbd: &asbd,
@@ -295,7 +378,9 @@ class AudioTrackReader: TrackReader {
         )
         guard status == noErr else {
             let err = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-            logger.error("CMAudioFormatDescriptionCreate returned \(err, privacy:.public)")
+            logger.error(
+                "AudioTrackReader stream \(self.index) loadTrackInfo CMAudioFormatDescriptionCreate returned \(err, privacy:.public)"
+            )
             return completionHandler(nil, err)
         }
         let trackInfo = METrackInfo(
@@ -304,10 +389,96 @@ class AudioTrackReader: TrackReader {
             formatDescriptions: [formatDescription!]
         )
         trackInfo.isEnabled = isEnabled
-        // TODO: set extendedLanguageTag from stream metadata "language" tag
+        // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
         trackInfo.naturalTimescale = stream.time_base.den
 
-        format.tracks[index] = self
         completionHandler(trackInfo, nil)
     }
+
+    // MARK: Navigation
+
+    // The new sample cursor points to the last sample with a presentation time stamp (PTS) less than or equal to
+    // presentationTimeStamp, or if there are no such samples, the first sample in PTS order.
+    func generateSampleCursor(
+        atPresentationTimeStamp presentationTimeStamp: CMTime,
+        completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
+    ) {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug(
+                "AudioTrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp, privacy: .public)"
+            )
+        }
+        if dec_ctx != nil {
+            return completionHandler(
+                DecodedSampleCursor(
+                    format: format,
+                    track: self,
+                    index: index,
+                    atPresentationTimeStamp: presentationTimeStamp
+                ),
+                nil
+            )
+        } else {
+            return completionHandler(
+                PassthruSampleCursor(
+                    format: format,
+                    track: self,
+                    index: index,
+                    atPresentationTimeStamp: presentationTimeStamp
+                ),
+                nil
+            )
+        }
+    }
+
+    func generateSampleCursorAtFirstSampleInDecodeOrder(
+        completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
+    ) {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("AudioTrackReader stream \(self.index) generateSampleCursorAtFirstSampleInDecodeOrder")
+        }
+        if dec_ctx != nil {
+            return completionHandler(
+                DecodedSampleCursor(
+                    format: format,
+                    track: self,
+                    index: index,
+                    atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
+                        ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                ),
+                nil
+            )
+        } else {
+            return completionHandler(
+                PassthruSampleCursor(
+                    format: format,
+                    track: self,
+                    index: index,
+                    atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
+                        ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                ),
+                nil
+            )
+        }
+    }
+
+    func generateSampleCursorAtLastSampleInDecodeOrder(
+        completionHandler: @escaping @Sendable ((any MESampleCursor)?, (any Error)?) -> Void
+    ) {
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug("AudioTrackReader stream \(self.index) generateSampleCursorAtLastSampleInDecodeOrder")
+        }
+        if dec_ctx != nil {
+            return completionHandler(
+                DecodedSampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
+                nil
+            )
+        } else {
+            return completionHandler(
+                PassthruSampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
+                nil
+            )
+        }
+    }
+
 }

@@ -15,6 +15,7 @@
 		AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
+		AB2606282F2038AA0019B41D /* libswresample.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.6.dylib */; };
 		AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EA2D2EF8CA0040A4E6 /* libdav1d.a */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* QLVideo.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -455,6 +456,7 @@
 				AB01AAFA2ECC04CA00A5CB77 /* libavformat.62.dylib in Frameworks */,
 				AB01AAFB2ECC04CD00A5CB77 /* libavcodec.62.dylib in Frameworks */,
 				AB01AAFC2ECC04D000A5CB77 /* libavutil.60.dylib in Frameworks */,
+				AB2606282F2038AA0019B41D /* libswresample.6.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
