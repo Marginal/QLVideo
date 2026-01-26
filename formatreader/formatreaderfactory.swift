@@ -43,7 +43,7 @@ class FormatReaderFactory: NSObject, MEFormatReaderExtension {
         #if DEBUG
             let identifier: String = primaryByteSource.contentType?.identifier ?? "unknown"
             logger.debug(
-                "FormatReaderFactory.formatReader \(primaryByteSource.fileName, privacy:.public) \(identifier, privacy:.public)"
+                "FormatReaderFactory formatReader \(primaryByteSource.fileName, privacy:.public) \(identifier, privacy:.public)"
             )
         #endif  // DEBUG
         return FormatReader(primaryByteSource: primaryByteSource)

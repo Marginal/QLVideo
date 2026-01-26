@@ -13,27 +13,34 @@ class VideoTrackReader: TrackReader, METrackReader {
 
     // AVCodecParameters.codec_tag can be zero(!) so prefer .codec_id for common types known to AVFoundation
     // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
-    static let fourcc: [AVCodecID: CMVideoCodecType] = [
+    static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'
+    static let kVideoCodecType_catchall = CMVideoCodecType(0x514c_5631)  // 'QLV1'
+
+    static let supported: [AVCodecID: CMVideoCodecType] = [
         AV_CODEC_ID_MJPEG: kCMVideoCodecType_JPEG,
         AV_CODEC_ID_JPEGXL: kCMVideoCodecType_JPEG_XL,
-        AV_CODEC_ID_SVQ1: kCMVideoCodecType_SorensonVideo,  // not supported by AVFoundation
-        AV_CODEC_ID_SVQ3: kCMVideoCodecType_SorensonVideo3,  // not supported by AVFoundation
         AV_CODEC_ID_H263: kCMVideoCodecType_H263,
         AV_CODEC_ID_H264: kCMVideoCodecType_H264,
         AV_CODEC_ID_HEVC: kCMVideoCodecType_HEVC,
         // kCMVideoCodecType_HEVCWithAlpha
         // kCMVideoCodecType_DolbyVisionHEVC
-        AV_CODEC_ID_MPEG1VIDEO: kCMVideoCodecType_MPEG1Video,  // not supported by AVFoundation
+        AV_CODEC_ID_MPEG1VIDEO: kCMVideoCodecType_MPEG1Video,
         AV_CODEC_ID_MPEG2VIDEO: kCMVideoCodecType_MPEG2Video,
         AV_CODEC_ID_MPEG4: kCMVideoCodecType_MPEG4Video,
-        AV_CODEC_ID_VP8: 0x7670_3038,  // 'vp08' somehow supported in Safari but not by AVFoundation
-        AV_CODEC_ID_VP9: kCMVideoCodecType_VP9,
-        // AV_CODEC_ID_DVVIDEO maps to multple kCMVideoCodecType_DVC*
-        // AV_CODEC_ID_PRORES maps tp multiple kCMVideoCodecType_AppleProRes*
-        // AV_CODEC_ID_PRORES_RAW maps tp multiple kCMVideoCodecType_AppleProResRAW*
-        // kCMVideoCodecType_DisparityHEVC ?
-        // kCMVideoCodecType_DepthHEVC ?
-        AV_CODEC_ID_AV1: kCMVideoCodecType_AV1,  // only supported by AVFoundation on M3 CPUs and later
+            // Hopefully codec_tag is set appropriately to disambiguate the below:
+            // AV_CODEC_ID_DVVIDEO maps to multple kCMVideoCodecType_DVC*
+            // AV_CODEC_ID_PRORES maps to multiple kCMVideoCodecType_AppleProRes*
+            // AV_CODEC_ID_PRORES_RAW maps tp multiple kCMVideoCodecType_AppleProResRAW*
+            // kCMVideoCodecType_DisparityHEVC ?
+            // kCMVideoCodecType_DepthHEVC ?
+    ]
+
+    static let remapped: [AVCodecID: CMVideoCodecType] = [
+        AV_CODEC_ID_SVQ1: 0x5156_5131,  // 'QVQ1' not supported by AVFoundation
+        AV_CODEC_ID_SVQ3: 0x5156_5133,  // 'QVQ3' not supported by AVFoundation
+        AV_CODEC_ID_VP8: 0x7670_5138,  // 'vpQ8' somehow supported in Safari but not by AVFoundation
+        AV_CODEC_ID_VP9: 0x7670_5139,  // 'vpQ9' not supported by AVFoundation unless client calls VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9)
+        AV_CODEC_ID_AV1: 0x6176_5131,  // 'avQ1' only supported by AVFoundation on M3 CPUs and later
     ]
 
     static let boxtype: [AVCodecID: String] = [
@@ -50,14 +57,15 @@ class VideoTrackReader: TrackReader, METrackReader {
             preconditionFailure("Can't get stream parameters for stream #\(self.index)")
         }
 
-        var description: CFDictionary? = nil
+        var extensions: [CFString: CFDictionary] = [:]
         if params.codec_id == AV_CODEC_ID_MJPEG {
             // Need an esds atom, but FFmpeg doesn't provide one. Make a minimal one.
             let bytes: [UInt8] = [
                 0, 0, 0, 0, 0x03, 0x80, 0x80, 0x80, 0x1b, 0, 0x01, 0, 0x04, 0x80, 0x80, 0x80, 0x0d, 0x6c, 0x11, 0, 0, 0, 0,
                 0x8b, 0xa5, 0xda, 0, 0x8b, 0xa5, 0xda, 0x06, 0x80, 0x80, 0x80, 0x01, 0x02,
             ]
-            description = ["esds" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
+            extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] =
+                ["esds" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
         } else if params.codec_id == AV_CODEC_ID_MPEG4 {
             // MPEG4 part 2 https://developer.apple.com/documentation/quicktime-file-format/mpeg-4_elementary_stream_descriptor_atom
             // FFmpeg only retains the decoder-specific info from "esds" in extradata - so rebuild it.
@@ -84,7 +92,8 @@ class VideoTrackReader: TrackReader, METrackReader {
                     0x80, 0x80, 0x80, 0x01,
                     0x02,
                 ]
-            description = ["esds" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
+            extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] =
+                ["esds" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
         } else if params.codec_id == AV_CODEC_ID_VP9 || params.codec_id == AV_CODEC_ID_VP8 {
             // https://www.webmproject.org/vp9/mp4/#vp-codec-configuration-box
             // See ff_videotoolbox_vpcc_extradata_create in https://ffmpeg.org/doxygen/8.0/videotoolbox__vp9_8c_source.html#l00065
@@ -110,9 +119,10 @@ class VideoTrackReader: TrackReader, METrackReader {
                     UInt8(params.color_space.rawValue),
                     0x00, 0x00,  // codecInitializationDataSize
                 ]
-            description = ["vpcC" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
+            extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] =
+                ["vpcC" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
         } else if params.extradata_size != 0, let atom = VideoTrackReader.boxtype[params.codec_id] {
-            description =
+            extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] =
                 [
                     atom as CFString: CFDataCreateWithBytesNoCopy(
                         kCFAllocatorDefault,
@@ -131,22 +141,77 @@ class VideoTrackReader: TrackReader, METrackReader {
             )
         }
 
-        logger.debug(
-            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(VideoTrackReader.fourcc[params.codec_id] ?? params.codec_tag), privacy: .public)\" extensions:\(description, privacy:.public) timescale:\(self.stream.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.avg_frame_rate), format:.fixed(precision:2))fps"
-        )
-        if params.codec_id == AV_CODEC_ID_VP9 || params.codec_id == AV_CODEC_ID_VP8 {
-            VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9)
+        var codecType = VideoTrackReader.supported[params.codec_id]
+
+        // Special handling for codecs that CoreMedia may or may not support
+        switch params.codec_id {
+        case AV_CODEC_ID_VP8:
+            if VTIsHardwareDecodeSupported(VideoTrackReader.kVideoCodecType_VP8) {
+                codecType = VideoTrackReader.kVideoCodecType_VP8
+            }
+            logger.log(
+                "VP8 decode available: \(VTIsHardwareDecodeSupported(VideoTrackReader.kVideoCodecType_VP8))"
+            )
+        case AV_CODEC_ID_VP9:
+            if VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9) { codecType = kCMVideoCodecType_VP9 }
             logger.log("VP9 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9))")
-        } else if params.codec_id == AV_CODEC_ID_AV1 {
-            VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_AV1)
+        case AV_CODEC_ID_AV1:
+            if VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) { codecType = kCMVideoCodecType_AV1 }
             logger.log("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))")
+        default:
+            break
         }
+
+        if codecType == nil {
+            // macOS can't decode - check whether FFmpeg has a decoder
+            guard avcodec_find_decoder(params.codec_id) != nil else {
+                logger.error(
+                    "VideoTrackReader stream \(self.index) loadTrackInfo: No decoder for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
+                )
+                return completionHandler(nil, MEError(.unsupportedFeature))
+            }
+
+            // Pass the stream's AVCodecParameters in CMFormatDescription so it can be reconstructed in the MEVideoDecoder
+            var parameters: [CFString: Any?] = [
+                "AVCodecParameters" as CFString: CFDataCreate(
+                    kCFAllocatorDefault,
+                    stream.codecpar,
+                    CFIndex(MemoryLayout<AVCodecParameters>.size)
+                )
+            ]
+            if params.extradata_size > 0 {
+                parameters["ExtraData" as CFString] = CFDataCreate(
+                    kCFAllocatorDefault,
+                    params.extradata,
+                    CFIndex(params.extradata_size)
+                )
+            }
+            for i in 0..<Int(params.nb_coded_side_data) {
+                parameters["SideData\(i)" as CFString] = CFDataCreate(
+                    kCFAllocatorDefault,
+                    params.coded_side_data[i].data,
+                    CFIndex(params.coded_side_data[i].size)
+                )
+                parameters["SideData\(i)Type" as CFString] = CFNumberCreate(nil, .intType, &params.coded_side_data[i].type)
+            }
+            extensions["QLVideo" as CFString] = parameters as CFDictionary
+
+            // Give the track a fourcc that ensures our MEVideoDecoder gets to see it
+            codecType =
+                VideoTrackReader.remapped[params.codec_id]
+                ?? (params.codec_tag != 0 ? params.codec_tag : VideoTrackReader.kVideoCodecType_catchall)
+        }
+
+        logger.debug(
+            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(codecType!), privacy: .public)\" extensions:\(extensions, privacy:.public) timescale:\(self.stream.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.avg_frame_rate), format:.fixed(precision:2))fps"
+        )
+
         let status = CMVideoFormatDescriptionCreate(
             allocator: kCFAllocatorDefault,
-            codecType: VideoTrackReader.fourcc[params.codec_id] ?? params.codec_tag,
+            codecType: codecType!,
             width: params.width,
             height: params.height,
-            extensions: [kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms: description] as CFDictionary,
+            extensions: extensions.isEmpty ? nil : extensions as CFDictionary,
             formatDescriptionOut: &formatDescription
         )
         guard status == noErr else {

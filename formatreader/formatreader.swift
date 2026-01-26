@@ -7,7 +7,6 @@
 
 import Foundation
 import MediaExtension
-import OSLog
 
 class FormatReader: NSObject, MEFormatReader {
 

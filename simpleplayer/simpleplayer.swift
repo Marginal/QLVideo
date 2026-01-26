@@ -22,8 +22,6 @@ struct SimplePlayer: App {
     init() {
         MTRegisterProfessionalVideoWorkflowFormatReaders()
         VTRegisterProfessionalVideoWorkflowVideoDecoders()
-        VTRegisterSupplementalVideoDecoderIfAvailable(0x7670_3038) // vp08
-        VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9)
         print("VP8 decode available: \(VTIsHardwareDecodeSupported(0x7670_3038))")
         print("VP9 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9))")
         print("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))")

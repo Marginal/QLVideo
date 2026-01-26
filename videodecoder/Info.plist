@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ApplicationGroup</key>
+	<string>$(TeamIdentifierPrefix)qlvideo</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>$(INFOPLIST_KEY_CFBundleDisplayName)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>EXAppExtensionAttributes</key>
+	<dict>
+		<key>ClassImplementationID</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>EXExtensionPointIdentifier</key>
+		<string>com.apple.mediaextension.videodecoder</string>
+		<key>EXPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).VideoDecoderFactory</string>
+		<key>CodecInfo</key>
+		<array>
+			<dict>
+				<key>CodecType</key>
+				<string>QVQ1</string>
+				<key>CodecName</key>
+				<string>Sorenson Video 1</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>QVQ3</string>
+				<key>CodecName</key>
+				<string>Sorenson Video 3</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>vpQ8</string>
+				<key>CodecName</key>
+				<string>On2 VP8</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>vpQ9</string>
+				<key>CodecName</key>
+				<string>Google VP9</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>avQ1</string>
+				<key>CodecName</key>
+				<string>AOMedia AV1</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>QLV1</string>
+				<key>CodecName</key>
+				<string>QuickLook Video</string>
+			</dict>
+		</array>
+		<key>ObjectName</key>
+		<string>Support for non-native video codecs</string>
+	</dict>
+	<key>LSMinimumSystemVersion</key>
+	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>${INFOPLIST_KEY_NSHumanReadableCopyright}</string>
+</dict>
+</plist>

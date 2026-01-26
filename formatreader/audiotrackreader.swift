@@ -220,7 +220,7 @@ class AudioTrackReader: TrackReader, METrackReader {
             if ret < 0 {
                 let err = AVERROR(errorCode: ret)
                 logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec codec_id: \(params.codec_id.rawValue) \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription)"
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription)"
                 )
                 return completionHandler(nil, err)
             }

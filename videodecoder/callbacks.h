@@ -18,9 +18,6 @@ extern "C" {
 
 void setup_av_log_callback(void);
 
-int MEByteSource_read_packet(void *opaque, uint8_t *buf, int buf_size);
-int64_t MEByteSource_seek(void *opaque, int64_t offset, int whence);
-
 #ifdef __cplusplus
 }
 #endif

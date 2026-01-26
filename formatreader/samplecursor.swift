@@ -13,38 +13,6 @@ import MediaExtension
     let TRACE_SAMPLE_CURSOR: Bool = false
 #endif
 
-// Selected FFmpeg constants that we need but that Swift bridging can't figure out
-let AV_NOPTS_VALUE: Int64 = Int64.min
-
-extension CMTime: @retroactive CustomStringConvertible {
-
-    // Convert AVPacket timestamps into CMTime
-    init(value: Int64, timeBase: AVRational) {
-        self.init()
-        if value == AV_NOPTS_VALUE || timeBase.den == 0 {
-            self = CMTime.invalid
-            self.timescale = timeBase.den
-        } else {
-            self = CMTime(value: value * Int64(timeBase.num), timescale: timeBase.den)
-        }
-    }
-
-    // For logging
-    public var description: String {
-        if !self.isValid {
-            return "invalid"
-        } else if self.isNegativeInfinity {
-            return "-inf"
-        } else if self.isPositiveInfinity {
-            return "+inf"
-        } else if self.isIndefinite {
-            return "indefinite"
-        } else {
-            return "\(self.value)/\(self.timescale)"
-        }
-    }
-}
-
 // See AVSampleCursor for the consumer's API by analogy
 
 class SampleCursor: NSObject, MESampleCursor, NSCopying {
@@ -222,6 +190,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             )
             return completionHandler(nil, MEError(.endOfStream))
         }
+        assert(current.pointee.side_data_elems == 0, "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase)), pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples to \(endPresentationTimeStamp): Unhandled side data")  // TODO: Handle side_data
         if TRACE_SAMPLE_CURSOR {
             logger.debug(
                 "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public)"
@@ -275,7 +244,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         status = CMSampleBufferCreateReady(
             allocator: kCFAllocatorDefault,
             dataBuffer: blockBuffer,
-            formatDescription: track!.formatDescription,
+            formatDescription: track!.formatDescription,  // TODO: attach any side_data as an extension
             sampleCount: track!.stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO ? 1 : 0,
             sampleTimingEntryCount: 1,
             sampleTimingArray: &timingInfo,
@@ -290,6 +259,12 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             )
             return completionHandler(nil, error)
         }
+        let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer!, createIfNecessary: true)! as NSArray
+        let attachment = attachments.firstObject as! NSMutableDictionary
+        attachment[kCMSampleAttachmentKey_DependsOnOthers] =
+            ((current.pointee.flags & AV_PKT_FLAG_KEY) != 0) ? kCFBooleanFalse : kCFBooleanTrue
+        attachment[kCMSampleAttachmentKey_DoNotDisplay] =
+            ((current.pointee.flags & AV_PKT_FLAG_DISCARD) != 0) ? kCFBooleanTrue : kCFBooleanFalse
 
         return completionHandler(sampleBuffer, nil)
     }
