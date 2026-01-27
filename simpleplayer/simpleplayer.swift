@@ -6,7 +6,9 @@
 //
 
 import AVKit
+import CoreVideo
 import MediaToolbox
+import Metal
 import SwiftUI
 import VideoToolbox
 
@@ -25,6 +27,8 @@ struct SimplePlayer: App {
         print("VP8 decode available: \(VTIsHardwareDecodeSupported(0x7670_3038))")
         print("VP9 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9))")
         print("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))")
+        printUTIs()
+        printPixFmts()
     }
 }
 
@@ -110,6 +114,94 @@ struct ContentView: View {
             default:
                 break
             }
+        }
+    }
+}
+
+// Helper to convert FourCC to readable string
+func fourCCString(_ f: OSType) -> String {
+    let chars: [CChar] = [
+        CChar((f >> 24) & 0xFF),
+        CChar((f >> 16) & 0xFF),
+        CChar((f >> 8) & 0xFF),
+        CChar(f & 0xFF),
+        0,
+    ]
+    return String(cString: chars)
+}
+
+// Try creating a CVPixelBuffer with IOSurface backing
+func canCreateIOSurfacePixelBuffer(format: OSType) -> Bool {
+    let attrs: [CFString: Any] = [
+        kCVPixelBufferPixelFormatTypeKey: format,
+        kCVPixelBufferWidthKey: 16,
+        kCVPixelBufferHeightKey: 16,
+        kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
+    ]
+
+    var pb: CVPixelBuffer?
+    let status = CVPixelBufferCreate(
+        kCFAllocatorDefault,
+        16,
+        16,
+        format,
+        attrs as CFDictionary,
+        &pb
+    )
+    return status == kCVReturnSuccess && pb != nil
+}
+
+// Check Metal GPU renderability
+func isMetalRenderable(format: OSType, device: MTLDevice) -> Bool {
+    // Try to map CVPixelFormat → MTLPixelFormat
+    // This is not exhaustive but covers all GPU‑renderable formats
+    let mapping: [OSType: MTLPixelFormat] = [
+        kCVPixelFormatType_32BGRA: .bgra8Unorm,
+        kCVPixelFormatType_32RGBA: .rgba8Unorm,
+        kCVPixelFormatType_64RGBAHalf: .rgba16Float,
+        kCVPixelFormatType_128RGBAFloat: .rgba32Float,
+        kCVPixelFormatType_OneComponent8: .r8Unorm,
+        kCVPixelFormatType_OneComponent16Half: .r16Float,
+        kCVPixelFormatType_OneComponent32Float: .r32Float,
+    ]
+
+    guard let mtlFormat = mapping[format] else {
+        return false
+    }
+
+    return device.supportsTextureSampleCount(1) && mtlFormat != .invalid
+}
+
+func printUTIs(){
+    // AVFoundation supported content
+    if #available(macOS 26.0, *) {
+        let ext = AVURLAsset.audiovisualContentTypes.map { "\($0.preferredMIMEType ?? "???"): \($0.tags[.filenameExtension] ?? [])" }
+        print("\naudiovisualContentTypes:\n\(ext.joined(separator: "\n"))")
+    } else {
+        print("\naudiovisualMIMETypes:\n\(AVURLAsset.audiovisualMIMETypes())")
+        print("audiovisualTypes:\n\(AVURLAsset.audiovisualTypes())")
+    }
+}
+
+func printPixFmts() {
+
+    // Main enumeration
+    let device = MTLCreateSystemDefaultDevice()!
+
+    if let allFormatsCF = CVPixelFormatDescriptionArrayCreateWithAllPixelFormatTypes(kCFAllocatorDefault) {
+        let allFormats = allFormatsCF as NSArray
+
+        print("\nIOSurface‑compatible CVPixelFormats:")
+        for case let fmtNumber as NSNumber in allFormats {
+            let fmt = OSType(fmtNumber.uint32Value)
+
+            let desc = CVPixelFormatDescriptionCreateWithPixelFormatType(kCFAllocatorDefault, fmt)! as NSDictionary
+            let gpuRenderable = isMetalRenderable(format: fmt, device: device)
+            let creatable = canCreateIOSurfacePixelBuffer(format: fmt)
+
+            print(
+                "\(fourCCString(fmt)) (0x\(String(fmt, radix: 16))) GPU:\(gpuRenderable ? "YES" : "NO ") IOSurface:\(creatable ? "YES" : "NO ") Range:\(desc[kCVPixelFormatComponentRange] ?? "???")"
+            )
         }
     }
 }

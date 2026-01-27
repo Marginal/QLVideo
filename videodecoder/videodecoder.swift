@@ -5,6 +5,7 @@
 //  Created by Jonathan Harris on 21/01/2026.
 //
 
+import Accelerate
 import CoreMedia
 import CoreVideo
 import Foundation
@@ -20,101 +21,6 @@ struct CVReturnError: LocalizedError, CustomNSError {
     var errorDescription: String? { "\(context ?? "") failed with CVReturn \(status)" }
 }
 
-// Callback for FFmpeg's get_buffer2 that uses the MEVideoDecoderPixelBufferManager passed via AVCodecContext.opaque.
-// On return, the allocated CVPixelBuffer is passed via AVFrame.opaque.
-private func videoDecoder_get_buffer2(
-    _ dec_ctx: UnsafeMutablePointer<AVCodecContext>?,
-    _ frame: UnsafeMutablePointer<AVFrame>?,
-    _ flags: Int32
-) -> Int32 {
-    guard let frame = frame, let dec_ctx = dec_ctx, let opaque = dec_ctx.pointee.opaque else { return -ENOTSUP }
-    let manager = Unmanaged<MEVideoDecoderPixelBufferManager>.fromOpaque(opaque).takeUnretainedValue()
-
-    // Set up desired attributes of the pixel buffer
-    // Values may be different from the corresponding values in AVCodecContext https://ffmpeg.org/doxygen/8.0/structAVCodecContext.html#aef79333a4c6abf1628c55d75ec82bede
-    var attributes: [String: Any] = [
-        kCVPixelBufferWidthKey as String: frame.pointee.width,
-        kCVPixelBufferHeightKey as String: frame.pointee.height,
-        kCVPixelBufferPixelFormatTypeKey as String: av_map_videotoolbox_format_from_pixfmt2(
-            AVPixelFormat(frame.pointee.format),
-            frame.pointee.color_range == AVCOL_RANGE_JPEG
-        ),
-        kCVPixelBufferIOSurfacePropertiesKey as String: [:] as CFDictionary,
-    ]
-    if let chroma_loc = av_map_videotoolbox_chroma_loc_from_av(frame.pointee.chroma_location) {
-        attributes[kCVImageBufferChromaLocationTopFieldKey as String] = chroma_loc
-        if frame.pointee.flags & AV_FRAME_FLAG_INTERLACED != 0 {
-            attributes[kCVImageBufferChromaLocationBottomFieldKey as String] = chroma_loc  // Not sure if this is correct
-        }
-    }
-    if let primaries = av_map_videotoolbox_color_primaries_from_av(frame.pointee.color_primaries) {
-        attributes[kCVImageBufferColorPrimariesKey as String] = primaries
-    }
-    if let matrix = av_map_videotoolbox_color_matrix_from_av(frame.pointee.colorspace) {
-        attributes[kCVImageBufferYCbCrMatrixKey as String] = matrix
-    }
-    if let trc = av_map_videotoolbox_color_trc_from_av(frame.pointee.color_trc) {
-        attributes[kCVImageBufferTransferFunctionKey as String] = trc
-    }
-    // https://developer.apple.com/documentation/mediaextension/mevideodecoder says we can "make these calls multiple times
-    // if output requirements change", but I don't know if that has performance implications.
-    manager.pixelBufferAttributes = attributes
-
-    // Obtain a pixel buffer to back the AVFrame
-    var pixelBuffer: CVPixelBuffer
-    do {
-        pixelBuffer = try manager.makePixelBuffer()
-    } catch {
-        logger.error("VideoDecoder: Failed to obtain a pixel buffer: \(error.localizedDescription, privacy: .public)")
-        return -ENOTSUP
-    }
-    let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
-    guard status == kCVReturnSuccess else {
-        logger.error("VideoDecoder: Failed to lock pixel buffer: \(status)")
-        return -ENOTSUP
-    }
-
-    // Retain and stash the CVPixelBuffer on the frame so decodeFrame can return it
-    frame.pointee.opaque = Unmanaged.passRetained(pixelBuffer).toOpaque()
-
-    // Point AVFrame's data pointers to the pixel buffer
-    var dataSize = 0
-    withUnsafeMutablePointer(to: &frame.pointee.data.0) { dataTuplePtr in
-        let dataPtr = UnsafeMutableRawPointer(dataTuplePtr).assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)
-        withUnsafeMutablePointer(to: &frame.pointee.linesize.0) { linesizeTuplePtr in
-            let linesizePtr = UnsafeMutableRawPointer(linesizeTuplePtr).assumingMemoryBound(to: Int32.self)
-            let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)  // 0 for non-planar (e.g., BGRA)
-            if planeCount == 0 {
-                let base = CVPixelBufferGetBaseAddress(pixelBuffer)
-                dataPtr[0] = base?.assumingMemoryBound(to: UInt8.self)
-                frame.pointee.extended_data[0] = dataPtr[0]
-                linesizePtr[0] = Int32(CVPixelBufferGetBytesPerRow(pixelBuffer))
-                dataSize = Int(linesizePtr[0])
-            } else {
-                for plane in 0..<planeCount {
-                    let base = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, plane)
-                    dataPtr[plane] = base?.assumingMemoryBound(to: UInt8.self)
-                    frame.pointee.extended_data[plane] = dataPtr[plane]
-                    linesizePtr[plane] = Int32(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, plane))
-                    dataSize += Int(linesizePtr[plane])  // Assumes planes are consecutive and contiguous
-                }
-            }
-        }
-    }
-
-    // Set frame.buf[0] so FFmpeg unlocks and releases the CVPixelBuffer when the decode pipeline no longer needs it
-    frame.pointee.buf.0 = av_buffer_create(frame.pointee.data.0, dataSize, videoDecoder_buffer_free, frame.pointee.opaque, 0)!
-    //logger.debug("VideoDecoder alloc \(String(describing: frame.pointee.data.0)) \(String(describing: pixelBuffer))")
-
-    return 0
-}
-
-private func videoDecoder_buffer_free(_ opaque: UnsafeMutableRawPointer?, _ data: UnsafeMutablePointer<UInt8>?) {
-    let pixelBuffer = Unmanaged<CVPixelBuffer>.fromOpaque(opaque!)
-    //logger.debug("VideoDecoder free  \(String(describing: data)) \(String(describing: pixelBuffer))")
-    CVPixelBufferUnlockBaseAddress(pixelBuffer.takeRetainedValue(), [])
-}
-
 class VideoDecoder: NSObject, MEVideoDecoder {
 
     let codecType: CMVideoCodecType
@@ -125,7 +31,12 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var isReadyForMoreMediaData: Bool = true
     var params = avcodec_parameters_alloc()!.pointee
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>?
-    var sws_ctx: UnsafeMutablePointer<SwsContext>? = nil  // For format conversion
+    var conversionInfo: vImage_YpCbCrToARGB? = nil  // For format conversion using macOS Accelerate API
+    var sws_ctx: UnsafeMutablePointer<SwsContext>? = nil  // For format conversion using FFmpeg's sws_scale
+
+    // Mapping tables for macOS Accelerate API
+
+    // Set up state
 
     init(
         codecType: CMVideoCodecType,
@@ -216,43 +127,22 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             throw MEError(.unsupportedFeature)
         }
 
-        // Request a suitable output pixel buffer format
+        // Choose whether we're going to write into CVPixelBuffer directly, or first convert to BGRA
 
-        let pixFmt = av_map_videotoolbox_format_from_pixfmt2(
-            AVPixelFormat(params.format),
-            params.color_range == AVCOL_RANGE_JPEG
-        )
-        if pixFmt != 0 {
+        if VideoDecoder.vImageTypes[AVPixelFormat(params.format)] == nil  // Prefer to use vImage conversion if available
+            && av_map_videotoolbox_format_from_pixfmt2(AVPixelFormat(params.format), params.color_range == AVCOL_RANGE_JPEG) != 0
+        {
             // Setup context so that av_receive_frame writes directly into the CVPixelBuffer, which on return is in frame.opaque
             dec_ctx!.pointee.opaque = Unmanaged.passUnretained(self.manager).toOpaque()
             dec_ctx!.pointee.get_buffer2 = videoDecoder_get_buffer2
             logger.log(
-                "VideoDecoder: Decoding \(self.params.width)x\(self.params.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.format)))) \(String(cString:av_color_space_name(self.params.color_space))) \(self.params.color_range == AVCOL_RANGE_JPEG ? "full" : "video")range frames"
+                "VideoDecoder: Decoding \(self.params.width)x\(self.params.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.format)))) \(String(cString:av_color_space_name(self.params.color_space))) frames"
             )
         } else {
             // We're going to have to convert
             logger.log(
-                "VideoDecoder: Decoding \(self.params.width)x\(self.params.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.format)))) \(String(cString:av_color_space_name(self.params.color_space))) \(self.params.color_range == AVCOL_RANGE_JPEG ? "full" : "video")range frames and converting to BGRA"
+                "VideoDecoder: Decoding \(self.params.width)x\(self.params.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.format)))) \(String(cString:av_color_space_name(self.params.color_space))) frames and converting to BGRA"
             )
-            sws_ctx = sws_getContext(
-                params.width,
-                params.height,
-                AVPixelFormat(params.format),  // src
-                params.width,
-                params.height,
-                AV_PIX_FMT_BGRA,  // dst
-                Int32(SWS_BICUBIC.rawValue),  // Chosen on the assumption we need to upsample the chroma
-                nil,
-                nil,
-                nil
-            )
-            guard ret == 0 else {
-                let error = AVERROR(errorCode: ret)
-                logger.error(
-                    "VideoDecoder: Can't create rescaling context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(self.params.format))), privacy: .public): \(error.localizedDescription)"
-                )
-                throw MEError(.unsupportedFeature)
-            }
         }
     }
 
@@ -260,6 +150,8 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         if dec_ctx != nil { avcodec_free_context(&dec_ctx) }
         if sws_ctx != nil { sws_free_context(&sws_ctx) }
     }
+
+    // Primary business of this codec
 
     func decodeFrame(
         from sampleBuffer: CMSampleBuffer,
@@ -277,7 +169,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
         var totalLength: Int = 0
         var data: UnsafeMutablePointer<Int8>?
-        let status = CMBlockBufferGetDataPointer(
+        var status = CMBlockBufferGetDataPointer(
             blockBuffer,
             atOffset: 0,
             lengthAtOffsetOut: nil,
@@ -321,7 +213,13 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
         var ret = avcodec_send_packet(dec_ctx, pkt)
         av_packet_free(&pkt)  // Free regardless of result since we don't need this any more - actual data lives in CMBlockBuffer
-        guard ret >= 0 else {
+        if ret == EAGAIN {
+            // Can't do anything with this packet. Hopefully we can recover on the next packet.
+            logger.warning(
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Packet produced no output"
+            )
+            return completionHandler(nil, .frameDropped, nil)
+        } else if ret < 0 {
             let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
             logger.error(
                 "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: \(error.localizedDescription, privacy: .public)"
@@ -340,63 +238,216 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             return completionHandler(nil, .frameDropped, MEError(.internalFailure))
         }
 
-        // Convert if necessary
+        if frame!.pointee.opaque != nil {
+            // No conversion required - return the pixel buffer allocated in get_buffer2
+            let pixelBuffer = Unmanaged<CVPixelBuffer>.fromOpaque(frame!.pointee.opaque).takeUnretainedValue()
+            av_frame_free(&frame)
+            return completionHandler(pixelBuffer, [], nil)  // early return
+        }
 
+        // Either there wasn't a suitable pixelFormat, or the codec didn't call get_buffers2 (e.g. dav1d)
+        // In either case obtain a BGRA pixel buffer and convert the frame data into it
+
+        let width = Int(frame!.pointee.width)
+        let height = Int(frame!.pointee.height)
         var pixelBuffer: CVPixelBuffer
-        if sws_ctx == nil {
-            // No conversion - use the pixel buffer allocated in get_buffer2
-            pixelBuffer = Unmanaged<CVPixelBuffer>.fromOpaque(frame!.pointee.opaque).takeUnretainedValue()
-        } else {
-            // Convert frame data into a new pixel buffer
-            do {
-                pixelBuffer = try manager.makePixelBuffer()
-            } catch {
-                logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Failed to obtain a pixel buffer: \(error.localizedDescription, privacy: .public)"
-                )
-                return completionHandler(nil, .frameDropped, error)
-            }
-            let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
-            guard status == kCVReturnSuccess else {
-                let error = CVReturnError(status: status, context: "CVPixelBufferLockBaseAddress")
-                logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: \(error.localizedDescription, privacy: .public)"
-                )
-                return completionHandler(nil, .frameDropped, error)
-            }
+        do {
+            manager.pixelBufferAttributes = [
+                kCVPixelBufferWidthKey as String: width as CFNumber,
+                kCVPixelBufferHeightKey as String: height as CFNumber,
+                kCVPixelBufferBytesPerRowAlignmentKey as String: 64 as CFNumber,  // for potentially faster copy
+                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,  // what macOS actually uses for rendering
+                kCVPixelBufferIOSurfacePropertiesKey as String: [:] as CFDictionary,
+                kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,  // Don't know if this helps
+            ]
+            pixelBuffer = try manager.makePixelBuffer()
+        } catch {
+            logger.error(
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Failed to obtain a pixel buffer: \(error.localizedDescription, privacy: .public)"
+            )
+            return completionHandler(nil, .frameDropped, error)
+        }
+        status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        guard status == kCVReturnSuccess else {
+            let error = CVReturnError(status: status, context: "CVPixelBufferLockBaseAddress")
+            logger.error(
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: \(error.localizedDescription, privacy: .public)"
+            )
+            return completionHandler(nil, .frameDropped, error)
+        }
 
-            var dst: UnsafeMutablePointer<UInt8>? = CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self)
-            var dstStride = Int32(CVPixelBufferGetBytesPerRow(pixelBuffer))
-            withUnsafePointer(to: &frame!.pointee.data.0) { srcPtr in
-                withUnsafePointer(to: &frame!.pointee.linesize.0) { srcStridePtr in
-                    withUnsafeMutablePointer(to: &dst) { dstPtr in
-                        withUnsafePointer(to: &dstStride) { dstStridePtr in
-                            ret = sws_scale(
-                                sws_ctx!,
-                                UnsafeRawPointer(srcPtr).assumingMemoryBound(to: UnsafePointer<UInt8>?.self),
-                                srcStridePtr,
-                                0,
-                                frame!.pointee.height,
-                                dstPtr,
-                                dstStridePtr
-                            )
-                        }
-                    }
-                }
-            }
-            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
-            guard ret > 0 else {
-                let error = AVERROR(errorCode: ret)
+        // sws_scale isn't particularly accelerated on ARM - can we use macOS's accelerated conversions?
+        if VideoDecoder.vImageTypes[AVPixelFormat(frame!.pointee.format)] != nil {
+            let error = vImageConvertToARGB(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
+            guard error == nil else {
                 logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Can't resample frame: \(error.localizedDescription, privacy: .public)"
+                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
                 )
+                CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
                 av_frame_free(&frame)
                 return completionHandler(nil, .frameDropped, error)
             }
+
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+            av_frame_free(&frame)
+            return completionHandler(pixelBuffer, [], nil)  // early return
         }
 
-        av_frame_free(&frame)
-        return completionHandler(pixelBuffer, [], nil)
+        // Fall back to sws_scale conversion
+
+        var dst: UnsafeMutablePointer<UInt8>? = CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self)
+        var dstStride = Int32(CVPixelBufferGetBytesPerRow(pixelBuffer))
+        if sws_ctx == nil {
+            sws_ctx = sws_getContext(
+                Int32(width),
+                Int32(height),
+                AVPixelFormat(params.format),  // src
+                Int32(width),
+                Int32(height),
+                AV_PIX_FMT_BGRA,  // dst
+                Int32(SWS_BICUBIC.rawValue),  // Chosen on the assumption we need to upsample the chroma
+                nil,
+                nil,
+                nil
+            )
+            guard ret == 0 else {
+                let error = AVERROR(errorCode: ret)
+                logger.error(
+                    "VideoDecoder: Can't create rescaling context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(self.params.format))), privacy: .public): \(error.localizedDescription)"
+                )
+                return completionHandler(nil, .frameDropped, error)
+            }
+            logger.debug("VideoDecoder using sws_scale for format conversion")
+        }
+
+        withUnsafePointer(to: &frame!.pointee.data.0) { srcPtr in
+            withUnsafePointer(to: &frame!.pointee.linesize.0) { srcStridePtr in
+                withUnsafeMutablePointer(to: &dst) { dstPtr in
+                    withUnsafePointer(to: &dstStride) { dstStridePtr in
+                        ret = sws_scale(
+                            sws_ctx!,
+                            UnsafeRawPointer(srcPtr).assumingMemoryBound(to: UnsafePointer<UInt8>?.self),
+                            srcStridePtr,
+                            0,
+                            frame!.pointee.height,
+                            dstPtr,
+                            dstStridePtr
+                        )
+                    }
+                }
+            }
+        }
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+        guard ret > 0 else {
+            let error = AVERROR(errorCode: ret)
+            logger.error(
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Can't resample frame: \(error.localizedDescription, privacy: .public)"
+            )
+            av_frame_free(&frame)
+            return completionHandler(nil, .frameDropped, error)
+        }
+
     }
 
+    // Set up desired attributes of the pixel buffer
+    // Values may be different from the corresponding values in AVCodecContext https://ffmpeg.org/doxygen/8.0/structAVCodecContext.html#aef79333a4c6abf1628c55d75ec82bede
+    static func pixelAttributesFromFrame(frame: AVFrame, pixFmt: UInt32) -> [String: Any] {
+        var attributes: [String: Any] = [
+            kCVPixelBufferWidthKey as String: frame.width,
+            kCVPixelBufferHeightKey as String: frame.height,
+            kCVPixelBufferPixelFormatTypeKey as String: pixFmt,
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:] as CFDictionary,
+        ]
+        if let chroma_loc = av_map_videotoolbox_chroma_loc_from_av(frame.chroma_location) {
+            attributes[kCVImageBufferChromaLocationTopFieldKey as String] = chroma_loc
+            if frame.flags & AV_FRAME_FLAG_INTERLACED != 0 {
+                attributes[kCVImageBufferChromaLocationBottomFieldKey as String] = chroma_loc  // Not sure if this is correct
+            }
+        }
+        if let primaries = av_map_videotoolbox_color_primaries_from_av(frame.color_primaries) {
+            attributes[kCVImageBufferColorPrimariesKey as String] = primaries
+        }
+        if let matrix = av_map_videotoolbox_color_matrix_from_av(frame.colorspace) {
+            attributes[kCVImageBufferYCbCrMatrixKey as String] = matrix
+        }
+        if let trc = av_map_videotoolbox_color_trc_from_av(frame.color_trc) {
+            attributes[kCVImageBufferTransferFunctionKey as String] = trc
+        }
+        return attributes
+    }
+}
+
+// Callback for FFmpeg's get_buffer2 that uses the MEVideoDecoderPixelBufferManager passed via AVCodecContext.opaque.
+// On return, the allocated CVPixelBuffer is passed via AVFrame.opaque.
+private func videoDecoder_get_buffer2(
+    _ dec_ctx: UnsafeMutablePointer<AVCodecContext>?,
+    _ frame: UnsafeMutablePointer<AVFrame>?,
+    _ flags: Int32
+) -> Int32 {
+    guard let frame = frame, let dec_ctx = dec_ctx, let opaque = dec_ctx.pointee.opaque else { return -ENOTSUP }
+    let manager = Unmanaged<MEVideoDecoderPixelBufferManager>.fromOpaque(opaque).takeUnretainedValue()
+
+    // https://developer.apple.com/documentation/mediaextension/mevideodecoder says we can "make these calls multiple times
+    // if output requirements change", but I don't know if that has performance implications.
+    manager.pixelBufferAttributes = VideoDecoder.pixelAttributesFromFrame(
+        frame: frame.pointee,
+        pixFmt: av_map_videotoolbox_format_from_pixfmt2(
+            AVPixelFormat(frame.pointee.format),
+            frame.pointee.color_range == AVCOL_RANGE_JPEG
+        ),
+    )
+
+    // Obtain a pixel buffer to back the AVFrame
+    var pixelBuffer: CVPixelBuffer
+    do {
+        pixelBuffer = try manager.makePixelBuffer()
+    } catch {
+        logger.error("VideoDecoder: Failed to obtain a pixel buffer: \(error.localizedDescription, privacy: .public)")
+        return -ENOTSUP
+    }
+    let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
+    guard status == kCVReturnSuccess else {
+        logger.error("VideoDecoder: Failed to lock pixel buffer: \(status)")
+        return -ENOTSUP
+    }
+
+    // Retain and stash the CVPixelBuffer on the frame so decodeFrame can return it
+    frame.pointee.opaque = Unmanaged.passRetained(pixelBuffer).toOpaque()
+
+    // Point AVFrame's data pointers to the pixel buffer
+    var dataSize = 0
+    withUnsafeMutablePointer(to: &frame.pointee.data.0) { dataTuplePtr in
+        let dataPtr = UnsafeMutableRawPointer(dataTuplePtr).assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)
+        withUnsafeMutablePointer(to: &frame.pointee.linesize.0) { linesizeTuplePtr in
+            let linesizePtr = UnsafeMutableRawPointer(linesizeTuplePtr).assumingMemoryBound(to: Int32.self)
+            let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)  // 0 for non-planar (e.g., BGRA)
+            if planeCount == 0 {
+                let base = CVPixelBufferGetBaseAddress(pixelBuffer)
+                dataPtr[0] = base?.assumingMemoryBound(to: UInt8.self)
+                frame.pointee.extended_data[0] = dataPtr[0]
+                linesizePtr[0] = Int32(CVPixelBufferGetBytesPerRow(pixelBuffer))
+                dataSize = Int(linesizePtr[0])
+            } else {
+                for plane in 0..<planeCount {
+                    let base = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, plane)
+                    dataPtr[plane] = base?.assumingMemoryBound(to: UInt8.self)
+                    frame.pointee.extended_data[plane] = dataPtr[plane]
+                    linesizePtr[plane] = Int32(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, plane))
+                    dataSize += Int(linesizePtr[plane])  // Assumes planes are consecutive and contiguous
+                }
+            }
+        }
+    }
+
+    // Set frame.buf[0] so FFmpeg unlocks and releases the CVPixelBuffer when the decode pipeline no longer needs it
+    frame.pointee.buf.0 = av_buffer_create(frame.pointee.data.0, dataSize, videoDecoder_buffer_free, frame.pointee.opaque, 0)!
+    //logger.debug("VideoDecoder alloc \(String(describing: frame.pointee.data.0)) \(String(describing: pixelBuffer))")
+
+    return 0
+}
+
+private func videoDecoder_buffer_free(_ opaque: UnsafeMutableRawPointer?, _ data: UnsafeMutablePointer<UInt8>?) {
+    let pixelBuffer = Unmanaged<CVPixelBuffer>.fromOpaque(opaque!)
+    //logger.debug("VideoDecoder free  \(String(describing: data)) \(String(describing: pixelBuffer))")
+    CVPixelBufferUnlockBaseAddress(pixelBuffer.takeRetainedValue(), [])
 }

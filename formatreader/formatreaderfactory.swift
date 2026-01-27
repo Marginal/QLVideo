@@ -23,16 +23,6 @@ class FormatReaderFactory: NSObject, MEFormatReaderExtension {
             av_log_set_level(AV_LOG_WARNING | AV_LOG_SKIP_REPEATED)
         #endif
         setup_av_log_callback()
-        #if DEBUG
-            // AVFoundation supported content
-            logger.log("audiovisualMIMETypes: \(AVURLAsset.audiovisualMIMETypes(), privacy: .public)")
-            if #available(macOS 26.0, *) {
-                let ext = AVURLAsset.audiovisualContentTypes.map { $0.preferredFilenameExtension ?? "?" }
-                logger.log("audiovisualContentTypes: \(ext, privacy: .public)")
-            } else {
-                logger.log("audiovisualTypes: \(AVURLAsset.audiovisualTypes(), privacy: .public)")
-            }
-        #endif
     }
 
     func formatReader(with primaryByteSource: MEByteSource, options: MEFormatReaderInstantiationOptions?) throws
