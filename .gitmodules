@@ -1,9 +1,9 @@
 [submodule "ffmpeg"]
 	path = ffmpeg
 	url = git://source.ffmpeg.org/ffmpeg.git
-[submodule "gas-preprocessor"]
-	path = gas
-	url = https://github.com/FFmpeg/gas-preprocessor.git
 [submodule "dav1d"]
 	path = dav1d
 	url = https://code.videolan.org/videolan/dav1d.git
+[submodule "zimg"]
+	path = zimg
+	url = https://github.com/sekrit-twc/zimg.git

@@ -15,7 +15,7 @@ import AVFoundation
 import Foundation
 
 #if DEBUG
-    let TRACE_PACKET_QUEUE: Bool = true
+    let TRACE_PACKET_QUEUE: Bool = false
 #else
     let TRACE_PACKET_QUEUE: Bool = false
 #endif
@@ -82,6 +82,16 @@ class PacketQueue: @unchecked Sendable {
                     )
                     break
                 }
+            } else if pkt!.pointee.pos <= 0 {
+                // We require packet positions for some audio data
+                if TRACE_PACKET_QUEUE {
+                    let pkt = pkt!.pointee
+                    let stream = fmt_ctx.pointee.streams[Int(pkt.stream_index)]!.pointee
+                    logger.warning(
+                        "PacketQueue queue: stream \(pkt.stream_index) dts:\(pkt.dts) pts:\(pkt.pts) duration:\(pkt.duration == AV_NOPTS_VALUE ? -1 : pkt.duration) time_base:\(stream.time_base.num)/\(stream.time_base.den) pos:unknown size:0x\(UInt(pkt.size), format:.hex) flags:\(pkt.flags & AV_PKT_FLAG_KEY != 0 ? "K" : "_", privacy: .public)\(pkt.flags & AV_PKT_FLAG_DISCARD != 0 ? "D" : "_", privacy: .public)\(pkt.flags & AV_PKT_FLAG_CORRUPT != 0 ? "C" : "_", privacy: .public)"
+                    )
+                }
+                av_packet_free(&pkt)
             } else {
                 pkt!.pointee.pos += pkt_fixup
                 if TRACE_PACKET_QUEUE {
@@ -92,6 +102,13 @@ class PacketQueue: @unchecked Sendable {
                     )
                 }
                 append(pkt!)
+
+                // Arbitrarily stop after 2 mins @ 30fps
+                let idx = Int(pkt!.pointee.stream_index)
+                if queue[idx].count == 3600 {
+                    logger.debug("PacketQueue stopping afer 3600 packets in stream \(idx)")
+                    break
+                }
             }
             /*
                             // Pause until the queue is not full
@@ -154,7 +171,7 @@ class PacketQueue: @unchecked Sendable {
     }
 
     func step(stream: Int, from: Int, by: Int) -> Int {
-        return min(max(from + by, 0), queue[stream].count - 1)
+        return queue.isEmpty ? 0 : min(max(from + by, 0), queue[stream].count - 1)
     }
 
     func seek(stream: Int, presentationTimeStamp: CMTime) -> Int {

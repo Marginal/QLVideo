@@ -16,8 +16,12 @@ else
 	for ARCH in $ARCHS; do
 		mkdir -p "${OBJECT_FILE_DIR}/${ARCH}"
 		cd "${OBJECT_FILE_DIR}/${ARCH}"
-        if [ $ARCH == arm64 ]; then
-            cat > cross.meson <<ARM64
+		if [ -f config.h -a config.h -nt "${SCRIPT}" ]; then
+			echo Skipping meson
+		else
+			rm -f config.h
+			if [ $ARCH == arm64 ]; then
+				cat > cross.meson <<ARM64
 [binaries]
 c = ['/usr/bin/cc', '-arch', 'arm64']
 pkg-config = 'pkg-config'
@@ -31,8 +35,8 @@ cpu_family = 'aarch64'
 cpu = 'aarch64'
 endian = 'little'
 ARM64
-        elif [ $ARCH == x86_64 ]; then
-            cat > cross.meson <<X86_64
+			elif [ $ARCH == x86_64 ]; then
+				cat > cross.meson <<X86_64
 [binaries]
 c = ['/usr/bin/cc', '-arch', 'x86_64', '-march=haswell']
 nasm = 'nasm'
@@ -47,16 +51,17 @@ cpu_family = 'x86_64'
 cpu = 'x86_64'
 endian = 'little'
 X86_64
+			fi
+			if [ "${CONFIGURATION}" == "Debug" ]; then
+				FLAGS="--buildtype=debug"
+			else
+				FLAGS="--buildtype=release"
+			fi
+			meson setup --reconfigure "${SRCROOT}/${TARGET_NAME}" ${FLAGS} --cross-file cross.meson -Ddefault_library=both -Dprefix="${BUILT_PRODUCTS_DIR}/${ARCH}" -Dc_args="-fapplication-extension"
 		fi
-		if [ "${CONFIGURATION}" == "Debug" ]; then
-			FLAGS="--buildtype=debug"
-		else
-			FLAGS="--buildtype=release"
-		fi
-		meson setup --reconfigure "${SRCROOT}/${TARGET_NAME}" ${FLAGS} --cross-file cross.meson -Ddefault_library=both -Dprefix="${BUILT_PRODUCTS_DIR}/${ARCH}" -Dc_args="-fapplication-extension"
-	    ninja -j `sysctl -n hw.physicalcpu` install
+		ninja -j `sysctl -n hw.physicalcpu` install
 
-        # Fix up install name
+		# Fix up install name
 		DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCH}/lib/libdav1d.dylib`)
 		install_name_tool -id @rpath/${DYLIB} ${BUILT_PRODUCTS_DIR}/${ARCH}/lib/libdav1d.dylib
 	done
@@ -68,9 +73,9 @@ X86_64
 
 	mkdir -p "${CONFIGURATION_BUILD_DIR}/universal/lib/pkgconfig"
 	cp -p "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/pkgconfig/dav1d.pc" "${BUILT_PRODUCTS_DIR}/universal/lib/pkgconfig/"
+
 	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libdav1d.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/libdav1d.a"
 	# Install using the dylib's "install name" since that's what other FFmpeg dylibs will look for
 	DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/libdav1d.dylib`)
 	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libdav1d.dylib" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
-    # [ -f "${BUILT_PRODUCTS_DIR}/universal/lib/libdav1d.dylib" ] || ln -s "${DYLIB}" "${BUILT_PRODUCTS_DIR}/universal/lib/libdav1d.dylib"
 fi

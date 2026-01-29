@@ -2,7 +2,7 @@ Build
 notarize*
 test
 xcuserdata
-.DS_Store
+**/.DS_Store
 *.bak
 *.dmg
 *.framework

@@ -35,7 +35,7 @@ class TrackReader: NSObject {
         if stream.duration != 0 {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "TrackReader stream \(self.index) loadUneditedDuration = \(CMTime(value: self.stream.duration, timeBase: self.stream.time_base))"
+                    "TrackReader stream \(self.index) loadUneditedDuration = \(CMTime(value: self.stream.duration, timeBase: self.stream.time_base), privacy: .public)"
                 )
             }
             return completionHandler(CMTime(value: stream.duration, timeBase: stream.time_base), nil)

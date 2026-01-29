@@ -202,6 +202,15 @@ class VideoTrackReader: TrackReader, METrackReader {
                 ?? (params.codec_tag != 0 ? params.codec_tag : VideoTrackReader.kVideoCodecType_catchall)
         }
 
+        let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream, nil)
+        if sar.num != 0 && (sar.num != 1 || sar.den != 1) {
+            extensions[kCMFormatDescriptionExtension_PixelAspectRatio as CFString] =
+                [
+                    kCVImageBufferPixelAspectRatioHorizontalSpacingKey as CFString: sar.num as CFNumber,
+                    kCVImageBufferPixelAspectRatioVerticalSpacingKey as CFString: sar.den as CFNumber,
+                ] as CFDictionary
+        }
+
         logger.debug(
             "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(codecType!), privacy: .public)\" extensions:\(extensions, privacy:.public) timescale:\(self.stream.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.avg_frame_rate), format:.fixed(precision:2))fps"
         )
@@ -230,11 +239,6 @@ class VideoTrackReader: TrackReader, METrackReader {
         // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
         trackInfo.naturalSize = CGSize(width: Int(params.width), height: Int(params.height))
         trackInfo.naturalTimescale = stream.time_base.den
-        let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream, nil)
-        if sar.num != 0 && (sar.num != 1 || sar.den != 1) {
-            logger.debug("sample_aspect_ratio \(sar.num):\(sar.den)")
-            trackInfo.preferredTransform = CGAffineTransform(scaleX: av_q2d(sar), y: 1)
-        }
         trackInfo.nominalFrameRate = Float32(av_q2d(stream.avg_frame_rate))
         trackInfo.requiresFrameReordering = true  // TODO: do we need this?
 

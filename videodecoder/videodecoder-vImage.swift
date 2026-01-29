@@ -25,10 +25,10 @@ extension VideoDecoder {
 
     // Avoid concurrency issues with kvImage_YpCbCrToARGBMatrix_ITU_R_601_4 etc by specifying explicitly
     static let colorMatrices: [AVColorSpace: vImage_YpCbCrToARGBMatrix] = [
-        AVCOL_SPC_BT470BG: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),
-        AVCOL_SPC_SMPTE170M: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),
-        AVCOL_SPC_SMPTE240M: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),
-        AVCOL_SPC_BT709: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.5748, Cr_G: -0.187324, Cb_G: -0.468124, Cb_B: 1.8556),
+        AVCOL_SPC_BT470BG: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),  // kvImage_YpCbCrToARGBMatrix_ITU_R_601_4
+        AVCOL_SPC_SMPTE170M: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),  // kvImage_YpCbCrToARGBMatrix_ITU_R_601_4
+        AVCOL_SPC_SMPTE240M: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.5748, Cr_G: -0.187324, Cb_G: -0.468124, Cb_B: 1.8556),  // using BT.709
+        AVCOL_SPC_BT709: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.5748, Cr_G: -0.187324, Cb_G: -0.468124, Cb_B: 1.8556),  // kvImage_YpCbCrToARGBMatrix_ITU_R_709_2
     ]
 
     static let pixelRanges: [Bool: vImage_YpCbCrPixelRange] = [
@@ -73,10 +73,10 @@ extension VideoDecoder {
             var range = VideoDecoder.pixelRanges[frame.color_range == AVCOL_RANGE_JPEG]
             var matrix = VideoDecoder.colorMatrices[frame.colorspace]
             if matrix == nil {
-                matrix = VideoDecoder.colorMatrices[height < 720 ? AVCOL_SPC_BT470BG : AVCOL_SPC_BT709]
+                matrix = VideoDecoder.colorMatrices[width < 1280 && height < 720 ? AVCOL_SPC_BT470BG : AVCOL_SPC_BT709]
                 let colorspace = frame.colorspace
-                logger.warning(
-                    "VideoDecoder unsupported colorspace \(String(cString: av_color_space_name(colorspace))) for vImageConvert. Defaulting to \(height < 720 ? "BT.601" : "BT.709")"
+                logger.log(
+                    "VideoDecoder unsupported colorspace \"\(String(cString: av_color_space_name(colorspace)), privacy: .public)\" for vImageConvert. Defaulting to \(width < 1280 && height < 720 ? "BT.601" : "BT.709", privacy: .public)"
                 )
             }
             conversionInfo = vImage_YpCbCrToARGB()

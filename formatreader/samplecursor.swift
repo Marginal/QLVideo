@@ -190,7 +190,10 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             )
             return completionHandler(nil, MEError(.endOfStream))
         }
-        assert(current.pointee.side_data_elems == 0, "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase)), pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples to \(endPresentationTimeStamp): Unhandled side data")  // TODO: Handle side_data
+        assert(
+            current.pointee.side_data_elems == 0,
+            "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase)), pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples to \(endPresentationTimeStamp): Unhandled side data"
+        )  // TODO: Handle side_data
         if TRACE_SAMPLE_CURSOR {
             logger.debug(
                 "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public)"
@@ -274,24 +277,28 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // Step by number of frames (not by timestamp)
     func stepInDecodeOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
         let oldqi = qi
-        if stepCount == lastDelivered {
-            // Being asked to step by the number of audio samples we last delivered in loadSampleBufferContainingSamples
-            qi = nexti
-            lastDelivered = 0
-        } else {
-            qi = format!.packetQueue!.step(stream: index, from: qi, by: Int(stepCount))
-        }
-        if TRACE_SAMPLE_CURSOR {
-            let old = format!.packetQueue!.get(stream: self.index, qi: oldqi)!
+        if let old = format!.packetQueue!.get(stream: self.index, qi: oldqi) {
+            if stepCount == lastDelivered {
+                // Being asked to step by the number of audio samples we last delivered in loadSampleBufferContainingSamples
+                qi = nexti
+                lastDelivered = 0
+            } else {
+                qi = format!.packetQueue!.step(stream: index, from: qi, by: Int(stepCount))
+            }
             let current = format!.packetQueue!.get(stream: self.index, qi: qi)!
-            logger.debug(
-                "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: old.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: old.pointee.pts, timeBase: self.timeBase), privacy: .public) stepInDecodeOrder by \(stepCount) -> dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public)"
-            )
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug(
+                    "SampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: old.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: old.pointee.pts, timeBase: self.timeBase), privacy: .public) stepInDecodeOrder by \(stepCount) -> dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public)"
+                )
+            }
+            // https://developer.apple.com/documentation/avfoundation/avsamplecursor/stepindecodeorder(bycount:)
+            // "If the cursor reaches the beginning or the end of the sample sequence before the requested number of samples was
+            // traversed, the absolute value of the result will be less than the absolute value of the specified step count"
+            return completionHandler(Int64(qi - oldqi), nil)
+        } else {
+            logger.debug("SampleCursor \(self.instance) stream \(self.index) stepInDecodeOrder bat no packet")
+            return completionHandler(0, MEError(.endOfStream))
         }
-        // https://developer.apple.com/documentation/avfoundation/avsamplecursor/stepindecodeorder(bycount:)
-        // "If the cursor reaches the beginning or the end of the sample sequence before the requested number of samples was
-        // traversed, the absolute value of the result will be less than the absolute value of the specified step count"
-        return completionHandler(Int64(qi - oldqi), nil)
     }
 
     func stepInPresentationOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {

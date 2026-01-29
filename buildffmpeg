@@ -33,7 +33,7 @@ else
 			elif [ $ARCH == x86_64 ]; then
 				FLAGS="$FLAGS --enable-cross-compile --cpu=haswell"
 			fi
-			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH} -fapplication-extension" ${FLAGS} --enable-shared --enable-rpath --install-name-dir=@rpath --extra-ldflags=-liconv --enable-gpl --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libdav1d --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-filter=scale --enable-muxer=image2 --enable-muxer=mp4 --enable-muxer=m4v --enable-muxer=ipod --enable-muxer=matroska --enable-muxer=webm --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
+			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" "${SRCROOT}/${TARGET_NAME}/configure" --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" --arch=${ARCH} --cc="clang -arch ${ARCH} -fapplication-extension" ${FLAGS} --enable-shared --enable-rpath --install-name-dir=@rpath --extra-ldflags=-liconv --enable-gpl --disable-doc --disable-indevs --disable-outdevs --disable-network --disable-avdevice --disable-muxers --disable-encoders --disable-bsfs --disable-filters --disable-protocols --disable-autodetect --enable-appkit --enable-avfoundation --enable-bzlib --enable-coreimage --enable-iconv --enable-libdav1d --enable-libzimg --enable-zlib --enable-audiotoolbox --enable-videotoolbox --enable-filter=scale --enable-filter=tonemap --enable-filter=zscale --enable-muxer=image2 --enable-muxer=mp4 --enable-muxer=m4v --enable-muxer=ipod --enable-muxer=matroska --enable-muxer=webm --enable-encoder=png --enable-protocol=file --enable-protocol=pipe
 		fi
 		make -j`sysctl -n hw.physicalcpu` install
 
@@ -61,6 +61,7 @@ else
 				echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
 			fi
 			codesign -s "${DEVELOPMENT_TEAM}" -i "${PRODUCT_BUNDLE_IDENTIFIER}.${EXE}" -o runtime --entitlements "${ENTITLEMENTS}" "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+			codesign -vvv "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
 			rm "${ENTITLEMENTS}"
 		fi
 	done

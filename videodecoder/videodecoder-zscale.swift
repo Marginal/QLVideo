@@ -1,0 +1,257 @@
+//
+//  videodecoder-zscale.swift
+//
+//  Format conversion using zscale filter, including for formats that require HDR tonemapping.
+//
+
+import CoreMedia
+import CoreVideo
+import Foundation
+import MediaExtension
+
+struct ColorInfo {
+    let primaries: AVColorPrimaries
+    let transfer: AVColorTransferCharacteristic
+    let matrix: AVColorSpace
+}
+
+// See https://www.ffmpeg.org/doxygen/trunk/filtering_video_8c-example.html
+
+extension VideoDecoder {
+
+    func zscaleConvertToARGB(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
+
+        // Patch up the incoming frame
+        let colorInfo = inferColors(frame: &frame)
+        frame.color_primaries = colorInfo.primaries
+        frame.color_trc = colorInfo.transfer
+        frame.colorspace = colorInfo.matrix
+
+        if filterGraph == nil {
+            let error = zscaleSetup(frame: &frame, pixelBuffer: &pixelBuffer)
+            guard error == nil else { return error! }
+        }
+
+        /* push the decoded frame into the filtergraph */
+        var ret = av_buffersrc_add_frame(src_ctx, &frame)
+        guard ret == 0 else { return AVERROR(errorCode: ret, context: "av_buffersrc_add_frame") }
+
+        /* pull filtered frames from the filtergraph */
+        var tmpFrame = av_frame_alloc()
+        defer { av_frame_free(&tmpFrame) }
+        ret = av_buffersink_get_frame(sink_ctx, tmpFrame)
+        guard ret == 0 else { return AVERROR(errorCode: ret, context: "av_buffersink_get_frame") }
+
+        let height = Int(tmpFrame!.pointee.height)
+
+        let src = tmpFrame!.pointee.data.0!
+        let srcStride = Int(tmpFrame!.pointee.linesize.0)
+
+        let dst: UnsafeMutablePointer<UInt8> = CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self)
+        let dstStride = CVPixelBufferGetBytesPerRow(pixelBuffer)
+
+        for y in 0..<height {
+            let srcRow = src.advanced(by: y * srcStride)
+            let dstRow = dst.advanced(by: y * dstStride)
+            memcpy(dstRow, srcRow, min(srcStride, dstStride))
+        }
+
+        return nil
+    }
+
+    private func zscaleSetup(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
+
+        let filterDesc = makeFilterChain(frame: &frame, pixelBuffer: &pixelBuffer)
+
+        let bufferSrc = avfilter_get_by_name("buffer")
+        let bufferSink = avfilter_get_by_name("buffersink")
+
+        filterGraph = avfilter_graph_alloc()!
+
+        /* buffer video source: the decoded frames from the decoder will be inserted here. */
+        let srcArgs =
+            "video_size=\(frame.width)x\(frame.height):pix_fmt=\(frame.format):colorspace=\(frame.colorspace.rawValue):range=\(frame.color_range.rawValue):time_base=1/1000"  // time_base is required but irrelevant
+
+        var ret = avfilter_graph_create_filter(&src_ctx, bufferSrc, "in", srcArgs, nil, filterGraph)
+        guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_create_filter") }
+
+        /* buffer video sink: to terminate the filter chain. */
+        ret = avfilter_graph_create_filter(&sink_ctx, bufferSink, "out", nil, nil, filterGraph)
+        guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_create_filter") }
+
+        /*
+         * Set the endpoints for the filter graph. The filter_graph will
+         * be linked to the graph described by filters_descr.
+         */
+
+        /*
+         * The buffer source output must be connected to the input pad of
+         * the first filter described by filters_descr; since the first
+         * filter input label is not specified, it is set to "in" by
+         * default.
+         */
+        var outputs = avfilter_inout_alloc()
+        outputs!.pointee.name = strdup("in")
+        outputs!.pointee.filter_ctx = src_ctx
+        outputs!.pointee.pad_idx = 0
+        outputs!.pointee.next = nil
+
+        /*
+         * The buffer sink input must be connected to the output pad of
+         * the last filter described by filters_descr; since the last
+         * filter output label is not specified, it is set to "out" by
+         * default.
+         */
+        var inputs = avfilter_inout_alloc()
+        inputs!.pointee.name = strdup("out")
+        inputs!.pointee.filter_ctx = sink_ctx
+        inputs!.pointee.pad_idx = 0
+        inputs!.pointee.next = nil
+
+        ret = avfilter_graph_parse_ptr(filterGraph, filterDesc.cString(using: .utf8), &inputs, &outputs, nil)
+        guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_parse_ptr") }
+
+        ret = avfilter_graph_config(filterGraph, nil)
+        guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_config") }
+
+        logger.debug(
+            "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\" and filter \"\(filterDesc, privacy: .public)\""
+        )
+
+        return nil
+    }
+
+    // zscale can't handle unspecifed info in the input AVFrame. Make educated guesses.
+    private func inferColors(frame: inout AVFrame) -> ColorInfo {
+
+        // Let presence of SMPTE 2086:2014 side data override anything else in the AVFrame
+        if av_frame_get_side_data(&frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) != nil
+            || av_frame_get_side_data(&frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) != nil
+            || av_frame_get_side_data(&frame, AV_FRAME_DATA_DOVI_METADATA) != nil
+        {
+            return ColorInfo(
+                primaries: AVCOL_PRI_BT2020,
+                transfer: AVCOL_TRC_SMPTE2084,
+                matrix: AVCOL_SPC_BT2020_NCL,
+            )
+        }
+
+        // If all fields are specified then assume they're correct
+        if frame.color_primaries != AVCOL_PRI_UNSPECIFIED
+            && frame.color_trc != AVCOL_TRC_UNSPECIFIED
+            && frame.colorspace != AVCOL_SPC_UNSPECIFIED
+        {
+            return ColorInfo(
+                primaries: frame.color_primaries,
+                transfer: frame.color_trc,
+                matrix: frame.colorspace,
+            )
+        }
+
+        // Explicit PQ or HLG
+        if frame.color_trc == AVCOL_TRC_SMPTE2084 || frame.color_trc == AVCOL_TRC_ARIB_STD_B67 {
+            return ColorInfo(
+                primaries: frame.color_primaries != AVCOL_PRI_UNSPECIFIED ? frame.color_primaries : AVCOL_PRI_BT2020,
+                transfer: frame.color_trc,
+                matrix: frame.colorspace != AVCOL_SPC_UNSPECIFIED ? frame.colorspace : AVCOL_SPC_BT2020_NCL,
+            )
+        }
+
+        // >8‑bit *with BT.2020 primaries* is probably HDR10.
+        let pixDesc = av_pix_fmt_desc_get(AVPixelFormat(frame.format)).pointee
+        let bitDepth = pixDesc.comp.0.depth  // not always accurate but works for supported formats
+        if bitDepth > 8 && frame.color_primaries == AVCOL_PRI_BT2020 {
+            return ColorInfo(
+                primaries: AVCOL_PRI_BT2020,
+                transfer: AVCOL_TRC_SMPTE2084,
+                matrix: AVCOL_SPC_BT2020_NCL,
+            )
+        }
+
+        // SDR. Assume values based on whether HD or SD
+        if frame.width >= 1280 || frame.height >= 720 {
+            return ColorInfo(
+                primaries: AVCOL_PRI_BT709,
+                transfer: AVCOL_TRC_BT709,
+                matrix: AVCOL_SPC_BT709,
+            )
+        } else {
+            return ColorInfo(
+                primaries: AVCOL_PRI_SMPTE170M,
+                transfer: AVCOL_TRC_BT709,  // This got retconned when HDR came out
+                matrix: AVCOL_SPC_SMPTE170M,
+            )
+        }
+    }
+
+    private func makeFilterChain(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> String {
+
+        // zscale accepts a smaller set of values than FFmpeg, and with different names than av_color_space_name() etc
+        // https://ayosec.github.io/ffmpeg-filters-docs/8.0/Filters/Video/zscale.html
+
+        let primariesMap: [AVColorPrimaries: String] = [
+            AVCOL_PRI_BT709: "709",
+            AVCOL_PRI_SMPTE170M: "170m",
+            AVCOL_PRI_SMPTE240M: "240m",
+            AVCOL_PRI_BT2020: "2020",
+            AVCOL_PRI_BT470M: "709",  // SDR
+        ]
+
+        let transferMap: [AVColorTransferCharacteristic: String] = [
+            AVCOL_TRC_BT709: "709",
+            AVCOL_TRC_LINEAR: "linear",
+            AVCOL_TRC_SMPTE2084: "smpte2084",  // PQ
+            AVCOL_TRC_ARIB_STD_B67: "arib-std-b67",  // HLG
+            AVCOL_TRC_BT2020_10: "2020_10",
+            AVCOL_TRC_BT2020_12: "2020_12",
+            AVCOL_TRC_IEC61966_2_1: "iec61966-2-1",  // sRGB
+        ]
+
+        let matrixmap: [AVColorSpace: String] = [
+            AVCOL_SPC_BT709: "709",
+            AVCOL_SPC_SMPTE170M: "170m",
+            AVCOL_SPC_SMPTE240M: "240m",
+            AVCOL_SPC_BT470BG: "470bg",
+            AVCOL_SPC_BT2020_NCL: "2020_ncl",
+            AVCOL_SPC_BT2020_CL: "2020_cl",
+            AVCOL_SPC_FCC: "170m",  // Close enough
+            AVCOL_SPC_ICTCP: "2020_ncl",  // Close enough
+        ]
+
+        // Override the values in AVFrame with BT.709 for cases that zscale doesn't support
+        let pin = primariesMap[frame.color_primaries] ?? "709"
+        let tin = transferMap[frame.color_trc] ?? "709"
+        let min = matrixmap[frame.colorspace] ?? "709"
+
+        // pixelBuffer.width > frame.width for anamorphic
+        let out_w = CVPixelBufferGetWidth(pixelBuffer)
+
+        if frame.color_trc == AVCOL_TRC_SMPTE2084 || frame.color_trc == AVCOL_TRC_ARIB_STD_B67 {
+            // HDR
+            return """
+                zscale=w=\(out_w):h=\(frame.height):pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=linear:matrix=709:npl=100,
+                tonemap=hable,
+                zscale=primaries=709:transfer=709:matrix=709,
+                format=bgra
+                """
+        } else if frame.color_primaries == AVCOL_PRI_BT709 && frame.color_trc == AVCOL_TRC_BT709
+            && frame.colorspace == AVCOL_SPC_BT709
+        {
+            // SDR content that's already in (or we've assumed to be in) BT.709
+            if out_w == frame.width {
+                return "format=bgra"
+            } else {
+                return """
+                    scale=w=\(out_w):h=\(frame.height):reset_sar:interl=-1,
+                    format=bgra
+                    """
+            }
+        } else {
+            // Other SDR content - SD or HD
+            return """
+                zscale=w=\(out_w):h=\(frame.height):pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=709:matrix=709,
+                format=bgra
+                """
+        }
+    }
+}
