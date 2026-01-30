@@ -38,37 +38,193 @@
 		<array>
 			<dict>
 				<key>CodecType</key>
-				<string>QVQ1</string>
+				<string>MPG1</string>
+				<key>CodecName</key>
+				<string>MPEG-1 Video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>MPG2</string>
+				<key>CodecName</key>
+				<string>MPEG-2 Video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>MPG4</string>
+				<key>CodecName</key>
+				<string>MPEG-4 Video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>SV1 </string>
 				<key>CodecName</key>
 				<string>Sorenson Video 1</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>QVQ3</string>
+				<string>SV3 </string>
 				<key>CodecName</key>
 				<string>Sorenson Video 3</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>vpQ8</string>
+				<string>VP8 </string>
 				<key>CodecName</key>
 				<string>On2 VP8</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>vpQ9</string>
+				<string>VP9 </string>
 				<key>CodecName</key>
 				<string>Google VP9</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>avQ1</string>
+				<string>AV1 </string>
 				<key>CodecName</key>
 				<string>AOMedia AV1</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>QLV1</string>
+				<string>theo</string>
+				<key>CodecName</key>
+				<string>Theora</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>vvc1</string>
+				<key>CodecName</key>
+				<string>Versatile Video Coding</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>cvid</string>
+				<key>CodecName</key>
+				<string>Cinepak</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>vc-1</string>
+				<key>CodecName</key>
+				<string>VC-1</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>avs2</string>
+				<key>CodecName</key>
+				<string>Chinese AVS video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>flic</string>
+				<key>CodecName</key>
+				<string>FLC animation</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>apv1</string>
+				<key>CodecName</key>
+				<string>Advanced Professional Video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>FLV1</string>
+				<key>CodecName</key>
+				<string>Flash Video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>FSV1</string>
+				<key>CodecName</key>
+				<string>Flash Video</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>VP6 </string>
+				<key>CodecName</key>
+				<string>On2 TrueMotion VP6</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>WMV1</string>
+				<key>CodecName</key>
+				<string>Windows Media Video 1</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>WMV2</string>
+				<key>CodecName</key>
+				<string>Windows Media Video 2</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>WMV3</string>
+				<key>CodecName</key>
+				<string>Windows Media Video 3</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>RV10</string>
+				<key>CodecName</key>
+				<string>RealVideo 1</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>RV20</string>
+				<key>CodecName</key>
+				<string>RealVideo G2</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>RV30</string>
+				<key>CodecName</key>
+				<string>RealVideo 8</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>RV40</string>
+				<key>CodecName</key>
+				<string>RealVideo 9</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>RV60</string>
+				<key>CodecName</key>
+				<string>RealVideo HD</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>CLV1</string>
+				<key>CodecName</key>
+				<string>ClearVideo</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>IV21</string>
+				<key>CodecName</key>
+				<string>Indeo 2</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>IV31</string>
+				<key>CodecName</key>
+				<string>Indeo 3</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>IV41</string>
+				<key>CodecName</key>
+				<string>Indeo 4</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>IV51</string>
+				<key>CodecName</key>
+				<string>Indeo 5</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>QLV </string>
 				<key>CodecName</key>
 				<string>QuickLook Video</string>
 			</dict>

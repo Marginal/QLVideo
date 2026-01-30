@@ -13,36 +13,72 @@ class VideoTrackReader: TrackReader, METrackReader {
 
     // AVCodecParameters.codec_tag can be zero(!) so prefer .codec_id for common types known to AVFoundation
     // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
-    static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'
-    static let kVideoCodecType_catchall = CMVideoCodecType(0x514c_5631)  // 'QLV1'
 
-    static let supported: [AVCodecID: CMVideoCodecType] = [
+    // Codecs CoreVideo can handle
+    static let native: [AVCodecID: CMVideoCodecType] = [
         AV_CODEC_ID_MJPEG: kCMVideoCodecType_JPEG,
         AV_CODEC_ID_JPEGXL: kCMVideoCodecType_JPEG_XL,
         AV_CODEC_ID_H263: kCMVideoCodecType_H263,
         AV_CODEC_ID_H264: kCMVideoCodecType_H264,
         AV_CODEC_ID_HEVC: kCMVideoCodecType_HEVC,
-        // kCMVideoCodecType_HEVCWithAlpha
-        // kCMVideoCodecType_DolbyVisionHEVC
-        AV_CODEC_ID_MPEG1VIDEO: kCMVideoCodecType_MPEG1Video,
-        AV_CODEC_ID_MPEG2VIDEO: kCMVideoCodecType_MPEG2Video,
-        AV_CODEC_ID_MPEG4: kCMVideoCodecType_MPEG4Video,
+            // kCMVideoCodecType_HEVCWithAlpha
+            // kCMVideoCodecType_DolbyVisionHEVC
+            // AV_CODEC_ID_MPEG1VIDEO: kCMVideoCodecType_MPEG1Video,
+            // AV_CODEC_ID_MPEG2VIDEO: kCMVideoCodecType_MPEG2Video,
+            // AV_CODEC_ID_MPEG4: kCMVideoCodecType_MPEG4Video,
+            // AV_CODEC_ID_VP8: special handling below
+            // AV_CODEC_ID_VP9: kCMVideoCodecType_VP9, special handling below
             // Hopefully codec_tag is set appropriately to disambiguate the below:
-            // AV_CODEC_ID_DVVIDEO maps to multple kCMVideoCodecType_DVC*
-            // AV_CODEC_ID_PRORES maps to multiple kCMVideoCodecType_AppleProRes*
-            // AV_CODEC_ID_PRORES_RAW maps tp multiple kCMVideoCodecType_AppleProResRAW*
-            // kCMVideoCodecType_DisparityHEVC ?
-            // kCMVideoCodecType_DepthHEVC ?
+            // AV_CODEC_ID_DVVIDEO: maps to multple kCMVideoCodecType_DVC*
+            // AV_CODEC_ID_PRORES: maps to multiple kCMVideoCodecType_AppleProRes*
+            // AV_CODEC_ID_PRORES_RAW: maps to multiple kCMVideoCodecType_AppleProResRAW*
+            // kCMVideoCodecType_DisparityHEVC: ?
+            // kCMVideoCodecType_DepthHEVC: ?
+            // AV_CODEC_ID_AV1: kCMVideoCodecType_AV1, special handling below
     ]
 
-    static let remapped: [AVCodecID: CMVideoCodecType] = [
-        AV_CODEC_ID_SVQ1: 0x5156_5131,  // 'QVQ1' not supported by AVFoundation
-        AV_CODEC_ID_SVQ3: 0x5156_5133,  // 'QVQ3' not supported by AVFoundation
-        AV_CODEC_ID_VP8: 0x7670_5138,  // 'vpQ8' somehow supported in Safari but not by AVFoundation
-        AV_CODEC_ID_VP9: 0x7670_5139,  // 'vpQ9' not supported by AVFoundation unless client calls VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9)
-        AV_CODEC_ID_AV1: 0x6176_5131,  // 'avQ1' only supported by AVFoundation on M3 CPUs and later
+    static let supported: [AVCodecID: CMVideoCodecType] = [
+        // Made up FourCCs that match those registered by our videodecoder in order to bypass CoreVideo
+        AV_CODEC_ID_MPEG1VIDEO: 0x4d50_4731,  // 'MPG1' works better if we pass it through to videodecoder
+        AV_CODEC_ID_MPEG2VIDEO: 0x4d50_4732,  // 'MPG2' works better if we pass it through to videodecoder
+        AV_CODEC_ID_MPEG4: 0x4d50_4734,  // 'MPG4' works better if we pass it through to videodecoder
+        AV_CODEC_ID_SVQ1: 0x5356_3120,  // 'SV1 ' not supported by AVFoundation
+        AV_CODEC_ID_SVQ3: 0x5356_3320,  // 'SV3 ' not supported by AVFoundation
+        AV_CODEC_ID_VP8: 0x5650_3820,  // 'VP8 ' somehow supported in Safari but not by AVFoundation
+        AV_CODEC_ID_VP9: 0x5650_3920,  // 'VP9 ' not supported by AVFoundation unless client calls VTRegisterSupplementalVideoDecoderIfAvailable
+        AV_CODEC_ID_AV1: 0x4156_3120,  // 'AV1 ' only supported by AVFoundation on M3 CPUs and later
+        // Selected real FourCCs that videodecoder registers
+        AV_CODEC_ID_THEORA: 0x7468_656f,  // 'theo'
+        AV_CODEC_ID_VVC: 0x7676_6331,  // 'vvc1'
+        AV_CODEC_ID_CINEPAK: 0x6376_6964,  // 'cvid'
+        AV_CODEC_ID_VC1: 0x7663_2D31,  // 'vc-1',
+        AV_CODEC_ID_CAVS: 0x6176_7332,  // 'avs2'
+        AV_CODEC_ID_FLIC: 0x666C_6963,  // 'flic'
+        AV_CODEC_ID_APV: 0x6170_7631,  // 'apv1'
+        AV_CODEC_ID_FLV1: 0x464C_5631,  // 'FLV1'
+        AV_CODEC_ID_FLASHSV: 0x4653_5631,  // 'FSV1'
+        AV_CODEC_ID_VP6: 0x5650_3620,  // 'VP6 ' (actually 'VP60' or 'VP61')
+        AV_CODEC_ID_VP6A: 0x5650_3620,  // 'VP6 ' (actually VP6A')
+        AV_CODEC_ID_VP6F: 0x5650_3620,  // 'VP6 ' (actually 'VP6F' or 'FLV4')
+        AV_CODEC_ID_WMV1: 0x574D_5631,  // 'WMV1'
+        AV_CODEC_ID_WMV2: 0x574D_5632,  // 'WMV2'
+        AV_CODEC_ID_WMV3: 0x574D_5633,  // 'WMV3'
+        AV_CODEC_ID_RV10: 0x5256_3130,  // 'RV10'
+        AV_CODEC_ID_RV20: 0x5256_3230,  // 'RV20'
+        AV_CODEC_ID_RV30: 0x5256_3330,  //  RV30'
+        AV_CODEC_ID_RV40: 0x5256_3430,  // 'RV40'
+        AV_CODEC_ID_RV60: 0x5256_3630,  // 'RV60'
+        AV_CODEC_ID_CLEARVIDEO: 0x434C_5631,  // 'CLV1'
+        AV_CODEC_ID_INDEO2: 0x4956_3231,  // 'IV21' (more commonly 'RT21')
+        AV_CODEC_ID_INDEO3: 0x4956_3331,  // 'IV31'
+        AV_CODEC_ID_INDEO4: 0x4956_3431,  // 'IV41'
+        AV_CODEC_ID_INDEO5: 0x4956_3530,  // 'IV50'
     ]
 
+    static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'
+    static let kVideoCodecType_catchall = CMVideoCodecType(0x514c_5620)  // 'QLV '
+
+    // Atom names for those codecs where extradata already holds a well formed codec configuration
     static let boxtype: [AVCodecID: String] = [
         AV_CODEC_ID_H264: "avcC",  // avc1 / MPEG-4 part 10 https://developer.apple.com/documentation/quicktime-file-format/avc_decoder_configuration_atom
         AV_CODEC_ID_HEVC: "hvcC",  // MPEG-4 Part 15
@@ -57,6 +93,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             preconditionFailure("Can't get stream parameters for stream #\(self.index)")
         }
 
+        // Construct a codec configuration for those codecs where CoreVideo requires one
         var extensions: [CFString: CFDictionary] = [:]
         if params.codec_id == AV_CODEC_ID_MJPEG {
             // Need an esds atom, but FFmpeg doesn't provide one. Make a minimal one.
@@ -141,7 +178,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             )
         }
 
-        var codecType = VideoTrackReader.supported[params.codec_id]
+        var codecType: CMVideoCodecType? = VideoTrackReader.native[params.codec_id]
 
         // Special handling for codecs that CoreMedia may or may not support
         switch params.codec_id {
@@ -197,9 +234,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             extensions["QLVideo" as CFString] = parameters as CFDictionary
 
             // Give the track a fourcc that ensures our MEVideoDecoder gets to see it
-            codecType =
-                VideoTrackReader.remapped[params.codec_id]
-                ?? (params.codec_tag != 0 ? params.codec_tag : VideoTrackReader.kVideoCodecType_catchall)
+            codecType = VideoTrackReader.supported[params.codec_id] ?? VideoTrackReader.kVideoCodecType_catchall
         }
 
         let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream, nil)

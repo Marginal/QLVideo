@@ -40,24 +40,6 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.movie</string>
-				<string>com.real.realmedia</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>RealVideo</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.real.realvideo</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>rv</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.movie</string>
 				<string>org.matroska.mkv</string>
 			</array>
 			<key>UTTypeDescription</key>
@@ -257,7 +239,7 @@
 			<key>UTTypeDescription</key>
 			<string>Ogg Vorbis Audio</string>
 			<key>UTTypeIdentifier</key>
-			<string>org.xiph.ogg</string>
+			<string>org.xiph.ogg-audio</string>
 			<key>UTTypeReferenceURL</key>
 			<string>http://xiph.org/ogg/</string>
 			<key>UTTypeTagSpecification</key>
@@ -288,6 +270,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
+					<string>ogm</string>
 					<string>ogv</string>
 				</array>
 				<key>public.mime-type</key>

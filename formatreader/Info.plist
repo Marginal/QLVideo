@@ -39,12 +39,86 @@
 			<string>mka</string>
 			<string>mkv</string>
 			<string>webm</string>
+			<string>avi</string>
+			<string>vfw</string>
+			<string>asf</string>
+			<string>wma</string>
+			<string>wmv</string>
+			<string>gxf</string>
+			<string>mxf</string>
+			<string>nuv</string>
+			<string>ra</string>
+			<string>rax</string>
+			<string>ram</string>
+			<string>rm</string>
+			<string>rv</string>
+			<string>wtv</string>
+			<string>flc</string>
+			<string>flv</string>
+			<string>f4v</string>
+			<string>ogm</string>
+			<string>ogv</string>
 		</array>
 		<key>MTUTTypeArray</key>
 		<array>
 			<string>org.matroska.mka</string>
+			<string>io.iina.mka</string>
+
 			<string>org.matroska.mkv</string>
+			<string>com.firecore.fileformat.mkv</string>
+                        <string>io.iina.mkv</string>
+
 			<string>org.webmproject.webm</string>
+			<string>com.firecore.fileformat.webm</string>
+			<string>io.iina.webm</string>
+			<string>org.videolan.webm</string>
+
+			<string>public.avi</string>
+			<string>com.firecore.fileformat.avi</string>
+			<string>io.iina.avi</string>
+
+			<string>com.microsoft.advanced-systems-format</string>
+			<string>com.firecore.fileformat.asf</string>
+			<string>io.iina.asf</string>
+
+			<string>com.microsoft.windows-media-wma</string>
+			<string>io.iina.wma</string>
+
+			<string>com.microsoft.windows-media-wmv</string>
+			<string>com.firecore.fileformat.wmv</string>
+			<string>io.iina.wmv</string>
+
+			<string>com.microsoft.wtv</string>
+			<string>com.firecore.fileformat.wtv</string>
+			<string>io.iina.wtv</string>
+			<string>org.videolan.wtv</string>
+
+			<string>org.smpte.gxf</string>
+			<string>org.videolan.gxf</string>
+
+			<string>org.smpte.mxf</string>
+			<string>org.videolan.mxf</string>
+			<string>com.firecore.fileformat.mxf</string>
+
+			<string>org.mythtv.nuppelvideo</string>
+			<string>com.mythtv.nuv</string>
+
+			<string>com.real.realaudio</string>
+
+			<string>com.real.realmedia</string>
+                        <string>io.iina.realmedia</string>
+
+			<string>public.flc-animation</string>
+
+			<string>com.adobe.flash.video</string>
+			<string>com.firecore.fileformat.flv</string>
+			<string>io.iina.flash</string>
+
+			<string>org.xiph.ogv</string>
+                        <string>com.firecore.fileformat.ogm</string>
+			<string>com.firecore.fileformat.ogv</string>
+			<string>org.xiph.ogg-video</string>
+			<string>io.iina.ogg-video</string>
 		</array>
 		<key>ObjectName</key>
 		<string>Support for non-native media formats</string>
@@ -122,6 +196,124 @@
 				<key>public.mime-type</key>
 				<array>
 					<string>video/webm</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>General eXchange Format</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.smpte.gxf</string>
+			<key>UTTypeReferenceURL</key>
+			<string>https://www.smpte.org/standards</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gxf</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/gxf</string>
+					<string>video/x-gxf</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Material eXchange Format</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.smpte.mxf</string>
+			<key>UTTypeReferenceURL</key>
+			<string>https://www.smpte.org/standards</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mxf</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/mxf</string>
+					<string>video/x-mxf</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>NuppelVideo</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.mythtv.nuppelvideo</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://www.mythtv.org/wiki/NuppelVideo</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>nuv</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>audio/x-nuv</string>
+					<string>video/x-nuv</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Windows Recorded TV Show</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.microsoft.wtv</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>wtv</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/x-wtv</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Ogg Video</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.xiph.ogv</string>
+			<key>UTTypeReferenceURL</key>
+			<string>http://xiph.org/ogg/</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>ogm</string>
+					<string>ogv</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/ogg</string>
+					<string>video/x-ogg</string>
 				</array>
 			</dict>
 		</dict>

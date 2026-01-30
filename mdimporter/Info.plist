@@ -164,7 +164,7 @@
 				<string>com.canon.raw.movie</string>
 
 				<!-- defined by Infuse.app -->
-			       	<string>com.firecore.fileformat.dvr-ms</string>
+				<string>com.firecore.fileformat.dvr-ms</string>
 				<string>com.firecore.fileformat.flv</string>
 				<string>com.firecore.fileformat.mpg</string>
 				<string>com.firecore.fileformat.wmv</string>
@@ -211,7 +211,7 @@
 				<string>net.sourceforge.flac.flac</string>
 				<string>org.matroska.mka</string>
 				<string>org.xiph.flac</string>
-				<string>org.xiph.ogg</string>
+				<string>org.xiph.ogg-audio</string>
 
 				<!-- Audio defined by Perian < 1.3 -->
 				<string>org.perian.true-audio</string>
