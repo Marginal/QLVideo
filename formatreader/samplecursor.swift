@@ -241,9 +241,6 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             presentationTimeStamp: CMTime(value: current.pointee.pts, timeBase: timeBase),
             decodeTimeStamp: CMTime(value: current.pointee.dts, timeBase: timeBase)
         )
-        let sampleFormat = AVSampleFormat(track!.stream.codecpar.pointee.format)
-        var sampleSize = Int(av_get_bytes_per_sample(sampleFormat)) * Int(track!.stream.codecpar.pointee.ch_layout.nb_channels)
-        let planar = Bool(av_sample_fmt_is_planar(sampleFormat) != 0)
         status = CMSampleBufferCreateReady(
             allocator: kCFAllocatorDefault,
             dataBuffer: blockBuffer,

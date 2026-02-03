@@ -26,6 +26,9 @@ class AudioTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_PCM_F32LE: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_F64BE: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_F64LE: kAudioFormatLinearPCM,
+        AV_CODEC_ID_PCM_MULAW: kAudioFormatULaw,
+        AV_CODEC_ID_PCM_ALAW: kAudioFormatALaw,
+            /* Easier to let FFmpeg decode all compressed formats - maybe more efficient too since it has to demux the data anyway
         AV_CODEC_ID_AC3: kAudioFormatAC3,
         // kAudioFormat60958AC3
         AV_CODEC_ID_ADPCM_IMA_QT: kAudioFormatAppleIMA4,
@@ -35,8 +38,6 @@ class AudioTrackReader: TrackReader, METrackReader {
         // MPEG4TwinVQ: kAudioFormatMPEG4TwinVQ, // not supported by FFmpeg
         AV_CODEC_ID_MACE3: kAudioFormatMACE3,
         AV_CODEC_ID_MACE6: kAudioFormatMACE6,
-        AV_CODEC_ID_PCM_MULAW: kAudioFormatULaw,
-        AV_CODEC_ID_PCM_ALAW: kAudioFormatALaw,
         AV_CODEC_ID_QDMC: kAudioFormatQDesign,
         AV_CODEC_ID_QDM2: kAudioFormatQDesign2,
         AV_CODEC_ID_QCELP: kAudioFormatQUALCOMM,
@@ -58,7 +59,8 @@ class AudioTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_EAC3: kAudioFormatEnhancedAC3,
         AV_CODEC_ID_FLAC: kAudioFormatFLAC,
         AV_CODEC_ID_OPUS: kAudioFormatOpus,
-            // kAudioFormatAPAC, not supported by FFmpeg
+        // kAudioFormatAPAC, not supported by FFmpeg
+             */
     ]
 
     // https://ffmpeg.org/doxygen/8.0/channel__layout_8h_source.html#l00175
@@ -106,8 +108,16 @@ class AudioTrackReader: TrackReader, METrackReader {
         static let AV_CH_LAYOUT_STEREO: ChannelMasks = [.AV_CH_FRONT_LEFT, .AV_CH_FRONT_RIGHT]
         static let AV_CH_LAYOUT_SURROUND: ChannelMasks = [.AV_CH_LAYOUT_STEREO, .AV_CH_FRONT_CENTER]
         static let AV_CH_LAYOUT_5POINT0: ChannelMasks = [.AV_CH_LAYOUT_SURROUND, .AV_CH_SIDE_LEFT, .AV_CH_SIDE_RIGHT]
+        static let AV_CH_LAYOUT_5POINT0_BACK: ChannelMasks = [.AV_CH_LAYOUT_SURROUND, .AV_CH_BACK_LEFT, .AV_CH_BACK_RIGHT]
         static let AV_CH_LAYOUT_5POINT1: ChannelMasks = [.AV_CH_LAYOUT_5POINT0, .AV_CH_LOW_FREQUENCY]
+        static let AV_CH_LAYOUT_5POINT1_BACK: ChannelMasks = [.AV_CH_LAYOUT_5POINT0_BACK, .AV_CH_LOW_FREQUENCY]
         static let AV_CH_LAYOUT_7POINT1: ChannelMasks = [.AV_CH_LAYOUT_5POINT1, .AV_CH_BACK_LEFT, .AV_CH_BACK_RIGHT]
+        static let AV_CH_LAYOUT_7POINT1_WIDE: ChannelMasks = [
+            .AV_CH_LAYOUT_5POINT1, .AV_CH_FRONT_LEFT_OF_CENTER, .AV_CH_FRONT_RIGHT_OF_CENTER,
+        ]
+        static let AV_CH_LAYOUT_7POINT1_WIDE_BACK: ChannelMasks = [
+            .AV_CH_LAYOUT_5POINT1_BACK, .AV_CH_FRONT_LEFT_OF_CENTER, .AV_CH_FRONT_RIGHT_OF_CENTER,
+        ]
     }
 
     static let channelLabels: [UInt64: AudioChannelLabel] = [
@@ -190,7 +200,6 @@ class AudioTrackReader: TrackReader, METrackReader {
         #endif
 
         // Check that we can decode
-
         let formatID = AudioTrackReader.formatIDs[params.codec_id]  // Can macOS decode?
         if formatID == nil {
             // macOS can't decode - prepare an AVCodecContext for FFmpeg decoding and SwrContext for resampling
@@ -210,46 +219,50 @@ class AudioTrackReader: TrackReader, METrackReader {
             }
             var ret = avcodec_parameters_to_context(dec_ctx, &params)
             if ret < 0 {
-                let err = AVERROR(errorCode: ret)
+                let err = AVERROR(errorCode: ret, context: "avcodec_parameters_to_context")
                 logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription)"
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription, privacy: .public)"
                 )
                 return completionHandler(nil, err)
             }
             ret = avcodec_open2(dec_ctx, codec, nil)
             if ret < 0 {
-                let err = AVERROR(errorCode: ret)
+                let err = AVERROR(errorCode: ret, context: "avcodec_open2")
                 logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription)"
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.localizedDescription, privacy: .public)"
                 )
                 return completionHandler(nil, err)
             }
 
-            ret = swr_alloc_set_opts2(
-                &swr_ctx,
-                &params.ch_layout,
-                av_get_packed_sample_fmt(AVSampleFormat(params.format)),  // out
-                params.sample_rate,
-                &params.ch_layout,
-                AVSampleFormat(params.format),  // in
-                params.sample_rate,
-                0,
-                nil
-            )
-            if ret < 0 {
-                let err = AVERROR(errorCode: ret)
-                logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.localizedDescription)"
+            // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
+            // http://www.openradar.me/45068930
+            if av_sample_fmt_is_planar(AVSampleFormat(params.format)) != 0 {
+                ret = swr_alloc_set_opts2(
+                    &swr_ctx,
+                    &params.ch_layout,
+                    av_get_packed_sample_fmt(AVSampleFormat(params.format)),  // out
+                    params.sample_rate,
+                    &params.ch_layout,
+                    AVSampleFormat(params.format),  // in
+                    params.sample_rate,
+                    0,
+                    nil
                 )
-                return completionHandler(nil, err)
-            }
-            ret = swr_init(swr_ctx)
-            if ret < 0 {
-                let err = AVERROR(errorCode: ret)
-                logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't initialise resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.localizedDescription)"
-                )
-                return completionHandler(nil, err)
+                if ret < 0 {
+                    let err = AVERROR(errorCode: ret, context: "swr_alloc_set_opts2")
+                    logger.error(
+                        "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.localizedDescription, privacy: .public)"
+                    )
+                    return completionHandler(nil, err)
+                }
+                ret = swr_init(swr_ctx)
+                if ret < 0 {
+                    let err = AVERROR(errorCode: ret, context: "swr_init")
+                    logger.error(
+                        "AudioTrackReader stream \(self.index) loadTrackInfo: Can't initialise resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.localizedDescription, privacy: .public)"
+                    )
+                    return completionHandler(nil, err)
+                }
             }
         }
 
@@ -263,9 +276,12 @@ class AudioTrackReader: TrackReader, METrackReader {
                 layoutTag = kAudioChannelLayoutTag_Mono
             case ChannelMasks.AV_CH_LAYOUT_STEREO.rawValue:  // FL+FR
                 layoutTag = kAudioChannelLayoutTag_Stereo
-            case ChannelMasks.AV_CH_LAYOUT_5POINT1.rawValue:  // FL+FR+FC+LFE+SL+SR
+            case ChannelMasks.AV_CH_LAYOUT_5POINT1.rawValue,  // FL+FR+FC+LFE+SL+SR
+                ChannelMasks.AV_CH_LAYOUT_5POINT1_BACK.rawValue:
                 layoutTag = kAudioChannelLayoutTag_MPEG_5_1_A
-            case ChannelMasks.AV_CH_LAYOUT_7POINT1.rawValue:  // FL+FR+FC+LFE+BL+BR+SL+SR
+            case ChannelMasks.AV_CH_LAYOUT_7POINT1.rawValue,  // FL+FR+FC+LFE+BL+BR+SL+SR
+                ChannelMasks.AV_CH_LAYOUT_7POINT1_WIDE.rawValue,
+                ChannelMasks.AV_CH_LAYOUT_7POINT1_WIDE_BACK.rawValue:
                 layoutTag = kAudioChannelLayoutTag_MPEG_7_1_A
             default:
                 // FFmpeg presents channels in order of AVChannel enum, which in general is not the same order
@@ -315,7 +331,7 @@ class AudioTrackReader: TrackReader, METrackReader {
                         ?? kAudioChannelLabel_Unknown
                     channel_number = channel_number + 1
                 }
-                if channel_mask & UInt64(1 << 63) != 0 { break }
+                if channel_mask & ChannelMasks.AV_CH_BINAURAL_RIGHT.rawValue != 0 { break }
                 channel_mask = channel_mask << 1
             }
             layout.mNumberChannelDescriptions = UInt32(channel_number)
@@ -347,8 +363,9 @@ class AudioTrackReader: TrackReader, METrackReader {
                 ? av_get_bytes_per_sample(AVSampleFormat(params.format))  // size of the decoded samples
                 : av_get_bits_per_sample(params.codec_id) >> 3  // returns zero for compressed formats
         )
+        let outFmt: AVSampleFormat = swr_ctx?.pointee.out_sample_fmt ?? AVSampleFormat(params.format)
         let flags =
-            AudioTrackReader.formatFlags[av_get_packed_sample_fmt(AVSampleFormat(params.format))]!  // CoreAudio doesn't consider compressed formats as planar, and can't handle planar decoded PCM so we have to resample
+            AudioTrackReader.formatFlags[outFmt]!
             | (params.bits_per_raw_sample == params.bits_per_coded_sample
                 ? kAudioFormatFlagIsPacked : kAudioFormatFlagIsAlignedHigh)
         let planar = (flags & kAudioFormatFlagIsNonInterleaved) != 0
