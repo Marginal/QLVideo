@@ -166,15 +166,15 @@ class PacketQueue: @unchecked Sendable {
         queue[idx].append(pkt)
     }
 
-    func get(stream: Int, qi: Int) -> UnsafeMutablePointer<AVPacket>? {
-        return qi >= queue[stream].count ? nil : queue[stream][qi]
+    func get(stream: Int, logicalIndex: Int) -> UnsafeMutablePointer<AVPacket>? {
+        return logicalIndex >= queue[stream].count ? nil : queue[stream][logicalIndex]
     }
 
     func step(stream: Int, from: Int, by: Int) -> Int {
         return queue.isEmpty ? 0 : min(max(from + by, 0), queue[stream].count - 1)
     }
 
-    func seek(stream: Int, presentationTimeStamp: CMTime) -> Int {
+    func seek(stream: Int, presentationTimeStamp: CMTime) throws -> Int {
         if CMTimeCompare(presentationTimeStamp, .zero) == 0 {
             // common case
             return 0
@@ -194,7 +194,7 @@ class PacketQueue: @unchecked Sendable {
         return 0  // "if there are no such samples, the first sample in PTS order"
     }
 
-    func seek(stream: Int, decodeTimeStamp: CMTime) -> (Int, Bool) {
+    func seek(stream: Int, decodeTimeStamp: CMTime) throws -> (Int, Bool) {
         // Assumes common timebase denominator
         let timeBase = fmt_ctx.pointee.streams[stream]!.pointee.time_base
         let dts = Int32(decodeTimeStamp.value) * timeBase.num  // in stream timeBase units

@@ -15,17 +15,17 @@ class PassthruSampleCursor: SampleCursor {
     }
 
     func sampleLocation() throws -> MESampleLocation {
-        if let current = format!.packetQueue!.get(stream: self.index, qi: self.qi) {
-            let location = AVSampleCursorStorageRange(offset: current.pointee.pos, length: Int64(current.pointee.size))
+        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+            let location = AVSampleCursorStorageRange(offset: pkt.pointee.pos, length: Int64(pkt.pointee.size))
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "PassthruSampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public) sampleLocation = 0x\(UInt64(location.offset), format:.hex), 0x\(UInt64(location.length), format:.hex)"
+                    "PassthruSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) sampleLocation = 0x\(UInt64(location.offset), format:.hex), 0x\(UInt64(location.length), format:.hex)"
                 )
             }
             return MESampleLocation(byteSource: format!.byteSource, sampleLocation: location)
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.error("PassthruSampleCursor \(self.instance) stream \(self.index) sampleLocation at no packet")
+                logger.error("PassthruSampleCursor \(self.instance) stream \(self.streamIndex) sampleLocation at no packet")
             }
             throw MEError(.endOfStream)
         }

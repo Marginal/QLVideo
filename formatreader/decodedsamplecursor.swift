@@ -23,22 +23,22 @@ class DecodedSampleCursor: SampleCursor {
         completionHandler: @escaping (CMSampleBuffer?, (any Error)?) -> Void
     ) {
         let endPresentationTimeStamp = endSampleCursor?.presentationTimeStamp ?? CMTime.indefinite
-        guard let current = format!.packetQueue!.get(stream: index, qi: qi) else {
+        guard let pkt = format!.packetQueue!.get(stream: streamIndex, logicalIndex: logicalIndex) else {
             logger.error(
-                "DecodedSampleCursor \(self.instance) stream \(self.index) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) no packet"
+                "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) no packet"
             )
             return completionHandler(nil, MEError(.endOfStream))
         }
 
         let sampleFormat = AVSampleFormat(track!.stream.codecpar.pointee.format)
         var sampleSize = Int(av_get_bytes_per_sample(sampleFormat)) * Int(track!.stream.codecpar.pointee.ch_layout.nb_channels)
-        var duration = CMTime(value: current.pointee.duration, timeBase: self.timeBase)
+        var duration = CMTime(value: pkt.pointee.duration, timeBase: self.timeBase)
         var estimatedPackets = 0
         var capacity = 0
 
-        var nextPkt: UnsafeMutablePointer<AVPacket>? = current
+        var nextPkt: UnsafeMutablePointer<AVPacket>? = pkt
         var buffer: UnsafeMutablePointer<UInt8>? = nil
-        nexti = qi
+        nextIndex = logicalIndex
         lastDelivered = 0
         let frame = av_frame_alloc()!
 
@@ -50,20 +50,20 @@ class DecodedSampleCursor: SampleCursor {
             if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
                 logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: nextPkt!.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: nextPkt!.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: nextPkt!.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: nextPkt!.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): \(error.localizedDescription, privacy: .public)"
                 )
                 return completionHandler(nil, error)
             }
 
             ret = avcodec_receive_frame(track!.dec_ctx, frame)
             if ret == -EAGAIN {
-                nexti += 1
-                nextPkt = format!.packetQueue!.get(stream: index, qi: nexti)!
+                nextIndex += 1
+                nextPkt = format!.packetQueue!.get(stream: streamIndex, logicalIndex: nextIndex)!
                 continue
             } else if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
                 logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: nextPkt!.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: nextPkt!.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: nextPkt!.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: nextPkt!.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): \(error.localizedDescription, privacy: .public)"
                 )
                 return completionHandler(nil, error)
             }
@@ -129,14 +129,14 @@ class DecodedSampleCursor: SampleCursor {
             }
 
             av_frame_unref(frame)
-            nexti += 1
-            nextPkt = format!.packetQueue!.get(stream: index, qi: nexti)!
+            nextIndex += 1
+            nextPkt = format!.packetQueue!.get(stream: streamIndex, logicalIndex: nextIndex)
         } while nextPkt != nil && endPresentationTimeStamp.isNumeric
             && CMTime(value: nextPkt!.pointee.pts, timeBase: self.timeBase) <= endPresentationTimeStamp
 
         if TRACE_SAMPLE_CURSOR {
             logger.debug(
-                "DecodedSampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) estimatedPackets:\(estimatedPackets) actualPackets:\(self.nexti-self.qi) sampleCount:\(self.lastDelivered)"
+                "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) estimatedPackets:\(estimatedPackets) actualPackets:\(self.nextIndex-self.logicalIndex) sampleCount:\(self.lastDelivered)"
             )
         }
 
@@ -155,15 +155,15 @@ class DecodedSampleCursor: SampleCursor {
         guard status == noErr else {
             let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
             logger.error(
-                "DecodedSampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)"
+                "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)"
             )
             return completionHandler(nil, error)
         }
 
         var sampleBuffer: CMSampleBuffer? = nil
         var timingInfo = CMSampleTimingInfo(
-            duration: CMTime(value: current.pointee.duration, timeBase: timeBase),
-            presentationTimeStamp: CMTime(value: current.pointee.pts, timeBase: timeBase),
+            duration: CMTime(value: pkt.pointee.duration, timeBase: timeBase),
+            presentationTimeStamp: CMTime(value: pkt.pointee.pts, timeBase: timeBase),
             decodeTimeStamp: .invalid
         )
         status = CMSampleBufferCreateReady(
@@ -180,7 +180,7 @@ class DecodedSampleCursor: SampleCursor {
         guard status == noErr else {
             let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
             logger.error(
-                "DecodedSampleCursor \(self.instance) stream \(self.index) at dts:\(CMTime(value: current.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: current.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): CMSampleBufferCreateReady returned \(error, privacy:.public)"
+                "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): CMSampleBufferCreateReady returned \(error, privacy:.public)"
             )
             return completionHandler(nil, error)
         }

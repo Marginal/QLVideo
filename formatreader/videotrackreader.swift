@@ -293,15 +293,22 @@ class VideoTrackReader: TrackReader, METrackReader {
                 "VideoTrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp, privacy: .public)"
             )
         }
-        return completionHandler(
-            SampleCursor(
-                format: format,
-                track: self,
-                index: index,
-                atPresentationTimeStamp: presentationTimeStamp
-            ),
-            nil
-        )
+        do {
+            return completionHandler(
+                try SampleCursor(
+                    format: format,
+                    track: self,
+                    index: index,
+                    atPresentationTimeStamp: presentationTimeStamp
+                ),
+                nil
+            )
+        } catch {
+            logger.error(
+                "VideoTrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp, privacy: .public): \(error.localizedDescription, privacy: .public)"
+            )
+            return completionHandler(nil, error)
+        }
     }
 
     func generateSampleCursorAtFirstSampleInDecodeOrder(
@@ -310,16 +317,23 @@ class VideoTrackReader: TrackReader, METrackReader {
         if TRACE_SAMPLE_CURSOR {
             logger.debug("VideoTrackReader stream \(self.index) generateSampleCursorAtFirstSampleInDecodeOrder")
         }
-        return completionHandler(
-            SampleCursor(
-                format: format,
-                track: self,
-                index: index,
-                atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
-                    ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
-            ),
-            nil
-        )
+        do {
+            return completionHandler(
+                try SampleCursor(
+                    format: format,
+                    track: self,
+                    index: index,
+                    atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
+                        ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                ),
+                nil
+            )
+        } catch {
+            logger.error(
+                "VideoTrackReader stream \(self.index) generateSampleCursor generateSampleCursorAtFirstSampleInDecodeOrder: \(error.localizedDescription, privacy: .public)"
+            )
+            return completionHandler(nil, error)
+        }
     }
 
     func generateSampleCursorAtLastSampleInDecodeOrder(
@@ -328,10 +342,17 @@ class VideoTrackReader: TrackReader, METrackReader {
         if TRACE_SAMPLE_CURSOR {
             logger.debug("VideoTrackReader stream \(self.index) generateSampleCursorAtLastSampleInDecodeOrder")
         }
-        return completionHandler(
-            SampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
-            nil
-        )
+        do {
+            return completionHandler(
+                try SampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
+                nil
+            )
+        } catch {
+            logger.error(
+                "VideoTrackReader stream \(self.index) generateSampleCursor generateSampleCursorAtLastSampleInDecodeOrder: \(error.localizedDescription, privacy: .public)"
+            )
+            return completionHandler(nil, error)
+        }
     }
 
 }

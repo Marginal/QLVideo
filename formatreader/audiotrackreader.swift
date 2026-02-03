@@ -425,26 +425,33 @@ class AudioTrackReader: TrackReader, METrackReader {
                 "AudioTrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp, privacy: .public)"
             )
         }
-        if dec_ctx != nil {
-            return completionHandler(
-                DecodedSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: presentationTimeStamp
-                ),
-                nil
+        do {
+            if dec_ctx != nil {
+                return completionHandler(
+                    try DecodedSampleCursor(
+                        format: format,
+                        track: self,
+                        index: index,
+                        atPresentationTimeStamp: presentationTimeStamp
+                    ),
+                    nil
+                )
+            } else {
+                return completionHandler(
+                    try PassthruSampleCursor(
+                        format: format,
+                        track: self,
+                        index: index,
+                        atPresentationTimeStamp: presentationTimeStamp
+                    ),
+                    nil
+                )
+            }
+        } catch {
+            logger.error(
+                "AudioTrackReader stream \(self.index) generateSampleCursor atPresentationTimeStamp \(presentationTimeStamp, privacy: .public): \(error.localizedDescription, privacy: .public)"
             )
-        } else {
-            return completionHandler(
-                PassthruSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: presentationTimeStamp
-                ),
-                nil
-            )
+            return completionHandler(nil, error)
         }
     }
 
@@ -454,28 +461,35 @@ class AudioTrackReader: TrackReader, METrackReader {
         if TRACE_SAMPLE_CURSOR {
             logger.debug("AudioTrackReader stream \(self.index) generateSampleCursorAtFirstSampleInDecodeOrder")
         }
-        if dec_ctx != nil {
-            return completionHandler(
-                DecodedSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
-                        ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
-                ),
-                nil
+        do {
+            if dec_ctx != nil {
+                return completionHandler(
+                    try DecodedSampleCursor(
+                        format: format,
+                        track: self,
+                        index: index,
+                        atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
+                            ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                    ),
+                    nil
+                )
+            } else {
+                return completionHandler(
+                    try PassthruSampleCursor(
+                        format: format,
+                        track: self,
+                        index: index,
+                        atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
+                            ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                    ),
+                    nil
+                )
+            }
+        } catch {
+            logger.error(
+                "AudioTrackReader stream \(self.index) generateSampleCursor generateSampleCursorAtFirstSampleInDecodeOrder: \(error.localizedDescription, privacy: .public)"
             )
-        } else {
-            return completionHandler(
-                PassthruSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
-                        ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
-                ),
-                nil
-            )
+            return completionHandler(nil, error)
         }
     }
 
@@ -485,16 +499,33 @@ class AudioTrackReader: TrackReader, METrackReader {
         if TRACE_SAMPLE_CURSOR {
             logger.debug("AudioTrackReader stream \(self.index) generateSampleCursorAtLastSampleInDecodeOrder")
         }
-        if dec_ctx != nil {
-            return completionHandler(
-                DecodedSampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
-                nil
+        do {
+            if dec_ctx != nil {
+                return completionHandler(
+                    try DecodedSampleCursor(
+                        format: format,
+                        track: self,
+                        index: index,
+                        atPresentationTimeStamp: .positiveInfinity
+                    ),
+                    nil
+                )
+            } else {
+                return completionHandler(
+                    try PassthruSampleCursor(
+                        format: format,
+                        track: self,
+                        index: index,
+                        atPresentationTimeStamp: .positiveInfinity
+                    ),
+                    nil
+                )
+            }
+        } catch {
+            logger.error(
+                "AudioTrackReader stream \(self.index) generateSampleCursor generateSampleCursorAtLastSampleInDecodeOrder: \(error.localizedDescription, privacy: .public)"
             )
-        } else {
-            return completionHandler(
-                PassthruSampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity),
-                nil
-            )
+            return completionHandler(nil, error)
         }
     }
 
