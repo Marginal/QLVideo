@@ -22,6 +22,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     var streamIndex = -1  // FFmpeg stream index
     var logicalIndex = -1  // packet buffer logical index
     var timeBase = AVRational()
+    var demuxer:PacketDemuxer { format!.demuxer! }
 
     // used by stepInDecodeOrderByCount
     var lastDelivered = 0
@@ -40,13 +41,13 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         SampleCursor.instanceCount += 1
 
         // Creating a SampleCursor means that CoreMedia will want packets. So start demuxing.
-        if format.packetQueue == nil {
-            format.packetQueue = PacketQueue(format.fmt_ctx!)
+        if format.demuxer == nil {
+            format.demuxer = try PacketDemuxer(fmtCtx: format.fmt_ctx!)
         }
-        self.logicalIndex = try format.packetQueue!.seek(stream: streamIndex, presentationTimeStamp: presentationTimeStamp)
+        self.logicalIndex = try demuxer.seek(stream: streamIndex, presentationTimeStamp: presentationTimeStamp)
 
         if TRACE_SAMPLE_CURSOR {
-            if let pkt = format.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+            if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
                 logger.debug(
                     "SampleCursor \(self.instance) stream \(index) init at presentationTimeStamp:\(presentationTimeStamp, privacy: .public) -> dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public)"
                 )
@@ -70,7 +71,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         self.lastDelivered = copying.lastDelivered
         self.nextIndex = copying.nextIndex
         if TRACE_SAMPLE_CURSOR {
-            if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+            if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
                 logger.debug(
                     "SampleCursor \(copying.instance) stream \(copying.streamIndex) copy -> \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public)"
                 )
@@ -84,7 +85,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
     deinit {
         if TRACE_SAMPLE_CURSOR {
-            if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+            if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
                 logger.debug(
                     "SampleCursor \(self.instance) stream \(self.streamIndex) at decodeTimeStamp \(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) deinit"
                 )
@@ -101,7 +102,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // MARK: pkt sample info
 
     var presentationTimeStamp: CMTime {
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
             let time = CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)  // docs suggest can be invalid for B frames
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
@@ -118,7 +119,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     }
 
     var decodeTimeStamp: CMTime {
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
             let time = CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
@@ -136,7 +137,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
     var currentSampleDuration: CMTime {
         // https://developer.apple.com/documentation/avfoundation/avsamplecursor/currentsampleduration
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
             let time = CMTime(value: pkt.pointee.duration, timeBase: self.timeBase)
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
@@ -153,7 +154,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     }
 
     var currentSampleFormatDescription: CMFormatDescription? {
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
                     "SampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) pktSampleFormatDescription = \(self.track!.formatDescription!.mediaSubType, privacy: .public)"
@@ -181,7 +182,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         completionHandler: @escaping (CMSampleBuffer?, (any Error)?) -> Void
     ) {
         let endPresentationTimeStamp = endSampleCursor?.presentationTimeStamp ?? CMTime.indefinite
-        guard let pkt = format!.packetQueue!.get(stream: streamIndex, logicalIndex: logicalIndex) else {
+        guard let pkt = demuxer.get(stream: streamIndex, logicalIndex: logicalIndex) else {
             logger.error(
                 "SampleCursor \(self.instance) stream \(self.streamIndex) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) no packet"
             )
@@ -271,7 +272,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // Step by number of frames (not by packets or timestamp)
     func stepInDecodeOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
         var steppedBy: Int
-        if let old = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: logicalIndex) {
+        if let old = demuxer.get(stream: self.streamIndex, logicalIndex: logicalIndex) {
             if stepCount == lastDelivered {
                 // Being asked to step by the number of audio samples we last delivered in loadSampleBufferContainingSamples
                 logicalIndex = nextIndex
@@ -280,10 +281,10 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
                 lastDelivered = 0
             } else {
                 let oldlogicalIndex = logicalIndex
-                logicalIndex = format!.packetQueue!.step(stream: streamIndex, from: logicalIndex, by: Int(stepCount))
+                logicalIndex = demuxer.step(stream: streamIndex, from: logicalIndex, by: Int(stepCount))
                 steppedBy = logicalIndex - oldlogicalIndex
             }
-            if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: logicalIndex) {
+            if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: logicalIndex) {
                 if TRACE_SAMPLE_CURSOR {
                     logger.debug(
                         "SampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: old.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: old.pointee.pts, timeBase: self.timeBase), privacy: .public) stepInDecodeOrder by \(stepCount) -> dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public)"
@@ -310,10 +311,10 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // Step by number of frames (not by packets or timestamp)
     func stepInPresentationOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
         let oldlogicalIndex = logicalIndex
-        logicalIndex = format!.packetQueue!.step(stream: streamIndex, from: logicalIndex, by: Int(stepCount))
+        logicalIndex = demuxer.step(stream: streamIndex, from: logicalIndex, by: Int(stepCount))
         if TRACE_SAMPLE_CURSOR {
-            let old = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: oldlogicalIndex)!
-            let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex)!
+            let old = demuxer.get(stream: self.streamIndex, logicalIndex: oldlogicalIndex)!
+            let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex)!
             logger.error(
                 "SampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: old.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: old.pointee.pts, timeBase: self.timeBase), privacy: .public) stepInPresentationOrder by \(stepCount) -> dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public)"
             )
@@ -328,27 +329,26 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
     func stepByDecodeTime(_ deltaDecodeTime: CMTime, completionHandler: @escaping @Sendable (CMTime, Bool, (any Error)?) -> Void)
     {
-        if let pkt = format!.packetQueue!.get(stream: streamIndex, logicalIndex: logicalIndex) {
-            var pinned: Bool
+        if let pkt = demuxer.get(stream: streamIndex, logicalIndex: logicalIndex) {
             if !deltaDecodeTime.isNumeric || deltaDecodeTime.timescale != timeBase.den {
                 logger.error(
                     "SampleCursor \(self.instance) stream \(self.streamIndex) stepByDecodeTime by \(deltaDecodeTime) invalid"
                 )
-                return completionHandler(.zero, false, MEError(.invalidParameter))
+                return completionHandler(.invalid, false, MEError(.invalidParameter))
             }
             let decodeTimeStamp = CMTime(value: pkt.pointee.dts, timeBase: timeBase) + deltaDecodeTime
             do {
-                (logicalIndex, pinned) = try format!.packetQueue!.seek(stream: streamIndex, decodeTimeStamp: decodeTimeStamp)
+                logicalIndex = try demuxer.seek(stream: streamIndex, decodeTimeStamp: decodeTimeStamp)
             } catch {
                 return completionHandler(.invalid, false, error)
             }
-            let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex)!
+            let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex)!
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "SampleCursor \(self.instance) stream \(self.streamIndex) stepByDecodeTime by \(deltaDecodeTime, privacy: .public) -> dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) pinned:\(pinned)"
+                    "SampleCursor \(self.instance) stream \(self.streamIndex) stepByDecodeTime by \(deltaDecodeTime, privacy: .public) -> dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public)"
                 )
             }
-            return completionHandler(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), pinned, nil)
+            return completionHandler(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), false, nil)
         } else {
             if TRACE_SAMPLE_CURSOR {
                 logger.error(
@@ -374,7 +374,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // MARK: GOP
 
     var syncInfo: AVSampleCursorSyncInfo {
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
             let info = AVSampleCursorSyncInfo(
                 sampleIsFullSync: ObjCBool((pkt.pointee.flags & AV_PKT_FLAG_KEY) != 0),
                 sampleIsPartialSync: false,  // I don't know what this means
@@ -395,7 +395,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     }
 
     var dependencyInfo: AVSampleCursorDependencyInfo {
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex) {
             let info = AVSampleCursorDependencyInfo(
                 sampleIndicatesWhetherItHasDependentSamples: false,
                 sampleHasDependentSamples: false,
@@ -422,8 +422,8 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // whether any sample earlier in decode order than the current sample can have a later presentation time than the current sample of the specified cursor
     func samplesWithEarlierDTSsMayHaveLaterPTSs(than cursor: any MESampleCursor) -> Bool {
         let cursor = cursor as! SampleCursor
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex),
-            let other = cursor.format!.packetQueue!.get(stream: cursor.streamIndex, logicalIndex: cursor.logicalIndex)
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex),
+            let other = cursor.demuxer.get(stream: cursor.streamIndex, logicalIndex: cursor.logicalIndex)
         {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
@@ -443,8 +443,8 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     // whether any sample later in decode order than the current sample can have an earllier presentation time than the current sample of the specified cursor
     func samplesWithLaterDTSsMayHaveEarlierPTSs(than cursor: any MESampleCursor) -> Bool {
         let cursor = cursor as! SampleCursor
-        if let pkt = format!.packetQueue!.get(stream: self.streamIndex, logicalIndex: self.logicalIndex),
-            let other = cursor.format!.packetQueue!.get(stream: cursor.streamIndex, logicalIndex: cursor.logicalIndex)
+        if let pkt = demuxer.get(stream: self.streamIndex, logicalIndex: self.logicalIndex),
+            let other = cursor.demuxer.get(stream: cursor.streamIndex, logicalIndex: cursor.logicalIndex)
         {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(

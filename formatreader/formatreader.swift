@@ -46,7 +46,7 @@ class FormatReader: NSObject, MEFormatReader {
     @objc var avio_filepos: Int64 = 0
     var avio_ctx: UnsafeMutablePointer<AVIOContext>? = nil
     var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
-    var packetQueue: PacketQueue? = nil
+    var demuxer: PacketDemuxer? = nil
 
     init(primaryByteSource: MEByteSource) {
         byteSource = primaryByteSource
@@ -55,7 +55,7 @@ class FormatReader: NSObject, MEFormatReader {
 
     deinit {
         logger.debug("FormatReader deinit")
-        if let packetQueue { packetQueue.stop() }
+        if let demuxer { demuxer.stop() }
         if fmt_ctx != nil { avformat_close_input(&fmt_ctx) }
         if let avio_ctx {
             avio_ctx.pointee.opaque = nil  // otherwise avio_close() tries to free it
@@ -195,7 +195,7 @@ class FormatReader: NSObject, MEFormatReader {
             //    }
 
             default:
-                stream.discard = AVDISCARD_ALL // no point demuxing or seeking streams that we can't handle
+                stream.discard = AVDISCARD_ALL  // no point demuxing or seeking streams that we can't handle
                 logger.info(
                     "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(FormatReader.avcodec_name(params.codec_id), privacy:.public)"
                 )

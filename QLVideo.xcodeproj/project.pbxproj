@@ -132,13 +132,6 @@
 			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
 			remoteInfo = ffmpeg;
 		};
-		AB57AAD62D344DDF00E785D8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB57AACD2D344DDF00E785D8;
-			remoteInfo = thumbnailer;
-		};
 		AB66472A261AA04400D23514 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
@@ -173,13 +166,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = AB823D2E2ECB991F00F0E1D3;
 			remoteInfo = formatreader;
-		};
-		ABE69D302D2A350700CE6C69 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = ABE69D232D2A350700CE6C69;
-			remoteInfo = previewer;
 		};
 		ABE69DBB2D2C6DEB00CE6C69 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -788,8 +774,6 @@
 			);
 			dependencies = (
 				AB49FB7F2922770100B126C0 /* PBXTargetDependency */,
-				ABE69D312D2A350700CE6C69 /* PBXTargetDependency */,
-				AB57AAD72D344DDF00E785D8 /* PBXTargetDependency */,
 				AB823D352ECB991F00F0E1D3 /* PBXTargetDependency */,
 				AB00498C2F2143CE0054D7B0 /* PBXTargetDependency */,
 			);
@@ -1183,11 +1167,6 @@
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB535D5B1EDCD0C900ECB0CE /* PBXContainerItemProxy */;
 		};
-		AB57AAD72D344DDF00E785D8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB57AACD2D344DDF00E785D8 /* thumbnailer */;
-			targetProxy = AB57AAD62D344DDF00E785D8 /* PBXContainerItemProxy */;
-		};
 		AB66472B261AA04400D23514 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB66470D261A88C700D23514 /* dav1d */;
@@ -1212,11 +1191,6 @@
 			isa = PBXTargetDependency;
 			target = AB823D2E2ECB991F00F0E1D3 /* formatreader */;
 			targetProxy = AB823D342ECB991F00F0E1D3 /* PBXContainerItemProxy */;
-		};
-		ABE69D312D2A350700CE6C69 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = ABE69D232D2A350700CE6C69 /* previewer */;
-			targetProxy = ABE69D302D2A350700CE6C69 /* PBXContainerItemProxy */;
 		};
 		ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1669,7 +1643,7 @@
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/include";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 2.22;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1678,7 +1652,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -1739,7 +1713,7 @@
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/include";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 2.22;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1749,7 +1723,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
