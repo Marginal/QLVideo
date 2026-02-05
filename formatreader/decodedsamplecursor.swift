@@ -23,7 +23,7 @@ class DecodedSampleCursor: SampleCursor {
         completionHandler: @escaping (CMSampleBuffer?, (any Error)?) -> Void
     ) {
         let endPresentationTimeStamp = endSampleCursor?.presentationTimeStamp ?? CMTime.indefinite
-        guard let pkt = demuxer.get(stream: streamIndex, logicalIndex: logicalIndex) else {
+        guard let pkt = demuxer.get(stream: streamIndex, handle: handle) else {
             logger.error(
                 "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) no packet"
             )
@@ -38,7 +38,7 @@ class DecodedSampleCursor: SampleCursor {
 
         var nextPkt: UnsafeMutablePointer<AVPacket>? = pkt
         var buffer: UnsafeMutablePointer<UInt8>? = nil
-        nextIndex = logicalIndex
+        nextHandle = handle
         lastDelivered = 0
         let frame = av_frame_alloc()!
 
@@ -57,8 +57,8 @@ class DecodedSampleCursor: SampleCursor {
 
             ret = avcodec_receive_frame(track!.dec_ctx, frame)
             if ret == -EAGAIN {
-                nextIndex += 1
-                nextPkt = demuxer.get(stream: streamIndex, logicalIndex: nextIndex)!
+                nextHandle = demuxer.step(stream: streamIndex, from: nextHandle!, by: 1)
+                nextPkt = demuxer.get(stream: streamIndex, handle: nextHandle!)
                 continue
             } else if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
@@ -129,14 +129,14 @@ class DecodedSampleCursor: SampleCursor {
             }
 
             av_frame_unref(frame)
-            nextIndex += 1
-            nextPkt = demuxer.get(stream: streamIndex, logicalIndex: nextIndex)
+            nextHandle = demuxer.step(stream: streamIndex, from: nextHandle!, by: 1)
+            nextPkt = demuxer.get(stream: streamIndex, handle: nextHandle!)
         } while nextPkt != nil && endPresentationTimeStamp.isNumeric
             && CMTime(value: nextPkt!.pointee.pts, timeBase: self.timeBase) <= endPresentationTimeStamp
 
         if TRACE_SAMPLE_CURSOR {
             logger.debug(
-                "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) estimatedPackets:\(estimatedPackets) actualPackets:\(self.nextIndex-self.logicalIndex) sampleCount:\(self.lastDelivered)"
+                "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public) estimatedPackets:\(estimatedPackets) sampleCount:\(self.lastDelivered)"
             )
         }
 
