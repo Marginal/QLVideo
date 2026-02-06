@@ -126,7 +126,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
-    <string>${INFOPLIST_KEY_NSHumanReadableCopyright}</string>
+	<string>${INFOPLIST_KEY_NSHumanReadableCopyright}</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

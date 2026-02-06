@@ -1641,7 +1641,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/include";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2026 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 2.22;
@@ -1711,7 +1711,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/include";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2025 Jonathan Harris. Licensed under GPLv2 or later.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2014-2026 Jonathan Harris. Licensed under GPLv2 or later.";
 				LIBRARY_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/universal/lib";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 2.22;

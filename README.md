@@ -14,6 +14,6 @@ See [Getting Started](https://github.com/Marginal/QLVideo/wiki/Getting-Started).
 
 License
 -------
-Copyright © 2014-2025 Jonathan Harris.
+Copyright © 2014-2026 Jonathan Harris.
 
 Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
