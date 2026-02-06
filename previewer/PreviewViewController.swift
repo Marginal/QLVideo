@@ -70,6 +70,8 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
     var hasCoverArt: Bool = false
     var snapshotSize: CGSize = .zero
     var images: [NSImage?] = []
+    var timer: Timer? = nil
+    var webViewVideoIsStopped: Bool = false
 
     @IBOutlet weak var sidebar: NSScrollView!
     @IBOutlet weak var sidebarCollection: NSCollectionView!
@@ -354,5 +356,48 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
             preferredContentSize = NSSize(width: snapshotSize.width + sidebar.frame.width, height: snapshotSize.height)
             sidebarCollection.reloadData()
         }
+    }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.checkVisibility()
+        }
+    }
+
+    func checkVisibility() {
+        guard let window = view.window else {
+            pauseVideo()
+            return
+        }
+        
+        if window.level.rawValue > NSWindow.Level.normal.rawValue {
+            if webViewVideoIsStopped {
+                resumeVideoIfNeeded()
+            }
+        } else {
+            pauseVideo()
+        }
+    }
+
+    func pauseVideo() {
+        webViewVideoIsStopped = true
+        webView.evaluateJavaScript("document.querySelectorAll('video').forEach(v => v.pause());")
+    }
+
+    func resumeVideoIfNeeded() {
+        webViewVideoIsStopped = false
+        let js = """
+            document.querySelectorAll('video').forEach(video => {
+                video.currentTime = 0;
+                video.play().catch(e => {
+                    console.log('Play interrupted:', e);
+                });
+            });
+        """
+        webView.evaluateJavaScript(js)
+    }
+
+    deinit {
+        timer?.invalidate()
     }
 }
