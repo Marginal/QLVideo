@@ -74,9 +74,37 @@ class VideoTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_INDEO4: 0x4956_3431,  // 'IV41'
         AV_CODEC_ID_INDEO5: 0x4956_3530,  // 'IV50'
     ]
-
     static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'
     static let kVideoCodecType_catchall = CMVideoCodecType(0x514c_5620)  // 'QLV '
+
+    static let colorPrimaries: [AVColorPrimaries: CFString] = [
+        AVCOL_PRI_BT709: kCMFormatDescriptionColorPrimaries_ITU_R_709_2,
+        AVCOL_PRI_BT470M: kCMFormatDescriptionColorPrimaries_ITU_R_709_2,
+        AVCOL_PRI_BT470BG: kCMFormatDescriptionColorPrimaries_SMPTE_C,
+        AVCOL_PRI_SMPTE170M: kCMFormatDescriptionColorPrimaries_SMPTE_C,
+        AVCOL_PRI_SMPTE240M: kCMFormatDescriptionColorPrimaries_SMPTE_C,
+        AVCOL_PRI_SMPTE428: kCMFormatDescriptionColorPrimaries_SMPTE_C,
+        AVCOL_PRI_BT2020: kCMFormatDescriptionColorPrimaries_ITU_R_2020,
+    ]
+
+    static let colorTransfer: [AVColorTransferCharacteristic: CFString] = [
+        AVCOL_TRC_BT709: kCMFormatDescriptionTransferFunction_ITU_R_709_2,
+        AVCOL_TRC_SMPTE170M: kCMFormatDescriptionTransferFunction_SMPTE_240M_1995,
+        AVCOL_TRC_SMPTE240M: kCMFormatDescriptionTransferFunction_SMPTE_240M_1995,
+        AVCOL_TRC_SMPTE428: kCMFormatDescriptionTransferFunction_SMPTE_ST_428_1,
+        AVCOL_TRC_BT2020_10: kCMFormatDescriptionTransferFunction_ITU_R_2020,
+        AVCOL_TRC_BT2020_12: kCMFormatDescriptionTransferFunction_ITU_R_2020,
+        AVCOL_TRC_SMPTE2084: kCMFormatDescriptionTransferFunction_SMPTE_ST_2084_PQ,
+        AVCOL_TRC_ARIB_STD_B67: kCMFormatDescriptionTransferFunction_ITU_R_2100_HLG,
+    ]
+
+    static let colorMatrix: [AVColorSpace: CFString] = [
+        AVCOL_SPC_BT709: kCMFormatDescriptionYCbCrMatrix_ITU_R_709_2,
+        AVCOL_SPC_BT470BG: kCMFormatDescriptionYCbCrMatrix_ITU_R_601_4,
+        AVCOL_SPC_SMPTE170M: kCMFormatDescriptionYCbCrMatrix_ITU_R_601_4,
+        AVCOL_SPC_SMPTE240M: kCMFormatDescriptionYCbCrMatrix_SMPTE_240M_1995,
+        AVCOL_SPC_BT2020_NCL: kCMFormatDescriptionYCbCrMatrix_ITU_R_2020,
+    ]
 
     // Atom names for those codecs where extradata already holds a well formed codec configuration
     static let boxtype: [AVCodecID: String] = [
@@ -94,7 +122,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
 
         // Construct a codec configuration for those codecs where CoreVideo requires one
-        var extensions: [CFString: CFDictionary] = [:]
+        var extensions: [CFString: Any] = [:]
         if params.codec_id == AV_CODEC_ID_MJPEG {
             // Need an esds atom, but FFmpeg doesn't provide one. Make a minimal one.
             let bytes: [UInt8] = [
@@ -237,6 +265,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             codecType = VideoTrackReader.supported[params.codec_id] ?? VideoTrackReader.kVideoCodecType_catchall
         }
 
+        // Other extensions
         let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream, nil)
         if sar.num != 0 && (sar.num != 1 || sar.den != 1) {
             extensions[kCMFormatDescriptionExtension_PixelAspectRatio as CFString] =
@@ -244,6 +273,15 @@ class VideoTrackReader: TrackReader, METrackReader {
                     kCVImageBufferPixelAspectRatioHorizontalSpacingKey as CFString: sar.num as CFNumber,
                     kCVImageBufferPixelAspectRatioVerticalSpacingKey as CFString: sar.den as CFNumber,
                 ] as CFDictionary
+        }
+        if let colorPrimaries = VideoTrackReader.colorPrimaries[params.color_primaries] {
+            extensions[kCMFormatDescriptionExtension_ColorPrimaries as CFString] = colorPrimaries
+        }
+        if let colorTransfer = VideoTrackReader.colorTransfer[params.color_trc] {
+            extensions[kCMFormatDescriptionExtension_TransferFunction as CFString] = colorTransfer
+        }
+        if let colorMatrix = VideoTrackReader.colorMatrix[params.color_space] {
+            extensions[kCMFormatDescriptionExtension_YCbCrMatrix as CFString] = colorMatrix
         }
 
         logger.debug(
