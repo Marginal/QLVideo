@@ -221,6 +221,8 @@ func printTrackInfo(url: URL) {
             }
         }
     }
+    print("Metadata:")
+    for item in asset.metadata { print(String(describing: item)) }
 }
 
 func printAudioInfo(url: URL) {

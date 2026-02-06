@@ -2,8 +2,6 @@
 //  formatreader.swift
 //  QLVideo
 //
-//  Created by Jonathan Harris on 17/11/2025.
-//
 
 import Foundation
 import MediaExtension
@@ -22,8 +20,8 @@ class FormatReader: NSObject, MEFormatReader {
         "comment": .quickTimeMetadataComment,
         "composer": .quickTimeMetadataComposer,
         "copyright": .commonIdentifierCopyrights,
-        "creation_time": .quickTimeMetadataCreationDate,
-        "date": .quickTimeMetadataCreationDate,
+        "creation_time": .commonIdentifierCreationDate,
+        "date": .commonIdentifierCreationDate,
         "description": .commonIdentifierDescription,
         "encoded_by": .quickTimeMetadataEncodedBy,
         "encoder": .quickTimeMetadataSoftware,
@@ -146,7 +144,57 @@ class FormatReader: NSObject, MEFormatReader {
             item.value = value
             metadata.append(item)
         }
-        // TODO: Add cover art as commonIdentifierArtwork ?
+
+        // Find the best cover art stream.
+        var artStream = -1
+        var artPriority = 0
+        for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
+            guard let stream = fmt_ctx!.pointee.streams[i]?.pointee else { continue }
+            let params = stream.codecpar.pointee
+            if (params.codec_id == AV_CODEC_ID_PNG || params.codec_id == AV_CODEC_ID_MJPEG)
+                // Depending on codec and ffmpeg version cover art may be represented as attachment or as additional video stream(s)
+                && (params.codec_type == AVMEDIA_TYPE_ATTACHMENT
+                    || (params.codec_type == AVMEDIA_TYPE_VIDEO
+                        && ((stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS))
+                            == AV_DISPOSITION_ATTACHED_PIC)))
+            {
+                // MKVs can contain multiple cover art - see https://www.matroska.org/technical/attachments.html
+                let nameDict = av_dict_get(stream.metadata, "filename", nil, 0)
+                let filename = nameDict != nil ? String(cString: nameDict!.pointee.value) : ""
+                var priority = 1
+                if filename.lowercased().hasPrefix("cover.") {
+                    priority = 4
+                } else if filename.lowercased().hasPrefix("cover_land.") {
+                    priority = 3
+                } else if filename.lowercased().hasPrefix("cover_small.") {
+                    priority = 2
+                }
+                if artPriority < priority  // Prefer first if multiple with same priority
+                {
+                    artPriority = priority
+                    artStream = i
+                }
+            }
+        }
+        if artStream >= 0 {
+            let stream = fmt_ctx!.pointee.streams[artStream]!.pointee
+            let params = stream.codecpar.pointee
+            let item = AVMutableMetadataItem()
+            item.keySpace = .common
+            item.dataType =
+                (params.codec_id == AV_CODEC_ID_PNG ? kCMMetadataBaseDataType_PNG : kCMMetadataBaseDataType_JPEG) as String
+            item.identifier = .commonIdentifierArtwork
+            if stream.disposition & AV_DISPOSITION_ATTACHED_PIC != 0 {
+                item.value = NSData(bytes: stream.attached_pic.data, length: Int(stream.attached_pic.size))
+            } else {  // attachment stream
+                item.value = NSData(bytes: params.extradata, length: Int(params.extradata_size))
+            }
+            metadata.append(item)
+            logger.debug(
+                "Found \(String(describing: item), privacy: .public) covert art in stream \(artStream)"
+            )
+        }
+
         return completionHandler(metadata, nil)
     }
 
@@ -164,14 +212,7 @@ class FormatReader: NSObject, MEFormatReader {
             // Only add supported stream types
             switch params.codec_type {
             case AVMEDIA_TYPE_VIDEO:
-                if stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS)
-                    == AV_DISPOSITION_ATTACHED_PIC
-                {
-                    //readers.append(ArtTrackReader(format: self, stream: stream, index: i, enabled: false))
-                    logger.info(
-                        "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(FormatReader.avcodec_name(params.codec_id), privacy:.public)"
-                    )
-                } else {
+                if stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) == 0 {
                     let reader = VideoTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i))
                     readers.append(reader)
                 }
