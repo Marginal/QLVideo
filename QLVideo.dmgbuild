@@ -15,7 +15,7 @@ symlinks = {"Applications": "/Applications"}
 
 badge_icon = os.path.join(application, "Contents", "Resources", "AppIcon.icns")
 
-icon_locations = {appname: (140, 120), "Applications": (500, 120)}
+icon_locations = {appname: (140, 110), "Applications": (500, 110)}
 
 default_view = "icon-view"
 background = "builtin-arrow"

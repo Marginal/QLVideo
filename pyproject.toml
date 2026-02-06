@@ -1,0 +1,7 @@
+[project]
+name = "publish"
+description = "package and notarize"
+readme = "README.md"
+version = "1.0"
+requires-python = ">=3.14"
+dependencies = ["dmgbuild>=1.6.7", "pyobjc-framework-Quartz>=7.3"]
