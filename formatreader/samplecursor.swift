@@ -201,24 +201,24 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
         // Arrange for CoreMedia to free the packet data when no longer needed.
         // See CMBlockBufferCustomBlockSource in CMBlockBuffer.h for why we're constructing this on the fly
+        let dataPkt = av_packet_clone(pkt)
         var blockSource = CMBlockBufferCustomBlockSource(
             version: 0,
             AllocateBlock: nil,
             FreeBlock: {
-                var buffer: UnsafeMutablePointer<AVBufferRef>? = $0!.assumingMemoryBound(to: AVBufferRef.self)
+                var pkt: UnsafeMutablePointer<AVPacket>? = $0!.assumingMemoryBound(to: AVPacket.self)
                 // if TRACE_SAMPLE_CURSOR { logger.debug("AudioSampleCursor free") }
                 let _ = $1  // doomedMemoryBlock unused - av_buffer_unref() or av_packet_free() will free it
                 let _ = $2  // sizeInBytes unused
-                //av_buffer_unref(&buffer)
+                av_packet_free(&pkt)
             },
-            refCon: pkt.pointee.buf,
+            refCon: dataPkt,
         )
-        av_buffer_ref(pkt.pointee.buf)  // Ref the compressed data
         var blockBuffer: CMBlockBuffer? = nil
         var status = CMBlockBufferCreateWithMemoryBlock(
             allocator: kCFAllocatorDefault,
-            memoryBlock: pkt.pointee.data,
-            blockLength: Int(pkt.pointee.size),
+            memoryBlock: dataPkt!.pointee.data,
+            blockLength: Int(dataPkt!.pointee.size),
             blockAllocator: kCFAllocatorNull,
             customBlockSource: &blockSource,
             offsetToData: 0,
