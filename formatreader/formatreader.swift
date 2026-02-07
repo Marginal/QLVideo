@@ -87,6 +87,7 @@ class FormatReader: NSObject, MEFormatReader {
         )
         fmt_ctx = avformat_alloc_context()
         fmt_ctx!.pointee.pb = avio_ctx
+        fmt_ctx!.pointee.flags |= AVFMT_FLAG_GENPTS  // AVFoundation requires PTS values. Some formats e.g. AVI don't contain them
         var ret = avformat_open_input(&fmt_ctx, byteSource.fileName, nil, nil)
         guard ret == 0 else {
             let err = AVERROR(errorCode: ret, context: "avformat_open_input", file: byteSource.fileName)
