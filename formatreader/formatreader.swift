@@ -208,14 +208,16 @@ class FormatReader: NSObject, MEFormatReader {
             Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_SUBTITLE, -1, -1, &decoder, 0)),
         ]
         for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
-            guard var stream = fmt_ctx!.pointee.streams[i]?.pointee else { continue }
-            let params = stream.codecpar.pointee
+            let stream = fmt_ctx!.pointee.streams[i]!
+            let params = stream.pointee.codecpar.pointee
             // Only add supported stream types
             switch params.codec_type {
             case AVMEDIA_TYPE_VIDEO:
-                if stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) == 0 {
+                if stream.pointee.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) == 0 {
                     let reader = VideoTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i))
                     readers.append(reader)
+                } else {
+                    stream.pointee.discard = AVDISCARD_ALL  // this stream is metadata
                 }
 
             case AVMEDIA_TYPE_AUDIO:
@@ -237,7 +239,7 @@ class FormatReader: NSObject, MEFormatReader {
             //    }
 
             default:
-                stream.discard = AVDISCARD_ALL  // no point demuxing or seeking streams that we can't handle
+                stream.pointee.discard = AVDISCARD_ALL  // no point demuxing or seeking streams that we can't handle
                 logger.info(
                     "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(FormatReader.avcodec_name(params.codec_id), privacy:.public)"
                 )

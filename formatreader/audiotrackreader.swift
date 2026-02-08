@@ -184,7 +184,7 @@ class AudioTrackReader: TrackReader, METrackReader {
 
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
 
-        var params = stream.codecpar.pointee
+        var params = stream.pointee.codecpar.pointee
         guard params.codec_type == AVMEDIA_TYPE_AUDIO else {
             logger.error("Can't get stream parameters for stream #\(self.index)")
             preconditionFailure("Can't get stream parameters for stream #\(self.index)")
@@ -195,7 +195,7 @@ class AudioTrackReader: TrackReader, METrackReader {
                 String(format: "%02x", $0)
             }.joined(separator: " ")
             logger.debug(
-                "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) time_base:\(self.stream.time_base.num)/\(self.stream.time_base.den) start_time:\(self.stream.start_time) duration:\(self.stream.duration == AV_NOPTS_VALUE ? -1 : self.stream.duration) disposition:\(UInt(self.stream.disposition), format:.hex) codecpar: codec_id:\(String(cString:avcodec_get_name(params.codec_id)), privacy: .public) codec_tag:\"\(FormatReader.av_fourcc2str(params.codec_tag), privacy:.public)\" format:\(String(cString: av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy:.public) sample_rate:\(params.sample_rate) frame_size:\(params.frame_size) bits_per_coded_sample:\(params.bits_per_coded_sample) bits_per_raw_sample:\(params.bits_per_raw_sample) layout: order:\(params.ch_layout.order.rawValue) nb_channels:\(params.ch_layout.nb_channels) mask:\(params.ch_layout.u.mask, format: .hex) extradata \(params.extradata_size) bytes: \(hex)"
+                "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) time_base:\(self.stream.pointee.time_base.num)/\(self.stream.pointee.time_base.den) start_time:\(self.stream.pointee.start_time) duration:\(self.stream.pointee.duration == AV_NOPTS_VALUE ? -1 : self.stream.pointee.duration) disposition:\(UInt(self.stream.pointee.disposition), format:.hex) codecpar: codec_id:\(String(cString:avcodec_get_name(params.codec_id)), privacy: .public) codec_tag:\"\(FormatReader.av_fourcc2str(params.codec_tag), privacy:.public)\" format:\(String(cString: av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy:.public) sample_rate:\(params.sample_rate) frame_size:\(params.frame_size) bits_per_coded_sample:\(params.bits_per_coded_sample) bits_per_raw_sample:\(params.bits_per_raw_sample) layout: order:\(params.ch_layout.order.rawValue) nb_channels:\(params.ch_layout.nb_channels) mask:\(params.ch_layout.u.mask, format: .hex) extradata \(params.extradata_size) bytes: \(hex)"
             )
         #endif
 
@@ -381,7 +381,7 @@ class AudioTrackReader: TrackReader, METrackReader {
             mReserved: 0
         )
         logger.debug(
-            "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) timescale:\(self.stream.time_base.den) layout:0x\(layoutTag, format:.hex) absd: sampleRate:\(Int(asbd.mSampleRate)) formatID:\"\(FormatReader.av_fourcc2str(asbd.mFormatID), privacy: .public)\" formatFlags:0x\(asbd.mFormatFlags, format: .hex) bytesPerPacket:\(asbd.mBytesPerPacket) framesPerPacket:\(asbd.mFramesPerPacket) bytesPerFrame:\(asbd.mBytesPerFrame) channelsPerFrame:\(asbd.mChannelsPerFrame) bitsPerChannel:\(asbd.mBitsPerChannel)"
+            "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) timescale:\(self.stream.pointee.time_base.den) layout:0x\(layoutTag, format:.hex) absd: sampleRate:\(Int(asbd.mSampleRate)) formatID:\"\(FormatReader.av_fourcc2str(asbd.mFormatID), privacy: .public)\" formatFlags:0x\(asbd.mFormatFlags, format: .hex) bytesPerPacket:\(asbd.mBytesPerPacket) framesPerPacket:\(asbd.mFramesPerPacket) bytesPerFrame:\(asbd.mBytesPerFrame) channelsPerFrame:\(asbd.mChannelsPerFrame) bitsPerChannel:\(asbd.mBitsPerChannel)"
         )
         let status = CMAudioFormatDescriptionCreate(
             allocator: kCFAllocatorDefault,
@@ -407,7 +407,7 @@ class AudioTrackReader: TrackReader, METrackReader {
         )
         trackInfo.isEnabled = isEnabled
         // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
-        trackInfo.naturalTimescale = stream.time_base.den
+        trackInfo.naturalTimescale = stream.pointee.time_base.den
 
         completionHandler(trackInfo, nil)
     }
@@ -468,8 +468,8 @@ class AudioTrackReader: TrackReader, METrackReader {
                         format: format,
                         track: self,
                         index: index,
-                        atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
-                            ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                        atPresentationTimeStamp: stream.pointee.start_time != AV_NOPTS_VALUE
+                            ? CMTime(value: stream.pointee.start_time, timeBase: stream.pointee.time_base) : .zero
                     ),
                     nil
                 )
@@ -479,8 +479,8 @@ class AudioTrackReader: TrackReader, METrackReader {
                         format: format,
                         track: self,
                         index: index,
-                        atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
-                            ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                        atPresentationTimeStamp: stream.pointee.start_time != AV_NOPTS_VALUE
+                            ? CMTime(value: stream.pointee.start_time, timeBase: stream.pointee.time_base) : .zero
                     ),
                     nil
                 )

@@ -29,6 +29,7 @@ let AVERROR_UNKNOWN: Int32 = -0x4e4b_4e55
 let AVERROR_EXPERIMENTAL: Int32 = -0x2bb2_afa8
 let AVERROR_INPUT_CHANGED: Int32 = -0x636e_6701
 let AVERROR_OUTPUT_CHANGED: Int32 = -0x636e_6702
+let AVERROR_EAGAIN: Int32 = -EAGAIN
 
 final class AVERROR: CustomNSError, LocalizedError {
 

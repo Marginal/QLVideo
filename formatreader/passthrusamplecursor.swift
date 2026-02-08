@@ -19,14 +19,12 @@ class PassthruSampleCursor: SampleCursor {
             let location = AVSampleCursorStorageRange(offset: pkt.pointee.pos, length: Int64(pkt.pointee.size))
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "PassthruSampleCursor \(self.instance) stream \(self.streamIndex) at dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) sampleLocation = 0x\(UInt64(location.offset), format:.hex), 0x\(UInt64(location.length), format:.hex)"
+                    "\(self.debugDescription, privacy: .public) sampleLocation = 0x\(UInt64(location.offset), format:.hex), 0x\(UInt64(location.length), format:.hex)"
                 )
             }
             return MESampleLocation(byteSource: format!.byteSource, sampleLocation: location)
         } else {
-            if TRACE_SAMPLE_CURSOR {
-                logger.error("PassthruSampleCursor \(self.instance) stream \(self.streamIndex) sampleLocation at no packet")
-            }
+            if TRACE_SAMPLE_CURSOR { logger.error("\(self.debugDescription, privacy: .public) sampleLocation") }
             throw MEError(.endOfStream)
         }
     }

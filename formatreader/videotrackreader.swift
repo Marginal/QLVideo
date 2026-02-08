@@ -73,6 +73,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_INDEO3: 0x4956_3331,  // 'IV31'
         AV_CODEC_ID_INDEO4: 0x4956_3431,  // 'IV41'
         AV_CODEC_ID_INDEO5: 0x4956_3530,  // 'IV50'
+        AV_CODEC_ID_QTRLE: 0x726C_6520,  // 'rle '
     ]
     static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'
     static let kVideoCodecType_catchall = CMVideoCodecType(0x514c_5620)  // 'QLV '
@@ -115,7 +116,7 @@ class VideoTrackReader: TrackReader, METrackReader {
 
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
 
-        let params = stream.codecpar.pointee
+        let params = stream.pointee.codecpar.pointee
         guard params.codec_type == AVMEDIA_TYPE_VIDEO else {
             logger.error("Can't get stream parameters for stream #\(self.index)")
             preconditionFailure("Can't get stream parameters for stream #\(self.index)")
@@ -240,7 +241,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             var parameters: [CFString: Any?] = [
                 "AVCodecParameters" as CFString: CFDataCreate(
                     kCFAllocatorDefault,
-                    stream.codecpar,
+                    stream.pointee.codecpar,
                     CFIndex(MemoryLayout<AVCodecParameters>.size)
                 )
             ]
@@ -266,7 +267,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
 
         // Other extensions
-        let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream, nil)
+        let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream.pointee, nil)
         if sar.num != 0 && (sar.num != 1 || sar.den != 1) {
             extensions[kCMFormatDescriptionExtension_PixelAspectRatio as CFString] =
                 [
@@ -285,7 +286,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
 
         logger.debug(
-            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(codecType!), privacy: .public)\" extensions:\(extensions, privacy:.public) timescale:\(self.stream.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.avg_frame_rate), format:.fixed(precision:2))fps"
+            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(codecType!), privacy: .public)\" extensions:\(extensions, privacy:.public) timescale:\(self.stream.pointee.time_base.den) \(params.width)x\(params.height) \(av_q2d(self.stream.pointee.avg_frame_rate), format:.fixed(precision:2))fps"
         )
 
         let status = CMVideoFormatDescriptionCreate(
@@ -311,8 +312,8 @@ class VideoTrackReader: TrackReader, METrackReader {
         trackInfo.isEnabled = isEnabled
         // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
         trackInfo.naturalSize = CGSize(width: Int(params.width), height: Int(params.height))
-        trackInfo.naturalTimescale = stream.time_base.den
-        trackInfo.nominalFrameRate = Float32(av_q2d(stream.avg_frame_rate))
+        trackInfo.naturalTimescale = stream.pointee.time_base.den
+        trackInfo.nominalFrameRate = Float32(av_q2d(stream.pointee.avg_frame_rate))
         trackInfo.requiresFrameReordering = true  // TODO: do we need this?
 
         completionHandler(trackInfo, nil)
@@ -361,8 +362,8 @@ class VideoTrackReader: TrackReader, METrackReader {
                     format: format,
                     track: self,
                     index: index,
-                    atPresentationTimeStamp: stream.start_time != AV_NOPTS_VALUE
-                        ? CMTime(value: stream.start_time, timeBase: stream.time_base) : .zero
+                    atPresentationTimeStamp: stream.pointee.start_time != AV_NOPTS_VALUE
+                        ? CMTime(value: stream.pointee.start_time, timeBase: stream.pointee.time_base) : .zero
                 ),
                 nil
             )

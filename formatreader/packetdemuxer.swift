@@ -11,8 +11,9 @@
 //  * Some streams can be much sparser than others e.g. half as many video packets than audio in a 30fps AAC file.
 //  * Audio packets are typically much smaller than video packets, so we can afford to keep more of them buffered.
 //  * Video streams are consumed serially so SampleCursor moves by 2-3 packets at a time
-//  * Audio streams are consumed 86 packets at a time in loadSampleBufferContainingSamples (why 86?) so audio SampleCursor
-//    moves by 86 packets and video SampleCursor lags.
+//  * Audio streams are typically consumed two seconds at a time in loadSampleBufferContainingSamples (=86 AAC packets)
+//    but can be as high as 17s and ~1500! packets for variable duration streams like Vorbis, so audio SampleCursor
+//    jumps a lot while video SampleCursor lags.
 //
 
 import AVFoundation
@@ -86,12 +87,12 @@ private final class PacketRing {
         return storage[idx]
     }
 
-    func nearest(to target: CMTime, usePTS: Bool) -> Int? {
+    func nearest(to target: CMTime) -> Int? {
         var below: Int? = nil
         var above: Int? = nil
         for idx in 0..<count {
             let pkt = storage[(head + idx) % capacity]!
-            let tsVal = usePTS ? pkt.pointee.pts : pkt.pointee.dts
+            let tsVal = pkt.pointee.pts
             if tsVal == AV_NOPTS_VALUE { continue }
             let ts = CMTime(value: tsVal, timeBase: timeBase)
             if ts == target {
@@ -106,8 +107,8 @@ private final class PacketRing {
         guard let below, let above = above else { return nil }
         let belowPkt = storage[(head + below) % capacity]!
         let abovePkt = storage[(head + above) % capacity]!
-        let belowTs = CMTime(value: usePTS ? belowPkt.pointee.pts : belowPkt.pointee.dts, timeBase: timeBase)
-        let aboveTs = CMTime(value: usePTS ? abovePkt.pointee.pts : abovePkt.pointee.dts, timeBase: timeBase)
+        let belowTs = CMTime(value: belowPkt.pointee.pts, timeBase: timeBase)
+        let aboveTs = CMTime(value: abovePkt.pointee.pts, timeBase: timeBase)
         return target.seconds - belowTs.seconds <= aboveTs.seconds - target.seconds
             ? headLogicalIndex + below : headLogicalIndex + above
     }
@@ -116,24 +117,24 @@ private final class PacketRing {
 struct PacketHandle {
     let generation: Int
     let index: Int
+    let isLast: Bool
 }
 
 final class PacketDemuxer {
-    private enum Mode { case filling, target }
-    private static let capacity = 1024  // Max number of packets to buffer per stream
-    private static let readAhead = 192  // Enough to cover typical audio read bursts
-
+    private static let videoCapacity = 1024
+    private static let audioCapacity = videoCapacity * 3  // Audio buffers thrice video
+    private static let videoReadAhead = 120  // 2 seconds of video at 60fps
+    private static let audioReadAhead = 196  // should be more than enough for at least 2 seconds of audio in typical codecs
     private let fmtCtx: UnsafeMutablePointer<AVFormatContext>
     private var pktFixup: Int64 = 0
 
     private var buffers: [PacketRing]
     private var generation: Int = 0
-    private var mode: Mode = .filling
     private var targetLogical: [Int]
+    private var readAhead: [Int]
     private var stopping = false
     private var halted = false  // true after EOF or read/seek error until next successful seek
     private var rememberedSeekPTS: CMTime? = nil
-    private var rememberedSeekDTS: CMTime? = nil
     private var lastPkt: [UnsafeMutablePointer<AVPacket>?]  // MediaExtension wants us to report the last packet for each stream
 
     private let stateLock = NSLock()
@@ -144,14 +145,33 @@ final class PacketDemuxer {
     init(fmtCtx: UnsafeMutablePointer<AVFormatContext>) throws {
         self.fmtCtx = fmtCtx
         buffers = (0..<Int(fmtCtx.pointee.nb_streams)).map { idx in
-            let stream = fmtCtx.pointee.streams[idx]!.pointee
-            let capacity =
-                stream.discard.rawValue & AVDISCARD_ALL.rawValue != 0
-                ? 0 : (stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO ? PacketDemuxer.capacity : PacketDemuxer.capacity)
-            return PacketRing(capacity: capacity, timeBase: fmtCtx.pointee.streams[idx]!.pointee.time_base)
+            let stream = fmtCtx.pointee.streams[idx]!
+            let capacity: Int
+            if stream.pointee.discard != AVDISCARD_ALL {
+                switch stream.pointee.codecpar.pointee.codec_type {
+                case AVMEDIA_TYPE_VIDEO: capacity = PacketDemuxer.videoCapacity
+                case AVMEDIA_TYPE_AUDIO: capacity = PacketDemuxer.audioCapacity
+                default: capacity = 0  // we currently don't handle other kinds of stream
+                }
+            } else {
+                capacity = 0
+            }
+            return PacketRing(capacity: capacity, timeBase: stream.pointee.time_base)
         }
-        targetLogical = Array(repeating: 0, count: Int(fmtCtx.pointee.nb_streams))
-        lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(fmtCtx.pointee.nb_streams))
+        readAhead = (0..<Int(fmtCtx.pointee.nb_streams)).map { idx in
+            let stream = fmtCtx.pointee.streams[idx]!
+            if stream.pointee.discard != AVDISCARD_ALL {
+                switch stream.pointee.codecpar.pointee.codec_type {
+                case AVMEDIA_TYPE_VIDEO: return PacketDemuxer.videoReadAhead
+                case AVMEDIA_TYPE_AUDIO: return PacketDemuxer.audioReadAhead
+                default: return 0
+                }
+            } else {
+                return 0
+            }
+        }
+        targetLogical = readAhead  // Swift arrays are value types, so this creates a copy
+        lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(truncatingIfNeeded: fmtCtx.pointee.nb_streams))
         if String(cString: fmtCtx.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
         if TRACE_PACKET_DEMUXER {
             logger.debug("PacketDemuxer init streams: \(fmtCtx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
@@ -163,6 +183,10 @@ final class PacketDemuxer {
     deinit {
         if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer deinit") }
         stop()
+        stateLock.lock()
+        for i in 0..<buffers.count { buffers[i].reset() }
+        for i in 0..<lastPkt.count { av_packet_free(&lastPkt[i]) }
+        stateLock.unlock()
     }
 
     func stop() {
@@ -173,7 +197,7 @@ final class PacketDemuxer {
     }
 
     func get(stream: Int, handle: PacketHandle) -> UnsafeMutablePointer<AVPacket>? {
-        if handle.index == Int.max {
+        if handle.isLast {
             return lastPkt[stream]
         } else {
             guard handle.generation == generation else {
@@ -199,37 +223,41 @@ final class PacketDemuxer {
     }
 
     func step(stream: Int, from handle: PacketHandle, by: Int) -> PacketHandle {
-        if handle.index == Int.max { return handle }  // Special handling for end-of-stream
-        if handle.generation != generation { return PacketHandle(generation: generation, index: -1) }
+        if handle.isLast { return handle }  // Special handling for end-of-stream
+        if handle.generation != generation { return PacketHandle(generation: generation, index: -1, isLast: false) }
         let requested = handle.index + by
         while true {
             stateLock.lock()
             if halted {
                 let maxIdx = buffers[stream].isEmpty ? handle.index : buffers[stream].maxLogicalIndex
                 if TRACE_PACKET_DEMUXER {
-                    logger.debug("PacketDemuxer step stream=\(stream) halted returning \(min(requested, maxIdx))")
+                    logger.debug(
+                        "PacketDemuxer stream=\(stream) step from:\(handle.index) by:\(by) -> \(min(requested, maxIdx)) (halted)"
+                    )
                 }
                 stateLock.unlock()
-                return PacketHandle(generation: generation, index: min(requested, maxIdx))
+                return PacketHandle(generation: generation, index: min(requested, maxIdx), isLast: requested >= maxIdx)
             } else if buffers[stream].get(logicalIndex: requested) != nil {
-                if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer step stream \(stream) -> \(requested)") }
-                targetLogical[stream] = requested + PacketDemuxer.readAhead
-                mode = .target
+                if TRACE_PACKET_DEMUXER {
+                    logger.debug("PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) -> \(requested)")
+                }
+                targetLogical[stream] = max(targetLogical[stream], requested + readAhead[stream])
                 demuxSem.signal()  // ensure demuxLoop runs if it was paused
                 stateLock.unlock()
-                return PacketHandle(generation: generation, index: requested)
+                return PacketHandle(generation: generation, index: requested, isLast: false)
             } else if requested < buffers[stream].minLogicalIndex {
                 logger.warning(
-                    "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) evicted, min=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].minLogicalIndex)"
+                    "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) overrun, min=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].minLogicalIndex)"
                 )
                 stateLock.unlock()
                 return handle
             } else {
-                logger.warning(
-                    "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) underrun, max=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].maxLogicalIndex)"
-                )
-                targetLogical[stream] = requested + PacketDemuxer.readAhead
-                mode = .target
+                if TRACE_PACKET_DEMUXER {
+                    logger.debug(
+                        "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) underrun, max=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].maxLogicalIndex)"
+                    )
+                }
+                targetLogical[stream] = max(targetLogical[stream], requested + readAhead[stream])
                 demuxSem.signal()  // ensure demuxLoop runs if it was paused
                 stateLock.unlock()
                 packetSem.wait()
@@ -238,61 +266,47 @@ final class PacketDemuxer {
     }
 
     func seek(stream: Int, presentationTimeStamp: CMTime) throws -> PacketHandle {
-        return try seekInternal(stream: stream, time: presentationTimeStamp, usePTS: true)
-    }
-
-    func seek(stream: Int, decodeTimeStamp: CMTime) throws -> PacketHandle {
-        return try seekInternal(stream: stream, time: decodeTimeStamp, usePTS: false)
-    }
-
-    // MARK: internals
-
-    private func seekInternal(stream: Int, time: CMTime, usePTS: Bool) throws -> PacketHandle {
-        let remembered = usePTS ? rememberedSeekPTS : rememberedSeekDTS
-        if time.isPositiveInfinity {
-            return PacketHandle(generation: generation, index: Int.max)  // special handling for last packet in stream
-        } else if let remembered, remembered == time {
+        if presentationTimeStamp.isPositiveInfinity {
+            return PacketHandle(generation: generation, index: Int.max, isLast: true)
+        }
+        if let remembered = rememberedSeekPTS, remembered == presentationTimeStamp {
             if TRACE_PACKET_DEMUXER {
-                logger.debug("PacketDemuxer stream \(stream) seek \(time, privacy: .public) -> 0 [remembered]")
+                logger.debug("PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) -> 0 [remembered]")
             }
             if buffers[stream].isEmpty {
                 stateLock.lock()
                 waitForPacketZeroLocked(stream: stream)
                 stateLock.unlock()
-                return PacketHandle(generation: generation, index: 0)
+                return PacketHandle(generation: generation, index: 0, isLast: false)
             } else if buffers[stream].minLogicalIndex == 0 {
-                return PacketHandle(generation: generation, index: 0)
+                return PacketHandle(generation: generation, index: 0, isLast: false)
             } else {
                 logger.warning(
-                    "PacketDemuxer stream \(stream) seek \(time, privacy: .public) remembered but first packet is \(self.buffers[stream].minLogicalIndex)"
+                    "PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) remembered but first packet is \(self.buffers[stream].minLogicalIndex)"
                 )
             }
         }
-        if let hit = buffers[stream].nearest(to: time, usePTS: usePTS) {
-            if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer stream \(stream) seek \(time, privacy: .public) -> \(hit)") }
-            return PacketHandle(generation: generation, index: hit)
+        if let hit = buffers[stream].nearest(to: presentationTimeStamp) {
+            if TRACE_PACKET_DEMUXER {
+                logger.debug("PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) -> \(hit)")
+            }
+            return PacketHandle(generation: generation, index: hit, isLast: false)
         }
 
-        // Miss
+        // Miss: perform a discontinuous seek
         stateLock.lock()
         flushLocked()
-        if usePTS {
-            rememberedSeekPTS = time
-            rememberedSeekDTS = nil
-        } else {
-            rememberedSeekDTS = time
-            rememberedSeekPTS = nil
-        }
+        rememberedSeekPTS = presentationTimeStamp
         var ret: Int32
-        var target = time
-        if time != .zero && time.timescale == buffers[stream].timeBase.den {
+        var target = presentationTimeStamp
+        if presentationTimeStamp != .zero && presentationTimeStamp.timescale == buffers[stream].timeBase.den {
             // asked to seek in this stream's timebase
-            ret = avformat_seek_file(fmtCtx, Int32(stream), Int64.min, time.value, Int64.max, 0)
+            ret = avformat_seek_file(fmtCtx, Int32(stream), Int64.min, presentationTimeStamp.value, Int64.max, 0)
         } else {
             // seek using AV_TIME_BASE units
-            let src = AVRational(num: 1, den: Int32(time.timescale))
+            let src = AVRational(num: 1, den: Int32(presentationTimeStamp.timescale))
             let AV_TIME_BASE_Q = AVRational(num: 1, den: Int32(AV_TIME_BASE))
-            let timestamp = av_rescale_q(time.value, src, AV_TIME_BASE_Q)
+            let timestamp = av_rescale_q(presentationTimeStamp.value, src, AV_TIME_BASE_Q)
             target = CMTime(value: timestamp, timescale: AV_TIME_BASE)
             ret = avformat_seek_file(fmtCtx, -1, Int64.min, timestamp, Int64.max, 0)
         }
@@ -313,8 +327,60 @@ final class PacketDemuxer {
         stateLock.lock()
         waitForPacketZeroLocked(stream: stream)  // Wait for the first packet to arrive after seek
         stateLock.unlock()
-        return PacketHandle(generation: generation, index: 0)
+        return PacketHandle(generation: generation, index: 0, isLast: false)
     }
+
+    func seek(stream: Int, decodeTimeStamp: CMTime) throws -> PacketHandle {
+        let target = decodeTimeStamp
+        let timeBase = buffers[stream].timeBase
+
+        stateLock.lock()
+        // Ensure we have at least one packet to start from
+        while buffers[stream].isEmpty && !stopping && !halted {
+            targetLogical[stream] = max(targetLogical[stream], readAhead[stream])
+            demuxSem.signal()
+            stateLock.unlock()
+            packetSem.wait()
+            stateLock.lock()
+        }
+        if buffers[stream].isEmpty {
+            stateLock.unlock()
+            return PacketHandle(generation: generation, index: Int.max, isLast: true)
+        }
+        // Try to find a packet in the current buffer with dts >= target
+        let currentGen = generation
+        var candidate: Int? = nil
+        for offset in 0..<buffers[stream].count {
+            if let pkt = buffers[stream].get(logicalIndex: buffers[stream].minLogicalIndex + offset) {
+                let dts = pkt.pointee.dts
+                if dts == AV_NOPTS_VALUE { continue }
+                let ts = CMTime(value: dts, timeBase: timeBase)
+                if ts >= target {
+                    candidate = buffers[stream].minLogicalIndex + offset
+                    break
+                }
+            }
+        }
+        if let idx = candidate {
+            stateLock.unlock()
+            return PacketHandle(generation: currentGen, index: idx, isLast: false)
+        }
+
+        // Step forward until we find dts >= target or hit end
+        var handle = PacketHandle(generation: currentGen, index: buffers[stream].maxLogicalIndex, isLast: false)
+        stateLock.unlock()
+        while true {
+            handle = step(stream: stream, from: handle, by: 1)
+            if handle.isLast || handle.index == -1 {
+                return handle
+            }
+            let pkt = get(stream: stream, handle: handle)
+            let ts = CMTime(value: pkt!.pointee.dts, timeBase: timeBase)
+            if ts >= target { return handle }
+        }
+    }
+
+    // MARK: internals
 
     private func startDemuxLoop() {
         demuxQueue.async { self.demuxLoop() }
@@ -348,40 +414,35 @@ final class PacketDemuxer {
                     continue
                 }
                 guard let packet = pkt else { continue }
-                packet.pointee.pos += pktFixup
-                enqueue(packet)
+                if packet.pointee.size == 0 || Int(packet.pointee.stream_index) >= buffers.count
+                    || buffers[Int(packet.pointee.stream_index)].capacity == 0
+                {
+                    // Skip empty packets as seen in e.g. Theora since AVFoundation doesn't like them
+                    // (-12706 kCMBlockBufferEmptyBBufErr) and skip packets for streams we don't handle
+                    av_packet_free(&pkt)
+                } else {
+                    packet.pointee.pos += pktFixup
+                    enqueue(packet)
+                }
             }
         }
     }
 
     private func shouldPauseLocked() -> Bool {
         if halted { return true }
-        if mode == .target {
-            // Don't pause until all buffers have reached their target
-            for i in 0..<buffers.count {
-                if targetLogical[i] != 0 && (buffers[i].isEmpty || buffers[i].maxLogicalIndex < targetLogical[i]) {
-                    if TRACE_PACKET_DEMUXER {
-                        logger.debug(
-                            "PacketDemuxer demuxLoop stream \(i) target \(self.buffers[i].maxLogicalIndex) < \(self.targetLogical[i])"
-                        )
-                    }
-                    return false
-                }
-            }
-            mode = .filling
-        }
-        // Pause if we have some packets buffered.
-        // Don't want to be more aggressive in case sparse streams cause needed packets to be evicted from other streams
+        // Don't pause until all buffers have reached their targets
         for i in 0..<buffers.count {
-            if buffers[i].count >= PacketDemuxer.readAhead {
+            if targetLogical[i] != 0 && (buffers[i].isEmpty || buffers[i].maxLogicalIndex < targetLogical[i]) {
                 if TRACE_PACKET_DEMUXER {
-                    logger.debug("PacketDemuxer demuxLoop \(i) pausing \(self.buffers[i].count) >= \(PacketDemuxer.readAhead)")
+                    logger.debug(
+                        "PacketDemuxer demuxLoop stream \(i) idx \(self.buffers[i].isEmpty ? 0 : self.buffers[i].maxLogicalIndex) < target \(self.targetLogical[i])"
+                    )
                 }
-                return true
+                return false
             }
         }
-        if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer demuxLoop filling") }
-        return false
+        if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer demuxLoop pausing") }
+        return true
     }
 
     private func enqueue(_ packet: UnsafeMutablePointer<AVPacket>) {
@@ -391,7 +452,6 @@ final class PacketDemuxer {
         let buffer = buffers[stream]
         assert(buffer.capacity > 0, "PacketDemuxer stream \(stream) unexpected packet in discarded stream")
         var evicted = buffers[stream].append(packet: packet)
-        assert(mode == .target || evicted == nil, "PacketDemuxer stream \(stream) unexpectedly evicted packet in filling mode")
         av_packet_free(&evicted)
         if TRACE_PACKET_DEMUXER {
             let pts = packet.pointee.pts
@@ -430,8 +490,7 @@ final class PacketDemuxer {
         for i in 0..<buffers.count { buffers[i].reset() }
         generation &+= 1
         halted = false
-        mode = .filling
-        targetLogical = Array(repeating: 0, count: targetLogical.count)
+        for i in 0..<targetLogical.count { targetLogical[i] = readAhead[i] }
     }
 
     private func waitForPacketZeroLocked(stream: Int) {
@@ -464,6 +523,9 @@ final class PacketDemuxer {
                     let error = AVERROR(errorCode: ret, context: "av_read_frame")
                     logger.error("PacketDemuxer init: Failed to get last packets \(error.localizedDescription, privacy: .public)")
                     break
+                } else if pkt!.pointee.stream_index >= buffers.count {
+                    logger.warning("PacketDemuxer init: Packet with invalid stream \(pkt!.pointee.stream_index)")
+                    av_packet_free(&pkt)
                 } else {
                     let idx = Int(pkt!.pointee.stream_index)
                     if lastPkt[idx] != nil { av_packet_free(&lastPkt[idx]) }
