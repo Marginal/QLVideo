@@ -266,7 +266,11 @@ final class PacketDemuxer {
     }
 
     func seek(stream: Int, presentationTimeStamp: CMTime) throws -> PacketHandle {
-        if presentationTimeStamp.isPositiveInfinity {
+        if presentationTimeStamp.isPositiveInfinity
+            // Fix for QuickTime player which asks for a later SampleCursor after asking for one at +inf
+            || lastPkt[stream] == nil
+            || presentationTimeStamp >= CMTime(value: lastPkt[stream]!.pointee.pts, timeBase: buffers[stream].timeBase)
+        {
             return PacketHandle(generation: generation, index: Int.max, isLast: true)
         }
         if let remembered = rememberedSeekPTS, remembered == presentationTimeStamp {
