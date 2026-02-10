@@ -26,6 +26,9 @@ import Foundation
     let TRACE_PACKET_DEMUXER = false
 #endif
 
+let QLThumbnailTime = CMTime(value: 10_000_000, timescale: 1_000_000)  // QuickLook generates its thumbnail at 10s
+let kSettingsSnapshotTime = "SnapshotTime"  // Seek offset for thumbnails and single Previews [s].
+
 private final class PacketRing {
     private var storage: [UnsafeMutablePointer<AVPacket>?]
     private var head = 0
@@ -127,7 +130,7 @@ final class PacketDemuxer {
     private static let audioReadAhead = 196  // should be more than enough for at least 2 seconds of audio in typical codecs
     private let fmtCtx: UnsafeMutablePointer<AVFormatContext>
     private var pktFixup: Int64 = 0
-
+    private var snapshotTime = CMTimeValue(10 * AV_TIME_BASE)  // Snapshot time in AV_TIME_BASE units
     private var buffers: [PacketRing]
     private var generation: Int = 0
     private var targetLogical: [Int]
@@ -142,10 +145,17 @@ final class PacketDemuxer {
     private let demuxSem = DispatchSemaphore(value: 0)  // wake demuxLoop when paused
     private let packetSem = DispatchSemaphore(value: 0)  // notify consumers a packet arrived
 
-    init(fmtCtx: UnsafeMutablePointer<AVFormatContext>) throws {
-        self.fmtCtx = fmtCtx
-        buffers = (0..<Int(fmtCtx.pointee.nb_streams)).map { idx in
-            let stream = fmtCtx.pointee.streams[idx]!
+    init(format: FormatReader) throws {
+        self.fmtCtx = format.fmt_ctx!
+        if let defaults = format.defaults, defaults.integer(forKey: kSettingsSnapshotTime) > 0 {
+            // Note that since this extension is running under app sandbox this will only succeed once notarized or in app store
+            // https://developer.apple.com/documentation/security/accessing-files-from-the-macos-app-sandbox#Share-files-between-related-apps-with-app-group-containers
+            let time = CMTimeValue(defaults.integer(forKey: kSettingsSnapshotTime))
+            logger.log("PacketDemuxer using snapshot time of \(time)s")
+            snapshotTime = CMTimeValue(time) * CMTimeValue(AV_TIME_BASE)
+        }
+        buffers = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
+            let stream = format.fmt_ctx!.pointee.streams[idx]!
             let capacity: Int
             if stream.pointee.discard != AVDISCARD_ALL {
                 switch stream.pointee.codecpar.pointee.codec_type {
@@ -158,8 +168,8 @@ final class PacketDemuxer {
             }
             return PacketRing(capacity: capacity, timeBase: stream.pointee.time_base)
         }
-        readAhead = (0..<Int(fmtCtx.pointee.nb_streams)).map { idx in
-            let stream = fmtCtx.pointee.streams[idx]!
+        readAhead = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
+            let stream = format.fmt_ctx!.pointee.streams[idx]!
             if stream.pointee.discard != AVDISCARD_ALL {
                 switch stream.pointee.codecpar.pointee.codec_type {
                 case AVMEDIA_TYPE_VIDEO: return PacketDemuxer.videoReadAhead
@@ -174,7 +184,7 @@ final class PacketDemuxer {
         lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(truncatingIfNeeded: fmtCtx.pointee.nb_streams))
         if String(cString: fmtCtx.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
         if TRACE_PACKET_DEMUXER {
-            logger.debug("PacketDemuxer init streams: \(fmtCtx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
+            logger.debug("PacketDemuxer init streams: \(self.fmtCtx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
         }
         try findLastPackets()
         startDemuxLoop()
@@ -303,7 +313,15 @@ final class PacketDemuxer {
         rememberedSeekPTS = presentationTimeStamp
         var ret: Int32
         var target = presentationTimeStamp
-        if presentationTimeStamp != .zero && presentationTimeStamp.timescale == buffers[stream].timeBase.den {
+        if presentationTimeStamp.value == QLThumbnailTime.value && presentationTimeStamp.timescale == QLThumbnailTime.timescale {
+            // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice.
+            let duration =
+                fmtCtx.pointee.duration != 0
+                ? fmtCtx.pointee.duration : (lastPkt[stream] != nil ? lastPkt[stream]!.pointee.pts : 0)
+            let ts = duration != 0 && duration > 2 * snapshotTime ? snapshotTime : duration / 2
+            target = CMTime(value: ts, timescale: AV_TIME_BASE)
+            ret = avformat_seek_file(fmtCtx, -1, ts, ts, Int64.max, 0)
+        } else if presentationTimeStamp.timescale == buffers[stream].timeBase.den {
             // asked to seek in this stream's timebase
             ret = avformat_seek_file(fmtCtx, Int32(stream), Int64.min, presentationTimeStamp.value, Int64.max, 0)
         } else {

@@ -42,7 +42,11 @@ struct ContentView: View {
     var body: some View {
         VStack {
             VideoPlayer(player: player).aspectRatio(16 / 9, contentMode: .fit)
-            Button("Open Video…") { showingOpenPanel = true }.padding()
+            HStack {
+                Button("Open Video…") { showingOpenPanel = true }
+                Button("Seek to 10s") { player.seek(to: CMTime(value: 10_000_000, timescale: 1_000_000)) }  // QuickLook thumbnail snapshot time
+            }
+            .padding()
         }
         .frame(minWidth: 480, minHeight: 320)
         .fileImporter(
@@ -109,6 +113,7 @@ struct ContentView: View {
                     }
 
                     self.player.replaceCurrentItem(with: item)
+                    self.player.seek(to: CMTime(value: 10_000_000, timescale: 1_000_000))  // Start at 10s like QuickLook thumbnailer
                     self.player.play()
                 }
             default:

@@ -43,11 +43,15 @@ class FormatReader: NSObject, MEFormatReader {
     @objc let byteSource: MEByteSource
     @objc var avio_filepos: Int64 = 0
     var avio_ctx: UnsafeMutablePointer<AVIOContext>? = nil
+    var defaults: UserDefaults?
     var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
     var demuxer: PacketDemuxer? = nil
 
     init(primaryByteSource: MEByteSource) {
         byteSource = primaryByteSource
+        let myBundle = Bundle.main
+        let suiteName: String = myBundle.infoDictionary!["ApplicationGroup"] as! String
+        defaults = UserDefaults(suiteName: suiteName)
         super.init()
     }
 

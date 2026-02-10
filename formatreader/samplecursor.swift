@@ -47,7 +47,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         }
         // Creating a SampleCursor means that CoreMedia will want packets. So start demuxing.
         if format.demuxer == nil {
-            format.demuxer = try PacketDemuxer(fmtCtx: format.fmt_ctx!)
+            format.demuxer = try PacketDemuxer(format: format)
         }
         self.handle = try demuxer.seek(stream: streamIndex, presentationTimeStamp: presentationTimeStamp)
     }

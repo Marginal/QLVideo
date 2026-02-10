@@ -17,9 +17,7 @@ let kSettingsSnapshotTime  = "SnapshotTime"      // Seek offset for thumbnails a
 let kSettingsSnapshotAlways = "SnapshotAlways"   // Whether to generate static snapshot(s) even if playable Preview is available.
 
 // Setting defaults
-let kDefaultSnapshotTime = 60;    // CoreMedia generator appears to use 10s. Completely arbitrary.
-let kDefaultSnapshotCount = 10;   // 7-14 fit in the left bar of the Preview window without scrolling, depending on the display vertical resolution.
-let kMaxSnapshotCount = 25;
+let kDefaultSnapshotTime = 10;    // CoreMedia generator appears to use 10s.
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
