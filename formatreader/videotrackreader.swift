@@ -39,9 +39,9 @@ class VideoTrackReader: TrackReader, METrackReader {
 
     static let supported: [AVCodecID: CMVideoCodecType] = [
         // Made up FourCCs that match those registered by our videodecoder in order to bypass CoreVideo
-        AV_CODEC_ID_MPEG1VIDEO: 0x4d50_4731,  // 'MPG1' works better if we pass it through to videodecoder
-        AV_CODEC_ID_MPEG2VIDEO: 0x4d50_4732,  // 'MPG2' works better if we pass it through to videodecoder
-        AV_CODEC_ID_MPEG4: 0x4d50_4734,  // 'MPG4' works better if we pass it through to videodecoder
+        AV_CODEC_ID_MPEG1VIDEO: 0x4d50_4731,  // 'MPG1' FFmpeg is more tolerant of poor encoding than CoreVideo
+        AV_CODEC_ID_MPEG2VIDEO: 0x4d50_4732,  // 'MPG2' FFmpeg is more tolerant of poor encoding than CoreVideo
+        AV_CODEC_ID_MPEG4: 0x4d50_4734,  // 'MPG4' FFmpeg is more tolerant of poor encoding than CoreVideo
         AV_CODEC_ID_SVQ1: 0x5356_3120,  // 'SV1 ' not supported by AVFoundation
         AV_CODEC_ID_SVQ3: 0x5356_3320,  // 'SV3 ' not supported by AVFoundation
         AV_CODEC_ID_VP8: 0x5650_3820,  // 'VP8 ' somehow supported in Safari but not by AVFoundation

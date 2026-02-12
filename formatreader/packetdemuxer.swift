@@ -132,6 +132,7 @@ final class PacketDemuxer {
     private var pktFixup: Int64 = 0
     private var snapshotTime = CMTimeValue(10 * AV_TIME_BASE)  // Snapshot time in AV_TIME_BASE units
     private var buffers: [PacketRing]
+    private var bsfCtxs: [UnsafeMutablePointer<AVBSFContext>?]
     private var generation: Int = 0
     private var targetLogical: [Int]
     private var readAhead: [Int]
@@ -168,6 +169,34 @@ final class PacketDemuxer {
             }
             return PacketRing(capacity: capacity, timeBase: stream.pointee.time_base)
         }
+        bsfCtxs = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
+            let stream = format.fmt_ctx!.pointee.streams[idx]!
+            if stream.pointee.discard != AVDISCARD_ALL
+                && (stream.pointee.codecpar.pointee.codec_tag == 0x4449_5658  // 'DIVX'
+                    || stream.pointee.codecpar.pointee.codec_tag == 0x3035_5844),  // 'DX50'
+                let bsf = av_bsf_get_by_name("mpeg4_unpack_bframes")  // Regularize DivX streams
+            {
+                var ctx: UnsafeMutablePointer<AVBSFContext>?
+                if av_bsf_alloc(bsf, &ctx) == 0 {
+                    avcodec_parameters_copy(ctx!.pointee.par_in, stream.pointee.codecpar)
+                    ctx!.pointee.time_base_in = stream.pointee.time_base
+                    let ret = av_bsf_init(ctx!)
+                    if ret == 0 {
+                        if TRACE_PACKET_DEMUXER {
+                            logger.debug("PacketDemuxer init: enabled mpeg4_unpack_bframes for stream \(idx)")
+                        }
+                        return ctx
+                    } else {
+                        let error = AVERROR(errorCode: ret, context: "av_bsf_init")
+                        logger.error(
+                            "PacketDemuxer init: Unable to set up mpeg4_unpack_bframes for stream \(idx): \(error.localizedDescription, privacy:.public)"
+                        )
+                        av_bsf_free(&ctx)
+                    }
+                }
+            }
+            return nil
+        }
         readAhead = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
             let stream = format.fmt_ctx!.pointee.streams[idx]!
             if stream.pointee.discard != AVDISCARD_ALL {
@@ -181,7 +210,7 @@ final class PacketDemuxer {
             }
         }
         targetLogical = readAhead  // Swift arrays are value types, so this creates a copy
-        lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(truncatingIfNeeded: fmtCtx.pointee.nb_streams))
+        lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(fmtCtx.pointee.nb_streams))
         if String(cString: fmtCtx.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
         if TRACE_PACKET_DEMUXER {
             logger.debug("PacketDemuxer init streams: \(self.fmtCtx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
@@ -196,6 +225,7 @@ final class PacketDemuxer {
         stateLock.lock()
         for i in 0..<buffers.count { buffers[i].reset() }
         for i in 0..<lastPkt.count { av_packet_free(&lastPkt[i]) }
+        for i in 0..<bsfCtxs.count { av_bsf_free(&bsfCtxs[i]) }
         stateLock.unlock()
     }
 
@@ -442,6 +472,8 @@ final class PacketDemuxer {
                     // Skip empty packets as seen in e.g. Theora since AVFoundation doesn't like them
                     // (-12706 kCMBlockBufferEmptyBBufErr) and skip packets for streams we don't handle
                     av_packet_free(&pkt)
+                } else if let filtered = applyBitstreamFilter(stream: Int(packet.pointee.stream_index), packet: packet) {
+                    for pkt in filtered { enqueue(pkt) }
                 } else {
                     packet.pointee.pos += pktFixup
                     enqueue(packet)
@@ -513,6 +545,7 @@ final class PacketDemuxer {
         generation &+= 1
         halted = false
         for i in 0..<targetLogical.count { targetLogical[i] = readAhead[i] }
+        for i in 0..<bsfCtxs.count { if let bsf = bsfCtxs[i] { av_bsf_flush(bsf) } }
     }
 
     private func waitForPacketZeroLocked(stream: Int) {
@@ -561,4 +594,33 @@ final class PacketDemuxer {
             throw AVERROR(errorCode: ret, context: "avformat_seek_file(min)")  // If we can't seek to start we can't demux
         }
     }
+
+    private func applyBitstreamFilter(stream: Int, packet: UnsafeMutablePointer<AVPacket>) -> [UnsafeMutablePointer<AVPacket>]? {
+        guard let bsf = bsfCtxs[stream] else { return nil }
+        var ret = av_bsf_send_packet(bsf, packet)  // consumes packet if successful
+        if ret < 0 {
+            if TRACE_PACKET_DEMUXER {
+                let err = AVERROR(errorCode: ret, context: "av_bsf_send_packet")
+                logger.error("PacketDemuxer bsf send stream \(stream): \(err.localizedDescription, privacy:.public)")
+            }
+            return nil
+        }
+        var outputs: [UnsafeMutablePointer<AVPacket>] = []
+        while true {
+            var outPkt = av_packet_alloc()
+            ret = av_bsf_receive_packet(bsf, outPkt)
+            if ret == 0 {
+                outputs.append(outPkt!)
+            } else {
+                av_packet_free(&outPkt)
+                if TRACE_PACKET_DEMUXER && ret != AVERROR_EOF && ret != AVERROR_EAGAIN {
+                    let err = AVERROR(errorCode: ret, context: "av_bsf_receive_packet")
+                    logger.error("PacketDemuxer bsf recv stream \(stream): \(err.localizedDescription, privacy:.public)")
+                }
+                break
+            }
+        }
+        return outputs
+    }
+
 }
