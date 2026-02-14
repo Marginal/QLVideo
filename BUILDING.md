@@ -20,6 +20,7 @@ The Xcode project `QLVideo.xcodeproj` builds the following Products:
 * thumbnailer - QuickLook app extension provides thumbnails. Not included in v3 of the app.
 * formatreader - App extension that provides support for non-native file types and audio codecs.
 * videodecoder - App extension that provides support for non-native video codecs.
+* simpleplayer - App for debugging the formatreader and videodecoder extensions. Plays files using AVFoundation.
 * benchmark - Simple executable for benchmarking, not included in the app.
 * ffmpeg - The [FFmpeg](http://ffmpeg.org/) libraries. The plugins depend on these. Also builds a standalone version of the `ffprobe` executable for bug reporting.
 * dav1d - Support for the [AV1](https://en.wikipedia.org/wiki/AV1) codec. ffmpeg depends on this.
@@ -27,10 +28,13 @@ The Xcode project `QLVideo.xcodeproj` builds the following Products:
 
 Debugging
 ---------
-All plugins produce output in the system log. Use the filter `subsystem:marginal.qlvideo` in the Console app.
+All plugins produce output in the system log. Use the filter `subsystem:uk.org.marginal.qlvideo` in the
+Console app, or `sudo log stream --style compact --debug --predicate 's=uk.org.marginal.qlvideo'` in
+the Terminal.
 
-To debug in Xcode:
+To debug in Xcode, first build the "Quicklook Video" target once. Then switch targets depending on what you wish to debug:
 * mdimporter - Edit the "Run" scheme for the "mdimporter" target as follows: "Executable": `/usr/bin/mdimport`, "Debug executable": ✔, "Arguments": `-n -d3 <testfile>`.
+* formatreader and videodecoder - Edit the "Run" scheme for the "formatreader" target as follows: "Executable": simpleplayer.app, "Debug executable": ✔. Select a testfile in the simpleplayer application.
 * previewer - Run the "previewer" target in Xcode. When prompted, choose "Finder" as the app to run. In any Finder window press Space to preview a non-native video file.
 * thumbnailer - Doesn't seem possible to debug in Xcode. Good luck!
 
