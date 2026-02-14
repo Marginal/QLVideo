@@ -212,7 +212,28 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         let dependsOnOthers = (attachment[kCMSampleAttachmentKey_DependsOnOthers] as? Bool) ?? true
         let doNotDisplay = (attachment[kCMSampleAttachmentKey_DoNotDisplay] as? Bool) ?? false
         pkt!.pointee.flags = (!dependsOnOthers ? AV_PKT_FLAG_KEY : 0) | (doNotDisplay ? AV_PKT_FLAG_DISCARD : 0)
-        // TODO: Populate side_data
+        var nb_sd: Int32 = 0
+        while nb_sd < Int(pkt!.pointee.side_data_elems) {
+            let importedSideData = attachment["SideData\(nb_sd)" as CFString] as! Data
+            let importedSideDataType = attachment["SideData\(nb_sd)Type" as CFString] as! CFNumber
+            let sideData = av_malloc(importedSideData.count)!
+            importedSideData.withUnsafeBytes { src in
+                let base = src.baseAddress!
+                memcpy(sideData, base, importedSideData.count)
+            }
+            if nb_sd == 0 {
+                pkt!.pointee.side_data = av_mallocz(Int(pkt!.pointee.side_data_elems) * MemoryLayout<AVPacketSideData>.stride)!
+                    .assumingMemoryBound(to: AVPacketSideData.self)
+            }
+            av_packet_side_data_add(
+                &pkt!.pointee.side_data,
+                &nb_sd,  // will be incremented
+                AVPacketSideDataType((importedSideDataType) as! UInt32),
+                sideData,
+                importedSideData.count,
+                0
+            )
+        }
 
         // Decode
 

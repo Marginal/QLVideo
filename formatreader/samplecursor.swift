@@ -156,10 +156,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             )
             return completionHandler(nil, MEError(.endOfStream))
         }
-        assert(
-            pkt.pointee.side_data_elems == 0,
-            "\(self.debugDescription) loadSampleBufferContainingSamples to \(endPresentationTimeStamp): Unhandled side data"
-        )  // TODO: Handle side_data
+
         if TRACE_SAMPLE_CURSOR {
             logger.debug(
                 "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public)"
@@ -231,6 +228,14 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             ((pkt.pointee.flags & AV_PKT_FLAG_KEY) != 0) ? kCFBooleanFalse : kCFBooleanTrue
         attachment[kCMSampleAttachmentKey_DoNotDisplay] =
             ((pkt.pointee.flags & AV_PKT_FLAG_DISCARD) != 0) ? kCFBooleanTrue : kCFBooleanFalse
+        for i in 0..<Int(pkt.pointee.side_data_elems) {
+            attachment["SideData\(i)" as CFString] = CFDataCreate(
+                kCFAllocatorDefault,
+                pkt.pointee.side_data[i].data,
+                CFIndex(pkt.pointee.side_data[i].size)
+            )
+            attachment["SideData\(i)Type" as CFString] = CFNumberCreate(nil, .intType, &pkt.pointee.side_data[i].type)
+        }
 
         return completionHandler(sampleBuffer, nil)
     }

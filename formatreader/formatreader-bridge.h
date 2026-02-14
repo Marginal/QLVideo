@@ -7,6 +7,7 @@
 #include <libavcodec/avcodec.h>
 #include <libavcodec/bsf.h>
 #include <libavutil/avutil.h>
+#include <libavutil/dovi_meta.h>
 #include <libswresample/swresample.h>
 
 // FFmpeg internals

@@ -10,8 +10,8 @@ codecs and "non-native" media file types, including:
   Ogg Video (`.ogm`, `.ogv`), AVI (partial support) (`.avi`), Flash Video (`.flv`, `.f4v`),
   Real Media (`.ra`, `.rm`, `.rv`), SMPTE (`.gxf`, `.mxf`) 
 * Audio codecs: Vorbis, Windows Media Audio, WavPak, ATRAC, etc.
-* Video codecs: VP6, VP8, VP9, AV1, VVC/H.266, Theora, Sorenson 1 & 3, Cinepak, Flash, Real Video,
-  Intel Indeo, etc.
+* Video codecs: VP6, VP8, VP9, AV1, VVC/H.266, Dolby Vision, Theora, Sorenson 1 & 3, Cinepak, Flash,
+  Real Video, Intel Indeo, etc.
 
 How does it work?
 -----------------

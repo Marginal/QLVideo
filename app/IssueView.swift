@@ -60,7 +60,7 @@ class IssueView: NSView {
             }
             do {
                 try filereport.append(
-                    "```json\n\(helper(Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!, args: ["-loglevel", "error", "-print_format", "json", "-show_entries", "stream=codec_type,codec_name,profile,codec_tag_string,pix_fmt,sample_fmt,channel_layout,language,width,height,display_aspect_ratio:stream_disposition=default,attached_pic,timed_thumbnails:chapter=start_time,end_time:format=format_name,duration,size,bit_rate,probe_score"] + [videofile]).replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "    ", with: "  "))```\n"
+                    "```json\n\(helper(Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!, args: ["-loglevel", "error", "-print_format", "json", "-show_entries", "stream=codec_type,codec_name,profile,codec_tag_string,sample_fmt,channel_layout,language,width,height,display_aspect_ratio,pix_fmt,color_range,color_primaries,color_trc,color_space,extradata_size:stream_disposition=default,attached_pic,timed_thumbnails:stream_side_data:chapter=start_time,end_time:format=format_name,duration,size,bit_rate,probe_score"] + [videofile]).replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "    ", with: "  "))```\n"
                 )
             } catch {
                 filereport.append("ffprobe: \(error)\n")

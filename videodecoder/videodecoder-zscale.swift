@@ -70,7 +70,11 @@ extension VideoDecoder {
 
         /* buffer video source: the decoded frames from the decoder will be inserted here. */
         let srcArgs =
-            "video_size=\(frame.width)x\(frame.height):pix_fmt=\(frame.format):colorspace=\(frame.colorspace.rawValue):range=\(frame.color_range.rawValue):time_base=1/1000"  // time_base is required but irrelevant
+            "video_size=\(frame.width)x\(frame.height):pix_fmt=\(frame.format):colorspace=\(String(cString: av_color_space_name(frame.colorspace))):range=\(frame.color_range == AVCOL_RANGE_JPEG ? "pc" : "tv"):time_base=1/1000"  // time_base is required but irrelevant
+
+        logger.debug(
+            "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\" and filter \"\(filterDesc, privacy: .public)\""
+        )
 
         var ret = avfilter_graph_create_filter(&src_ctx, bufferSrc, "in", srcArgs, nil, filterGraph)
         guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_create_filter") }
@@ -113,10 +117,6 @@ extension VideoDecoder {
 
         ret = avfilter_graph_config(filterGraph, nil)
         guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_config") }
-
-        logger.debug(
-            "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\" and filter \"\(filterDesc, privacy: .public)\""
-        )
 
         return nil
     }
