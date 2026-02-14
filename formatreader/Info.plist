@@ -71,6 +71,7 @@
 			<string>org.webmproject.webm</string>
 			<string>com.firecore.fileformat.webm</string>
 			<string>io.iina.webm</string>
+                        <string>io.mpv.webm</string>
 			<string>org.videolan.webm</string>
 
 			<string>public.avi</string>
