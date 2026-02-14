@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		80D77CDE2F40796200ACA77A /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 80D77CDD2F40796200ACA77A /* AppIcon.icon */; };
 		AB0049E52F2144B40054D7B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		AB0049F62F223E820054D7B0 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
 		AB0049F72F223E890054D7B0 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
@@ -243,6 +244,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		80D77CDD2F40796200ACA77A /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		AB0049862F2143CE0054D7B0 /* QLVideo Codecs.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = "QLVideo Codecs.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB006A562F2978B20014937F /* libzimg.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libzimg.2.dylib; sourceTree = "<group>"; };
 		AB00C5C81A682EF800D71399 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/schema.strings; sourceTree = "<group>"; };
@@ -544,6 +546,7 @@
 				AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */,
 				ABB719E62924069600F13C24 /* Assets.xcassets */,
 				AB9846DC196B790F00AF6349 /* Info.plist */,
+				80D77CDD2F40796200ACA77A /* AppIcon.icon */,
 				AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */,
 				ABC8EDC22931900D00F97C3C /* buildstrings */,
 				ABC8EE06293273ED00F97C3C /* Main.strings */,
@@ -980,6 +983,7 @@
 			files = (
 				ABB719E72924069600F13C24 /* Assets.xcassets in Resources */,
 				ABE72EB22937FAE4005433DF /* Main.xib in Resources */,
+				80D77CDE2F40796200ACA77A /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
