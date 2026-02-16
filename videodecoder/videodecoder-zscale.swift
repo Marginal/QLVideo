@@ -71,16 +71,17 @@ extension VideoDecoder {
         /* buffer video source: the decoded frames from the decoder will be inserted here. */
         let srcArgs =
             "video_size=\(frame.width)x\(frame.height):pix_fmt=\(frame.format):colorspace=\(String(cString: av_color_space_name(frame.colorspace))):range=\(frame.color_range == AVCOL_RANGE_JPEG ? "pc" : "tv"):time_base=1/1000"  // time_base is required but irrelevant
+        let sinkArgs = "pixel_formats=\(AV_PIX_FMT_BGRA.rawValue)"
 
         logger.debug(
-            "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\" and filter \"\(filterDesc, privacy: .public)\""
+            "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\", filter \"\(filterDesc, privacy: .public)\", output \"\(sinkArgs, privacy: .public)\""
         )
 
         var ret = avfilter_graph_create_filter(&src_ctx, bufferSrc, "in", srcArgs, nil, filterGraph)
         guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_create_filter") }
 
         /* buffer video sink: to terminate the filter chain. */
-        ret = avfilter_graph_create_filter(&sink_ctx, bufferSink, "out", nil, nil, filterGraph)
+        ret = avfilter_graph_create_filter(&sink_ctx, bufferSink, "out", sinkArgs, nil, filterGraph)
         guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_create_filter") }
 
         /*
@@ -227,31 +228,20 @@ extension VideoDecoder {
         let out_w = CVPixelBufferGetWidth(pixelBuffer)
 
         if frame.color_trc == AVCOL_TRC_SMPTE2084 || frame.color_trc == AVCOL_TRC_ARIB_STD_B67 {
-            // HDR
             return """
-                zscale=w=\(out_w):h=\(frame.height):pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=linear:matrix=709:npl=100,
+                zscale=w=\(out_w):h=\(frame.height):f=lanczos:pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=linear:matrix=709:npl=100,
                 tonemap=hable,
-                zscale=primaries=709:transfer=709:matrix=709,
-                format=bgra
+                zscale=primaries=709:transfer=709:matrix=709
                 """
         } else if frame.color_primaries == AVCOL_PRI_BT709 && frame.color_trc == AVCOL_TRC_BT709
             && frame.colorspace == AVCOL_SPC_BT709
         {
             // SDR content that's already in (or we've assumed to be in) BT.709
-            if out_w == frame.width {
-                return "format=bgra"
-            } else {
-                return """
-                    scale=w=\(out_w):h=\(frame.height):reset_sar:interl=-1,
-                    format=bgra
-                    """
-            }
+            return "scale=w=\(out_w):h=\(frame.height):sws_flags=lanczos"
         } else {
             // Other SDR content - SD or HD
-            return """
-                zscale=w=\(out_w):h=\(frame.height):pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=709:matrix=709,
-                format=bgra
-                """
+            return
+                "zscale=w=\(out_w):h=\(frame.height):f=lanczos:pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=709:matrix=709"
         }
     }
 }
