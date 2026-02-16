@@ -142,6 +142,7 @@ final class PacketDemuxer {
     private var lastPkt: [UnsafeMutablePointer<AVPacket>?]  // MediaExtension wants us to report the last packet for each stream
 
     private let stateLock = NSLock()
+    private let demuxGroup = DispatchGroup()
     private let demuxQueue = DispatchQueue(label: "uk.org.marginal.qlvideo.formatreader", qos: .default)
     private let demuxSem = DispatchSemaphore(value: 0)  // wake demuxLoop when paused
     private let packetSem = DispatchSemaphore(value: 0)  // notify consumers a packet arrived
@@ -222,6 +223,7 @@ final class PacketDemuxer {
     deinit {
         if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer deinit") }
         stop()
+        demuxGroup.wait()
         stateLock.lock()
         for i in 0..<buffers.count { buffers[i].reset() }
         for i in 0..<lastPkt.count { av_packet_free(&lastPkt[i]) }
@@ -439,6 +441,8 @@ final class PacketDemuxer {
     }
 
     private func demuxLoop() {
+        demuxGroup.enter()
+        defer { demuxGroup.leave() }
         while true {
             stateLock.lock()
             if stopping {
