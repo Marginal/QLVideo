@@ -47,7 +47,7 @@ else
 	mkdir -p "${CONFIGURATION_BUILD_DIR}/universal/lib/pkgconfig"
 	cp -p "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/pkgconfig/zimg.pc" "${BUILT_PRODUCTS_DIR}/universal/lib/pkgconfig/"
 
-	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libdav1d.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/libzimg.a"
+	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libzimg.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/libzimg.a"
 	# Install using the dylib's "install name" since that's what other FFmpeg dylibs will look for
 	DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/libzimg.dylib`)
 	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libzimg.dylib" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
