@@ -236,8 +236,10 @@ class VideoTrackReader: TrackReader, METrackReader {
             ]
             if let dvAtom = DolbyVisionAtom() { atoms[dvAtom.0] = dvAtom.1 }
             extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] = atoms as CFDictionary
+            /* TODO: Disable AV1 hardware decode until I can test it on M3 or later
             if VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) { codecType = kCMVideoCodecType_AV1 }  // M3 and later
             logger.log("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))")
+             */
         default:
             if params.extradata_size != 0 {
                 let hex = UnsafeBufferPointer(start: params.extradata, count: Int(params.extradata_size)).reduce(
