@@ -58,9 +58,11 @@ extension VideoDecoder {
 
     /* Supported common formats  */
     static let vImageTypes: [AVPixelFormat: vImageYpCbCrType] = [
-        AV_PIX_FMT_YUV420P: kvImage420Yp8_Cb8_Cr8,  // 8‑bit 4:2:0 planar 'y420' / 'f420'
+        AV_PIX_FMT_YUV420P: kvImage420Yp8_Cb8_Cr8,  // 8‑bit 4:2:0 planar 'y420'
+        AV_PIX_FMT_YUVJ420P: kvImage420Yp8_Cb8_Cr8,  // 8‑bit 4:2:0 planar 'f420' full range
         AV_PIX_FMT_NV12: kvImage420Yp8_CbCr8,  // 8‑bit 4:2:0 bi‑planar '420v' / '420f'
         AV_PIX_FMT_YUYV422: kvImage422CbYpCrYp8,  // 8‑bit 4:2:2 packed '2vuy'
+        AV_PIX_FMT_YUVJ422P: kvImage422CbYpCrYp8,  // 8‑bit 4:2:2 packed '2vuf' full range
     ]
 
     func vImageConvertToARGB(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {

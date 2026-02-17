@@ -56,13 +56,26 @@
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>SV1 </string>
+				<key>CodecType</key>
+				<string>rle </string>
+				<key>CodecName</key>
+				<string>QuickTime Animation</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>cvid</string>
+				<key>CodecName</key>
+				<string>Cinepak</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>SVQ1</string>
 				<key>CodecName</key>
 				<string>Sorenson Video 1</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>SV3 </string>
+				<string>SVQ3</string>
 				<key>CodecName</key>
 				<string>Sorenson Video 3</string>
 			</dict>
@@ -95,12 +108,6 @@
 				<string>vvc1</string>
 				<key>CodecName</key>
 				<string>Versatile Video Coding</string>
-			</dict>
-			<dict>
-				<key>CodecType</key>
-				<string>cvid</string>
-				<key>CodecName</key>
-				<string>Cinepak</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
@@ -200,7 +207,7 @@
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>IV21</string>
+				<string>RT21</string>
 				<key>CodecName</key>
 				<string>Indeo 2</string>
 			</dict>
@@ -212,13 +219,19 @@
 			</dict>
 			<dict>
 				<key>CodecType</key>
+				<string>IV32</string>
+				<key>CodecName</key>
+				<string>Indeo 3</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
 				<string>IV41</string>
 				<key>CodecName</key>
 				<string>Indeo 4</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
-				<string>IV51</string>
+				<string>IV50</string>
 				<key>CodecName</key>
 				<string>Indeo 5</string>
 			</dict>

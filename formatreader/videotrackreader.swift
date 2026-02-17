@@ -42,15 +42,16 @@ class VideoTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_MPEG1VIDEO: 0x4d50_4731,  // 'MPG1' FFmpeg is more tolerant of poor encoding than CoreVideo
         AV_CODEC_ID_MPEG2VIDEO: 0x4d50_4732,  // 'MPG2' FFmpeg is more tolerant of poor encoding than CoreVideo
         AV_CODEC_ID_MPEG4: 0x4d50_4734,  // 'MPG4' FFmpeg is more tolerant of poor encoding than CoreVideo
-        AV_CODEC_ID_SVQ1: 0x5356_3120,  // 'SV1 ' not supported by AVFoundation
-        AV_CODEC_ID_SVQ3: 0x5356_3320,  // 'SV3 ' not supported by AVFoundation
         AV_CODEC_ID_VP8: 0x5650_3820,  // 'VP8 ' somehow supported in Safari but not by AVFoundation
         AV_CODEC_ID_VP9: 0x5650_3920,  // 'VP9 ' not supported by AVFoundation unless client calls VTRegisterSupplementalVideoDecoderIfAvailable
         AV_CODEC_ID_AV1: 0x4156_3120,  // 'AV1 ' only supported by AVFoundation on M3 CPUs and later
         // Selected real FourCCs that videodecoder registers
+        AV_CODEC_ID_QTRLE: kCMVideoCodecType_Animation,  // 'rle ' not supported by AVFoundation
+        AV_CODEC_ID_CINEPAK: kCMVideoCodecType_Cinepak,  // 'cvid' not supported by AVFoundation
+        AV_CODEC_ID_SVQ1: kCMVideoCodecType_SorensonVideo,  // 'SVQ1' not supported by AVFoundation
+        AV_CODEC_ID_SVQ3: kCMVideoCodecType_SorensonVideo3,  // 'SVQ3' not supported by AVFoundation
         AV_CODEC_ID_THEORA: 0x7468_656f,  // 'theo'
         AV_CODEC_ID_VVC: 0x7676_6331,  // 'vvc1'
-        AV_CODEC_ID_CINEPAK: 0x6376_6964,  // 'cvid'
         AV_CODEC_ID_VC1: 0x7663_2D31,  // 'vc-1',
         AV_CODEC_ID_CAVS: 0x6176_7332,  // 'avs2'
         AV_CODEC_ID_FLIC: 0x666C_6963,  // 'flic'
@@ -69,11 +70,10 @@ class VideoTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_RV40: 0x5256_3430,  // 'RV40'
         AV_CODEC_ID_RV60: 0x5256_3630,  // 'RV60'
         AV_CODEC_ID_CLEARVIDEO: 0x434C_5631,  // 'CLV1'
-        AV_CODEC_ID_INDEO2: 0x4956_3231,  // 'IV21' (more commonly 'RT21')
-        AV_CODEC_ID_INDEO3: 0x4956_3331,  // 'IV31'
+        AV_CODEC_ID_INDEO2: 0x5254_3231,  // 'RT21'
+        AV_CODEC_ID_INDEO3: 0x4956_3332,  // 'IV32'
         AV_CODEC_ID_INDEO4: 0x4956_3431,  // 'IV41'
         AV_CODEC_ID_INDEO5: 0x4956_3530,  // 'IV50'
-        AV_CODEC_ID_QTRLE: 0x726C_6520,  // 'rle '
         AV_CODEC_ID_HEVC: 0x444F_5649,  // 'DOVI' non-Dolby Vision HEVC is handled in the 'native' map above
     ]
     static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'

@@ -23,13 +23,34 @@ struct CVReturnError: LocalizedError, CustomNSError {
 
 class VideoDecoder: NSObject, MEVideoDecoder {
 
+    static let supported: [CMVideoCodecType: AVCodecID] = [
+        kCMVideoCodecType_Animation: AV_CODEC_ID_QTRLE,
+        kCMVideoCodecType_Cinepak: AV_CODEC_ID_CINEPAK,
+        kCMVideoCodecType_SorensonVideo: AV_CODEC_ID_SVQ1,
+        kCMVideoCodecType_SorensonVideo3: AV_CODEC_ID_SVQ3,
+        0x5254_3231: AV_CODEC_ID_INDEO2,  // 'RT21'
+        0x4956_3331: AV_CODEC_ID_INDEO3,  // 'IV31'
+        0x4956_3332: AV_CODEC_ID_INDEO3,  // 'IV32'
+        0x4956_3431: AV_CODEC_ID_INDEO4,  // 'IV41'
+        0x4956_3530: AV_CODEC_ID_INDEO5,  // 'IV50'
+
+    ]
+
+    // Supported pixel formats for QuickTime animation. Non-paletised only.
+    // TODO: extract the palette from VerbatimSampleDescription.
+    static let animDepths: [Int: AVPixelFormat] = [
+        16: AV_PIX_FMT_RGB555LE,
+        24: AV_PIX_FMT_RGB24,
+        32: AV_PIX_FMT_ARGB,
+    ]
+
     let codecType: CMVideoCodecType
     let formatDescription: CMVideoFormatDescription
     let specifications: [String: Any]
     let manager: MEVideoDecoderPixelBufferManager
 
     var isReadyForMoreMediaData: Bool = true
-    var params = avcodec_parameters_alloc()!.pointee
+    var params = avcodec_parameters_alloc()!
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>?
 
     // For format conversion using macOS Accelerate API
@@ -55,54 +76,113 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
         // Recreate stream's AVCodecParameters from CMVideoFormatDescription extension
 
-        guard let imported = formatDescription.extensions["QLVideo" as CFString] as? [CFString: Any],
+        if let imported = formatDescription.extensions["QLVideo" as CFString] as? [CFString: Any],
             let importedParams = imported["AVCodecParameters" as CFString] as? Data,
             importedParams.count == MemoryLayout<AVCodecParameters>.size
-        else {
-            logger.error("VideoDecoder: No AVCodecParameters in formatDescription for codecType:\(codecType)")
-            throw MEError(.unsupportedFeature)
-        }
-        withUnsafeMutableBytes(of: &params) { $0.copyBytes(from: importedParams) }
+        {
+            withUnsafeMutableBytes(of: &params.pointee) { $0.copyBytes(from: importedParams) }
 
-        if let importedExtraData = imported["ExtraData" as CFString] as? Data {
-            // must pad https://ffmpeg.org/doxygen/8.0/structAVCodecParameters.html#a9befe0b86412646017afb0051d144d13
-            let extraData = av_mallocz(Int(params.extradata_size + AV_INPUT_BUFFER_PADDING_SIZE))!
-            params.extradata = extraData.assumingMemoryBound(to: UInt8.self)
-            let dst = params.extradata  // avoid capturing self in closure
-            importedExtraData.withUnsafeBytes { src in
-                let base = src.baseAddress!
-                memcpy(dst, base, importedExtraData.count)
+            if let importedExtraData = imported["ExtraData" as CFString] as? Data {
+                // must pad https://ffmpeg.org/doxygen/8.0/structAVCodecParameters.html#a9befe0b86412646017afb0051d144d13
+                let extraData = av_mallocz(Int(params.pointee.extradata_size + AV_INPUT_BUFFER_PADDING_SIZE))!
+                params.pointee.extradata = extraData.assumingMemoryBound(to: UInt8.self)
+                let dst = params.pointee.extradata  // avoid capturing self in closure
+                importedExtraData.withUnsafeBytes { src in
+                    let base = src.baseAddress!
+                    memcpy(dst, base, importedExtraData.count)
+                }
             }
-        }
 
-        var nb_sd: Int32 = 0
-        while nb_sd < Int(params.nb_coded_side_data) {
-            let importedSideData = imported["SideData\(nb_sd)" as CFString] as! Data
-            let importedSideDataType = imported["SideData\(nb_sd)Type" as CFString] as! CFNumber
-            let sideData = av_malloc(importedSideData.count)!
-            importedSideData.withUnsafeBytes { src in
-                let base = src.baseAddress!
-                memcpy(sideData, base, importedSideData.count)
-            }
-            if nb_sd == 0 {
-                params.coded_side_data = av_mallocz(Int(params.nb_coded_side_data) * MemoryLayout<AVPacketSideData>.stride)!
+            var nb_sd: Int32 = 0
+            while nb_sd < Int(params.pointee.nb_coded_side_data) {
+                let importedSideData = imported["SideData\(nb_sd)" as CFString] as! Data
+                let importedSideDataType = imported["SideData\(nb_sd)Type" as CFString] as! CFNumber
+                let sideData = av_malloc(importedSideData.count)!
+                importedSideData.withUnsafeBytes { src in
+                    let base = src.baseAddress!
+                    memcpy(sideData, base, importedSideData.count)
+                }
+                if nb_sd == 0 {
+                    params.pointee.coded_side_data = av_mallocz(
+                        Int(params.pointee.nb_coded_side_data) * MemoryLayout<AVPacketSideData>.stride
+                    )!
                     .assumingMemoryBound(to: AVPacketSideData.self)
+                }
+                av_packet_side_data_add(
+                    &params.pointee.coded_side_data,
+                    &nb_sd,  // will be incremented
+                    AVPacketSideDataType((importedSideDataType) as! UInt32),
+                    sideData,
+                    importedSideData.count,
+                    0
+                )
             }
-            av_packet_side_data_add(
-                &params.coded_side_data,
-                &nb_sd,  // will be incremented
-                AVPacketSideDataType((importedSideDataType) as! UInt32),
-                sideData,
-                importedSideData.count,
-                0
+        } else if let codecID = VideoDecoder.supported[codecType] {
+            // Didn't come from our formatreader, e.g. .avi or .mov. Try to decode anyway.
+            let depth = videoFormatDescription.extensions[kCMFormatDescriptionExtension_Depth as CFString] as? NSNumber
+            switch codecID {
+            case AV_CODEC_ID_QTRLE:
+                if let depth, let pixFmt = VideoDecoder.animDepths[depth.intValue]
+                {
+                    params.pointee.format = pixFmt.rawValue
+                    params.pointee.color_range = AVCOL_RANGE_JPEG
+                } else {
+                    logger.error(
+                        "VideoDecoder: Unsupported depth: \(depth) for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
+                    )
+                    throw MEError(.unsupportedFeature)
+                }
+            case AV_CODEC_ID_CINEPAK:
+                params.pointee.format = AV_PIX_FMT_RGB24.rawValue
+                params.pointee.color_range = AVCOL_RANGE_JPEG
+            case AV_CODEC_ID_INDEO2, AV_CODEC_ID_INDEO3, AV_CODEC_ID_INDEO4, AV_CODEC_ID_INDEO5:
+                params.pointee.format = AV_PIX_FMT_YUV410P.rawValue
+                params.pointee.color_range = AVCOL_RANGE_MPEG
+            case AV_CODEC_ID_SVQ1, AV_CODEC_ID_SVQ3:
+                params.pointee.format = AV_PIX_FMT_YUV420P.rawValue
+                params.pointee.color_range = AVCOL_RANGE_MPEG
+                // see FFmpeg svq3_decode_extradata()
+                if let sampleDesc = formatDescription.extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms]
+                    as? [CFString: Data],
+                    let SMI = sampleDesc["SMI " as CFString]
+                {
+                    // must pad https://ffmpeg.org/doxygen/8.0/structAVCodecParameters.html#a9befe0b86412646017afb0051d144d13
+                    params.pointee.extradata_size = Int32(SMI.count + 8)
+                    let extraData = av_mallocz(Int(params.pointee.extradata_size + AV_INPUT_BUFFER_PADDING_SIZE))!
+                    params.pointee.extradata = extraData.assumingMemoryBound(to: UInt8.self)
+                    let bytes: [UInt8] =
+                        [
+                            0, 0, UInt8(params.pointee.extradata_size >> 8), UInt8(params.pointee.extradata_size & 0xff),  // size
+                            0x53, 0x4d, 0x49, 0x20,  // 'SMI '
+                        ] + [UInt8](SMI)
+                    memcpy(params.pointee.extradata, bytes, bytes.count)
+                }
+            default:
+                logger.error(
+                    "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
+                )
+                throw MEError(.unsupportedFeature)
+            }
+            params.pointee.codec_type = AVMEDIA_TYPE_VIDEO
+            params.pointee.codec_id = codecID
+            params.pointee.width = videoFormatDescription.dimensions.width
+            params.pointee.height = videoFormatDescription.dimensions.height
+            params.pointee.bits_per_coded_sample = depth?.int32Value ?? 0
+            logger.warning(
+                "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
             )
+        } else {
+            logger.error(
+                "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
+            )
+            throw MEError(.unsupportedFeature)
         }
 
         // Set up decode context
 
-        guard let codec = avcodec_find_decoder(params.codec_id) else {
+        guard let codec = avcodec_find_decoder(params.pointee.codec_id) else {
             logger.error(
-                "VideoDecoder: No decoder for codec \(String(cString:avcodec_get_name(self.params.codec_id)), privacy: .public)"
+                "VideoDecoder: No decoder for codec \(String(cString:avcodec_get_name(self.params.pointee.codec_id)), privacy: .public)"
             )
             throw MEError(.unsupportedFeature)
         }
@@ -110,15 +190,15 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         dec_ctx = avcodec_alloc_context3(codec)
         if dec_ctx == nil {
             logger.error(
-                "VideoDecoder: Can't create decoder context for codec \(String(cString:avcodec_get_name(self.params.codec_id)), privacy: .public)"
+                "VideoDecoder: Can't create decoder context for codec \(String(cString:avcodec_get_name(self.params.pointee.codec_id)), privacy: .public)"
             )
             throw MEError(.unsupportedFeature)
         }
-        var ret = avcodec_parameters_to_context(dec_ctx, &params)
+        var ret = avcodec_parameters_to_context(dec_ctx, params)
         if ret < 0 {
             let error = AVERROR(errorCode: ret)
             logger.error(
-                "VideDecoder: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(self.params.codec_id)), privacy: .public): \(error.localizedDescription)"
+                "VideDecoder: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(self.params.pointee.codec_id)), privacy: .public): \(error.localizedDescription)"
             )
             throw MEError(.unsupportedFeature)
         }
@@ -126,7 +206,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         if ret < 0 {
             let error = AVERROR(errorCode: ret)
             logger.error(
-                "VideoDecoder: Can't open codec \(String(cString:avcodec_get_name(self.params.codec_id)), privacy: .public): \(error.localizedDescription)"
+                "VideoDecoder: Can't open codec \(String(cString:avcodec_get_name(self.params.pointee.codec_id)), privacy: .public): \(error.localizedDescription)"
             )
             throw MEError(.unsupportedFeature)
         }
@@ -134,15 +214,18 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         #if false  // Prefer to just use zscale filter for 8bit formats that vImage doesn't handle including AV_PIX_FMT_UYVY422 & AV_PIX_FMT_YUV422P. Have to use zscale filter for >=10 bit formats for proper tone mapping etc anyway.
 
             // Choose whether we're going to write into CVPixelBuffer directly, or first convert to BGRA
-            if VideoDecoder.vImageTypes[AVPixelFormat(params.format)] == nil  // Prefer to use vImage conversion if available
-                && av_map_videotoolbox_format_from_pixfmt2(AVPixelFormat(params.format), params.color_range == AVCOL_RANGE_JPEG)
+            if VideoDecoder.vImageTypes[AVPixelFormat(params.pointee.format)] == nil  // Prefer to use vImage conversion if available
+                && av_map_videotoolbox_format_from_pixfmt2(
+                    AVPixelFormat(params.pointee.format),
+                    params.pointe.color_range == AVCOL_RANGE_JPEG
+                )
                     != 0
             {
                 // Setup context so that av_receive_frame writes directly into the CVPixelBuffer, which on return is in frame.opaque
                 dec_ctx!.pointee.opaque = Unmanaged.passUnretained(self.manager).toOpaque()
                 dec_ctx!.pointee.get_buffer2 = videoDecoder_get_buffer2
                 logger.log(
-                    "VideoDecoder: Decoding \(self.params.width)x\(self.params.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.format))), privacy: .public) \(String(cString:av_color_space_name(self.params.color_space)), privacy: .public) frames"
+                    "VideoDecoder: Decoding \(self.params.pointee.width)x\(self.params.pointee.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.pointee.format))), privacy: .public) \(String(cString:av_color_space_name(self.params.pointee.color_space)), privacy: .public) frames"
                 )
             }
         #endif
@@ -150,7 +233,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         // We're going to have to convert
 
         logger.log(
-            "VideoDecoder: Decoding \(self.params.width)x\(self.params.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.format))), privacy: .public) \(String(cString:av_color_space_name(self.params.color_space)), privacy: .public) frames and converting to BGRA"
+            "VideoDecoder: Decoding \(self.params.pointee.width)x\(self.params.pointee.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.pointee.format))), privacy: .public) \(String(cString:av_color_space_name(self.params.pointee.color_space)), privacy: .public) frames and converting to BGRA"
         )
 
     }
@@ -372,6 +455,11 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             attributes[kCVImageBufferTransferFunctionKey as String] = trc
         }
         return attributes
+    }
+
+    class func av_fourcc2str(_ fourcc: UInt32) -> String {
+        var buf = [CChar](repeating: 0, count: Int(AV_FOURCC_MAX_STRING_SIZE))
+        return String(cString: av_fourcc_make_string(&buf, fourcc))
     }
 }
 
