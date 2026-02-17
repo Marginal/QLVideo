@@ -24,10 +24,16 @@ struct SimplePlayer: App {
     init() {
         MTRegisterProfessionalVideoWorkflowFormatReaders()
         VTRegisterProfessionalVideoWorkflowVideoDecoders()
+        print("JPEG decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_JPEG))")
+        print("JPEGXL decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_JPEG_XL))")
+        print("H263 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_H263))")
+        print("H264 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_H264))")
+        print("HEVC decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC))")
+        print("HEVC w/ Dolby Vision decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_DolbyVisionHEVC))")
         print("VP8 decode available: \(VTIsHardwareDecodeSupported(0x7670_3038))")
         print("VP9 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9))")
         print("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))")
-        print("Dolby Vision decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_DolbyVisionHEVC))")
+
         printUTIs()
         printPixFmts()
     }

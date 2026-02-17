@@ -174,7 +174,8 @@ final class PacketDemuxer {
             let stream = format.fmt_ctx!.pointee.streams[idx]!
             if stream.pointee.discard != AVDISCARD_ALL
                 && (stream.pointee.codecpar.pointee.codec_tag == 0x4449_5658  // 'DIVX'
-                    || stream.pointee.codecpar.pointee.codec_tag == 0x3035_5844),  // 'DX50'
+                    || stream.pointee.codecpar.pointee.codec_tag == 0x5856_4944  // 'XVID'
+                    || stream.pointee.codecpar.pointee.codec_tag == 0x4458_3530),  // 'DX50'
                 let bsf = av_bsf_get_by_name("mpeg4_unpack_bframes")  // Regularize DivX streams
             {
                 var ctx: UnsafeMutablePointer<AVBSFContext>?

@@ -56,6 +56,17 @@
 			</dict>
 			<dict>
 				<key>CodecType</key>
+				<string>H264</string>
+				<key>CodecName</key>
+				<string>H.264</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>HEVC</string>
+				<key>CodecName</key>
+				<string>HEVC</string>
+			</dict>
+			<dict>
 				<key>CodecType</key>
 				<string>rle </string>
 				<key>CodecName</key>
@@ -234,12 +245,6 @@
 				<string>IV50</string>
 				<key>CodecName</key>
 				<string>Indeo 5</string>
-			</dict>
-			<dict>
-				<key>CodecType</key>
-				<string>DOVI</string>
-				<key>CodecName</key>
-				<string>Dolby Vision</string>
 			</dict>
 			<dict>
 				<key>CodecType</key>
