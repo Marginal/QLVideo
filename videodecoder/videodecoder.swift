@@ -401,7 +401,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
         // can we use macOS's accelerated conversions?
         if width == Int(frame!.pointee.width) && VideoDecoder.vImageTypes[AVPixelFormat(frame!.pointee.format)] != nil {
-            let error = vImageConvertToARGB(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
+            let error = vImageConvertToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
             guard error == nil else {
                 logger.error(
                     "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
@@ -410,20 +410,20 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 av_frame_free(&frame)
                 return completionHandler(nil, .frameDropped, error)
             }
-            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
-            av_frame_free(&frame)
-            return completionHandler(pixelBuffer, [], nil)  // early return
-        }
-
-        // Fall back to zscale conversion
-        let error = zscaleConvertToARGB(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
-        guard error == nil else {
-            logger.error(
-                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
-            )
-            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
-            av_frame_free(&frame)
-            return completionHandler(nil, .frameDropped, error)
+        } else {
+            // Fall back to zscale conversion
+            var error = zscaleConvertToGBRP(frame: &frame, pixelBuffer: &pixelBuffer)
+            if error == nil {
+                error = vImageCopyToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
+            }
+            guard error == nil else {
+                logger.error(
+                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
+                )
+                CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+                av_frame_free(&frame)
+                return completionHandler(nil, .frameDropped, error)
+            }
         }
         CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
         av_frame_free(&frame)

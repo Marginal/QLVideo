@@ -65,7 +65,8 @@ extension VideoDecoder {
         AV_PIX_FMT_YUVJ422P: kvImage422CbYpCrYp8,  // 8‑bit 4:2:2 packed '2vuf' full range
     ]
 
-    func vImageConvertToARGB(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
+    // Convert supported formats to BGRA using vImage
+    func vImageConvertToBGRA(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
 
         let format = VideoDecoder.vImageTypes[AVPixelFormat(frame.format)]!
         let width = Int(frame.width)
@@ -173,6 +174,56 @@ extension VideoDecoder {
                 0xff,  // alpha
                 vImage_Flags(kvImageNoFlags)
             )
+        default:
+            ret = kvImageUnsupportedConversion  // Shouldn't get here
+        }
+        guard ret == kvImageNoError else {
+            let error = vImageError(status: ret, context: "vImageConvert")
+            return error
+        }
+        return nil
+    }
+
+    // Copy supported formats to BGRA using vImage (no conversion)
+    func vImageCopyToBGRA(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
+        let width = Int(frame.width)
+        let height = Int(frame.height)
+
+        var srcG = vImage_Buffer(
+            data: frame.data.0,
+            height: vImagePixelCount(height),
+            width: vImagePixelCount(width),
+            rowBytes: Int(frame.linesize.0)
+        )
+        var srcB = vImage_Buffer(
+            data: frame.data.1,
+            height: vImagePixelCount(height),
+            width: vImagePixelCount(width),
+            rowBytes: Int(frame.linesize.1)
+        )
+        var srcR = vImage_Buffer(
+            data: frame.data.2,
+            height: vImagePixelCount(height),
+            width: vImagePixelCount(width),
+            rowBytes: Int(frame.linesize.2)
+        )
+        var dst = vImage_Buffer(
+            data: CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self),
+            height: vImagePixelCount(height),
+            width: vImagePixelCount(width),
+            rowBytes: CVPixelBufferGetBytesPerRow(pixelBuffer)
+        )
+
+        var ret: vImage_Error = kvImageNoError
+        switch frame.format {
+        case AV_PIX_FMT_GBRPF32LE.rawValue:
+            // HDR path: float planar to BGRA
+            var maxFloat:Float = 1
+            var minFloat:Float = 0
+            ret = vImageConvert_PlanarFToBGRX8888(&srcB, &srcG, &srcR, 0xff, &dst, &maxFloat, &minFloat, 0)
+        case AV_PIX_FMT_GBRP.rawValue:
+            // SDR path: 8-bit planar to BGRA
+            ret = vImageConvert_Planar8ToBGRX8888(&srcB, &srcG, &srcR, 0xff, &dst, 0)
         default:
             ret = kvImageUnsupportedConversion  // Shouldn't get here
         }

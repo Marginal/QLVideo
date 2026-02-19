@@ -19,42 +19,34 @@ struct ColorInfo {
 
 extension VideoDecoder {
 
-    func zscaleConvertToARGB(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
+    // Convert the decoded frame to GBRP float or 8bit depending on whether it's HDR or SDR, return the new frame
+    func zscaleConvertToGBRP(frame: inout UnsafeMutablePointer<AVFrame>?, pixelBuffer: inout CVPixelBuffer) -> Error? {
 
         // Patch up the incoming frame
-        let colorInfo = inferColors(frame: &frame)
-        frame.color_primaries = colorInfo.primaries
-        frame.color_trc = colorInfo.transfer
-        frame.colorspace = colorInfo.matrix
+        let colorInfo = inferColors(frame: &frame!.pointee)
+        frame!.pointee.color_primaries = colorInfo.primaries
+        frame!.pointee.color_trc = colorInfo.transfer
+        frame!.pointee.colorspace = colorInfo.matrix
 
         if filterGraph == nil {
-            let error = zscaleSetup(frame: &frame, pixelBuffer: &pixelBuffer)
+            let error = zscaleSetup(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
             guard error == nil else { return error! }
         }
 
         /* push the decoded frame into the filtergraph */
-        var ret = av_buffersrc_add_frame(src_ctx, &frame)
+        var ret = av_buffersrc_add_frame(src_ctx, frame)
         guard ret == 0 else { return AVERROR(errorCode: ret, context: "av_buffersrc_add_frame") }
 
         /* pull filtered frames from the filtergraph */
-        var tmpFrame = av_frame_alloc()
-        defer { av_frame_free(&tmpFrame) }
-        ret = av_buffersink_get_frame(sink_ctx, tmpFrame)
-        guard ret == 0 else { return AVERROR(errorCode: ret, context: "av_buffersink_get_frame") }
-
-        let height = Int(tmpFrame!.pointee.height)
-
-        let src = tmpFrame!.pointee.data.0!
-        let srcStride = Int(tmpFrame!.pointee.linesize.0)
-
-        let dst: UnsafeMutablePointer<UInt8> = CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self)
-        let dstStride = CVPixelBufferGetBytesPerRow(pixelBuffer)
-
-        for y in 0..<height {
-            let srcRow = src.advanced(by: y * srcStride)
-            let dstRow = dst.advanced(by: y * dstStride)
-            memcpy(dstRow, srcRow, min(srcStride, dstStride))
+        var outFrame: UnsafeMutablePointer<AVFrame>? = av_frame_alloc()
+        ret = av_buffersink_get_frame(sink_ctx, outFrame)
+        guard ret == 0 else {
+            av_frame_free(&outFrame)
+            return AVERROR(errorCode: ret, context: "av_buffersink_get_frame")
         }
+        var old: UnsafeMutablePointer<AVFrame>? = frame
+        av_frame_free(&old)
+        frame = outFrame
 
         return nil
     }
@@ -71,8 +63,7 @@ extension VideoDecoder {
         /* buffer video source: the decoded frames from the decoder will be inserted here. */
         let srcArgs =
             "video_size=\(frame.width)x\(frame.height):pix_fmt=\(frame.format):colorspace=\(String(cString: av_color_space_name(frame.colorspace))):range=\(frame.color_range == AVCOL_RANGE_JPEG ? "pc" : "tv"):time_base=1/1000"  // time_base is required but irrelevant
-        let sinkArgs = "pixel_formats=\(AV_PIX_FMT_BGRA.rawValue)"
-
+        let sinkArgs = "pixel_formats=\(AV_PIX_FMT_GBRP.rawValue)"  // should use AV_PIX_FMT_GBRPF32LE for HDR to match tonemap output, but vImage conversion broken
         logger.debug(
             "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\", filter \"\(filterDesc, privacy: .public)\", output \"\(sinkArgs, privacy: .public)\""
         )
@@ -169,8 +160,8 @@ extension VideoDecoder {
             )
         }
 
-        // SDR. Assume values based on whether HD or SD
-        if frame.width >= 1280 || frame.height >= 720 {
+        // SDR. Assume values based on input format and whether HD or SD
+        if frame.width >= 1280 || frame.height >= 720 || frame.color_range == AVCOL_RANGE_JPEG {
             return ColorInfo(
                 primaries: AVCOL_PRI_BT709,
                 transfer: AVCOL_TRC_BT709,
@@ -219,19 +210,19 @@ extension VideoDecoder {
             AVCOL_SPC_ICTCP: "2020_ncl",  // Close enough
         ]
 
-        // Override the values in AVFrame with BT.709 for cases that zscale doesn't support
+        // Specify color info in zscale syntax, use BT.709 for cases that zscale doesn't support
         let pin = primariesMap[frame.color_primaries] ?? "709"
         let tin = transferMap[frame.color_trc] ?? "709"
         let min = matrixmap[frame.colorspace] ?? "709"
 
-        // pixelBuffer.width > frame.width for anamorphic
+        // pixelBuffer.width != frame.width for anamorphic
         let out_w = CVPixelBufferGetWidth(pixelBuffer)
 
         if frame.color_trc == AVCOL_TRC_SMPTE2084 || frame.color_trc == AVCOL_TRC_ARIB_STD_B67 {
+            // HDR content
             return """
                 zscale=w=\(out_w):h=\(frame.height):f=lanczos:pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=linear:matrix=709:npl=100,
-                tonemap=hable,
-                zscale=primaries=709:transfer=709:matrix=709
+                tonemap=hable
                 """
         } else if frame.color_primaries == AVCOL_PRI_BT709 && frame.color_trc == AVCOL_TRC_BT709
             && frame.colorspace == AVCOL_SPC_BT709
@@ -239,7 +230,7 @@ extension VideoDecoder {
             // SDR content that's already in (or we've assumed to be in) BT.709
             return "scale=w=\(out_w):h=\(frame.height):sws_flags=lanczos"
         } else {
-            // Other SDR content - SD or HD
+            // SDR content - SD or HD
             return
                 "zscale=w=\(out_w):h=\(frame.height):f=lanczos:pin=\(pin):tin=\(tin):min=\(min):primaries=709:transfer=709:matrix=709"
         }
