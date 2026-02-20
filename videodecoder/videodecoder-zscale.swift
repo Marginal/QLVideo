@@ -161,7 +161,7 @@ extension VideoDecoder {
         }
 
         // SDR. Assume values based on input format and whether HD or SD
-        if frame.width >= 1280 || frame.height >= 720 || frame.color_range == AVCOL_RANGE_JPEG {
+        if frame.width >= 1280 || frame.height >= 720 || frame.format != AV_PIX_FMT_YUV420P.rawValue {
             return ColorInfo(
                 primaries: AVCOL_PRI_BT709,
                 transfer: AVCOL_TRC_BT709,

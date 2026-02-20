@@ -23,12 +23,11 @@ struct vImageError: LocalizedError, CustomNSError {
 
 extension VideoDecoder {
 
-    // Avoid concurrency issues with kvImage_YpCbCrToARGBMatrix_ITU_R_601_4 etc by specifying explicitly
-    static let colorMatrices: [AVColorSpace: vImage_YpCbCrToARGBMatrix] = [
-        AVCOL_SPC_BT470BG: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),  // kvImage_YpCbCrToARGBMatrix_ITU_R_601_4
-        AVCOL_SPC_SMPTE170M: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.402, Cr_G: -0.714136, Cb_G: -0.344136, Cb_B: 1.772),  // kvImage_YpCbCrToARGBMatrix_ITU_R_601_4
-        AVCOL_SPC_SMPTE240M: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.5748, Cr_G: -0.187324, Cb_G: -0.468124, Cb_B: 1.8556),  // using BT.709
-        AVCOL_SPC_BT709: vImage_YpCbCrToARGBMatrix(Yp: 1.0, Cr_R: 1.5748, Cr_G: -0.187324, Cb_G: -0.468124, Cb_B: 1.8556),  // kvImage_YpCbCrToARGBMatrix_ITU_R_709_2
+    static let colorMatrices: [AVColorSpace: UnsafePointer<vImage_YpCbCrToARGBMatrix>] = [
+        AVCOL_SPC_BT470BG: kvImage_YpCbCrToARGBMatrix_ITU_R_601_4,
+        AVCOL_SPC_SMPTE170M: kvImage_YpCbCrToARGBMatrix_ITU_R_601_4,
+        AVCOL_SPC_SMPTE240M: kvImage_YpCbCrToARGBMatrix_ITU_R_709_2,
+        AVCOL_SPC_BT709: kvImage_YpCbCrToARGBMatrix_ITU_R_709_2,
     ]
 
     static let pixelRanges: [Bool: vImage_YpCbCrPixelRange] = [
@@ -66,25 +65,35 @@ extension VideoDecoder {
     ]
 
     // Convert supported formats to BGRA using vImage
-    func vImageConvertToBGRA(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> Error? {
+    func vImageConvertToBGRA(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> vImageError? {
 
-        let format = VideoDecoder.vImageTypes[AVPixelFormat(frame.format)]!
-        let width = Int(frame.width)
-        let height = Int(frame.height)
+        guard let format = VideoDecoder.vImageTypes[AVPixelFormat(frame.format)] else {
+            return vImageError(status: kvImageUnsupportedConversion, context: "vImageConvertToBGRA")
+        }
+        let srcWidth = Int(frame.width)
+        let srcHeight = Int(frame.height)
+        let dstWidth = Int(CVPixelBufferGetWidth(pixelBuffer))
+        let dstHeight = Int(CVPixelBufferGetHeight(pixelBuffer))
+
+        if srcWidth != dstWidth && format != kvImage420Yp8_Cb8_Cr8 {
+            return vImageError(status: kvImageUnsupportedConversion, context: "vImageConvertToBGRA")  // Can only handle anamorphic if yuv420p
+        }
 
         if conversionInfo == nil {
             var range = VideoDecoder.pixelRanges[frame.color_range == AVCOL_RANGE_JPEG]
             var matrix = VideoDecoder.colorMatrices[frame.colorspace]
             if matrix == nil {
-                matrix = VideoDecoder.colorMatrices[width < 1280 && height < 720 ? AVCOL_SPC_BT470BG : AVCOL_SPC_BT709]
-                let colorspace = frame.colorspace
-                logger.log(
-                    "VideoDecoder unsupported colorspace \"\(String(cString: av_color_space_name(colorspace)), privacy: .public)\" for vImageConvert. Defaulting to \(width < 1280 && height < 720 ? "BT.601" : "BT.709", privacy: .public)"
-                )
+                matrix = VideoDecoder.colorMatrices[dstWidth < 1280 && dstHeight < 720 ? AVCOL_SPC_BT470BG : AVCOL_SPC_BT709]
+                if frame.colorspace != AVCOL_SPC_UNSPECIFIED {
+                    let colorspace = frame.colorspace
+                    logger.log(
+                        "VideoDecoder unsupported colorspace \"\(String(cString: av_color_space_name(colorspace)), privacy: .public)\" for vImageConvert. Defaulting to \(dstWidth < 1280 && dstHeight < 720 ? "BT.601" : "BT.709", privacy: .public)"
+                    )
+                }
             }
             conversionInfo = vImage_YpCbCrToARGB()
             let ret = vImageConvert_YpCbCrToARGB_GenerateConversion(
-                &matrix!,
+                matrix!,
                 &range!,
                 &conversionInfo!,
                 format,
@@ -95,38 +104,56 @@ extension VideoDecoder {
                 let error = vImageError(status: ret, context: "vImageConvert_YpCbCrToARGB_GenerateConversion")
                 return error
             }
+            if srcWidth != dstWidth {
+                let error = vImageAllocateScaleBuffers(
+                    format: format,
+                    srcWidth: srcWidth,
+                    srcHeight: srcHeight,
+                    dstWidth: dstWidth,
+                    dstHeight: dstHeight
+                )
+                guard error == nil else { return error }
+            }
             logger.debug("VideoDecoder using vImageConvert for format conversion")
         }
 
         // Wrap destination
         var dstBGRA = vImage_Buffer(
             data: CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self),
-            height: vImagePixelCount(height),
-            width: vImagePixelCount(width),
+            height: vImagePixelCount(dstHeight),
+            width: vImagePixelCount(dstWidth),
             rowBytes: CVPixelBufferGetBytesPerRow(pixelBuffer)
         )
 
         var ret: vImage_Error
         switch format {
-        case kvImage420Yp8_Cb8_Cr8:  // AV_PIX_FMT_YUV420P
+        case kvImage420Yp8_Cb8_Cr8:  // AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUVJ420P
             var srcY = vImage_Buffer(
                 data: frame.data.0,
-                height: vImagePixelCount(height),
-                width: vImagePixelCount(width),
+                height: vImagePixelCount(srcHeight),
+                width: vImagePixelCount(srcWidth),
                 rowBytes: Int(frame.linesize.0)
             )
             var srcCb = vImage_Buffer(
                 data: frame.data.1,
-                height: vImagePixelCount(height / 2),
-                width: vImagePixelCount(width / 2),
+                height: vImagePixelCount(srcHeight / 2),
+                width: vImagePixelCount(srcWidth / 2),
                 rowBytes: Int(frame.linesize.1)
             )
             var srcCr = vImage_Buffer(
                 data: frame.data.2,
-                height: vImagePixelCount(height / 2),
-                width: vImagePixelCount(width / 2),
+                height: vImagePixelCount(srcHeight / 2),
+                width: vImagePixelCount(srcWidth / 2),
                 rowBytes: Int(frame.linesize.2)
             )
+            if srcWidth != dstWidth {
+                vImageScale_Planar8(&srcY, &scaleYBuffer!, scaleYTemp, vImage_Flags(kvImageEdgeExtend))
+                vImageScale_Planar8(&srcCb, &scaleCbBuffer!, scaleCbTemp, vImage_Flags(kvImageEdgeExtend))
+                vImageScale_Planar8(&srcCr, &scaleCrBuffer!, scaleCrTemp, vImage_Flags(kvImageEdgeExtend))
+                srcY = scaleYBuffer!
+                srcCb = scaleCbBuffer!
+                srcCr = scaleCrBuffer!
+            }
             ret = vImageConvert_420Yp8_Cb8_Cr8ToARGB8888(
                 &srcY,
                 &srcCb,
@@ -140,14 +167,14 @@ extension VideoDecoder {
         case kvImage420Yp8_CbCr8:  // AV_PIX_FMT_NV12
             var srcY = vImage_Buffer(
                 data: frame.data.0,
-                height: vImagePixelCount(height),
-                width: vImagePixelCount(width),
+                height: vImagePixelCount(srcHeight),
+                width: vImagePixelCount(srcWidth),
                 rowBytes: Int(frame.linesize.0)
             )
             var srcCbCr = vImage_Buffer(
                 data: frame.data.1,  // interleaved CbCr
-                height: vImagePixelCount(height / 2),
-                width: vImagePixelCount(width / 2),
+                height: vImagePixelCount(srcHeight / 2),
+                width: vImagePixelCount(srcWidth / 2),
                 rowBytes: Int(frame.linesize.1)
             )
             ret = vImageConvert_420Yp8_CbCr8ToARGB8888(
@@ -159,11 +186,11 @@ extension VideoDecoder {
                 0xff,  // alpha
                 vImage_Flags(kvImageNoFlags)
             )
-        case kvImage422CbYpCrYp8:  // AV_PIX_FMT_YUYV422
+        case kvImage422CbYpCrYp8:  // AV_PIX_FMT_YUYV422, AV_PIX_FMT_YUVJ422P
             var srcPacked = vImage_Buffer(
                 data: frame.data.0,
-                height: vImagePixelCount(height),
-                width: vImagePixelCount(width),
+                height: vImagePixelCount(srcHeight),
+                width: vImagePixelCount(srcWidth),
                 rowBytes: Int(frame.linesize.0)
             )
             ret = vImageConvert_422CbYpCrYp8ToARGB8888(
@@ -182,6 +209,86 @@ extension VideoDecoder {
             return error
         }
         return nil
+    }
+
+    // Reusable scaling buffers & temp storage for vImage scaling
+    private func vImageAllocateScaleBuffers(
+        format: vImageYpCbCrType,
+        srcWidth: Int,
+        srcHeight: Int,
+        dstWidth: Int,
+        dstHeight: Int
+    ) -> vImageError? {
+        guard dstWidth != srcWidth else {
+            return vImageError(status: kvImageInternalError, context: "vImageAllocateScaleBuffers: no scaling needed")
+        }
+        guard
+            scaleYBuffer == nil && scaleCbBuffer == nil && scaleCrBuffer == nil && scaleYTemp == nil && scaleCbTemp == nil
+                && scaleCrTemp == nil
+        else {
+            return vImageError(status: kvImageInternalError, context: "vImageAllocateScaleBuffers: no scaling needed")
+        }
+
+        // Y plane buffers (8 bpp)
+        let (yAlign, yRowBytes) = try! vImage_Buffer.preferredAlignmentAndRowBytes(
+            width: dstWidth,
+            height: dstHeight,
+            bitsPerPixel: 8
+        )
+        scaleYBuffer = vImage_Buffer(
+            data: UnsafeMutableRawPointer.allocate(byteCount: yRowBytes * dstHeight, alignment: yAlign),
+            height: vImagePixelCount(dstHeight),
+            width: vImagePixelCount(dstWidth),
+            rowBytes: yRowBytes
+        )
+
+        // Cb/Cr planes (8 bpp, half resolution)
+        let cWidth = max(1, dstWidth / 2)
+        let cHeight = max(1, dstHeight / 2)
+        let (cAlign, cRowBytes) = try! vImage_Buffer.preferredAlignmentAndRowBytes(
+            width: cWidth,
+            height: cHeight,
+            bitsPerPixel: 8
+        )
+        scaleCbBuffer = vImage_Buffer(
+            data: UnsafeMutableRawPointer.allocate(byteCount: cRowBytes * cHeight, alignment: cAlign),
+            height: vImagePixelCount(cHeight),
+            width: vImagePixelCount(cWidth),
+            rowBytes: cRowBytes
+        )
+        scaleCrBuffer = vImage_Buffer(
+            data: UnsafeMutableRawPointer.allocate(byteCount: cRowBytes * cHeight, alignment: cAlign),
+            height: vImagePixelCount(cHeight),
+            width: vImagePixelCount(cWidth),
+            rowBytes: cRowBytes
+        )
+
+        // temp buffers sized per plane
+        var sz = vImageScale_Planar8(&scaleYBuffer!, &scaleYBuffer!, nil, vImage_Flags(kvImageGetTempBufferSize))
+        guard sz > 0 else { return vImageError(status: sz, context: "vImageScale_Planar8") }
+        scaleYTemp = UnsafeMutableRawPointer.allocate(byteCount: Int(sz), alignment: yAlign)
+        sz = vImageScale_Planar8(&scaleCbBuffer!, &scaleCbBuffer!, nil, vImage_Flags(kvImageGetTempBufferSize))
+        guard sz > 0 else { return vImageError(status: sz, context: "vImageScale_Planar8") }
+        scaleCbTemp = UnsafeMutableRawPointer.allocate(byteCount: Int(sz), alignment: cAlign)
+        sz = vImageScale_Planar8(&scaleCrBuffer!, &scaleCrBuffer!, nil, vImage_Flags(kvImageGetTempBufferSize))
+        guard sz > 0 else { return vImageError(status: sz, context: "vImageScale_Planar8") }
+        scaleCrTemp = UnsafeMutableRawPointer.allocate(byteCount: Int(sz), alignment: cAlign)
+        return nil
+    }
+
+    func vImageFreeScaleBuffers() {
+        if let y = scaleYBuffer?.data { y.deallocate() }
+        if let cb = scaleCbBuffer?.data { cb.deallocate() }
+        if let cr = scaleCrBuffer?.data { cr.deallocate() }
+        if let scaleYTemp { scaleYTemp.deallocate() }
+        if let scaleCbTemp { scaleCbTemp.deallocate() }
+        if let scaleCrTemp { scaleCrTemp.deallocate() }
+        scaleYBuffer = nil
+        scaleCbBuffer = nil
+        scaleCrBuffer = nil
+        scaleYTemp = nil
+        scaleCbTemp = nil
+        scaleCrTemp = nil
     }
 
     // Copy supported formats to BGRA using vImage (no conversion)
@@ -208,7 +315,7 @@ extension VideoDecoder {
             rowBytes: Int(frame.linesize.2)
         )
         var dst = vImage_Buffer(
-            data: CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self),
+            data: CVPixelBufferGetBaseAddress(pixelBuffer),
             height: vImagePixelCount(height),
             width: vImagePixelCount(width),
             rowBytes: CVPixelBufferGetBytesPerRow(pixelBuffer)
@@ -218,8 +325,8 @@ extension VideoDecoder {
         switch frame.format {
         case AV_PIX_FMT_GBRPF32LE.rawValue:
             // HDR path: float planar to BGRA
-            var maxFloat:Float = 1
-            var minFloat:Float = 0
+            var maxFloat: Float = 1
+            var minFloat: Float = 0
             ret = vImageConvert_PlanarFToBGRX8888(&srcB, &srcG, &srcR, 0xff, &dst, &maxFloat, &minFloat, 0)
         case AV_PIX_FMT_GBRP.rawValue:
             // SDR path: 8-bit planar to BGRA

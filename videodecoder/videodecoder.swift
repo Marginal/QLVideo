@@ -55,6 +55,12 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
     // For format conversion using macOS Accelerate API
     var conversionInfo: vImage_YpCbCrToARGB? = nil
+    var scaleYBuffer: vImage_Buffer? = nil
+    var scaleCbBuffer: vImage_Buffer? = nil
+    var scaleCrBuffer: vImage_Buffer? = nil
+    var scaleYTemp: UnsafeMutableRawPointer? = nil
+    var scaleCbTemp: UnsafeMutableRawPointer? = nil
+    var scaleCrTemp: UnsafeMutableRawPointer? = nil
 
     // For format conversion using FFmpeg's zscale filter
     var filterGraph: UnsafeMutablePointer<AVFilterGraph>? = nil
@@ -243,6 +249,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         if sink_ctx != nil { avfilter_free(sink_ctx) }
         if src_ctx != nil { avfilter_free(src_ctx) }
         if filterGraph != nil { avfilter_graph_free(&filterGraph) }
+        vImageFreeScaleBuffers()
     }
 
     // Primary business of this codec
@@ -400,17 +407,15 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
 
         // can we use macOS's accelerated conversions?
-        if width == Int(frame!.pointee.width) && VideoDecoder.vImageTypes[AVPixelFormat(frame!.pointee.format)] != nil {
-            let error = vImageConvertToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
-            guard error == nil else {
-                logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
-                )
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
-                av_frame_free(&frame)
-                return completionHandler(nil, .frameDropped, error)
-            }
-        } else {
+        let error = vImageConvertToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
+        if error != nil && error!.status != kvImageUnsupportedConversion {
+            logger.error(
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
+            )
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+            av_frame_free(&frame)
+            return completionHandler(nil, .frameDropped, error)
+        } else if error != nil {
             // Fall back to zscale conversion
             var error = zscaleConvertToGBRP(frame: &frame, pixelBuffer: &pixelBuffer)
             if error == nil {
