@@ -196,7 +196,7 @@ class FormatReader: NSObject, MEFormatReader {
             }
             metadata.append(item)
             logger.debug(
-                "Found \(String(describing: item), privacy: .public) covert art in stream \(artStream)"
+                "Found \(String(describing: item), privacy: .public) cover art in stream \(artStream)"
             )
         }
 

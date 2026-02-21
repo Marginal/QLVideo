@@ -309,21 +309,19 @@ final class PacketDemuxer {
     }
 
     func seek(stream: Int, presentationTimeStamp: CMTime) throws -> PacketHandle {
+        // Special cases
         if presentationTimeStamp.isPositiveInfinity
             // Fix for QuickTime player which asks for a later SampleCursor after asking for one at +inf
             || lastPkt[stream] == nil
             || presentationTimeStamp >= CMTime(value: lastPkt[stream]!.pointee.pts, timeBase: buffers[stream].timeBase)
         {
             return PacketHandle(generation: generation, index: Int.max, isLast: true)
-        }
-        if let remembered = rememberedSeekPTS, remembered == presentationTimeStamp {
+        } else if let remembered = rememberedSeekPTS, remembered == presentationTimeStamp {
             if TRACE_PACKET_DEMUXER {
                 logger.debug("PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) -> 0 [remembered]")
             }
             if buffers[stream].isEmpty {
-                stateLock.lock()
-                waitForPacketZeroLocked(stream: stream)
-                stateLock.unlock()
+                waitForPacketZero(stream: stream)
                 return PacketHandle(generation: generation, index: 0, isLast: false)
             } else if buffers[stream].minLogicalIndex == 0 {
                 return PacketHandle(generation: generation, index: 0, isLast: false)
@@ -333,7 +331,26 @@ final class PacketDemuxer {
                 )
             }
         }
-        if let hit = buffers[stream].nearest(to: presentationTimeStamp) {
+
+        // Snapshot for thumbnail
+        var target = presentationTimeStamp
+        if presentationTimeStamp.value == QLThumbnailTime.value && presentationTimeStamp.timescale == QLThumbnailTime.timescale {
+            // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice or to start if short clip
+            let avStream = fmtCtx.pointee.streams[stream]!
+            let durationPTS = lastPkt[stream] != nil ? lastPkt[stream]!.pointee.pts : avStream.pointee.duration
+            let duration = CMTime(value: durationPTS, timeBase: avStream.pointee.time_base)
+            if duration == .invalid || duration >= CMTime(value: 2 * snapshotTime, timescale: AV_TIME_BASE) {
+                target = CMTime(value: snapshotTime, timescale: AV_TIME_BASE)  // long or unknown duration clip, snapshot at user's choice
+            } else if duration >= QLThumbnailTime {
+                target = CMTime(value: durationPTS / 2, timeBase: avStream.pointee.time_base)  // medium clip, snapshot in middle
+            } else {
+                target = .zero  // short clip, snapshot at start
+            }
+        }
+
+        stateLock.lock()
+        if let hit = buffers[stream].nearest(to: target) {
+            stateLock.unlock()
             if TRACE_PACKET_DEMUXER {
                 logger.debug("PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) -> \(hit)")
             }
@@ -341,27 +358,20 @@ final class PacketDemuxer {
         }
 
         // Miss: perform a discontinuous seek
-        stateLock.lock()
         flushLocked()
-        rememberedSeekPTS = presentationTimeStamp
+        rememberedSeekPTS = presentationTimeStamp  // remember the request, not the actual target
         var ret: Int32
-        var target = presentationTimeStamp
-        if presentationTimeStamp.value == QLThumbnailTime.value && presentationTimeStamp.timescale == QLThumbnailTime.timescale {
-            // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice.
-            let duration =
-                fmtCtx.pointee.duration != 0
-                ? fmtCtx.pointee.duration : (lastPkt[stream] != nil ? lastPkt[stream]!.pointee.pts : 0)
-            let ts = duration != 0 && duration > 2 * snapshotTime ? snapshotTime : duration / 2
-            target = CMTime(value: ts, timescale: AV_TIME_BASE)
-            ret = avformat_seek_file(fmtCtx, -1, ts, ts, Int64.max, 0)
-        } else if presentationTimeStamp.timescale == buffers[stream].timeBase.den {
+        if target.timescale == buffers[stream].timeBase.den {
             // asked to seek in this stream's timebase
-            ret = avformat_seek_file(fmtCtx, Int32(stream), Int64.min, presentationTimeStamp.value, Int64.max, 0)
+            ret = avformat_seek_file(fmtCtx, Int32(stream), Int64.min, target.value, Int64.max, 0)
+        } else if target.value == 0 || target.timescale == AV_TIME_BASE {
+            // seek in AV_TIME_BASE units - common case for arbitrary seeks from AVFoundation
+            ret = avformat_seek_file(fmtCtx, -1, Int64.min, target.value, Int64.max, 0)
         } else {
-            // seek using AV_TIME_BASE units
-            let src = AVRational(num: 1, den: Int32(presentationTimeStamp.timescale))
+            // seek in arbitrary units - convert to AV_TIME_BASE
+            let src = AVRational(num: 1, den: Int32(target.timescale))
             let AV_TIME_BASE_Q = AVRational(num: 1, den: Int32(AV_TIME_BASE))
-            let timestamp = av_rescale_q(presentationTimeStamp.value, src, AV_TIME_BASE_Q)
+            let timestamp = av_rescale_q(target.value, src, AV_TIME_BASE_Q)
             target = CMTime(value: timestamp, timescale: AV_TIME_BASE)
             ret = avformat_seek_file(fmtCtx, -1, Int64.min, timestamp, Int64.max, 0)
         }
@@ -379,9 +389,7 @@ final class PacketDemuxer {
         avformat_flush(fmtCtx)
         stateLock.unlock()
         demuxSem.signal()  // kick demux loop to start filling
-        stateLock.lock()
-        waitForPacketZeroLocked(stream: stream)  // Wait for the first packet to arrive after seek
-        stateLock.unlock()
+        waitForPacketZero(stream: stream)  // Wait for the first packet to arrive after seek
         return PacketHandle(generation: generation, index: 0, isLast: false)
     }
 
@@ -453,13 +461,12 @@ final class PacketDemuxer {
                 stateLock.unlock()
                 demuxSem.wait()
             } else {
-                stateLock.unlock()
                 var pkt = av_packet_alloc()
                 let ret = av_read_frame(fmtCtx, pkt)
                 if ret != 0 {
                     av_packet_free(&pkt)
-                    stateLock.lock()
                     halted = true
+                    stateLock.unlock()
                     if ret == AVERROR_EOF {
                         if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer demuxLoop reached EOF") }
                     } else {
@@ -467,22 +474,21 @@ final class PacketDemuxer {
                         logger.error("PacketDemuxer demuxLoop: \(error.localizedDescription, privacy:.public)")
                     }
                     demuxSem.signal()
-                    stateLock.unlock()
                     continue
                 }
-                guard let packet = pkt else { continue }
-                if packet.pointee.size == 0 || Int(packet.pointee.stream_index) >= buffers.count
-                    || buffers[Int(packet.pointee.stream_index)].capacity == 0
+                if pkt!.pointee.size == 0 || Int(pkt!.pointee.stream_index) >= buffers.count
+                    || buffers[Int(pkt!.pointee.stream_index)].capacity == 0
                 {
                     // Skip empty packets as seen in e.g. Theora since AVFoundation doesn't like them
                     // (-12706 kCMBlockBufferEmptyBBufErr) and skip packets for streams we don't handle
                     av_packet_free(&pkt)
-                } else if let filtered = applyBitstreamFilter(stream: Int(packet.pointee.stream_index), packet: packet) {
+                } else if let filtered = applyBitstreamFilter(stream: Int(pkt!.pointee.stream_index), packet: pkt!) {
                     for pkt in filtered { enqueue(pkt) }
                 } else {
-                    packet.pointee.pos += pktFixup
-                    enqueue(packet)
+                    pkt!.pointee.pos += pktFixup
+                    enqueue(pkt!)
                 }
+                stateLock.unlock()
             }
         }
     }
@@ -505,8 +511,6 @@ final class PacketDemuxer {
     }
 
     private func enqueue(_ packet: UnsafeMutablePointer<AVPacket>) {
-        stateLock.lock()
-        defer { stateLock.unlock() }
         let stream = Int(packet.pointee.stream_index)
         let buffer = buffers[stream]
         assert(buffer.capacity > 0, "PacketDemuxer stream \(stream) unexpected packet in discarded stream")
@@ -553,14 +557,15 @@ final class PacketDemuxer {
         for i in 0..<bsfCtxs.count { if let bsf = bsfCtxs[i] { av_bsf_flush(bsf) } }
     }
 
-    private func waitForPacketZeroLocked(stream: Int) {
+    private func waitForPacketZero(stream: Int) {
+        defer { stateLock.unlock() }
         while true {
+            stateLock.lock()
             if stopping { return }
             if halted { return }
             if !buffers[stream].isEmpty { return }
             stateLock.unlock()
             packetSem.wait()
-            stateLock.lock()
         }
     }
 
@@ -595,6 +600,7 @@ final class PacketDemuxer {
         }
         // Reset to start
         ret = avformat_seek_file(fmtCtx, -1, Int64.min, Int64.min, 0, 0)
+        avformat_flush(fmtCtx)
         guard ret >= 0 else {
             throw AVERROR(errorCode: ret, context: "avformat_seek_file(min)")  // If we can't seek to start we can't demux
         }
