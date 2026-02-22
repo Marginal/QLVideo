@@ -114,6 +114,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             // MPEG4 part 2 https://developer.apple.com/documentation/quicktime-file-format/mpeg-4_elementary_stream_descriptor_atom
             // FFmpeg only retains the decoder-specific info from "esds" in extradata - so rebuild it.
             // See videotoolbox_esds_extradata_create in https://ffmpeg.org/doxygen/8.0/videotoolbox_8c_source.html
+            extract_extradata()  // build extradata if required info is in-band, e.g. .avi
             if params.pointee.extradata_size > 0 {
                 let decoder_size = params.pointee.extradata_size  // assumed to be < 16K
                 let config_size = 13 + 5 + decoder_size
@@ -147,6 +148,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         case AV_CODEC_ID_H264:
             // avc1 / MPEG-4 part 10
             // https://developer.apple.com/documentation/quicktime-file-format/avc_decoder_configuration_atom
+            extract_extradata()  // build extradata if required info is in-band
             if params.pointee.extradata_size >= 23 {
                 extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] =
                     [
@@ -162,6 +164,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             }
         case AV_CODEC_ID_HEVC:
             // MPEG-4 Part 15
+            extract_extradata()  // build extradata if required info is in-band
             if params.pointee.extradata_size >= 23 {
                 var atoms: [CFString: CFData] = [
                     "hvcC" as CFString: CFDataCreateWithBytesNoCopy(
@@ -225,6 +228,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             }
         case AV_CODEC_ID_AV1:
             // https://aomediacodec.github.io/av1-isobmff/#av1codecconfigurationbox-section
+            extract_extradata()  // build extradata if required info is in-band
             if params.pointee.extradata_size >= 20 {
                 var atoms: [CFString: CFData] = [
                     "av1C" as CFString: CFDataCreateWithBytesNoCopy(
@@ -241,6 +245,9 @@ class VideoTrackReader: TrackReader, METrackReader {
                 logger.log("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))"
                  */
             }
+        case AV_CODEC_ID_VVC, AV_CODEC_ID_VC1:
+            // Not supported by VideoToolbox at time of writing
+            extract_extradata()  // build extradata if required info is in-band
         default:
             if params.pointee.extradata_size != 0 {
                 let hex = UnsafeBufferPointer(start: params.pointee.extradata, count: Int(params.pointee.extradata_size)).reduce(
@@ -425,4 +432,78 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
     }
 
+    // For streams where the extradata required for decoding is in-band instead of in the container e.g. .avi,
+    // and wasn't found and populated into AVCodecParameters during avformat_find_stream_info, try to extract it
+    // so we can build a sample description for VideoToolbox and/or we can software decode without skipping initial frames.
+    private func extract_extradata() {
+
+        let params = stream.pointee.codecpar!
+        if params.pointee.extradata_size > 0 { return }  // already have some extradata, assume its sufficient
+        guard let bsf = av_bsf_get_by_name("extract_extradata") else {
+            logger.error("VideoTrackReader stream \(self.index) failed to get extract_extradata bsf")
+            return
+        }
+
+        var ctx: UnsafeMutablePointer<AVBSFContext>? = nil
+        guard av_bsf_alloc(bsf, &ctx) == 0,
+            avcodec_parameters_copy(ctx!.pointee.par_in, params) == 0,
+            av_bsf_init(ctx) == 0
+        else {
+            logger.error("VideoTrackReader stream \(self.index) failed to setup extract_extradata bsf")
+            if ctx != nil { av_bsf_free(&ctx) }
+            return
+        }
+
+        var packetsScanned = 0
+        var pkt = av_packet_alloc()
+        let outPkt = av_packet_alloc()
+        var ret: Int32 = 0
+        while packetsScanned < 50 && params.pointee.extradata_size == 0
+            && (ret == 0 || ret == AVERROR_EAGAIN || ret == AVERROR_EOF)
+        {
+            ret = av_read_frame(format.fmt_ctx, pkt)
+            guard ret == 0 else { break }
+            if pkt!.pointee.stream_index != Int32(index) {
+                av_packet_unref(pkt)
+                continue
+            }
+            ret = av_bsf_send_packet(ctx, pkt)  // consumes packet if successful
+            guard ret == 0 else {
+                av_packet_free(&pkt)  // packet is not consumed on error
+                break
+            }
+
+            packetsScanned += 1
+            while ret == 0 {
+                ret = av_bsf_receive_packet(ctx, outPkt)
+                if ret == 0 {
+                    var sz = 0
+                    if let sideData = av_packet_get_side_data(outPkt, AV_PKT_DATA_NEW_EXTRADATA, &sz) {
+                        params.pointee.extradata_size = Int32(sz)
+                        params.pointee.extradata = av_mallocz(sz + Int(AV_INPUT_BUFFER_PADDING_SIZE)).assumingMemoryBound(
+                            to: UInt8.self
+                        )
+                        memcpy(params.pointee.extradata, sideData, sz)
+                        av_packet_unref(outPkt)
+                        break
+                    } else {
+                        av_packet_unref(outPkt)
+                    }
+                }
+            }
+        }
+        av_bsf_free(&ctx)
+
+        // Rewind so demux will start at start
+        avformat_seek_file(format.fmt_ctx, -1, Int64.min, Int64.min, 0, 0)
+        avformat_flush(format.fmt_ctx)
+
+        if TRACE_PACKET_DEMUXER {
+            if params.pointee.extradata_size > 0 {
+                logger.debug("VideoTrackReader stream \(self.index) synthesized extradata size=\(params.pointee.extradata_size)")
+            } else {
+                logger.warning("VideoTrackReader stream \(self.index) failed to synthesize extradata")
+            }
+        }
+    }
 }

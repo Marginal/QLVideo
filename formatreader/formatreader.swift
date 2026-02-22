@@ -107,8 +107,9 @@ class FormatReader: NSObject, MEFormatReader {
             return completionHandler(nil, err)
         }
 
-        // Read ahead if necessary to populate info like framerate that otherwise might not be available
-        // Not sure if this is actually required for the formats/codecs we're interested in
+        // Read ahead if necessary to populate info like codec parameters that otherwise might not be available
+        fmt_ctx!.pointee.max_analyze_duration = Int64(5 * AV_TIME_BASE)  // 5s
+        fmt_ctx!.pointee.probesize = 10 * 1024 * 1024  // 10MB
         ret = avformat_find_stream_info(fmt_ctx, nil)
         guard ret == 0 else {
             let err = AVERROR(errorCode: ret, context: "avformat_find_stream_info", file: byteSource.fileName)
