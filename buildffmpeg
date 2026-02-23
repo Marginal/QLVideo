@@ -7,6 +7,12 @@ SCRIPT=`readlink -fn "$0"`
 EXES="ffmpeg ffprobe"
 LIBS="libavcodec libavfilter libavformat libavutil libswresample libswscale"
 
+# Build can't handle spaces in directory names
+if [ ! -d "$(dirname "${BUILD_ROOT/ /_}")" ]; then ln -s "$(dirname "${BUILD_ROOT}")" "$(dirname "${BUILD_ROOT/ /_}")"; fi
+export BUILT_PRODUCTS_DIR=${BUILT_PRODUCTS_DIR/ /_}
+if [ ! -d "$(dirname "${OBJROOT/ /_}")" ]; then ln -s "$(dirname "${OBJROOT}")" "$(dirname "${OBJROOT/ /_}")"; fi
+export OBJECT_FILE_DIR=${OBJECT_FILE_DIR/ /_}
+
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OBJECT_FILE_DIR}"
 	[ -n "${OBJECT_FILE_DIR}" -a -d "${OBJECT_FILE_DIR}" ] && rm -rf "${OBJECT_FILE_DIR}"
@@ -26,7 +32,7 @@ else
 			if [ "${CONFIGURATION}" == "Debug" ]; then
 				FLAGS="--disable-optimizations --disable-stripping"
 			else
-				FLAGS=
+				FLAGS="--disable-stripping"
 			fi
 			if [ $ARCH == arm64 ]; then
 				FLAGS="$FLAGS --enable-cross-compile --enable-vfp --enable-neon"
@@ -39,7 +45,7 @@ else
 
 		# Add rpath for install-time location of executables
 		for LIB in $LIBS; do
-			install_name_tool -delete_rpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib" `realpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib/${LIB}.dylib"`
+			install_name_tool -delete_rpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib" "`realpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib/${LIB}.dylib"`"
 		done
 		for EXE in $EXES; do
 			install_name_tool -rpath "${BUILT_PRODUCTS_DIR}/${ARCH}/lib" @executable_path/../Frameworks "${BUILT_PRODUCTS_DIR}/${ARCH}/bin/${EXE}"
@@ -52,13 +58,18 @@ else
 	mkdir -p "${BUILT_PRODUCTS_DIR}/universal/bin"
 	for EXE in $EXES; do
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/bin/${EXE}" -output "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+		if [ "${DEBUG_INFORMATION_FORMAT}" == "dwarf-with-dsym" ]; then
+			dsymutil "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}" -o "${DWARF_DSYM_FOLDER_PATH}/${EXE}${DWARF_DSYM_FILE_NAME}"
+			strip -x "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
+		fi
 		if [ -n "$DEVELOPMENT_TEAM" -a -n "$PRODUCT_BUNDLE_IDENTIFIER" ]; then
 			# Add sandbox entitlement suitable for a helper app
+			[ ${ENABLE_APP_SANDBOX:-NO} == "NO" ] && SANDBOX=false || SANDBOX=true
 			ENTITLEMENTS=`mktemp -t buildffmpeg`
 			if [ "${CONFIGURATION}" == "Debug" ]; then
-				echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n<key>com.apple.security.get-task-allow</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+				echo -e "<plist version=\"1.0\">\n<dict>\n<key>com.apple.security.app-sandbox</key>\n<${SANDBOX}/>\n<key>com.apple.security.inherit</key>\n<true/>\n<key>com.apple.security.get-task-allow</key>\n<true/>\n</dict>\n</plist>" > "${ENTITLEMENTS}"
 			else
-				echo -e '<plist version="1.0">\n<dict>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>' > "${ENTITLEMENTS}"
+				echo -e "<plist version=\"1.0\">\n<dict>\n<key>com.apple.security.app-sandbox</key>\n<${SANDBOX}/>\n<key>com.apple.security.inherit</key>\n<true/>\n</dict>\n</plist>" > "${ENTITLEMENTS}"
 			fi
 			codesign -s "${DEVELOPMENT_TEAM}" -i "${PRODUCT_BUNDLE_IDENTIFIER}.${EXE}" -o runtime --entitlements "${ENTITLEMENTS}" "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
 			codesign -vvv "${BUILT_PRODUCTS_DIR}/universal/bin/${EXE}"
@@ -75,7 +86,11 @@ else
 		cp -pr "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/include/${LIB}" "${BUILT_PRODUCTS_DIR}/universal/include/"
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/${LIB}.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${LIB}.a"
 		# Install using the dylib's "install name" since that's what other FFmpeg dylibs will look for
-		DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/${LIB}.dylib`)
+		DYLIB=$(basename "`otool -DX "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/${LIB}.dylib"`")
 		lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/${LIB}.dylib" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
+		if [ "${DEBUG_INFORMATION_FORMAT}" == "dwarf-with-dsym" ]; then
+			dsymutil "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}" -o "${DWARF_DSYM_FOLDER_PATH}/${DYLIB}${DWARF_DSYM_FILE_NAME}"
+			strip -x "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
+		fi
 	done
 fi

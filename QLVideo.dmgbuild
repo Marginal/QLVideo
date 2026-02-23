@@ -4,16 +4,16 @@
 import os.path
 import plistlib
 
-application = "Build/Products/Release/QuickLook Video.app"
-appname = os.path.basename(application)
+app = defines.get("app")
+appname = os.path.basename(app)
 
 # Files to include
-files = [application]
+files = [app]
 
 # Symlinks to create
 symlinks = {"Applications": "/Applications"}
 
-badge_icon = os.path.join(application, "Contents", "Resources", "AppIcon.icns")
+badge_icon = os.path.join(app, "Contents", "Resources", "AppIcon.icns")
 
 icon_locations = {appname: (140, 110), "Applications": (500, 110)}
 

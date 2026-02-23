@@ -5,6 +5,12 @@ shopt -s extglob
 
 SCRIPT=`readlink -fn "$0"`
 
+# Build can't handle spaces in directory names
+if [ ! -d "$(dirname "${BUILD_ROOT/ /_}")" ]; then ln -s "$(dirname "${BUILD_ROOT}")" "$(dirname "${BUILD_ROOT/ /_}")"; fi
+export BUILT_PRODUCTS_DIR=${BUILT_PRODUCTS_DIR/ /_}
+if [ ! -d "$(dirname "${OBJROOT/ /_}")" ]; then ln -s "$(dirname "${OBJROOT}")" "$(dirname "${OBJROOT/ /_}")"; fi
+export OBJECT_FILE_DIR=${OBJECT_FILE_DIR/ /_}
+
 if [ "${ACTION}" == "clean" ]; then
 	echo Remove "${OBJECT_FILE_DIR}"
 	[ -n "${OBJECT_FILE_DIR}" -a -d "${OBJECT_FILE_DIR}" ] && rm -rf "${OBJECT_FILE_DIR}"
@@ -55,15 +61,15 @@ X86_64
 			if [ "${CONFIGURATION}" == "Debug" ]; then
 				FLAGS="--buildtype=debug"
 			else
-				FLAGS="--buildtype=release"
+				FLAGS="--buildtype=debugoptimized --optimization=3"
 			fi
 			meson setup --reconfigure "${SRCROOT}/${TARGET_NAME}" ${FLAGS} --cross-file cross.meson -Ddefault_library=both -Dprefix="${BUILT_PRODUCTS_DIR}/${ARCH}" -Dc_args="-fapplication-extension"
 		fi
 		ninja -j `sysctl -n hw.physicalcpu` install
 
 		# Fix up install name
-		DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCH}/lib/libdav1d.dylib`)
-		install_name_tool -id @rpath/${DYLIB} ${BUILT_PRODUCTS_DIR}/${ARCH}/lib/libdav1d.dylib
+		DYLIB=$(basename "`otool -DX "${BUILT_PRODUCTS_DIR}/${ARCH}/lib/libdav1d.dylib"`")
+		install_name_tool -id "@rpath/${DYLIB}" "${BUILT_PRODUCTS_DIR}/${ARCH}/lib/libdav1d.dylib"
 	done
 
 	# Combine into Universal
@@ -76,6 +82,10 @@ X86_64
 
 	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libdav1d.a" -output "${BUILT_PRODUCTS_DIR}/universal/lib/libdav1d.a"
 	# Install using the dylib's "install name" since that's what other FFmpeg dylibs will look for
-	DYLIB=$(basename `otool -DX ${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/libdav1d.dylib`)
+	DYLIB=$(basename "`otool -DX "${BUILT_PRODUCTS_DIR}/${ARCHS/ */}/lib/libdav1d.dylib"`")
 	lipo -create "${BUILT_PRODUCTS_DIR}/"+(${ARCHS/ /|})"/lib/libdav1d.dylib" -output "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
+	if [ "${DEBUG_INFORMATION_FORMAT}" == "dwarf-with-dsym" ]; then
+		dsymutil "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}" -o "${DWARF_DSYM_FOLDER_PATH}/${DYLIB}${DWARF_DSYM_FILE_NAME}"
+		strip -x "${BUILT_PRODUCTS_DIR}/universal/lib/${DYLIB}"
+	fi
 fi
