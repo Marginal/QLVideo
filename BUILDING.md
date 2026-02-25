@@ -33,7 +33,7 @@ Console app, or `sudo log stream --style compact --debug --predicate 's=uk.org.m
 the Terminal.
 
 To debug in Xcode, first build the "Quicklook Video" target once. Then switch targets depending on what you wish to debug:
-* mdimporter - Edit the "Run" scheme for the "mdimporter" target as follows: "Executable": `/usr/bin/mdimport`, "Debug executable": ✔, "Arguments": `-n -d3 <testfile>`.
+* mdimporter - Edit the "Run" scheme for the "mdimporter" target as follows: "Executable": `/usr/bin/mdimport`, "Debug executable": ✔, "Arguments": `-t -d2 <testfile>`.
 * formatreader and videodecoder - Edit the "Run" scheme for the "formatreader" target as follows: "Executable": simpleplayer.app, "Debug executable": ✔. Select a testfile in the simpleplayer application.
 * previewer - Run the "previewer" target in Xcode. When prompted, choose "Finder" as the app to run. In any Finder window press Space to preview a non-native video file.
 * thumbnailer - Doesn't seem possible to debug in Xcode. Good luck!

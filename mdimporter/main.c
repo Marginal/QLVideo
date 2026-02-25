@@ -15,9 +15,9 @@
 //
 //==============================================================================
 
-#include "GetMetadataForFile.h"
-
-os_log_t logger = NULL;
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFPlugInCOM.h>
+#include <CoreServices/CoreServices.h>
 
 // -----------------------------------------------------------------------------
 //	constants
