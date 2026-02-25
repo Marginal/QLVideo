@@ -240,7 +240,7 @@ func resetCache() -> Bool {
 }
 
 func resetSpotlight() -> Bool {
-    let mdimporter = "\(Bundle.main.bundlePath)/Contents/Library/Spotlight/Video.mdimporter"
+    let mdimporter = "\(Bundle.main.bundlePath)/Contents/Library/Spotlight/QLVideo Metadata.mdimporter"
     do {
         try helper("/usr/bin/mdimport", args: ["-r", mdimporter])
         return true

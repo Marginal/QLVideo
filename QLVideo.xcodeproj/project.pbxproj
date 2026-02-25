@@ -13,8 +13,9 @@
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EA2D2EF8CA0040A4E6 /* libdav1d.a */; };
+		AB429E6D2F537BC70097940F /* averror.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB429E6C2F537BC70097940F /* averror.swift */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
-		AB49FBB92923CF1C00B126C0 /* QLVideo.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB57AACF2D344DDF00E785D8 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */; };
 		AB57AAD82D344DDF00E785D8 /* QLVideo Thumbnailer.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB748ED92D349AE6001F6921 /* libdav1d.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; };
@@ -34,8 +35,8 @@
 		AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB7C714719F8A6730006104E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB7C714919F8A6970006104E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
-		AB9FB57F1965DD7200D39647 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.m */; };
-		AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */; };
+		AB9FB57F1965DD7200D39647 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.c */; };
+		AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */; };
 		ABA141BB2D2EE41B0040A4E6 /* libdav1d.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; };
 		ABA141BE2D2EE41B0040A4E6 /* libdav1d.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; };
 		ABA141BF2D2EE47E0040A4E6 /* libdav1d.7.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -59,7 +60,6 @@
 		ABA141E92D2EE5790040A4E6 /* libswresample.6.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.6.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABA141F32D2EF8E70040A4E6 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141F12D2EF8E70040A4E6 /* libswresample.a */; };
 		ABA141F42D2EF8E70040A4E6 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EC2D2EF8E70040A4E6 /* libavcodec.a */; };
-		ABA141F52D2EF8E70040A4E6 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141F22D2EF8E70040A4E6 /* libswscale.a */; };
 		ABA141F72D2EF8E70040A4E6 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EE2D2EF8E70040A4E6 /* libavformat.a */; };
 		ABA141F82D2EF8E70040A4E6 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EF2D2EF8E70040A4E6 /* libavutil.a */; };
 		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
@@ -151,7 +151,7 @@
 			dstPath = Contents/Library/Spotlight;
 			dstSubfolderSpec = 1;
 			files = (
-				AB49FBB92923CF1C00B126C0 /* QLVideo.mdimporter in Embed mdimporter */,
+				AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */,
 			);
 			name = "Embed mdimporter";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,7 +220,9 @@
 		AB0E0D3C1A15B0300056CC24 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0E0D3D1A15B03B0056CC24 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/schema.strings; sourceTree = "<group>"; };
 		AB17CCF4291E954B002A80AB /* include */ = {isa = PBXFileReference; lastKnownFileType = text; name = include; path = universal/include; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB1DAC6D2F4D201C006BB899 /* mdimporter-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "mdimporter-bridge.h"; sourceTree = "<group>"; };
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		AB429E6C2F537BC70097940F /* averror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = averror.swift; sourceTree = "<group>"; };
 		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -240,11 +242,11 @@
 		AB96EE6B2183810500694152 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/schema.strings; sourceTree = "<group>"; };
 		AB97CDD21A3A059C005FECB1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/schema.strings; sourceTree = "<group>"; };
 		AB9846DC196B790F00AF6349 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QLVideo.mdimporter; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "QLVideo Metadata.mdimporter"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB9FB5721965DD7200D39647 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		AB9FB5761965DD7200D39647 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		AB9FB57E1965DD7200D39647 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GetMetadataForFile.m; sourceTree = "<group>"; };
+		AB9FB57E1965DD7200D39647 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMetadataForFile.swift; sourceTree = "<group>"; };
 		AB9FB58C1965DF0700D39647 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdav1d.7.dylib; path = universal/lib/libdav1d.7.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.62.dylib; path = universal/lib/libavcodec.62.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -262,7 +264,6 @@
 		ABA141F22D2EF8E70040A4E6 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
 		ABA141FE2D3016480040A4E6 /* CoverArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArtView.swift; sourceTree = "<group>"; };
 		ABB1A29A1A1C358500EEF82B /* buildschema */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 4; path = buildschema; sourceTree = "<group>"; };
-		ABB1A29C1A1C392400EEF82B /* schema.xml */ = {isa = PBXFileReference; explicitFileType = text.xml; fileEncoding = 4; name = schema.xml; path = Video.mdimporter/Contents/Resources/schema.xml; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB719E62924069600F13C24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogarithmicSlider.swift; sourceTree = "<group>"; };
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
@@ -301,7 +302,6 @@
 		ABE72EBC29392EEB005433DF /* ffprobe */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ffprobe; path = universal/bin/ffprobe; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EC0293A32B5005433DF /* ffmpeg */ = {isa = PBXFileReference; lastKnownFileType = text; name = ffmpeg; path = universal/bin/ffmpeg; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EC2293D1DC6005433DF /* OldVersionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldVersionView.swift; sourceTree = "<group>"; };
-		ABE72ED6294379D1005433DF /* GetMetadataForFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetMetadataForFile.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -333,13 +333,6 @@
 			);
 			target = ABE69D232D2A350700CE6C69 /* previewer */;
 		};
-		ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Snapshotter.m,
-			);
-			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
-		};
 		ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -351,7 +344,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AB748F162D354C5A001F6921 /* thumbnailer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABA53BFE2D37F38A0040C621 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = thumbnailer; sourceTree = "<group>"; };
-		ABE69D262D2A350700CE6C69 /* previewer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB748F722D35509F001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E042D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB748F1A2D354CFE001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = previewer; sourceTree = "<group>"; };
+		ABE69D262D2A350700CE6C69 /* previewer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB748F722D35509F001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB748F1A2D354CFE001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = previewer; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -412,7 +405,6 @@
 				ABA141F42D2EF8E70040A4E6 /* libavcodec.a in Frameworks */,
 				ABA141F72D2EF8E70040A4E6 /* libavformat.a in Frameworks */,
 				ABA141F32D2EF8E70040A4E6 /* libswresample.a in Frameworks */,
-				ABA141F52D2EF8E70040A4E6 /* libswscale.a in Frameworks */,
 				ABA141F82D2EF8E70040A4E6 /* libavutil.a in Frameworks */,
 				AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */,
 				AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */,
@@ -492,7 +484,7 @@
 		AB9FB56E1965DD7200D39647 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */,
+				AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */,
 				AB0527CE1D294732009A809B /* benchmark */,
 				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
 				ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */,
@@ -533,24 +525,16 @@
 		AB9FB5781965DD7200D39647 /* mdimporter */ = {
 			isa = PBXGroup;
 			children = (
-				AB9FB57E1965DD7200D39647 /* main.m */,
-				ABE72ED6294379D1005433DF /* GetMetadataForFile.h */,
-				AB9FB5801965DD7200D39647 /* GetMetadataForFile.m */,
+				AB1DAC6D2F4D201C006BB899 /* mdimporter-bridge.h */,
+				AB9FB57E1965DD7200D39647 /* main.c */,
+				AB429E6C2F537BC70097940F /* averror.swift */,
+				AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */,
 				AB9FB58C1965DF0700D39647 /* Info.plist */,
 				ABB1A29A1A1C358500EEF82B /* buildschema */,
 				ABE4610E1A15A519006C89A2 /* schema.strings */,
-				ABB1A29E1A1C392F00EEF82B /* Built Products */,
 			);
 			path = mdimporter;
 			sourceTree = "<group>";
-		};
-		ABB1A29E1A1C392F00EEF82B /* Built Products */ = {
-			isa = PBXGroup;
-			children = (
-				ABB1A29C1A1C392400EEF82B /* schema.xml */,
-			);
-			name = "Built Products";
-			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		ABCAEA331CDB899B004890E3 /* FFmpeg */ = {
 			isa = PBXGroup;
@@ -690,7 +674,7 @@
 			);
 			name = mdimporter;
 			productName = Video;
-			productReference = AB9FB56D1965DD7200D39647 /* QLVideo.mdimporter */;
+			productReference = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */;
 			productType = "com.apple.product-type.bundle";
 		};
 		ABE69D232D2A350700CE6C69 /* previewer */ = {
@@ -883,8 +867,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB9FB57F1965DD7200D39647 /* main.m in Sources */,
-				AB9FB5811965DD7200D39647 /* GetMetadataForFile.m in Sources */,
+				AB429E6D2F537BC70097940F /* averror.swift in Sources */,
+				AB9FB57F1965DD7200D39647 /* main.c in Sources */,
+				AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1297,7 +1282,8 @@
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
-				PRODUCT_NAME = QLVideo;
+				PRODUCT_NAME = "QLVideo Metadata";
+				SWIFT_OBJC_BRIDGING_HEADER = "mdimporter/mdimporter-bridge.h";
 				WRAPPER_EXTENSION = mdimporter;
 			};
 			name = Debug;
@@ -1311,7 +1297,8 @@
 				INSTALL_PATH = "${LOCAL_LIBRARY_DIR}/Spotlight";
 				LIBRARY_STYLE = BUNDLE;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apple.uk.org.marginal.qlvideo.mdimporter;
-				PRODUCT_NAME = QLVideo;
+				PRODUCT_NAME = "QLVideo Metadata";
+				SWIFT_OBJC_BRIDGING_HEADER = "mdimporter/mdimporter-bridge.h";
 				WRAPPER_EXTENSION = mdimporter;
 			};
 			name = Release;
