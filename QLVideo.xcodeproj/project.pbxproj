@@ -67,6 +67,7 @@
 		ABA141F82D2EF8E70040A4E6 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EF2D2EF8E70040A4E6 /* libavutil.a */; };
 		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
 		ABA142002D301E670040A4E6 /* ffmpeg in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EC0293A32B5005433DF /* ffmpeg */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA532352F5216B200E6EC43 /* CrashReportView.swift */; };
 		ABB17F932EEC687200733965 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */; };
@@ -299,6 +300,7 @@
 		ABA141F12D2EF8E70040A4E6 /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswresample.a; sourceTree = "<group>"; };
 		ABA141F22D2EF8E70040A4E6 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
 		ABA141FE2D3016480040A4E6 /* CoverArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArtView.swift; sourceTree = "<group>"; };
+		ABA532352F5216B200E6EC43 /* CrashReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportView.swift; sourceTree = "<group>"; };
 		ABB1A29A1A1C358500EEF82B /* buildschema */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 4; path = buildschema; sourceTree = "<group>"; };
 		ABB719E62924069600F13C24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogarithmicSlider.swift; sourceTree = "<group>"; };
@@ -535,6 +537,7 @@
 			children = (
 				AB49FB952923B5BB00B126C0 /* AppDelegate.swift */,
 				ABE72EB72938E008005433DF /* IssueView.swift */,
+				ABA532352F5216B200E6EC43 /* CrashReportView.swift */,
 				ABA141FE2D3016480040A4E6 /* CoverArtView.swift */,
 				ABE72EC2293D1DC6005433DF /* OldVersionView.swift */,
 				ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */,
@@ -1077,6 +1080,7 @@
 				ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */,
 				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
 				AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */,
+				ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */,
 				ABE72EC3293D1DC6005433DF /* OldVersionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
