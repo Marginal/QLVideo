@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -17,11 +17,13 @@
             <connections>
                 <outlet property="copyrightNote" destination="EvW-Wd-eNE" id="dQy-0Q-YOS"/>
                 <outlet property="coverArtWindow" destination="XG0-j0-Zcf" id="ZIl-iX-ru7"/>
+                <outlet property="crashReportWindow" destination="CrH-ur-CRW" id="nVh-hv-6fo"/>
                 <outlet property="issueWindow" destination="Gye-Xd-78R" id="7cO-cg-aw0"/>
                 <outlet property="mainWindow" destination="F0z-JX-Cv5" id="RVg-cO-eDi"/>
                 <outlet property="oldVersionWindow" destination="zsS-mw-BMN" id="j0y-Gp-kcH"/>
                 <outlet property="regenerateNote" destination="sv1-Bp-axZ" id="0YR-1j-FPp"/>
                 <outlet property="reindexingNote" destination="ha4-53-wyh" id="JJY-iA-orc"/>
+                <outlet property="reportIssue" destination="vHb-9r-BgU" id="jxS-BY-tMG"/>
                 <outlet property="snapshotTime" destination="Ao2-4O-GKj" id="Sov-Cd-Jnv"/>
                 <outlet property="snapshotTimeValue" destination="Bis-QH-2N5" id="wFb-WR-cEO"/>
                 <outlet property="versionLabel" destination="WiV-cU-uNQ" id="cnf-HG-6OG"/>
@@ -32,7 +34,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="450" height="336"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1409"/>
             <view key="contentView" wantsLayer="YES" id="se5-gp-TjO">
                 <rect key="frame" x="0.0" y="0.0" width="450" height="336"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -71,11 +73,11 @@
                         <rect key="frame" x="17" y="122" width="416" height="92"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="ZCh-Jt-Wbf">
-                            <rect key="frame" x="4" y="5" width="408" height="70"/>
+                            <rect key="frame" x="0.0" y="0.0" width="416" height="78"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OXU-VP-uhB">
-                                    <rect key="frame" x="10" y="44" width="107" height="18"/>
+                                    <rect key="frame" x="10" y="52" width="107" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" lineBreakMode="clipping" title="Snapshot" usesSingleLineMode="YES" id="fxY-dc-4ds">
                                         <font key="font" metaFont="system"/>
@@ -87,7 +89,7 @@
                                     </attributedString>
                                 </textField>
                                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ao2-4O-GKj" userLabel="Snapshot Time Slider" customClass="LogarithmicSlider" customModule="QuickLook_Video" customModuleProvider="target">
-                                    <rect key="frame" x="146" y="38" width="179" height="28"/>
+                                    <rect key="frame" x="146" y="46" width="179" height="28"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <string key="toolTip">The time at which to take a snapshot for thumbnails in Finder windows.
 Only for files that don't contain cover art.</string>
@@ -97,7 +99,7 @@ Only for files that don't contain cover art.</string>
                                     </connections>
                                 </slider>
                                 <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Bis-QH-2N5">
-                                    <rect key="frame" x="327" y="43" width="71" height="21"/>
+                                    <rect key="frame" x="335" y="51" width="71" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" usesSingleLineMode="YES" id="MsD-D8-m10">
                                         <font key="font" metaFont="system"/>
@@ -109,7 +111,7 @@ Only for files that don't contain cover art.</string>
                                     </attributedString>
                                 </textField>
                                 <button toolTip="Relaunch Finder and regenerate thumbnails." verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ChQ-Kj-tnn">
-                                    <rect key="frame" x="5" y="4" width="398" height="32"/>
+                                    <rect key="frame" x="5" y="12" width="398" height="32"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="push" title="Refresh" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KHh-sh-atU">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -285,7 +287,7 @@ Only for files that don't contain cover art.</string>
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="400" height="270"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1409"/>
             <view key="contentView" id="tVa-j8-h9O" customClass="IssueView" customModule="QuickLook_Video" customModuleProvider="target">
                 <rect key="frame" x="0.0" y="0.0" width="400" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -394,7 +396,7 @@ DQ
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="400" height="376"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1409"/>
             <view key="contentView" id="pUX-sv-842" userLabel="Cover Art View" customClass="CoverArtView" customModule="QuickLook_Video" customModuleProvider="target">
                 <rect key="frame" x="0.0" y="0.0" width="400" height="376"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -547,7 +549,7 @@ Leave empty to remove existing cover art.</string>
             <windowStyleMask key="styleMask" titled="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="400" height="270"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1409"/>
             <view key="contentView" id="Lyx-Zb-GPe" customClass="OldVersionView" customModule="QuickLook_Video" customModuleProvider="target">
                 <rect key="frame" x="0.0" y="0.0" width="400" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -610,9 +612,9 @@ DQ
                         </buttonCell>
                     </button>
                     <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HOM-gG-Uur">
-                        <rect key="frame" x="90" y="207" width="292" height="21"/>
+                        <rect key="frame" x="90" y="196" width="292" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" sendsActionOnEndEditing="YES" title="QuickLook Video would like to clean up old plugins" usesSingleLineMode="YES" id="R1n-Z4-BMI">
+                        <textFieldCell key="cell" enabled="NO" sendsActionOnEndEditing="YES" title="QuickLook Video would like to clean up old plugins" usesSingleLineMode="YES" id="R1n-Z4-BMI">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -632,6 +634,108 @@ DQ
                 <fragment content="Old plugins dialog: Window title"/>
             </attributedString>
             <point key="canvasLocation" x="257" y="-186"/>
+        </window>
+        <window title="Crash reports found" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="CrH-ur-CRW" userLabel="Crash Reports Found">
+            <windowStyleMask key="styleMask" titled="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="283" y="305" width="400" height="243"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1409"/>
+            <view key="contentView" id="CrV-Xg-View" customClass="CrashReportView" customModule="QuickLook_Video" customModuleProvider="target">
+                <rect key="frame" x="0.0" y="0.0" width="400" height="243"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CrI-icon">
+                        <rect key="frame" x="20" y="163" width="64" height="64"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSCaution" id="CrI-cell"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="NXb-ka-FDA">
+                        <rect key="frame" x="52" y="163" width="32" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSApplicationIcon" id="zG1-T3-hZm"/>
+                    </imageView>
+                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B16-bx-P61">
+                        <rect key="frame" x="102" y="170" width="280" height="43"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" title="There are some recent crash reports for this app's plugins " id="OoJ-wE-2Cu">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <attributedString key="userComments">
+                            <fragment content="Crash reports dialog"/>
+                        </attributedString>
+                    </textField>
+                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lED-vA-62U">
+                        <rect key="frame" x="18" y="133" width="364" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" title="A zip file has been placed on your Desktop:" id="IDd-WH-WPZ">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <attributedString key="userComments">
+                            <fragment content="Crash reports dialog"/>
+                        </attributedString>
+                    </textField>
+                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vAv-k5-NN8">
+                        <rect key="frame" x="18" y="109" width="364" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" id="lnc-D3-eWp">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hHt-68-DMw">
+                        <rect key="frame" x="18" y="77" width="364" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" title="Please attach it to your GitHub issue." id="UQZ-am-M7w">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <attributedString key="userComments">
+                            <fragment content="Crash reports dialog"/>
+                        </attributedString>
+                    </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CrB-ok">
+                        <rect key="frame" x="316" y="10" width="64" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CrB-ok-cell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <attributedString key="userComments">
+                            <fragment content="Crash reports dialog"/>
+                        </attributedString>
+                        <connections>
+                            <action selector="okWithSender:" target="CrV-Xg-View" id="CrB-ok-action"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CrB-reveal">
+                        <rect key="frame" x="184" y="10" width="120" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="push" title="Reveal in Finder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CrB-reveal-cell">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <attributedString key="userComments">
+                            <fragment content="Crash reports dialog"/>
+                        </attributedString>
+                        <connections>
+                            <action selector="revealInFinderWithSender:" target="CrV-Xg-View" id="CrB-reveal-action"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <connections>
+                    <outlet property="fileLabel" destination="vAv-k5-NN8" id="jD7-VZ-aBP"/>
+                </connections>
+            </view>
+            <attributedString key="userComments">
+                <fragment content="Crash reports dialog: Window title"/>
+            </attributedString>
+            <point key="canvasLocation" x="-278" y="586.5"/>
         </window>
     </objects>
     <resources>

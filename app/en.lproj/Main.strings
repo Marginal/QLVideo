@@ -1,3 +1,6 @@
+/* Crash reports dialog (TextField: IDd-WH-WPZ) */
+"A zip file has been placed on your Desktop:" = "A zip file has been placed on your Desktop:";
+
 /* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
 "Add" = "Add";
 
@@ -18,6 +21,9 @@
 
 /* Guidance note in cover art dialog (TextField: X7T-Dc-xUC) */
 "Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file." = "Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file.";
+
+/* Crash reports dialog: Window title (Window: CrH-ur-CRW) */
+"Crash reports found" = "Crash reports found";
 
 /* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
 "Drop a problematic video file here" = "Drop a problematic video file here";
@@ -43,8 +49,14 @@
 /* Generating a bug report: Guidance note (TextField: dCn-U3-hOJ) */
 "Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission." = "Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission.";
 
+/* Crash reports dialog (Button: CrB-ok-cell) */
+"OK" = "OK";
+
 /* Old plugins dialog: Window title (Window: zsS-mw-BMN) */
 "Old version detected" = "Old version detected";
+
+/* Crash reports dialog (TextField: UQZ-am-M7w) */
+"Please attach it to your GitHub issue." = "Please attach it to your GitHub issue.";
 
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "QuickLook Video Help";
@@ -64,11 +76,17 @@
 /* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
 "Report an Issue" = "Report an Issue";
 
+/* Crash reports dialog (Button: CrB-reveal-cell) */
+"Reveal in Finder" = "Reveal in Finder";
+
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Snapshot";
 
 /* Old plugins dialog: Guidance note (TextField: elO-ga-k4P) */
 "There are older versions of the QuickLook and Spotlight plugins that this app supplies installed on your Mac.\nThese may prevent Finder from showing thumbails and metadata for your video files.\n\nPress Help for advice on how to delete these older plugins." = "There are older versions of the QuickLook and Spotlight plugins that this app supplies installed on your Mac.\nThese may prevent Finder from showing thumbails and metadata for your video files.\n\nPress Help for advice on how to delete these older plugins.";
+
+/* Crash reports dialog (TextField: OoJ-wE-2Cu) */
+"There are some recent crash reports for this app's plugins " = "There are some recent crash reports for this app's plugins ";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Thumbnails";

@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import OSLog
 
 class IssueView: NSView {
 
@@ -19,12 +20,13 @@ class IssueView: NSView {
         // Reformat list items in advice
         let style = NSMutableParagraphStyle()
         style.headIndent = NSAttributedString(string: " • ", attributes: [.font: advice.font!]).size().width
-        advice.attributedStringValue = NSAttributedString.init(
+        advice.attributedStringValue = NSAttributedString(
             string: advice.stringValue.replacingOccurrences(of: "\n- ", with: "\n • "),
             attributes: [
                 .font: advice.font!,
                 .paragraphStyle: style,
-            ])
+            ]
+        )
     }
 
     @IBAction func dismessReport(sender: NSButton) {
@@ -46,6 +48,10 @@ class IssueView: NSView {
         }
         var report =
             "Your description of the problem here!\n\n\n---\nQLVideo: \(version)\nmacOS: \(macOS)\nHardware: \(hardware)\n"
+        report.append("Previewer: \(pluginstatus(id: "com.apple.uk.org.marginal.qlvideo.previewer") ?? "Not found")\n")
+        report.append("Thumbnailer: \(pluginstatus(id: "com.apple.uk.org.marginal.qlvideo.thumbnailer") ?? "Not found")\n")
+        report.append("Media Formats: \(pluginstatus(id: "uk.org.marginal.qlvideo.formatreader") ?? "Not found")\n")
+        report.append("Media Codecs: \(pluginstatus(id: "uk.org.marginal.qlvideo.videodecoder") ?? "Not found")\n")
 
         // limit to one file to try to avoid hitting GitHub POST character limit
         for filenum in 0..<1 {
@@ -53,7 +59,7 @@ class IssueView: NSView {
             let videofile = files[filenum]
             do {
                 try filereport.append(
-                    "mdimport: \(helper("/usr/bin/mdimport", args: ["-n", "-d1"] + [videofile]).replacingOccurrences(of: "\n", with: " "))\n"
+                    "Spotlight: \(helper("/usr/bin/mdimport", args: ["-n", "-d1"] + [videofile]).replacingOccurrences(of: "\n", with: " "))\n"
                 )
             } catch {
                 filereport.append("mdimport: \(error)\n")
@@ -67,10 +73,12 @@ class IssueView: NSView {
             }
             filereport = filereport.replacingOccurrences(
                 of: videofile,
-                with: "*file*.\(NSString(string: videofile).pathExtension)")
+                with: "*file*.\(NSString(string: videofile).pathExtension)"
+            )
             report.append("\(filereport)\n")
         }
 
+        // https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue#creating-an-issue-from-a-url-query
         var url: URL
         if let encoded = report.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
             url = URL(string: "https://github.com/Marginal/QLVideo/issues/new?body=".appending(encoded))!
@@ -82,6 +90,10 @@ class IssueView: NSView {
         reset()
         let delegate = NSApp.delegate as! AppDelegate
         delegate.mainWindow.endSheet(self.window!)
+
+        if let crashZip = lookForCrashes() {
+            delegate.showCrashReport(filePath: crashZip)
+        }
     }
 
     func reset() {
@@ -107,8 +119,9 @@ class IssueDropTarget: NSImageView {
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         if let items = sender.draggingPasteboard.readObjects(
-            forClasses: [NSURL.self], options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true])
-        {
+            forClasses: [NSURL.self],
+            options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true]
+        ) {
             for item in items {
                 let path = (item as! NSURL).path
                 if path != nil {
@@ -124,4 +137,104 @@ class IssueDropTarget: NSImageView {
         }
         return false
     }
+}
+
+func pluginstatus(id: String) -> String? {
+    do {
+        let status = try helper("/usr/bin/pluginkit", args: ["-Ami", id])
+        let regex = try NSRegularExpression(pattern: "(.)\\s+([a-z\\.]+)\\(([0-9\\.]+)\\)", options: [])
+        if let match = regex.firstMatch(in: status, options: [], range: NSRange(status.startIndex..., in: status)) {
+            let version = (status as NSString).substring(with: match.range(at: 3))
+            switch (status as NSString).substring(with: match.range(at: 1)) {
+            case "!": return "\(version) debug"
+            case "+": return "\(version) enabled"
+            case "-": return "\(version) disabled"
+            case "=": return "\(version) superseded"
+            case " ": return "\(version)"  // Older versions of macOS didn't show status
+            default: return "\(version) unknown"
+            }
+        }
+        return nil
+    } catch {
+        return nil
+    }
+}
+
+// Look in ~/Library/Logs/DiagnosticReports for recent crash reports involving our plugins/extensions and, if found,
+// zip them up and return the zip file path so the user can attach them to the issue.
+func lookForCrashes() -> URL? {
+    let logger = (NSApp.delegate as! AppDelegate).logger
+    let fm = FileManager.default
+    let crashDir = fm.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/DiagnosticReports")
+    let appVersion = Bundle.main.infoDictionary!["CFBundleVersion"] as! String
+    let isoFormatter = ISO8601DateFormatter()
+    isoFormatter.formatOptions = [.withInternetDateTime, .withSpaceBetweenDateAndTime, .withFractionalSeconds]
+
+    guard
+        let entries = try? fm.contentsOfDirectory(
+            at: crashDir,
+            includingPropertiesForKeys: [],
+            options: [.skipsPackageDescendants, .skipsSubdirectoryDescendants, .skipsHiddenFiles]
+        )
+    else {
+        return nil
+    }
+
+    var latest: [String: (date: Date, url: URL)] = [:]  // bundleId: (date of crash, url of report)
+
+    for url in entries {
+        guard url.pathExtension.lowercased() == "ips",
+            let text = try? String(contentsOf: url, encoding: .utf8),
+            let split = text.range(of: "}\n{")
+        else { continue }
+
+        let firstJSON = String(text[...split.lowerBound])
+        let secondJSON = String(text[text.index(before: split.upperBound)...])
+
+        guard let firstData = firstJSON.data(using: .utf8),
+            let secondData = secondJSON.data(using: .utf8),
+            let firstObj = try? JSONSerialization.jsonObject(with: firstData) as? [String: Any],
+            let secondObj = try? JSONSerialization.jsonObject(with: secondData) as? [String: Any],
+            let timestamp = firstObj["timestamp"] as? String,
+            let crashDate = isoFormatter.date(from: timestamp),
+            let usedImages = secondObj["usedImages"] as? [[String: Any]]
+        else { continue }
+
+        for image in usedImages {
+            guard let bundleId = image["CFBundleIdentifier"] as? String,
+                bundleId.contains("uk.org.marginal.qlvideo"),
+                let bundleVersion = image["CFBundleVersion"] as? String,
+                bundleVersion == appVersion
+            else { continue }
+            // One of our plugins/extensions was potentially implicated in this crash
+            if let current = latest[bundleId] {
+                if crashDate > current.date { latest[bundleId] = (crashDate, url) }
+            } else {
+                latest[bundleId] = (crashDate, url)
+            }
+            break
+        }
+    }
+
+    let filesToZip = latest.values.map { $0.url }
+    guard !filesToZip.isEmpty else { return nil }
+
+    let stamp = { () -> String in
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = .current
+        df.dateFormat = "yy-MM-dd HH.mm.ss"
+        return df.string(from: Date())
+    }()
+    let zipURL = fm.homeDirectoryForCurrentUser
+        .appendingPathComponent("Desktop")
+        .appendingPathComponent("QLVideo Crashes \(stamp).zip")
+    do {
+        try? fm.removeItem(at: zipURL)
+        try helper("/usr/bin/zip", args: ["-j", zipURL.path] + filesToZip.map { $0.path })
+    } catch {
+        logger.error("zip failed: \(String(describing: error))")
+        return nil
+    }
+    return zipURL
 }
