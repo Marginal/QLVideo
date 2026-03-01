@@ -24,15 +24,12 @@
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EA2D2EF8CA0040A4E6 /* libdav1d.a */; };
+		AB42A0AA2F53D19A0097940F /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB42A0902F53D19A0097940F /* Snapshotter.m */; };
+		AB42A0AC2F53D19A0097940F /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB42A0902F53D19A0097940F /* Snapshotter.m */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AB57AACF2D344DDF00E785D8 /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */; };
 		AB70C90D2EF1C10500E30DCE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB70C90F2EF1C14D00E30DCE /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB70C90E2EF1C14D00E30DCE /* AVKit.framework */; };
-		AB748EDA2D349AEB001F6921 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
-		AB748EDC2D349AF4001F6921 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
-		AB748EDD2D349AF7001F6921 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
-		AB748EE02D349B02001F6921 /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
 		AB748EE92D34B0E5001F6921 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
 		AB748EEA2D34B0EA001F6921 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
 		AB748EEB2D34B0EE001F6921 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
@@ -45,10 +42,6 @@
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */; };
 		ABA141BB2D2EE41B0040A4E6 /* libdav1d.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; };
 		ABA141BF2D2EE47E0040A4E6 /* libdav1d.7.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		ABA141CF2D2EE49D0040A4E6 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
-		ABA141D02D2EE49D0040A4E6 /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
-		ABA141D12D2EE49D0040A4E6 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
-		ABA141D22D2EE49D0040A4E6 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
 		ABA141D52D2EE49D0040A4E6 /* libswresample.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.6.dylib */; };
 		ABA141D62D2EE49D0040A4E6 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
 		ABA141D72D2EE49D0040A4E6 /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
@@ -153,26 +146,12 @@
 			remoteGlobalIDString = AB49FB6E2922769F00B126C0;
 			remoteInfo = "QuickLook Video";
 		};
-		AB748EE12D349B1D001F6921 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
-			remoteInfo = ffmpeg;
-		};
 		AB823D342ECB991F00F0E1D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AB823D2E2ECB991F00F0E1D3;
 			remoteInfo = formatreader;
-		};
-		ABE69DBB2D2C6DEB00CE6C69 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
-			remoteInfo = ffmpeg;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -257,11 +236,12 @@
 		AB17CCF4291E954B002A80AB /* include */ = {isa = PBXFileReference; lastKnownFileType = text; name = include; path = universal/include; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB1DAC6D2F4D201C006BB899 /* mdimporter-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "mdimporter-bridge.h"; sourceTree = "<group>"; };
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		AB42A08F2F53D19A0097940F /* Snapshotter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Snapshotter.h; sourceTree = "<group>"; };
+		AB42A0902F53D19A0097940F /* Snapshotter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Snapshotter.m; sourceTree = "<group>"; };
 		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/schema.strings"; sourceTree = "<group>"; };
-		AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "QLVideo Thumbnailer.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB5C5AAB2EDE0E0B00AD8A97 /* simpleplayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = simpleplayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB70C90E2EF1C14D00E30DCE /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
@@ -320,7 +300,6 @@
 		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		ABE23BD91D2591F8004E9D26 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		ABE4610F1A15A519006C89A2 /* en */ = {isa = PBXFileReference; explicitFileType = text.plist.strings; name = en; path = en.lproj/schema.strings; sourceTree = "<group>"; };
-		ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "QLVideo Previewer.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EA0293448AF005433DF /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Main.strings; sourceTree = "<group>"; };
 		ABE72EA1293448B3005433DF /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Main.strings; sourceTree = "<group>"; };
 		ABE72EA2293448B6005433DF /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Main.strings; sourceTree = "<group>"; };
@@ -366,20 +345,6 @@
 			);
 			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
 		};
-		AB748F1A2D354CFE001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Snapshotter.m,
-			);
-			target = AB57AACD2D344DDF00E785D8 /* thumbnailer */;
-		};
-		AB748F722D35509F001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Snapshotter.m,
-			);
-			target = AB49FB6E2922769F00B126C0 /* QuickLook Video */;
-		};
 		AB823D3B2ECB991F00F0E1D3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -387,35 +352,12 @@
 			);
 			target = AB823D2E2ECB991F00F0E1D3 /* formatreader */;
 		};
-		ABA53BFE2D37F38A0040C621 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = AB57AACD2D344DDF00E785D8 /* thumbnailer */;
-		};
-		ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = ABE69D232D2A350700CE6C69 /* previewer */;
-		};
-		ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Snapshotter.m,
-			);
-			target = AB0527CD1D294732009A809B /* benchmark */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AB0049872F2143CE0054D7B0 /* videodecoder */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB0049912F2143CE0054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = videodecoder; sourceTree = "<group>"; };
 		AB5C5AAC2EDE0E0B00AD8A97 /* simpleplayer */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = simpleplayer; sourceTree = "<group>"; };
-		AB748F162D354C5A001F6921 /* thumbnailer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (ABA53BFE2D37F38A0040C621 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = thumbnailer; sourceTree = "<group>"; };
 		AB823D302ECB991F00F0E1D3 /* formatreader */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB1DACD32F4D251B006BB899 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB823D3B2ECB991F00F0E1D3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB004A162F22B1B80054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = formatreader; sourceTree = "<group>"; };
-		ABE69D262D2A350700CE6C69 /* previewer */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB748F722D35509F001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69D332D2A350700CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB748F1A2D354CFE001F6921 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ABE69E062D2DA44B00CE6C69 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = previewer; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -459,18 +401,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB57AACB2D344DDF00E785D8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB57AACF2D344DDF00E785D8 /* QuickLookThumbnailing.framework in Frameworks */,
-				AB748EDA2D349AEB001F6921 /* libavcodec.62.dylib in Frameworks */,
-				AB748EDC2D349AF4001F6921 /* libavformat.62.dylib in Frameworks */,
-				AB748EDD2D349AF7001F6921 /* libavutil.60.dylib in Frameworks */,
-				AB748EE02D349B02001F6921 /* libswscale.9.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB5C5AA82EDE0E0B00AD8A97 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -510,17 +440,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		ABE69D212D2A350700CE6C69 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				ABA141CF2D2EE49D0040A4E6 /* libavcodec.62.dylib in Frameworks */,
-				ABA141D22D2EE49D0040A4E6 /* libavformat.62.dylib in Frameworks */,
-				ABA141D12D2EE49D0040A4E6 /* libavutil.60.dylib in Frameworks */,
-				ABA141D02D2EE49D0040A4E6 /* libswscale.9.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -543,6 +462,8 @@
 				ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */,
 				ABE72EB42937FAE4005433DF /* Main.xib */,
 				AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */,
+				AB42A08F2F53D19A0097940F /* Snapshotter.h */,
+				AB42A0902F53D19A0097940F /* Snapshotter.m */,
 				ABB719E62924069600F13C24 /* Assets.xcassets */,
 				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */,
@@ -568,8 +489,6 @@
 				AB49FB70292276A000B126C0 /* app */,
 				AB0527CF1D294732009A809B /* benchmark */,
 				AB9FB5781965DD7200D39647 /* mdimporter */,
-				ABE69D262D2A350700CE6C69 /* previewer */,
-				AB748F162D354C5A001F6921 /* thumbnailer */,
 				AB823D302ECB991F00F0E1D3 /* formatreader */,
 				AB0049872F2143CE0054D7B0 /* videodecoder */,
 				AB5C5AAC2EDE0E0B00AD8A97 /* simpleplayer */,
@@ -584,8 +503,6 @@
 				AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */,
 				AB0527CE1D294732009A809B /* benchmark */,
 				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
-				ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */,
-				AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */,
 				AB823D2F2ECB991F00F0E1D3 /* QLVideo Formats.appex */,
 				AB5C5AAB2EDE0E0B00AD8A97 /* simpleplayer.app */,
 				AB0049862F2143CE0054D7B0 /* QLVideo Codecs.appex */,
@@ -774,29 +691,6 @@
 			productReference = AB49FB6F2922769F00B126C0 /* QuickLook Video.app */;
 			productType = "com.apple.product-type.application";
 		};
-		AB57AACD2D344DDF00E785D8 /* thumbnailer */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AB57AAD92D344DDF00E785D8 /* Build configuration list for PBXNativeTarget "thumbnailer" */;
-			buildPhases = (
-				AB57AACA2D344DDF00E785D8 /* Sources */,
-				AB57AACB2D344DDF00E785D8 /* Frameworks */,
-				AB57AACC2D344DDF00E785D8 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AB748EE22D349B1D001F6921 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AB748F162D354C5A001F6921 /* thumbnailer */,
-			);
-			name = thumbnailer;
-			packageProductDependencies = (
-			);
-			productName = thumbnailer;
-			productReference = AB57AACE2D344DDF00E785D8 /* QLVideo Thumbnailer.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		AB5C5AAA2EDE0E0B00AD8A97 /* simpleplayer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AB5C5AB32EDE0E0C00AD8A97 /* Build configuration list for PBXNativeTarget "simpleplayer" */;
@@ -862,29 +756,6 @@
 			productReference = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */;
 			productType = "com.apple.product-type.bundle";
 		};
-		ABE69D232D2A350700CE6C69 /* previewer */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = ABE69D342D2A350700CE6C69 /* Build configuration list for PBXNativeTarget "previewer" */;
-			buildPhases = (
-				ABE69D202D2A350700CE6C69 /* Sources */,
-				ABE69D212D2A350700CE6C69 /* Frameworks */,
-				ABE69D222D2A350700CE6C69 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				ABE69D262D2A350700CE6C69 /* previewer */,
-			);
-			name = previewer;
-			packageProductDependencies = (
-			);
-			productName = previewer;
-			productReference = ABE69D242D2A350700CE6C69 /* QLVideo Previewer.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -898,17 +769,11 @@
 					AB0049852F2143CE0054D7B0 = {
 						CreatedOnToolsVersion = 26.2;
 					};
-					AB57AACD2D344DDF00E785D8 = {
-						CreatedOnToolsVersion = 16.2;
-					};
 					AB5C5AAA2EDE0E0B00AD8A97 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
 					AB823D2E2ECB991F00F0E1D3 = {
 						CreatedOnToolsVersion = 26.1.1;
-					};
-					ABE69D232D2A350700CE6C69 = {
-						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -944,8 +809,6 @@
 			targets = (
 				AB49FB6E2922769F00B126C0 /* QuickLook Video */,
 				AB9FB56C1965DD7200D39647 /* mdimporter */,
-				ABE69D232D2A350700CE6C69 /* previewer */,
-				AB57AACD2D344DDF00E785D8 /* thumbnailer */,
 				AB823D2E2ECB991F00F0E1D3 /* formatreader */,
 				AB0049852F2143CE0054D7B0 /* videodecoder */,
 				AB5C5AAA2EDE0E0B00AD8A97 /* simpleplayer */,
@@ -975,13 +838,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB57AACC2D344DDF00E785D8 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB5C5AA92EDE0E0B00AD8A97 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1002,13 +858,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABE461181A15A776006C89A2 /* schema.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ABE69D222D2A350700CE6C69 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1069,6 +918,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB0527D51D294751009A809B /* bench.m in Sources */,
+				AB42A0AC2F53D19A0097940F /* Snapshotter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1076,19 +926,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB42A0AA2F53D19A0097940F /* Snapshotter.m in Sources */,
 				ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */,
 				ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */,
 				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
 				AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */,
 				ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */,
 				ABE72EC3293D1DC6005433DF /* OldVersionView.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AB57AACA2D344DDF00E785D8 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1112,13 +956,6 @@
 			files = (
 				AB9FB57F1965DD7200D39647 /* main.c in Sources */,
 				AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ABE69D202D2A350700CE6C69 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1175,20 +1012,10 @@
 			target = AB49FB6E2922769F00B126C0 /* QuickLook Video */;
 			targetProxy = AB70C90B2EF1A35000E30DCE /* PBXContainerItemProxy */;
 		};
-		AB748EE22D349B1D001F6921 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
-			targetProxy = AB748EE12D349B1D001F6921 /* PBXContainerItemProxy */;
-		};
 		AB823D352ECB991F00F0E1D3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB823D2E2ECB991F00F0E1D3 /* formatreader */;
 			targetProxy = AB823D342ECB991F00F0E1D3 /* PBXContainerItemProxy */;
-		};
-		ABE69DBC2D2C6DEB00CE6C69 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
-			targetProxy = ABE69DBB2D2C6DEB00CE6C69 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1405,44 +1232,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
-			};
-			name = Release;
-		};
-		AB57AADA2D344DDF00E785D8 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
-				ENABLE_APP_SANDBOX = YES;
-				INFOPLIST_FILE = thumbnailer/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.thumbnailer;
-				PRODUCT_NAME = "QLVideo Thumbnailer";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "thumbnailer/thumbnailer-bridge.h";
-			};
-			name = Debug;
-		};
-		AB57AADB2D344DDF00E785D8 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = thumbnailer/thumbnailer.entitlements;
-				ENABLE_APP_SANDBOX = YES;
-				INFOPLIST_FILE = thumbnailer/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Video thumbnails";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.thumbnailer;
-				PRODUCT_NAME = "QLVideo Thumbnailer";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "thumbnailer/thumbnailer-bridge.h";
 			};
 			name = Release;
 		};
@@ -1756,54 +1545,6 @@
 			};
 			name = Release;
 		};
-		ABE69D352D2A350700CE6C69 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CODE_SIGN_ENTITLEMENTS = previewer/previewer.entitlements;
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
-				INFOPLIST_FILE = previewer/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Video previews";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.previewer;
-				PRODUCT_NAME = "QLVideo Previewer";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "previewer/previewer-bridge.h";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		ABE69D362D2A350700CE6C69 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CODE_SIGN_ENTITLEMENTS = previewer/previewer.entitlements;
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				INFOPLIST_FILE = previewer/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Video previews";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../../../Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.previewer;
-				PRODUCT_NAME = "QLVideo Previewer";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "previewer/previewer-bridge.h";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1852,15 +1593,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AB57AAD92D344DDF00E785D8 /* Build configuration list for PBXNativeTarget "thumbnailer" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AB57AADA2D344DDF00E785D8 /* Debug */,
-				AB57AADB2D344DDF00E785D8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		AB5C5AB32EDE0E0C00AD8A97 /* Build configuration list for PBXNativeTarget "simpleplayer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1902,15 +1634,6 @@
 			buildConfigurations = (
 				AB9FB58A1965DD7200D39647 /* Debug */,
 				AB9FB58B1965DD7200D39647 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		ABE69D342D2A350700CE6C69 /* Build configuration list for PBXNativeTarget "previewer" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				ABE69D352D2A350700CE6C69 /* Debug */,
-				ABE69D362D2A350700CE6C69 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
