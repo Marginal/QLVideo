@@ -6,6 +6,7 @@
 //
 
 import QuickLookUI
+import VideoToolbox
 import WebKit
 
 // Settings
@@ -61,7 +62,7 @@ func displayname(title: String, size: CGSize, duration: Int, channels: Int) -> S
 
 // created anew for each item previewed
 class PreviewViewController: NSViewController, QLPreviewingController, NSCollectionViewDataSource,
-    NSCollectionViewDelegateFlowLayout
+    NSCollectionViewDelegateFlowLayout, WKNavigationDelegate
 {
 
     let logger = Logger(subsystem: "uk.org.marginal.qlvideo", category: "previewer")
@@ -72,6 +73,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
     var images: [NSImage?] = []
     var timer: Timer? = nil
     var webViewVideoIsStopped: Bool = false
+    private var webViewLoaded: Bool = false
 
     @IBOutlet weak var sidebar: NSScrollView!
     @IBOutlet weak var sidebarCollection: NSCollectionView!
@@ -89,6 +91,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         snapshot.layer!.backgroundColor = .black  // CoreMedia previewer does this in Finder's Column & Gallery views
         sidebarCollection.backgroundColors = [.clear]
         sidebarCollection.register(NSNib(nibNamed: "SidebarItem", bundle: nil), forItemWithIdentifier: SidebarItem.identifier)
+        webView.navigationDelegate = self
     }
 
     func collectionView(_ collectionView: NSCollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -134,13 +137,14 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
     // returns MIME type for format&codec combinations that a webView will render in a <video> tag
     func webViewSupports(ext: String, codec: String?) -> String? {
         // av1 codec is only supported (in mp4/m4v only?) on M3 and later
+        let av1 = VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) && codec == "av1"  // M3 and later
         if codec == nil {
             return nil
-        } else if ext.caseInsensitiveCompare("webm") == .orderedSame && (codec == "vp8" || codec == "vp9") {
+        } else if ext.caseInsensitiveCompare("webm") == .orderedSame && (codec == "vp8" || codec == "vp9" || av1) {
             return "video/webm"
-        } else if ext.caseInsensitiveCompare("mp4") == .orderedSame && (codec == "h264" || codec == "hevc") {
+        } else if ext.caseInsensitiveCompare("mp4") == .orderedSame && (codec == "h264" || codec == "hevc" || av1) {
             return "video/mp4"
-        } else if ext.caseInsensitiveCompare("m4v") == .orderedSame && (codec == "h264" || codec == "hevc") {
+        } else if ext.caseInsensitiveCompare("m4v") == .orderedSame && (codec == "h264" || codec == "hevc" || av1) {
             return "video/x-m4v"
         }
         return nil
@@ -181,7 +185,10 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 )
             #endif
             throw NSError(
-                domain: "uk.org.marginal.qlvideo", code: -1, userInfo: [NSLocalizedFailureReasonErrorKey: "Failed to open"])
+                domain: "uk.org.marginal.qlvideo",
+                code: -1,
+                userInfo: [NSLocalizedFailureReasonErrorKey: "Failed to open"]
+            )
         }
         snapshotSize = snapshotter.previewSize
 
@@ -206,12 +213,14 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                             <source src="\(url.lastPathComponent)" type="\(mimeType)" />
                     </body>
                     </html>
-                    """, baseURL: url.deletingLastPathComponent())
+                    """,
+                    baseURL: url.deletingLastPathComponent()
+                )
                 preferredContentSize = size
                 return
             } else if let coverart = snapshotter.newCoverArt(
-                with: view.frame.width < kWindowHeightThreshhold ? .thumbnail : .default)
-            {
+                with: view.frame.width < kWindowHeightThreshhold ? .thumbnail : .default
+            ) {
                 snapshotSize = CGSize(width: coverart.width, height: coverart.height)
                 snapshot.image = NSImage(cgImage: coverart, size: .zero)
             } else {
@@ -245,15 +254,19 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                         )
                     #endif
                     throw NSError(
-                        domain: "uk.org.marginal.qlvideo", code: -1,
-                        userInfo: [NSLocalizedFailureReasonErrorKey: "Can't supply anything"])
+                        domain: "uk.org.marginal.qlvideo",
+                        code: -1,
+                        userInfo: [NSLocalizedFailureReasonErrorKey: "Can't supply anything"]
+                    )
                 }
             }
             setupPreview(.snapshot)
             snapshot.frame = NSRect(origin: CGPointZero, size: view.frame.size)
             // Fit to width
             preferredContentSize = NSSize(
-                width: view.frame.width, height: view.frame.width * snapshotSize.height / snapshotSize.width)
+                width: view.frame.width,
+                height: view.frame.width * snapshotSize.height / snapshotSize.width
+            )
             return
         }
 
@@ -263,8 +276,11 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
 
         // This doesn't actually do anything :(
         view.window?.title = displayname(
-            title: snapshotter.title ?? url.lastPathComponent, size: snapshotter.displaySize, duration: snapshotter.duration,
-            channels: Int(snapshotter.channels))
+            title: snapshotter.title ?? url.lastPathComponent,
+            size: snapshotter.displaySize,
+            duration: snapshotter.duration,
+            channels: Int(snapshotter.channels)
+        )
 
         // use WebView to load supported files
         if let mimeType = webViewSupports(ext: url.pathExtension, codec: snapshotter.videoCodec) {
@@ -279,8 +295,13 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                         <source src="\(url.lastPathComponent)" type="\(mimeType)" />
                 </body>
                 </html>
-                """, baseURL: url.deletingLastPathComponent())
+                """,
+                baseURL: url.deletingLastPathComponent()
+            )
             preferredContentSize = NSSize(width: snapshotSize.width, height: snapshotSize.height)
+            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+                self?.checkVisibility()
+            }
             return
         }
 
@@ -301,8 +322,8 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
         for i in 0..<imageCount {
             if let image = snapshotter.newSnapshot(
                 with: snapshotSize,
-                atTime: snapshotter.duration < kMinimumDuration ? -1 : snapshotter.duration * (i + 1) / (imageCount + 1))
-            {
+                atTime: snapshotter.duration < kMinimumDuration ? -1 : snapshotter.duration * (i + 1) / (imageCount + 1)
+            ) {
                 images.append(NSImage(cgImage: image, size: .zero))
             } else if i == 0 {
                 // Failed. Try again at start.
@@ -336,7 +357,9 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
                 )
             #endif
             throw NSError(
-                domain: "uk.org.marginal.qlvideo", code: -1, userInfo: [NSLocalizedFailureReasonErrorKey: "Can't supply anything"]
+                domain: "uk.org.marginal.qlvideo",
+                code: -1,
+                userInfo: [NSLocalizedFailureReasonErrorKey: "Can't supply anything"]
             )
         } else if images.count == 1 {
             setupPreview(.snapshot)
@@ -348,20 +371,24 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
             snapshot.image = images[0]
             if snapshotSize.width / snapshotSize.height > 4.0 / 3.0 {
                 (sidebarCollection.collectionViewLayout as! NSCollectionViewFlowLayout).itemSize = CGSize(
-                    width: 170, height: 10 + 160 * snapshotSize.height / snapshotSize.width)
+                    width: 170,
+                    height: 10 + 160 * snapshotSize.height / snapshotSize.width
+                )
             } else {
                 (sidebarCollection.collectionViewLayout as! NSCollectionViewFlowLayout).itemSize = CGSize(
-                    width: 10 + 120 * snapshotSize.width / snapshotSize.height, height: 130)
+                    width: 10 + 120 * snapshotSize.width / snapshotSize.height,
+                    height: 130
+                )
             }
             preferredContentSize = NSSize(width: snapshotSize.width + sidebar.frame.width, height: snapshotSize.height)
             sidebarCollection.reloadData()
         }
     }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            self?.checkVisibility()
-        }
+
+    override func viewWillDisappear() {
+        logger.debug("viewWillDisappear loaded=\(self.webViewLoaded)")
+        webViewVideoIsStopped = true
+        evaluateJS("document.querySelectorAll('video').forEach(v => v.pause());")
     }
 
     func checkVisibility() {
@@ -369,7 +396,7 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
             pauseVideo()
             return
         }
-        
+
         if window.level.rawValue > NSWindow.Level.normal.rawValue {
             if webViewVideoIsStopped {
                 resumeVideoIfNeeded()
@@ -380,24 +407,50 @@ class PreviewViewController: NSViewController, QLPreviewingController, NSCollect
     }
 
     func pauseVideo() {
+        logger.debug("pauseVideo loaded=\(self.webViewLoaded)")
         webViewVideoIsStopped = true
-        webView.evaluateJavaScript("document.querySelectorAll('video').forEach(v => v.pause());")
+        evaluateJS("document.querySelectorAll('video').forEach(v => v.pause());")
     }
 
     func resumeVideoIfNeeded() {
+        logger.debug("resumeVideoIfNeeded loaded=\(self.webViewLoaded)")
         webViewVideoIsStopped = false
         let js = """
-            document.querySelectorAll('video').forEach(video => {
-                video.currentTime = 0;
-                video.play().catch(e => {
-                    console.log('Play interrupted:', e);
+                document.querySelectorAll('video').forEach(video => {
+                    video.play().catch(e => {
+                        console.log('Play interrupted:', e);
+                    });
                 });
-            });
-        """
-        webView.evaluateJavaScript(js)
+            """
+        evaluateJS(js)
     }
 
     deinit {
         timer?.invalidate()
+    }
+
+    // MARK: - Web view helpers
+    private func evaluateJS(_ script: String) {
+        guard webViewLoaded else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.webViewLoaded else { return }
+            self.webView.evaluateJavaScript(script) { _, error in
+                if let error {
+                    self.logger.debug("evaluateJavaScript failed: \(error.localizedDescription, privacy: .public)")
+                }
+            }
+        }
+    }
+
+    // MARK: - WKNavigationDelegate
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        logger.debug("webView didFinish navigation webViewLoaded=\(self.webViewLoaded)")
+        webViewLoaded = true
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        // Weirdly this is called when the video loads successfully
+        logger.debug("webView didFail navigation webViewLoaded=\(self.webViewLoaded)")
+        webViewLoaded = true
     }
 }
