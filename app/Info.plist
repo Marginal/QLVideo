@@ -350,7 +350,7 @@
 				<string>public.audio</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Monkey's Audio</string>
+			<string>Monkey&apos;s Audio</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.monkeysaudio.ape</string>
 			<key>UTTypeReferenceURL</key>

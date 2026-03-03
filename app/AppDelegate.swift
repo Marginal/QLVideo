@@ -38,7 +38,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var issueWindow: NSWindow!
     @IBOutlet var crashReportWindow: NSWindow!
     @IBOutlet var coverArtWindow: NSWindow!
-    @IBOutlet var oldVersionWindow: NSWindow!
 
     var defaults: UserDefaults?
     var logger = Logger(subsystem: "uk.org.marginal.qlvideo", category: "app")
