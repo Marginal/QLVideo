@@ -72,7 +72,6 @@
 		ABE72EB22937FAE4005433DF /* Main.xib in Resources */ = {isa = PBXBuildFile; fileRef = ABE72EB42937FAE4005433DF /* Main.xib */; };
 		ABE72EB82938E008005433DF /* IssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE72EB72938E008005433DF /* IssueView.swift */; };
 		ABE72EC1293A32F2005433DF /* ffprobe in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EBC29392EEB005433DF /* ffprobe */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		ABE72EC3293D1DC6005433DF /* OldVersionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE72EC2293D1DC6005433DF /* OldVersionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -318,7 +317,6 @@
 		ABE72EB72938E008005433DF /* IssueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueView.swift; sourceTree = "<group>"; };
 		ABE72EBC29392EEB005433DF /* ffprobe */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ffprobe; path = universal/bin/ffprobe; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EC0293A32B5005433DF /* ffmpeg */ = {isa = PBXFileReference; lastKnownFileType = text; name = ffmpeg; path = universal/bin/ffmpeg; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABE72EC2293D1DC6005433DF /* OldVersionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldVersionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -458,7 +456,6 @@
 				ABE72EB72938E008005433DF /* IssueView.swift */,
 				ABA532352F5216B200E6EC43 /* CrashReportView.swift */,
 				ABA141FE2D3016480040A4E6 /* CoverArtView.swift */,
-				ABE72EC2293D1DC6005433DF /* OldVersionView.swift */,
 				ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */,
 				ABE72EB42937FAE4005433DF /* Main.xib */,
 				AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */,
@@ -932,7 +929,6 @@
 				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
 				AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */,
 				ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */,
-				ABE72EC3293D1DC6005433DF /* OldVersionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1244,7 +1240,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = simpleplayer/simpleplayer.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1274,7 +1269,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = simpleplayer/simpleplayer.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
