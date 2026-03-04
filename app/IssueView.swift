@@ -5,8 +5,10 @@
 //  Created by Jonathan Harris on 01/12/2022.
 //
 
+import AVFoundation
 import Cocoa
 import OSLog
+import QuickLookThumbnailing
 
 class IssueView: NSView {
 
@@ -14,7 +16,9 @@ class IssueView: NSView {
     @IBOutlet weak var advice: NSTextField!
     @IBOutlet weak var sendButton: NSButton!
 
-    var files: [String] = []
+    var videoFile: URL?
+    var thumbnailStatus: String?
+    var playableStatus: String?
 
     override func awakeFromNib() {
         // Reformat list items in advice
@@ -47,36 +51,42 @@ class IssueView: NSView {
             hardware = hardware + " avx2=\(sysCtl("hw.optional.avx2_0")) avx512f=\(sysCtl("hw.optional.avx512f"))"
         }
         var report =
-            "Your description of the problem here!\n\n\n---\nQLVideo: \(version)\nmacOS: \(macOS)\nHardware: \(hardware)\n"
+            "*Your description of the problem here!*\n\n\n---\nQuickLook Video \(version)\nmacOS: \(macOS)\nHardware: \(hardware)\n"
         report.append("Previewer: \(pluginstatus(id: "com.apple.uk.org.marginal.qlvideo.previewer") ?? "Not found")\n")
         report.append("Thumbnailer: \(pluginstatus(id: "com.apple.uk.org.marginal.qlvideo.thumbnailer") ?? "Not found")\n")
         report.append("Media Formats: \(pluginstatus(id: "uk.org.marginal.qlvideo.formatreader") ?? "Not found")\n")
         report.append("Media Codecs: \(pluginstatus(id: "uk.org.marginal.qlvideo.videodecoder") ?? "Not found")\n")
 
-        // limit to one file to try to avoid hitting GitHub POST character limit
-        for filenum in 0..<1 {
-            var filereport = ""
-            let videofile = files[filenum]
-            do {
-                try filereport.append(
-                    "Spotlight: \(helper("/usr/bin/mdimport", args: ["-n", "-d1"] + [videofile]).replacingOccurrences(of: "\n", with: " "))\n"
-                )
-            } catch {
-                filereport.append("mdimport: \(error)\n")
-            }
-            do {
-                try filereport.append(
-                    "```json\n\(helper(Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!, args: ["-loglevel", "error", "-print_format", "json", "-show_entries", "stream=codec_type,codec_name,profile,codec_tag_string,sample_fmt,channel_layout,language,width,height,display_aspect_ratio,pix_fmt,color_range,color_primaries,color_trc,color_space,extradata_size:stream_disposition=default,attached_pic,timed_thumbnails:stream_side_data:chapter=start_time,end_time:format=format_name,duration,size,bit_rate,probe_score"] + [videofile]).replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "    ", with: "  "))```\n"
-                )
-            } catch {
-                filereport.append("ffprobe: \(error)\n")
-            }
-            filereport = filereport.replacingOccurrences(
-                of: videofile,
-                with: "*file*.\(NSString(string: videofile).pathExtension)"
+        var filereport = "\n\(videoFile!.path):\n"
+        if let type = try? videoFile?.resourceValues(forKeys: [.contentTypeKey]).contentType {
+            filereport.append(
+                "ContentType: '\(type.identifier)', subtype of 'public.audio'=\(type.isSubtype(of: UTType.audio) ? "yes" : "no"), subtype of 'public.movie'=\(type.isSubtype(of: UTType.movie) ? "yes" : "no")\n"
             )
-            report.append("\(filereport)\n")
+        } else {
+            filereport.append("ContentType: Unknown\n")
         }
+        filereport.append("Playable: \(playableStatus ?? "Unknown")\n")
+        filereport.append("Thumbnail: \(thumbnailStatus ?? "Unknown")\n")
+        do {
+            try filereport.append(
+                "Spotlight: \(helper("/usr/bin/mdimport", args: ["-n", "-d1"] + [videoFile!.path]).replacingOccurrences(of: "\n", with: " "))\n"
+            )
+        } catch {
+            filereport.append("Spotlight: \(error)\n")
+        }
+
+        do {
+            try filereport.append(
+                "```json\n\(helper(Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!, args: ["-loglevel", "error", "-print_format", "json", "-show_entries", "stream=codec_type,codec_name,profile,codec_tag_string,sample_fmt,channel_layout,language,width,height,display_aspect_ratio,pix_fmt,color_range,color_primaries,color_trc,color_space,extradata_size:stream_disposition=default,attached_pic,timed_thumbnails:stream_side_data:chapter=start_time,end_time:format=format_name,duration,size,bit_rate,probe_score"] + [videoFile!.path]).replacingOccurrences(of: "\n\n", with: "\n").replacingOccurrences(of: "    ", with: "  "))```\n"
+            )
+        } catch {
+            filereport.append("ffprobe: \(error)\n")
+        }
+        filereport = filereport.replacingOccurrences(
+            of: videoFile!.path,
+            with: "*file*.\(videoFile!.pathExtension)"
+        )
+        report.append("\(filereport)\n")
 
         // https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue#creating-an-issue-from-a-url-query
         var url: URL
@@ -97,7 +107,9 @@ class IssueView: NSView {
     }
 
     func reset() {
-        files = []
+        videoFile = nil
+        thumbnailStatus = nil
+        playableStatus = nil
         dropTarget.image = nil
         sendButton.isEnabled = false
     }
@@ -122,14 +134,53 @@ class IssueDropTarget: NSImageView {
             forClasses: [NSURL.self],
             options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true]
         ) {
+            parent.reset()
             for item in items {
-                let path = (item as! NSURL).path
-                if path != nil {
-                    parent.files.append(path!)
+                if let url = item as? NSURL {
+                    parent.videoFile = url as URL
+                    break
                 }
             }
-            if parent.files.count > 0 {
-                self.image = NSImage(named: "Document")
+
+            // Generate thumbnail and probe playability, which may provoke a plugin crash that we can report
+            if let url = parent.videoFile {
+                let request = QLThumbnailGenerator.Request(
+                    fileAt: url,
+                    size: CGSize(width: 128, height: 128),
+                    scale: NSScreen.main?.backingScaleFactor ?? 2.0,
+                    representationTypes: .thumbnail  // ask for thumbnail only, not icon or all
+                )
+                QLThumbnailGenerator.shared.generateBestRepresentation(for: request) { thumbnail, error in
+                    DispatchQueue.main.async {
+                        if let error {
+                            self.parent.thumbnailStatus = String(describing: error)
+                            self.image = NSImage(named: "Document")
+                        } else if let image = thumbnail?.nsImage {
+                            self.parent.thumbnailStatus = "Yes"
+                            self.image = image
+                        } else {
+                            self.parent.thumbnailStatus = "No"
+                            self.image = NSImage(named: "Document")
+                        }
+                    }
+                }
+
+                let asset = AVURLAsset(url: url)
+                Task {
+                    do {
+                        let playable = try await asset.load(.isPlayable)
+                        if let ext = asset.mediaExtensionProperties {
+                            self.parent.playableStatus = "With extension '\(ext.extensionName)'"
+                        } else if playable {
+                            self.parent.playableStatus = "Yes"
+                        } else {
+                            self.parent.playableStatus = "No"
+                        }
+                    } catch {
+                        self.parent.playableStatus = "Failed \(error.localizedDescription)"
+                    }
+                }
+
                 parent.sendButton.isEnabled = true
                 parent.sendButton.setAccessibilityFocused(true)
                 return true
@@ -148,7 +199,7 @@ func pluginstatus(id: String) -> String? {
             case "+": return "\(match.output.3) enabled"
             case "-": return "\(match.output.3) disabled"
             case "=": return "\(match.output.3) superseded"
-            case " ": return "\(match.output.3)"  // Older versions of macOS didn't show status
+            case " ": return "\(match.output.3)"  // Default - user has not explicitly enabled or disabled
             default: return "\(match.output.3) unknown"
             }
         }
