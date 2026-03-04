@@ -122,6 +122,7 @@ class FormatReader: NSObject, MEFormatReader {
                     "FormatReader can't read stream info from \(self.byteSource.fileName, privacy:.private(mask:.hash)): \(err.localizedDescription, privacy:.public)"
                 )
             #endif
+            if fmt_ctx != nil { avformat_close_input(&fmt_ctx) }
             return completionHandler(nil, err)
         }
 
@@ -132,6 +133,7 @@ class FormatReader: NSObject, MEFormatReader {
     }
 
     func loadMetadata(completionHandler: @escaping @Sendable ([AVMetadataItem]?, (any Error)?) -> Void) {
+        guard fmt_ctx != nil else { return completionHandler(nil, MEError(.parsingFailure)) }  // we can be called even if we couldn't open the file
         var metadata: [AVMetadataItem] = []
         var prev: UnsafeMutablePointer<AVDictionaryEntry>? = nil
         while let tag = av_dict_get(fmt_ctx!.pointee.metadata, "", prev, AV_DICT_IGNORE_SUFFIX) {
@@ -205,6 +207,7 @@ class FormatReader: NSObject, MEFormatReader {
     }
 
     func loadTrackReaders(completionHandler: @escaping @Sendable ([any METrackReader]?, (any Error)?) -> Void) {
+        guard fmt_ctx != nil else { return completionHandler(nil, MEError(.parsingFailure)) }  // we can be called even if we couldn't open the file
         var readers: [METrackReader] = []
         var decoder: UnsafePointer<AVCodec>?
         let besties: Set = [
