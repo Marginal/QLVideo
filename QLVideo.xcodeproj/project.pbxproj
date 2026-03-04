@@ -24,8 +24,6 @@
 		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
 		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EA2D2EF8CA0040A4E6 /* libdav1d.a */; };
-		AB42A0AA2F53D19A0097940F /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB42A0902F53D19A0097940F /* Snapshotter.m */; };
-		AB42A0AC2F53D19A0097940F /* Snapshotter.m in Sources */ = {isa = PBXBuildFile; fileRef = AB42A0902F53D19A0097940F /* Snapshotter.m */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB70C90D2EF1C10500E30DCE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
@@ -235,8 +233,6 @@
 		AB17CCF4291E954B002A80AB /* include */ = {isa = PBXFileReference; lastKnownFileType = text; name = include; path = universal/include; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB1DAC6D2F4D201C006BB899 /* mdimporter-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "mdimporter-bridge.h"; sourceTree = "<group>"; };
 		AB2ACD9D1A696F72002411DF /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		AB42A08F2F53D19A0097940F /* Snapshotter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Snapshotter.h; sourceTree = "<group>"; };
-		AB42A0902F53D19A0097940F /* Snapshotter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Snapshotter.m; sourceTree = "<group>"; };
 		AB49FB6F2922769F00B126C0 /* QuickLook Video.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QuickLook Video.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickLookVideo.entitlements; sourceTree = "<group>"; };
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -250,7 +246,6 @@
 		AB7C714819F8A6970006104E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = /usr/lib/libiconv.dylib; sourceTree = "<absolute>"; };
 		AB823D2F2ECB991F00F0E1D3 /* QLVideo Formats.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = "QLVideo Formats.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB8277781A7523F300F1D9F4 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/schema.strings; sourceTree = "<group>"; };
-		AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "snapshotter-bridge.h"; sourceTree = "<group>"; };
 		AB93B0B4196B839600708B2E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		AB93B0F7196CA60500708B2E /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		AB93B0F9196CA60500708B2E /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
@@ -294,6 +289,7 @@
 		ABC8EE0C29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		ABC8EE0D29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/schema.strings"; sourceTree = "<group>"; };
 		ABC8EE0F2932A92100F97C3C /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/schema.strings; sourceTree = "<group>"; };
+		ABD12FB42F5895BA00F69ECA /* app-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "app-bridge.h"; sourceTree = "<group>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -458,9 +454,7 @@
 				ABA141FE2D3016480040A4E6 /* CoverArtView.swift */,
 				ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */,
 				ABE72EB42937FAE4005433DF /* Main.xib */,
-				AB9096DD2D32BA5100930A8B /* snapshotter-bridge.h */,
-				AB42A08F2F53D19A0097940F /* Snapshotter.h */,
-				AB42A0902F53D19A0097940F /* Snapshotter.m */,
+				ABD12FB42F5895BA00F69ECA /* app-bridge.h */,
 				ABB719E62924069600F13C24 /* Assets.xcassets */,
 				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */,
@@ -915,7 +909,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB0527D51D294751009A809B /* bench.m in Sources */,
-				AB42A0AC2F53D19A0097940F /* Snapshotter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,7 +916,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB42A0AA2F53D19A0097940F /* Snapshotter.m in Sources */,
 				ABB71A0B29266D3000F13C24 /* LogarithmicSlider.swift in Sources */,
 				ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */,
 				ABE72EB82938E008005433DF /* IssueView.swift in Sources */,
@@ -1190,7 +1182,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "app/snapshotter-bridge.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "app/app-bridge.h";
 			};
 			name = Debug;
 		};
@@ -1213,7 +1205,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = NO;
-				SWIFT_OBJC_BRIDGING_HEADER = "app/snapshotter-bridge.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "app/app-bridge.h";
 			};
 			name = Release;
 		};

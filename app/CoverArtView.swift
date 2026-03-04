@@ -82,9 +82,15 @@ class CoverArtView: NSView {
                         realouturl = outurl
                         outurl =
                             ((try? FileManager.default.url(
-                                for: .itemReplacementDirectory, in: .userDomainMask, appropriateFor: savePanel.url, create: true))
+                                for: .itemReplacementDirectory,
+                                in: .userDomainMask,
+                                appropriateFor: savePanel.url,
+                                create: true
+                            ))
                             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)).appendingPathComponent(
-                                outurl.lastPathComponent, isDirectory: false)
+                                outurl.lastPathComponent,
+                                isDirectory: false
+                            )
                     }
 
                     #if DEBUG
@@ -137,13 +143,16 @@ class CoverArtView: NSView {
                 }
                 self.window?.close()
                 reset()
-            })
+            }
+        )
     }
 
     func reset() {
+        if videoFile != nil && (NSApp.delegate as! AppDelegate).isSandboxed { videoFile!.stopAccessingSecurityScopedResource() }
         videoFile = nil
         videoFileType = .unspecified
         videoFileHasCoverArt = false
+        if coverFile != nil && (NSApp.delegate as! AppDelegate).isSandboxed { coverFile!.stopAccessingSecurityScopedResource() }
         coverFile = nil
         coverFileType = .unspecified
         outcomes()
@@ -160,7 +169,9 @@ class CoverArtView: NSView {
         case .other:
             videoDropTarget.image = NSImage(named: NSImage.cautionName)
             videoStatus.stringValue = String(
-                localized: "File type does not support cover art", comment: "Error message in cover art dialog")
+                localized: "File type does not support cover art",
+                comment: "Error message in cover art dialog"
+            )
         case .unreadable:
             videoDropTarget.image = NSImage(named: NSImage.cautionName)
             videoStatus.stringValue = String(localized: "Not a video file", comment: "Error message in cover art dialog")
@@ -171,12 +182,14 @@ class CoverArtView: NSView {
             coverDropTarget.image = nil
             coverStatus.stringValue = String(
                 localized: "Drop file to use as cover art here.\nLeave empty to remove existing cover art.",
-                comment: "Prompt in cover art dialog")
+                comment: "Prompt in cover art dialog"
+            )
         case .png, .jpeg:
             // DropTarget image is filled in automatically
             coverStatus.stringValue = String(
                 localized: "Drop file to use as cover art here.\nLeave empty to remove existing cover art.",
-                comment: "Prompt in cover art dialog")
+                comment: "Prompt in cover art dialog"
+            )
         case .other:
             coverDropTarget.image = NSImage(named: NSImage.cautionName)
             coverStatus.stringValue = String(localized: "Not a JPEG or PNG file", comment: "Error message in cover art dialog")
@@ -221,81 +234,119 @@ class VideoDropTarget: NSImageView {
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        if let items = sender.draggingPasteboard.readObjects(
-            forClasses: [NSURL.self],
-            options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true])
-        {
-            if items.first != nil {
-                parent.videoFile = items.first as? URL
-                if let snapshotter = Snapshotter.init(url: parent.videoFile! as CFURL) {
-                    let fmt_ctx = snapshotter.fmt_ctx!.pointee
-                    if strcmp(fmt_ctx.iformat.pointee.name, "mov,mp4,m4a,3gp,3g2,mj2") == 0 {
-                        parent.videoFileType = .mp4
-                        if let brand = av_dict_get(fmt_ctx.metadata, "major_brand", nil, 0) {
-                            // ffmpeg doesn't allow cover art in .MOV files
-                            if strcmp(brand.pointee.value, "qt  ") == 0 {
-                                parent.videoFileType = .other
-                            }
-                        }
-                    } else if strcmp(
-                        fmt_ctx.iformat.pointee.name, "matroska,webm") == 0
-                    {
-                        parent.videoFileType = .mkv
-                    } else {
-                        parent.videoFileType = .other
-                    }
-                    // Which streams we want to keep
-                    parent.videoFileStreams = []
-                    for idx in 0..<Int(fmt_ctx.nb_streams) {
-                        let stream = fmt_ctx.streams[idx]!.pointee
-                        let fourcc = stream.codecpar.pointee.codec_tag
-                        if fourcc == 0x736d_7264 || fourcc == 0x696d_7264 || fourcc == 0x5741_5243 {
-                            // ffmpeg can't copy encryped streams "drms" & "drmi", or Canon CRAW
-                            parent.videoFileType = .other
-                            break
-                        } else if stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO
-                            && (stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS)
-                                != AV_DISPOSITION_ATTACHED_PIC)
-                        {
-                            // Video streams including timed thumbnails, but not cover art
-                            parent.videoFileStreams.append(idx)
-                        } else if stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_AUDIO
-                            || stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_SUBTITLE
-                            || stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_ATTACHMENT
-                        {
-                            // Audio, subtitles and attachments, but not opaque data (AVMEDIA_TYPE_DATA) which fmmpeg typically can't copy
-                            parent.videoFileStreams.append(idx)
-                        }
-                    }
-                    parent.videoFileHasCoverArt = false
-                    if [.mkv, .mp4].contains(parent.videoFileType) {
-                        if let coverart = snapshotter.newCoverArt(with: .thumbnail) {
-                            parent.videoFileHasCoverArt = true
-                            let coversize = NSSize(width: coverart.width, height: coverart.height)
-                            let cellsize = NSSize(
-                                width: parent.videoDropTarget.frame.width, height: parent.videoDropTarget.frame.height)
-                            var size = NSSize()
-                            if coversize.width / cellsize.width > coversize.height / cellsize.height {
-                                size = NSSize(
-                                    width: cellsize.width, height: round(coversize.height * cellsize.width / coversize.width))
-                            } else {
-                                size = NSSize(
-                                    width: round(coversize.width * cellsize.height / coversize.height), height: cellsize.height)
-                            }
-                            parent.videoDropTarget.image = NSImage(cgImage: coverart, size: size)
-                        } else {
-                            parent.videoDropTarget.image = NSImage(named: "Document")
-                        }
-                    }
-                    parent.outcomes()
-                    return true
+        guard
+            let items = sender.draggingPasteboard.readObjects(
+                forClasses: [NSURL.self],
+                options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true]
+            ), items.first != nil, let url = items.first as? NSURL
+        else {
+            parent.videoFileType = .unreadable
+            parent.outcomes()
+            return false
+        }
+
+        parent.videoFile = url as URL
+        var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
+        guard !(NSApp.delegate as! AppDelegate).isSandboxed || parent.videoFile!.startAccessingSecurityScopedResource(),
+            avformat_open_input(&fmt_ctx, parent.videoFile!.path, nil, nil) == 0,
+            avformat_find_stream_info(fmt_ctx, nil) == 0
+        else {
+            avformat_close_input(&fmt_ctx)
+            parent.videoFileType = .unreadable
+            parent.outcomes()
+            return true
+        }
+
+        if strcmp(fmt_ctx!.pointee.iformat.pointee.name, "mov,mp4,m4a,3gp,3g2,mj2") == 0 {
+            parent.videoFileType = .mp4
+            if let brand = av_dict_get(fmt_ctx!.pointee.metadata, "major_brand", nil, 0) {
+                // ffmpeg doesn't allow cover art in .MOV files
+                if strcmp(brand.pointee.value, "qt  ") == 0 || strcmp(brand.pointee.value, "3g") == 0 {
+                    parent.videoFileType = .other
                 }
-                parent.videoFileType = .unreadable
-                parent.outcomes()
-                return true
+            }
+        } else if strcmp(fmt_ctx!.pointee.iformat.pointee.name, "matroska,webm") == 0 {
+            parent.videoFileType = .mkv
+        } else {
+            parent.videoFileType = .other
+        }
+
+        // Which streams we want to keep
+        parent.videoFileStreams = []
+        for idx in 0..<Int(fmt_ctx!.pointee.nb_streams) {
+            let stream = fmt_ctx!.pointee.streams[idx]!.pointee
+            let fourcc = stream.codecpar.pointee.codec_tag
+            if fourcc == 0x736d_7264 || fourcc == 0x696d_7264 || fourcc == 0x5741_5243 {
+                // ffmpeg can't copy encryped streams "drms" & "drmi", or Canon CRAW
+                parent.videoFileType = .other
+                break
+            } else if (stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO)
+                && stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS)
+                    != AV_DISPOSITION_ATTACHED_PIC
+            {
+                // Video streams including timed thumbnails, but not cover art
+                parent.videoFileStreams.append(idx)
+            } else if stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_AUDIO
+                || stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_SUBTITLE
+                || stream.codecpar.pointee.codec_type == AVMEDIA_TYPE_ATTACHMENT
+            {
+                // Audio, subtitles and attachments, but not opaque data (AVMEDIA_TYPE_DATA) which fmmpeg typically can't copy
+                parent.videoFileStreams.append(idx)
             }
         }
-        return false
+
+        parent.videoFileHasCoverArt = false
+        if [.mkv, .mp4].contains(parent.videoFileType) {
+            // Find the best cover art stream.
+            var artStream = -1
+            var artPriority = 0
+            for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
+                guard let stream = fmt_ctx!.pointee.streams[i]?.pointee else { continue }
+                let params = stream.codecpar.pointee
+                if (params.codec_id == AV_CODEC_ID_PNG || params.codec_id == AV_CODEC_ID_MJPEG)
+                    // Depending on codec and ffmpeg version cover art may be represented as attachment or as additional video stream(s)
+                    && (params.codec_type == AVMEDIA_TYPE_ATTACHMENT
+                        || (params.codec_type == AVMEDIA_TYPE_VIDEO
+                            && ((stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS))
+                                == AV_DISPOSITION_ATTACHED_PIC)))
+                {
+                    // MKVs can contain multiple cover art - see https://www.matroska.org/technical/attachments.html
+                    let nameDict = av_dict_get(stream.metadata, "filename", nil, 0)
+                    let filename = nameDict != nil ? String(cString: nameDict!.pointee.value) : ""
+                    var priority = 1
+                    if filename.lowercased().hasPrefix("cover.") {
+                        priority = 4
+                    } else if filename.lowercased().hasPrefix("cover_land.") {
+                        priority = 3
+                    } else if filename.lowercased().hasPrefix("cover_small.") {
+                        priority = 2
+                    }
+                    if artPriority < priority  // Prefer first if multiple with same priority
+                    {
+                        artPriority = priority
+                        artStream = i
+                    }
+                }
+            }
+            if artStream >= 0 {
+                parent.videoFileHasCoverArt = true
+                let stream = fmt_ctx!.pointee.streams[artStream]!.pointee
+                let params = stream.codecpar.pointee
+                if stream.disposition & AV_DISPOSITION_ATTACHED_PIC != 0 {
+                    parent.videoDropTarget.image = NSImage(
+                        data: Data(bytes: stream.attached_pic.data, count: Int(stream.attached_pic.size))
+                    )
+                } else {  // attachment stream
+                    parent.videoDropTarget.image = NSImage(data: Data(bytes: params.extradata, count: Int(params.extradata_size)))
+                }
+            } else {
+                parent.videoDropTarget.image = NSImage(named: "Document")
+            }
+        }
+
+        avformat_close_input(&fmt_ctx)
+        parent.outcomes()
+        return true
     }
 }
 
@@ -313,30 +364,35 @@ class CoverDropTarget: NSImageView {
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        if let items = sender.draggingPasteboard.readObjects(
-            forClasses: [NSURL.self], options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true])
-        {
-            if items.first != nil {
-                parent.coverFile = items.first as? URL
-                if let json = try? helper(
-                    Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!,
-                    args: ["-loglevel", "quiet", "-of", "json=c=1", "-show_streams", parent.coverFile!.path]),
-                    let dictionary = try? JSONSerialization.jsonObject(with: Data(json.utf8), options: []) as? [String: Any],
-                    let streams = dictionary["streams"] as? [[String: Any]]
-                {
-                    if streams.count == 1 && ["png", "mjpeg"].contains(streams[0]["codec_name"] as? String) {
-                        parent.coverFileType = streams[0]["codec_name"] as! String == "png" ? .png : .jpeg
-                    } else {
-                        parent.coverFileType = .other
-                    }
-                    parent.outcomes()
-                    return true
-                }
-                parent.coverFileType = .unreadable
-                parent.outcomes()
-                return true
-            }
+        guard
+            let items = sender.draggingPasteboard.readObjects(
+                forClasses: [NSURL.self],
+                options: [NSPasteboard.ReadingOptionKey.urlReadingFileURLsOnly: true]
+            ), items.first != nil, let url = items.first as? NSURL
+        else {
+            parent.coverFileType = .unreadable
+            parent.outcomes()
+            return false
         }
-        return false
+
+        parent.coverFile = url as URL
+        if !(NSApp.delegate as! AppDelegate).isSandboxed || parent.coverFile!.startAccessingSecurityScopedResource(),
+            let json = try? helper(
+                Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!,
+                args: ["-loglevel", "quiet", "-of", "json=c=1", "-show_streams", parent.coverFile!.path]
+            ),
+            let dictionary = try? JSONSerialization.jsonObject(with: Data(json.utf8), options: []) as? [String: Any],
+            let streams = dictionary["streams"] as? [[String: Any]]
+        {
+            if streams.count == 1 && ["png", "mjpeg"].contains(streams[0]["codec_name"] as? String) {
+                parent.coverFileType = streams[0]["codec_name"] as! String == "png" ? .png : .jpeg
+            } else {
+                parent.coverFileType = .other
+            }
+        } else {
+            parent.coverFileType = .unreadable
+        }
+        parent.outcomes()
+        return true
     }
 }
