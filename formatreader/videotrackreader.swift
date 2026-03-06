@@ -11,9 +11,8 @@ import OSLog
 
 class VideoTrackReader: TrackReader, METrackReader {
 
-    // AVCodecParameters.codec_tag can be zero(!) so prefer .codec_id for common types known to AVFoundation
-    // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
 
+    // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
     static let supported: [AVCodecID: CMVideoCodecType] = [
         // Made up FourCCs that match those registered by our videodecoder in order to bypass CoreVideo
         AV_CODEC_ID_MPEG1VIDEO: 0x4d50_4731,  // 'MPG1' FFmpeg is more tolerant of poor encoding than CoreVideo
@@ -87,6 +86,16 @@ class VideoTrackReader: TrackReader, METrackReader {
     ]
 
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
+
+        // Three cases:
+        //   1. Codecs that Corevideo doesn't support e.g. DivX, Indeo, Cinepak etc, but that can appear in formats that it does
+        //      e.g. .avi, .mov: Use real fourcc so that our video decoder gets to decode it, reconstructing AVCodecParameters
+        //      from CMVideoFormatDescription extension in the video decoder as needed.
+        //   2. Other codecs that Corevideo doesn't support e.g. APV, VP6 etc: Doesn't really matter what fourcc we use, as long
+        //      as our video decoder registers for it: Use catchall as a fallback for codecs we don't explicitly enumerate.
+        //   3. Codecs that CoreVideo may or may not support e.g. AV1: Use real fourcc (kCMVideoCodecType_*) if
+        //      VTIsHardwareDecodeSupported says that its supported on this computer and if we can construct the sample description
+        //      atom that VideoToolkit requires for that codec, otherwise provide a fake fourcc and handle as for case 2.
 
         let params = stream.pointee.codecpar!
         guard params.pointee.codec_type == AVMEDIA_TYPE_VIDEO else {
