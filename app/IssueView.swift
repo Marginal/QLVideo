@@ -179,10 +179,9 @@ class IssueDropTarget: NSImageView {
                     } catch {
                         self.parent.playableStatus = "Failed \(error.localizedDescription)"
                     }
+                    parent.sendButton.isEnabled = true
+                    parent.sendButton.setAccessibilityFocused(true)
                 }
-
-                parent.sendButton.isEnabled = true
-                parent.sendButton.setAccessibilityFocused(true)
                 return true
             }
         }
