@@ -248,6 +248,24 @@
 			</dict>
 			<dict>
 				<key>CodecType</key>
+				<string>DIVX</string>
+				<key>CodecName</key>
+				<string>DivX</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>XVID</string>
+				<key>CodecName</key>
+				<string>DivX</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>DX50</string>
+				<key>CodecName</key>
+				<string>DivX</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
 				<string>QLV </string>
 				<key>CodecName</key>
 				<string>QuickLook Video</string>

@@ -33,7 +33,9 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         0x4956_3332: AV_CODEC_ID_INDEO3,  // 'IV32'
         0x4956_3431: AV_CODEC_ID_INDEO4,  // 'IV41'
         0x4956_3530: AV_CODEC_ID_INDEO5,  // 'IV50'
-
+        0x4449_5658: AV_CODEC_ID_MPEG4,  // 'DIVX'
+        0x5856_4944: AV_CODEC_ID_MPEG4,  // 'XVID'
+        0x4458_3530: AV_CODEC_ID_MPEG4,  // 'DX50'
     ]
 
     // Supported pixel formats for QuickTime animation. Non-paletised only.
@@ -124,12 +126,11 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 )
             }
         } else if let codecID = VideoDecoder.supported[codecType] {
-            // Didn't come from our formatreader, e.g. .avi or .mov. Try to decode anyway.
+            // Didn't come from our formatreader, e.g. from .avi or .mov. Try to decode anyway.
             let depth = videoFormatDescription.extensions[kCMFormatDescriptionExtension_Depth as CFString] as? NSNumber
             switch codecID {
             case AV_CODEC_ID_QTRLE:
-                if let depth, let pixFmt = VideoDecoder.animDepths[depth.intValue]
-                {
+                if let depth, let pixFmt = VideoDecoder.animDepths[depth.intValue] {
                     params.pointee.format = pixFmt.rawValue
                     params.pointee.color_range = AVCOL_RANGE_JPEG
                 } else {
@@ -162,6 +163,49 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                             0x53, 0x4d, 0x49, 0x20,  // 'SMI '
                         ] + [UInt8](SMI)
                     memcpy(params.pointee.extradata, bytes, bytes.count)
+                }
+            case AV_CODEC_ID_MPEG4:
+                // DivX or other MPEG4 variant other than 'mp4v'. May or may not have an esds atom.
+                params.pointee.format = AV_PIX_FMT_YUV420P.rawValue
+                params.pointee.color_range = AVCOL_RANGE_MPEG
+                if let sampleDesc = formatDescription.extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms]
+                    as? [CFString: Data],
+                    let esds = sampleDesc["esds" as CFString]
+                {
+                    func decodeLength(_ bytes: Data, _ offset: inout Int) -> Int? {
+                        var len = 0
+                        var count = 4
+                        while count > 0 && offset < bytes.count {
+                            count -= 1
+                            let c = Int(bytes[offset])
+                            offset += 1
+                            len = (len << 7) | (c & 0x7f)
+                            if c & 0x80 == 0 { break }
+                        }
+                        return len
+                    }
+
+                    // extradata should contain just the contents of the DecSpecificInfoTag (0x5) - see FFmpeg ff_mp4_read_dec_config_descr()
+                    var offset = esds.count >= 4 ? 4 : 0  // Skip version (1 byte) + flags (3 bytes) if present
+                    var decoderSpecific: Data? = nil
+                    while offset < esds.count {
+                        let tag = esds[offset]
+                        offset += 1
+                        guard let length = decodeLength(esds, &offset) else { break }
+                        if tag == 0x05 {  // DecoderSpecificInfoTag
+                            decoderSpecific = esds.subdata(in: offset..<min(offset + length, esds.count))
+                            break
+                        }
+                        offset += length
+                    }
+                    if let dsi = decoderSpecific, dsi.isEmpty == false {
+                        params.pointee.extradata_size = Int32(dsi.count)
+                        let extraData = av_mallocz(Int(params.pointee.extradata_size + AV_INPUT_BUFFER_PADDING_SIZE))!
+                        params.pointee.extradata = extraData.assumingMemoryBound(to: UInt8.self)
+                        dsi.withUnsafeBytes { src in
+                            _ = memcpy(params.pointee.extradata, src.baseAddress!, dsi.count)
+                        }
+                    }
                 }
             default:
                 logger.error(
