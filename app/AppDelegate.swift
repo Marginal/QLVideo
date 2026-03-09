@@ -62,16 +62,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // View is loaded but not yet displayed - read settings
     func applicationDidFinishLaunching(_ aNotification: Notification) {
 
-        // Remove the searchable Help entry
-        NSApplication.shared.helpMenu = NSMenu(title: "Unused")
-        if isSandboxed { reportIssue.isHidden = true }
-
         let myBundle = Bundle.main
         let version: String = myBundle.infoDictionary!["CFBundleShortVersionString"] as! String
         versionLabel.stringValue = "Version \(version)"
         copyrightNote.stringValue = myBundle.infoDictionary!["NSHumanReadableCopyright"] as! String
         regenerateNote.isHidden = true
         reindexingNote.isHidden = true
+
+        // Set up help
+        if isSandboxed {
+            NSHelpManager.shared.registerBooks(in: myBundle)  // should be redundant but just in case
+            reportIssue.isHidden = true
+        } else {
+            NSApplication.shared.helpMenu = NSMenu(title: "Unused")  // Remove the searchable Help entry
+        }
 
         let suiteName: String = myBundle.infoDictionary!["ApplicationGroup"] as! String
         defaults = UserDefaults(suiteName: suiteName)
@@ -133,6 +137,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func showHelp(sender: NSMenuItem) {
         if isSandboxed {
+            NSApplication.shared.showHelp(sender)
         } else {
             NSWorkspace.shared.open(URL(string: "https://github.com/Marginal/QLVideo/wiki")!)
         }
@@ -140,6 +145,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func alertShowHelp(_ alert: NSAlert) -> Bool {
         if isSandboxed {
+            NSApplication.shared.showHelp(alert)
         } else {
             NSWorkspace.shared.open(URL(string: "https://github.com/Marginal/QLVideo/wiki")!)
         }

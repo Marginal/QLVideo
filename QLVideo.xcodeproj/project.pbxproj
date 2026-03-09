@@ -164,16 +164,6 @@
 			name = "Embed mdimporter";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB75CB2A261D19F3009BE894 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB823D372ECB991F00F0E1D3 /* Embed ExtensionKit Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -664,7 +654,7 @@
 				AB49FB6B2922769F00B126C0 /* Sources */,
 				AB49FB6C2922769F00B126C0 /* Frameworks */,
 				AB49FB6D2922769F00B126C0 /* Resources */,
-				AB75CB2A261D19F3009BE894 /* Embed Foundation Extensions */,
+				AB7D27C42F55D61C001D9776 /* Embed Help */,
 				AB49FBB82923CECC00B126C0 /* Embed mdimporter */,
 				ABE72EB929392E18005433DF /* Embed Executables */,
 				ABA141B92D2EE3590040A4E6 /* Embed Libraries */,
@@ -870,11 +860,32 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/app/en.lproj/Main.strings",
+				"${BUILT_PRODUCTS_DIR}/$(LOCALIZED_RESOURCES_FOLDER_PATH)/Main.strings",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${SRCROOT}/app/buildstrings ${SRCROOT}/app/Base.lproj/Main.xib\n";
+		};
+		AB7D27C42F55D61C001D9776 /* Embed Help */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/help/docs/",
+			);
+			name = "Embed Help";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/$(PROJECT_NAME).help",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "[ \"${ENABLE_APP_SANDBOX}\" == \"NO\" ] || ${SRCROOT}/help/makehelp \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/${PROJECT_NAME}.help\"\n";
 		};
 		ABB1A2991A1C353E00EEF82B /* Build Schema */ = {
 			isa = PBXShellScriptBuildPhase;
