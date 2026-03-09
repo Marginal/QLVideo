@@ -155,6 +155,8 @@ final class PacketDemuxer {
             let time = CMTimeValue(defaults.integer(forKey: kSettingsSnapshotTime))
             logger.log("PacketDemuxer using snapshot time of \(time)s")
             snapshotTime = CMTimeValue(time) * CMTimeValue(AV_TIME_BASE)
+        } else {
+            logger.log("PacketDemuxer using default snapshot time")
         }
         buffers = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
             let stream = format.fmt_ctx!.pointee.streams[idx]!

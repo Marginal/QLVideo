@@ -246,9 +246,9 @@ class VideoDropTarget: NSImageView {
         }
 
         parent.videoFile = url as URL
+        if (NSApp.delegate as! AppDelegate).isSandboxed { parent.videoFile!.startAccessingSecurityScopedResource() }
         var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
-        guard !(NSApp.delegate as! AppDelegate).isSandboxed || parent.videoFile!.startAccessingSecurityScopedResource(),
-            avformat_open_input(&fmt_ctx, parent.videoFile!.path, nil, nil) == 0,
+        guard avformat_open_input(&fmt_ctx, parent.videoFile!.path, nil, nil) == 0,
             avformat_find_stream_info(fmt_ctx, nil) == 0
         else {
             avformat_close_input(&fmt_ctx)
@@ -376,11 +376,11 @@ class CoverDropTarget: NSImageView {
         }
 
         parent.coverFile = url as URL
-        if !(NSApp.delegate as! AppDelegate).isSandboxed || parent.coverFile!.startAccessingSecurityScopedResource(),
-            let json = try? helper(
-                Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!,
-                args: ["-loglevel", "quiet", "-of", "json=c=1", "-show_streams", parent.coverFile!.path]
-            ),
+        if (NSApp.delegate as! AppDelegate).isSandboxed { parent.coverFile!.startAccessingSecurityScopedResource() }
+        if let json = try? helper(
+            Bundle.main.path(forAuxiliaryExecutable: "ffprobe")!,
+            args: ["-loglevel", "quiet", "-of", "json=c=1", "-show_streams", parent.coverFile!.path]
+        ),
             let dictionary = try? JSONSerialization.jsonObject(with: Data(json.utf8), options: []) as? [String: Any],
             let streams = dictionary["streams"] as? [[String: Any]]
         {
