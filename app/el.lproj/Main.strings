@@ -1,13 +1,28 @@
-/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
-"File" = "Αρχείο";
+/* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
+"Add" = "Προσθήκη";
 
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "Μεταφορά όλων σε πρώτο πλάνο";
 
+/* Dismiss dialog (Button: TjD-TN-u0A, a7M-WT-Cyx) */
+"Cancel" = "Ακύρωση";
+
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Κλείσιμο";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
+/* (Window: XG0-j0-Zcf) */
+"Cover Art" = "Εξώφυλλο";
+
+/* (MenuItem: bIO-Lx-JiA) */
+"Cover Art..." = "Εξώφυλλο...";
+
+/* Crash reports dialog: Window title (Window: CrH-ur-CRW) */
+"Crash reports found" = "Βρέθηκαν αναφορές κατάρρευσης";
+
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "Αρχείο";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
 "Help" = "Βοήθεια";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -16,11 +31,29 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "Απόκρυψη QuickLook Video";
 
+/* Crash reports dialog (Button: CrB-ok-cell) */
+"OK" = "ΟΚ";
+
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "Βοήθεια για το QuickLook Video";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
 "Quit QuickLook Video" = "Τερματισμός QuickLook Video";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "Ανανέωση";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Αναφορά";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Αναφορά ζητήματος";
+
+/* Crash reports dialog (Button: CrB-reveal-cell) */
+"Show In Finder" = "Εμφάνιση στο Finder";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "Στιγμιότυπο";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Μικρογραφίες";
@@ -36,19 +69,3 @@
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Ενδέχεται να αντιμετωπίσετε υψηλή χρήση CPU και δίσκου για τα επόμενα λίγα λεπτά, καθώς το Spotlight επανευρετηριάζει όλα τα “μη-εγγενή” αρχεία ήχου και βίντεο.";
-
-/* Regenerate thumbnails (Button: KHh-sh-atU) */
-"Refresh" = "Ανανέωση";
-
-/* Setting - time interval (TextField: fxY-dc-4ds) */
-"Snapshot" = "Στιγμιότυπο";
-
-/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
-"Cancel" = "Ακύρωση";
-
-/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
-"Report" = "Αναφορά";
-
-/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
-"Report an Issue" = "Αναφορά ζητήματος";
-

@@ -71,7 +71,7 @@
 "Report an Issue" = "Report an Issue";
 
 /* Crash reports dialog (Button: CrB-reveal-cell) */
-"Reveal in Finder" = "Reveal in Finder";
+"Show In Finder" = "Show In Finder";
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "Snapshot";

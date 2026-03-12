@@ -1,14 +1,44 @@
-/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
-"File" = "Archief";
+/* Crash reports dialog (TextField: IDd-WH-WPZ) */
+"A zip file has been placed on your Desktop:" = "Een zip-bestand is op uw bureaublad geplaatst:";
+
+/* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
+"Add" = "Voeg toe";
 
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "Alles op voorgrond";
 
+/* Dismiss dialog (Button: TjD-TN-u0A, a7M-WT-Cyx) */
+"Cancel" = "Annuleer";
+
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Sluit";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
-"Help" = "Help";
+/* (Window: XG0-j0-Zcf) */
+"Cover Art" = "Hoesafbeeldingen";
+
+/* (MenuItem: bIO-Lx-JiA) */
+"Cover Art..." = "Hoesafbeeldingen...";
+
+/* Guidance note in cover art dialog (TextField: X7T-Dc-xUC) */
+"Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file." = "Omslag kunst wordt weergegeven in Finder miniaturen en in statische QuickLook voorbeelden.\n\nJe kunt cover art toevoegen, vervangen of verwijderen in MP4, M4V, MKV en WEBM bestanden.\n\nCover art moet worden geleverd als een JPEG of PNG bestand.";
+
+/* Crash reports dialog: Window title (Window: CrH-ur-CRW) */
+"Crash reports found" = "Crashrapporten gevonden";
+
+/* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
+"Drop a problematic video file here" = "Plaats hier een problematisch videobestand";
+
+/* Prompt in cover art dialog (TextField: TX8-mu-sca) */
+"Drop file to use as cover art here.\nLeave empty to remove existing cover art." = "Sleep het bestand hier naartoe om de hoesafbeeldingen te gebruiken.\nLaat leeg om bestaande hoesafbeeldingen te verwijderen.";
+
+/* Prompt in cover art dialog (TextField: SDg-KK-0Nv) */
+"Drop video file here" = "Plaats videobestand hier";
+
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "Archief";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
+"Help" = "Hulp";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
 "Hide Others" = "Verberg andere";
@@ -16,11 +46,38 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "Verberg Teksteditor";
 
+/* Generating a bug report: Guidance note (TextField: dCn-U3-hOJ) */
+"Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission." = "Opmerking:\n- U heeft een GitHub account nodig om een probleem te rapporteren. U kunt zich voor één registreren in de volgende stap.\n- De bestandsindeling zal worden opgenomen in het nieuwe Issue.\n- Er worden geen bestandsnaam of andere bestandsinhoud verzonden.\n- U kunt het nieuwe probleem beoordelen voordat u het indient.";
+
+/* Crash reports dialog (Button: CrB-ok-cell) */
+"OK" = "OK";
+
+/* Crash reports dialog (TextField: UQZ-am-M7w) */
+"Please attach it to your GitHub issue." = "Voeg het toe aan je GitHub probleem.";
+
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "Teksteditor Help";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
 "Quit QuickLook Video" = "Stop Teksteditor";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "Vernieuw";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Meld";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Meld een probleem";
+
+/* Crash reports dialog (Button: CrB-reveal-cell) */
+"Show In Finder" = "Toon in Finder";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "Momentopname";
+
+/* Crash reports dialog (TextField: OoJ-wE-2Cu) */
+"There are some recent crash reports for this app's plugins " = "Er zijn enkele recente crashrapporten voor deze app plugins ";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Miniaturen";
@@ -36,19 +93,3 @@
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "In de komende minuten kan uw processor- en schijfactiviteit sterk toenemen, omdat Spotlight eerst alle niet-ondersteunde audio- en videobestanden indexeert.";
-
-/* Regenerate thumbnails (Button: KHh-sh-atU) */
-"Refresh" = "Vernieuw";
-
-/* Setting - time interval (TextField: fxY-dc-4ds) */
-"Snapshot" = "Momentopname";
-
-/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
-"Cancel" = "Annuleer";
-
-/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
-"Report" = "Meld";
-
-/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
-"Report an Issue" = "Meld een probleem";
-

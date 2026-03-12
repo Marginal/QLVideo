@@ -332,7 +332,7 @@ Only for files that don't contain cover art.</string>
                         </attributedString>
                     </textField>
                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kw0-JH-FYo">
-                        <rect key="frame" x="18" y="59" width="364" height="114"/>
+                        <rect key="frame" x="18" y="43" width="364" height="130"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES"/>
                         <textFieldCell key="cell" allowsUndo="NO" id="dCn-U3-hOJ">
                             <font key="font" metaFont="cellTitle"/>
@@ -418,7 +418,7 @@ Cover art must be supplied as a JPEG or PNG file.</string>
                         </attributedString>
                     </textField>
                     <box fixedFrame="YES" boxType="custom" borderType="bezel" borderWidth="2" cornerRadius="6" translatesAutoresizingMaskIntoConstraints="NO" id="N0G-0r-tcG">
-                        <rect key="frame" x="20" y="167" width="64" height="64"/>
+                        <rect key="frame" x="20" y="156" width="64" height="64"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="VFx-uk-Vui">
                             <rect key="frame" x="2" y="2" width="60" height="60"/>
@@ -434,7 +434,7 @@ Cover art must be supplied as a JPEG or PNG file.</string>
                         <color key="fillColor" name="systemFillColor" catalog="System" colorSpace="catalog"/>
                     </box>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="P99-ia-o1q">
-                        <rect key="frame" x="91" y="167" width="26" height="42"/>
+                        <rect key="frame" x="91" y="156" width="26" height="42"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" alignment="left" title="⬅︎" usesSingleLineMode="YES" id="Agz-UB-i8J">
                             <font key="font" metaFont="system" size="17"/>
@@ -446,7 +446,7 @@ Cover art must be supplied as a JPEG or PNG file.</string>
                         </attributedString>
                     </textField>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gY7-tj-eoK" userLabel="Video Status">
-                        <rect key="frame" x="114" y="176" width="271" height="32"/>
+                        <rect key="frame" x="114" y="156" width="271" height="41"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" alignment="left" title="Drop video file here" id="SDg-KK-0Nv">
                             <font key="font" metaFont="system"/>
@@ -458,7 +458,7 @@ Cover art must be supplied as a JPEG or PNG file.</string>
                         </attributedString>
                     </textField>
                     <box fixedFrame="YES" boxType="custom" borderType="bezel" borderWidth="2" cornerRadius="6" translatesAutoresizingMaskIntoConstraints="NO" id="mrX-Ky-bZh">
-                        <rect key="frame" x="20" y="83" width="64" height="64"/>
+                        <rect key="frame" x="20" y="72" width="64" height="64"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView" id="da3-dd-jk7">
                             <rect key="frame" x="2" y="2" width="60" height="60"/>
@@ -474,7 +474,7 @@ Cover art must be supplied as a JPEG or PNG file.</string>
                         <color key="fillColor" name="systemFillColor" catalog="System" colorSpace="catalog"/>
                     </box>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tiu-rP-N96">
-                        <rect key="frame" x="91" y="83" width="26" height="42"/>
+                        <rect key="frame" x="91" y="72" width="26" height="42"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" lineBreakMode="clipping" alignment="left" title="⬅︎" usesSingleLineMode="YES" id="5SF-NG-Qc7">
                             <font key="font" metaFont="system" size="17"/>
@@ -520,9 +520,9 @@ DQ
                         </connections>
                     </button>
                     <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jqs-m5-CvW" userLabel="Cover Status">
-                        <rect key="frame" x="114" y="92" width="271" height="32"/>
+                        <rect key="frame" x="114" y="57" width="271" height="72"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="left" id="TX8-mu-sca">
+                        <textFieldCell key="cell" alignment="left" id="TX8-mu-sca">
                             <font key="font" metaFont="system"/>
                             <string key="title">Drop file to use as cover art here.
 Leave empty to remove existing cover art.</string>
@@ -564,7 +564,7 @@ Leave empty to remove existing cover art.</string>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSApplicationIcon" id="zG1-T3-hZm"/>
                     </imageView>
                     <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B16-bx-P61">
-                        <rect key="frame" x="102" y="170" width="280" height="43"/>
+                        <rect key="frame" x="102" y="163" width="280" height="50"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" allowsUndo="NO" sendsActionOnEndEditing="YES" title="There are some recent crash reports for this app's plugins " id="OoJ-wE-2Cu">
                             <font key="font" usesAppearanceFont="YES"/>
@@ -625,7 +625,7 @@ Leave empty to remove existing cover art.</string>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CrB-reveal">
                         <rect key="frame" x="184" y="10" width="120" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                        <buttonCell key="cell" type="push" title="Reveal in Finder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CrB-reveal-cell">
+                        <buttonCell key="cell" type="push" title="Show In Finder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CrB-reveal-cell">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>

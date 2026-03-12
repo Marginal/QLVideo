@@ -1,13 +1,40 @@
-/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
-"File" = "文件";
+/* Crash reports dialog (TextField: IDd-WH-WPZ) */
+"A zip file has been placed on your Desktop:" = "Zip文件已放置在您的桌面上：";
+
+/* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
+"Add" = "添加";
 
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "前置全部窗口";
 
+/* Dismiss dialog (Button: TjD-TN-u0A, a7M-WT-Cyx) */
+"Cancel" = "取消";
+
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "关闭";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
+/* (Window: XG0-j0-Zcf) */
+"Cover Art" = "专辑封面";
+
+/* (MenuItem: bIO-Lx-JiA) */
+"Cover Art..." = "专辑封面...";
+
+/* Guidance note in cover art dialog (TextField: X7T-Dc-xUC) */
+"Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file." = "封面艺术在Finder 缩略图和静态QuickLook预览中显示。\n\n您可以在 MP4, M4V, MKV 和 WEBM 文件中添加、替换或移除封面艺术。\n\n封面艺术必须以 JPEG 或 PNG 文件提供。";
+
+/* Crash reports dialog: Window title (Window: CrH-ur-CRW) */
+"Crash reports found" = "查到崩溃报告";
+
+/* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
+"Drop a problematic video file here" = "拖放一个有问题的视频文件到这里";
+
+/* Prompt in cover art dialog (TextField: SDg-KK-0Nv) */
+"Drop video file here" = "将视频文件拖放到此处";
+
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "文件";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
 "Help" = "帮助";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -16,11 +43,35 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "隐藏文本编辑";
 
+/* Crash reports dialog (Button: CrB-ok-cell) */
+"OK" = "好";
+
+/* Crash reports dialog (TextField: UQZ-am-M7w) */
+"Please attach it to your GitHub issue." = "请将其附加到您的 GitHub 问题。";
+
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "文本编辑帮助";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
 "Quit QuickLook Video" = "退出文本编辑";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "刷新";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "报告";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "报告问题";
+
+/* Crash reports dialog (Button: CrB-reveal-cell) */
+"Show In Finder" = "在 Finder 中显示";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "快照";
+
+/* Crash reports dialog (TextField: OoJ-wE-2Cu) */
+"There are some recent crash reports for this app's plugins " = "此应用插件最近有一些崩溃报告 ";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "缩略图";
@@ -36,19 +87,3 @@
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "此后几分钟您的CPU和硬盘可能会出现高负荷，因为Spotlight需要重新检索您的所有非默认支持的音频和视频文件。";
-
-/* Regenerate thumbnails (Button: KHh-sh-atU) */
-"Refresh" = "刷新";
-
-/* Setting - time interval (TextField: fxY-dc-4ds) */
-"Snapshot" = "快照";
-
-/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
-"Cancel" = "取消";
-
-/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
-"Report" = "报告";
-
-/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
-"Report an Issue" = "报告问题";
-

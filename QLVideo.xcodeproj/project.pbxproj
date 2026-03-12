@@ -282,6 +282,7 @@
 		ABCDC9022F6372DE001DE092 /* buildschema */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildschema; sourceTree = "<group>"; };
 		ABCDC9032F6372DE001DE092 /* buildstrings */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = buildstrings; sourceTree = "<group>"; };
 		ABCDC9042F6372DE001DE092 /* buildzimg */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildzimg; sourceTree = "<group>"; };
+		ABCDC9052F6372DE001DE092 /* l10n */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = l10n; sourceTree = "<group>"; };
 		ABD12FB42F5895BA00F69ECA /* app-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "app-bridge.h"; sourceTree = "<group>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
@@ -565,6 +566,7 @@
 				ABCDC9022F6372DE001DE092 /* buildschema */,
 				ABCDC9032F6372DE001DE092 /* buildstrings */,
 				ABCDC9042F6372DE001DE092 /* buildzimg */,
+				ABCDC9052F6372DE001DE092 /* l10n */,
 			);
 			path = scripts;
 			sourceTree = SOURCE_ROOT;

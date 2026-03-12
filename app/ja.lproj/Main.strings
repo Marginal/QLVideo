@@ -1,13 +1,25 @@
-/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
-"File" = "ファイル";
+/* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
+"Add" = "追加";
 
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "すべてを手前に移動";
 
+/* Dismiss dialog (Button: TjD-TN-u0A, a7M-WT-Cyx) */
+"Cancel" = "キャンセル";
+
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "閉じる";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
+/* (Window: XG0-j0-Zcf) */
+"Cover Art" = "カバーアート";
+
+/* (MenuItem: bIO-Lx-JiA) */
+"Cover Art..." = "カバーアート...";
+
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "ファイル";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
 "Help" = "ヘルプ";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -16,11 +28,29 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "テキストエディットを非表示";
 
+/* Crash reports dialog (Button: CrB-ok-cell) */
+"OK" = "OK";
+
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "テキストエディットヘルプ";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
 "Quit QuickLook Video" = "テキストエディットを終了";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "更新";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "報告";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "問題を報告";
+
+/* Crash reports dialog (Button: CrB-reveal-cell) */
+"Show In Finder" = "Finder で表示";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "スナップショット";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "サムネール";
@@ -36,19 +66,3 @@
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Spotlightが、標準でサポートされない音声・動画ファイル全てのインデックスを再作成するため、今後数分間、CPUやディスクの使用率が高まる場合があります。";
-
-/* Regenerate thumbnails (Button: KHh-sh-atU) */
-"Refresh" = "更新";
-
-/* Setting - time interval (TextField: fxY-dc-4ds) */
-"Snapshot" = "スナップショット";
-
-/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
-"Cancel" = "キャンセル";
-
-/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
-"Report" = "報告";
-
-/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
-"Report an Issue" = "問題を報告";
-

@@ -1,13 +1,43 @@
-/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
-"File" = "Archivo";
+/* Crash reports dialog (TextField: IDd-WH-WPZ) */
+"A zip file has been placed on your Desktop:" = "Un archivo zip ha sido colocado en su Escritorio:";
+
+/* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
+"Add" = "Añadir";
 
 /* Standard macOS menu entry (MenuItem: LE2-aR-0XJ) */
 "Bring All to Front" = "Traer todo al frente";
 
+/* Dismiss dialog (Button: TjD-TN-u0A, a7M-WT-Cyx) */
+"Cancel" = "Cancelar";
+
 /* Standard macOS menu entry (MenuItem: DVo-aG-piG) */
 "Close" = "Cerrar";
 
-/* Standard macOS menu entry (Menu: F2S-fz-NVQ, sf8-Ko-Xhb, wpr-3q-Mcd) */
+/* (Window: XG0-j0-Zcf) */
+"Cover Art" = "Carátula";
+
+/* (MenuItem: bIO-Lx-JiA) */
+"Cover Art..." = "Carátula...";
+
+/* Guidance note in cover art dialog (TextField: X7T-Dc-xUC) */
+"Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file." = "La carátula se muestra en las miniaturas de Finder y en las previsualizaciones estáticas de QuickLook.\n\nPuede añadir, reemplazar o eliminar carátula en archivos MP4, M4V, MKV y WEBM.\n\nCarátula debe ser proporcionado como un archivo JPEG o PNG.";
+
+/* Crash reports dialog: Window title (Window: CrH-ur-CRW) */
+"Crash reports found" = "Informes de fallos encontrados";
+
+/* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
+"Drop a problematic video file here" = "Arrastra un archivo de vídeo problemático aquí";
+
+/* Prompt in cover art dialog (TextField: TX8-mu-sca) */
+"Drop file to use as cover art here.\nLeave empty to remove existing cover art." = "Arrastra el archivo para usar como carátula aquí.\nDeje en blanco para eliminar la carátula existente.";
+
+/* Prompt in cover art dialog (TextField: SDg-KK-0Nv) */
+"Drop video file here" = "Arrastra el fichero de vídeo aquí";
+
+/* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
+"File" = "Archivo";
+
+/* Standard macOS menu entry (Menu: F2S-fz-NVQ, wpr-3q-Mcd) */
 "Help" = "Ayuda";
 
 /* Standard macOS menu entry (MenuItem: Vdr-fp-XzO) */
@@ -16,11 +46,38 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "Ocultar QuickLook Video";
 
+/* Generating a bug report: Guidance note (TextField: dCn-U3-hOJ) */
+"Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission." = "Nota:\n- Necesitarás una cuenta de GitHub para reportar un problema. Podrás registrarte en el siguiente paso.\n- El formato del archivo se incluirá en el nuevo problema.\n- No se enviarán nombres de archivo ni otro contenido del archivo.\n- Podrás revisar el nuevo problema antes de enviarlo.";
+
+/* Crash reports dialog (Button: CrB-ok-cell) */
+"OK" = "OK";
+
+/* Crash reports dialog (TextField: UQZ-am-M7w) */
+"Please attach it to your GitHub issue." = "Por favor, adjunte a su problema de GitHub.";
+
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "Ayuda de QuickLook Video";
 
 /* Standard macOS menu entry (MenuItem: 4sb-4s-VLi) */
 "Quit QuickLook Video" = "Salir de QuickLook Video";
+
+/* Regenerate thumbnails (Button: KHh-sh-atU) */
+"Refresh" = "Actualizar";
+
+/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
+"Report" = "Informar";
+
+/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
+"Report an Issue" = "Informar de un problema";
+
+/* Crash reports dialog (Button: CrB-reveal-cell) */
+"Show In Finder" = "Mostrar en el Finder";
+
+/* Setting - time interval (TextField: fxY-dc-4ds) */
+"Snapshot" = "Instantánea";
+
+/* Crash reports dialog (TextField: OoJ-wE-2Cu) */
+"There are some recent crash reports for this app's plugins " = "Hay algunos informes recientes de fallos para los plugins de esta aplicación ";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "Miniaturas";
@@ -36,19 +93,3 @@
 
 /* Advice (TextField: wBi-TN-rGU) */
 "You may experience high CPU and disk usage for the next few minutes while Spotlight re-indexes all of your “non-native” audio and video files." = "Es posible que experimentes un alto uso del CPU y disco durante algunos minutos mientras Spotlight reindexa todos tus archivos de audio y video “no nativos”.";
-
-/* Regenerate thumbnails (Button: KHh-sh-atU) */
-"Refresh" = "Actualizar";
-
-/* Setting - time interval (TextField: fxY-dc-4ds) */
-"Snapshot" = "Instantánea";
-
-/* Dismiss dialog (Button: ScK-fP-kjN, TjD-TN-u0A) */
-"Cancel" = "Cancelar";
-
-/* Generating a bug report: Submission button (Button: N0n-6K-3kI) */
-"Report" = "Informar";
-
-/* Menu item for generating a bug report  (Window: Gye-Xd-78R, vHb-9r-BgU) */
-"Report an Issue" = "Informar de un problema";
-
