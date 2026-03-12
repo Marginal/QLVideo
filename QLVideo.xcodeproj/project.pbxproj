@@ -265,13 +265,11 @@
 		ABA141F22D2EF8E70040A4E6 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
 		ABA141FE2D3016480040A4E6 /* CoverArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArtView.swift; sourceTree = "<group>"; };
 		ABA532352F5216B200E6EC43 /* CrashReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportView.swift; sourceTree = "<group>"; };
-		ABB1A29A1A1C358500EEF82B /* buildschema */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 4; path = buildschema; sourceTree = "<group>"; };
 		ABB719E62924069600F13C24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABB71A0A29266D3000F13C24 /* LogarithmicSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogarithmicSlider.swift; sourceTree = "<group>"; };
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
 		ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
 		ABC22D232070E05200A2D884 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/schema.strings; sourceTree = "<group>"; };
-		ABC8EDC22931900D00F97C3C /* buildstrings */ = {isa = PBXFileReference; explicitFileType = text.script.sh; path = buildstrings; sourceTree = "<group>"; };
 		ABC8EE07293273ED00F97C3C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		ABC8EE082932741000F97C3C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
 		ABC8EE0929328A4D00F97C3C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
@@ -279,6 +277,11 @@
 		ABC8EE0C29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		ABC8EE0D29328B2800F97C3C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/schema.strings"; sourceTree = "<group>"; };
 		ABC8EE0F2932A92100F97C3C /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/schema.strings; sourceTree = "<group>"; };
+		ABCDC9002F6372DE001DE092 /* builddav1d */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = builddav1d; sourceTree = "<group>"; };
+		ABCDC9012F6372DE001DE092 /* buildffmpeg */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildffmpeg; sourceTree = "<group>"; };
+		ABCDC9022F6372DE001DE092 /* buildschema */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildschema; sourceTree = "<group>"; };
+		ABCDC9032F6372DE001DE092 /* buildstrings */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = buildstrings; sourceTree = "<group>"; };
+		ABCDC9042F6372DE001DE092 /* buildzimg */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildzimg; sourceTree = "<group>"; };
 		ABD12FB42F5895BA00F69ECA /* app-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "app-bridge.h"; sourceTree = "<group>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
@@ -448,7 +451,6 @@
 				ABB719E62924069600F13C24 /* Assets.xcassets */,
 				AB9846DC196B790F00AF6349 /* Info.plist */,
 				AB49FB7A292276A100B126C0 /* QuickLookVideo.entitlements */,
-				ABC8EDC22931900D00F97C3C /* buildstrings */,
 				ABC8EE06293273ED00F97C3C /* Main.strings */,
 			);
 			path = app;
@@ -473,6 +475,7 @@
 				AB823D302ECB991F00F0E1D3 /* formatreader */,
 				AB0049872F2143CE0054D7B0 /* videodecoder */,
 				AB5C5AAC2EDE0E0B00AD8A97 /* simpleplayer */,
+				ABCDC9062F6372DE001DE092 /* scripts */,
 				AB9FB56F1965DD7200D39647 /* Frameworks */,
 				AB9FB56E1965DD7200D39647 /* Products */,
 			);
@@ -528,7 +531,6 @@
 				AB9FB57E1965DD7200D39647 /* main.c */,
 				AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */,
 				AB9FB58C1965DF0700D39647 /* Info.plist */,
-				ABB1A29A1A1C358500EEF82B /* buildschema */,
 				ABE4610E1A15A519006C89A2 /* schema.strings */,
 			);
 			path = mdimporter;
@@ -555,6 +557,18 @@
 			path = universal/lib;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		ABCDC9062F6372DE001DE092 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				ABCDC9002F6372DE001DE092 /* builddav1d */,
+				ABCDC9012F6372DE001DE092 /* buildffmpeg */,
+				ABCDC9022F6372DE001DE092 /* buildschema */,
+				ABCDC9032F6372DE001DE092 /* buildstrings */,
+				ABCDC9042F6372DE001DE092 /* buildzimg */,
+			);
+			path = scripts;
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
@@ -564,7 +578,7 @@
 			buildConfigurationList = AB006A512F2967A20014937F /* Build configuration list for PBXLegacyTarget "zimg" */;
 			buildPhases = (
 			);
-			buildToolPath = ./buildzimg;
+			buildToolPath = ./scripts/buildzimg;
 			buildWorkingDirectory = "$(SRCROOT)";
 			dependencies = (
 			);
@@ -578,7 +592,7 @@
 			buildConfigurationList = AB535D501EDC390C00ECB0CE /* Build configuration list for PBXLegacyTarget "ffmpeg" */;
 			buildPhases = (
 			);
-			buildToolPath = ./buildffmpeg;
+			buildToolPath = ./scripts/buildffmpeg;
 			buildWorkingDirectory = "$(SRCROOT)";
 			dependencies = (
 				AB006A552F2967E50014937F /* PBXTargetDependency */,
@@ -594,7 +608,7 @@
 			buildConfigurationList = AB66470E261A88C800D23514 /* Build configuration list for PBXLegacyTarget "dav1d" */;
 			buildPhases = (
 			);
-			buildToolPath = ./builddav1d;
+			buildToolPath = ./scripts/builddav1d;
 			buildWorkingDirectory = "${SRCROOT}";
 			dependencies = (
 			);
@@ -853,7 +867,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/app/buildstrings",
+				"$(SRCROOT)/scripts/buildstrings",
 				"$(SRCROOT)/app/Base.lproj/Main.xib",
 			);
 			name = "Extract localization";
@@ -864,7 +878,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/app/buildstrings ${SRCROOT}/app/Base.lproj/Main.xib\n";
+			shellScript = "${SRCROOT}/scripts/buildstrings ${SRCROOT}/app/Base.lproj/Main.xib\n";
 		};
 		AB7D27C42F55D61C001D9776 /* Embed Help */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -893,7 +907,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/mdimporter/buildschema",
+				"${SRCROOT}/scripts/buildschema",
 				"$(SRCROOT)/mdimporter/Info.plist",
 			);
 			name = "Build Schema";
@@ -902,7 +916,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/mdimporter/buildschema";
+			shellScript = "${SRCROOT}/scripts/buildschema";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
