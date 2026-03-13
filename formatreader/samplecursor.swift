@@ -207,7 +207,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         status = CMSampleBufferCreateReady(
             allocator: kCFAllocatorDefault,
             dataBuffer: blockBuffer,
-            formatDescription: track!.formatDescription,  // TODO: attach any side_data as an extension
+            formatDescription: track!.formatDescription,
             sampleCount: track!.stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO ? 1 : 0,
             sampleTimingEntryCount: 1,
             sampleTimingArray: &timingInfo,

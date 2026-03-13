@@ -36,6 +36,11 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         0x4449_5658: AV_CODEC_ID_MPEG4,  // 'DIVX'
         0x5856_4944: AV_CODEC_ID_MPEG4,  // 'XVID'
         0x4458_3530: AV_CODEC_ID_MPEG4,  // 'DX50'
+        0x4d50_4734: AV_CODEC_ID_MPEG4,  // 'MPG4'
+        0x464d_5034: AV_CODEC_ID_MPEG4,  // 'FMP4'
+        0x4d50_3431: AV_CODEC_ID_MSMPEG4V1,  // 'MP41'
+        0x4d50_3432: AV_CODEC_ID_MSMPEG4V2,  // 'MP42'
+        0x4d50_3433: AV_CODEC_ID_MSMPEG4V3,  // 'MP43'
     ]
 
     // Supported pixel formats for QuickTime animation. Non-paletised only.
@@ -164,7 +169,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                         ] + [UInt8](SMI)
                     memcpy(params.pointee.extradata, bytes, bytes.count)
                 }
-            case AV_CODEC_ID_MPEG4:
+            case AV_CODEC_ID_MPEG4, AV_CODEC_ID_MSMPEG4V1, AV_CODEC_ID_MSMPEG4V2, AV_CODEC_ID_MSMPEG4V3:
                 // DivX or other MPEG4 variant other than 'mp4v'. May or may not have an esds atom.
                 params.pointee.format = AV_PIX_FMT_YUV420P.rawValue
                 params.pointee.color_range = AVCOL_RANGE_MPEG
@@ -208,6 +213,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                     }
                 }
             default:
+                // Shouldn't get here
                 logger.error(
                     "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
                 )

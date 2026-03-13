@@ -246,6 +246,8 @@
 				<key>CodecName</key>
 				<string>Indeo 5</string>
 			</dict>
+
+			<!-- MPEG 4 variants often found in .avi and .asf files which formatreader doesn't see -->
 			<dict>
 				<key>CodecType</key>
 				<string>DIVX</string>
@@ -264,6 +266,32 @@
 				<key>CodecName</key>
 				<string>DivX</string>
 			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>MP41</string>
+				<key>CodecName</key>
+				<string>MPEG-4 Video (MS)</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>MP42</string>
+				<key>CodecName</key>
+				<string>MPEG-4 Video (MS)</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>MP43</string>
+				<key>CodecName</key>
+				<string>MPEG-4 Video (MS)</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>FMP4</string>
+				<key>CodecName</key>
+				<string>MPEG-4 Video (MEncoder)</string>
+			</dict>
+
+			<!-- Fallback type set by formatreader -->
 			<dict>
 				<key>CodecType</key>
 				<string>QLV </string>

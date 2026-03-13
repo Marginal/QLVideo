@@ -52,6 +52,9 @@ class VideoTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_INDEO3: 0x4956_3332,  // 'IV32'
         AV_CODEC_ID_INDEO4: 0x4956_3431,  // 'IV41'
         AV_CODEC_ID_INDEO5: 0x4956_3530,  // 'IV50'
+        AV_CODEC_ID_MSMPEG4V1: 0x4d50_3431,  // 'MP41'
+        AV_CODEC_ID_MSMPEG4V2: 0x4d50_3432,  // 'MP42'
+        AV_CODEC_ID_MSMPEG4V3: 0x4d50_3433,  // 'MP43'
     ]
     static let kVideoCodecType_VP8 = CMVideoCodecType(0x7670_3038)  // 'vp08'
     static let kVideoCodecType_catchall = CMVideoCodecType(0x514c_5620)  // 'QLV '
@@ -119,7 +122,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             codecType = kCMVideoCodecType_JPEG
         case AV_CODEC_ID_H263:
             codecType = kCMVideoCodecType_H263  // Not hardware acclerated but playable by AVFoundation anyway
-        case AV_CODEC_ID_MPEG4:
+        case AV_CODEC_ID_MPEG4, AV_CODEC_ID_MSMPEG4V1, AV_CODEC_ID_MSMPEG4V2, AV_CODEC_ID_MSMPEG4V3:
             // MPEG4 part 2 https://developer.apple.com/documentation/quicktime-file-format/mpeg-4_elementary_stream_descriptor_atom
             // FFmpeg only retains the decoder-specific info from "esds" in extradata - so rebuild it.
             // See videotoolbox_esds_extradata_create in https://ffmpeg.org/doxygen/8.0/videotoolbox_8c_source.html
@@ -458,7 +461,8 @@ class VideoTrackReader: TrackReader, METrackReader {
             avcodec_parameters_copy(ctx!.pointee.par_in, params) == 0,
             av_bsf_init(ctx) == 0
         else {
-            logger.error("VideoTrackReader stream \(self.index) failed to setup extract_extradata bsf")
+            // Can fail on unsupported types e.g. AV_CODEC_ID_MSMPEG4V3 which probably don't have sample descriptions anyway
+            logger.warning("VideoTrackReader stream \(self.index) failed to setup extract_extradata bsf")
             if ctx != nil { av_bsf_free(&ctx) }
             return
         }

@@ -242,6 +242,7 @@ public func GetMetadataForFile(
                 case AV_CODEC_ID_MPEG1VIDEO: codecName = "MPEG-1"
                 case AV_CODEC_ID_MPEG2VIDEO: codecName = "MPEG-2"
                 case AV_CODEC_ID_MPEG4: codecName = "MPEG-4"  // CoreMedia.mdimporter uses "MPEG-4 Video"
+                case AV_CODEC_ID_MSMPEG4V1, AV_CODEC_ID_MSMPEG4V2, AV_CODEC_ID_MSMPEG4V3: codecName = "MPEG-4 (MS)"
                 case AV_CODEC_ID_H263: codecName = "H.263"
                 case AV_CODEC_ID_H263P: codecName = "H.263+"
                 case AV_CODEC_ID_H264: codecName = "H.264"
