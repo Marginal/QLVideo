@@ -11,7 +11,6 @@ import OSLog
 
 class VideoTrackReader: TrackReader, METrackReader {
 
-
     // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
     static let supported: [AVCodecID: CMVideoCodecType] = [
         // Made up FourCCs that match those registered by our videodecoder in order to bypass CoreVideo
@@ -186,17 +185,21 @@ class VideoTrackReader: TrackReader, METrackReader {
                         kCFAllocatorNull  // extradata will be deallocated by avformat_close_input()
                     )
                 ]
-                if let dvAtom = DolbyVisionAtom() {
+                if let dovi = DolbyVisionConfig(),
+                    VTIsHardwareDecodeSupported(kCMVideoCodecType_DolbyVisionHEVC)
+                        && (dovi.pointee.dv_profile == 5 || dovi.pointee.dv_profile == 8)
+                {
+                    // Not all profiles are supported https://professionalsupport.dolby.com/s/article/Apple-macOS-Overview
+                    let dvAtom = DolbyVisionAtom(dovi: dovi.pointee)
                     atoms[dvAtom.0] = dvAtom.1
-                    if VTIsHardwareDecodeSupported(kCMVideoCodecType_DolbyVisionHEVC) {
-                        codecType = kCMVideoCodecType_DolbyVisionHEVC
-                    }
-                    logger.log(
-                        "HEVC w/ Dolby Vision decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_DolbyVisionHEVC))"
-                    )
+                    codecType = kCMVideoCodecType_DolbyVisionHEVC
+                    logger.log("HEVC w/ Dolby Vision \(dovi.pointee.dv_profile) decode available: true")
+                } else if VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC) {
+                    // Fall back to vanilla HDR. Don't set Dolby Vision atom since it will cause decode to fail.
+                    codecType = kCMVideoCodecType_HEVC
+                    logger.log("HEVC decode available: true")
                 } else {
-                    if VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC) { codecType = kCMVideoCodecType_HEVC }
-                    logger.log("HEVC decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_HEVC))")
+                    logger.log("HEVC decode available: false")
                 }
                 extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] = atoms as CFDictionary
             }
@@ -250,12 +253,22 @@ class VideoTrackReader: TrackReader, METrackReader {
                         kCFAllocatorNull  // extradata will be deallocated by avformat_close_input()
                     )
                 ]
-                if let dvAtom = DolbyVisionAtom() { atoms[dvAtom.0] = dvAtom.1 }
+                /* TODO: Re-enable AV1 hardware decode once I can test it on M3 or later
+                if let dovi = DolbyVisionConfig(),
+                    VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) && dovi.pointee.dv_profile == 10
+                {
+                    let dvAtom = DolbyVisionAtom(dovi: dovi.pointee)
+                    atoms[dvAtom.0] = dvAtom.1
+                    codecType = kCMVideoCodecType_AV1
+                    logger.log("AV1 w/ Dolby Vision \(dovi.pointee.dv_profile) decode available: true")
+                } else if VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) {
+                    // Fall back to vanilla HDR. Don't set Dolby Vision atom since it will cause decode to fail.
+                    codecType = kCMVideoCodecType_AV1
+                    logger.log("AV1 decode available: true")
+                } else {
+                    logger.log("AV1 decode available: false")
+                } */
                 extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] = atoms as CFDictionary
-                /* TODO: Disable AV1 hardware decode until I can test it on M3 or later
-                if VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1) { codecType = kCMVideoCodecType_AV1 }  // M3 and later
-                logger.log("AV1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1))"
-                 */
             }
         case AV_CODEC_ID_VVC, AV_CODEC_ID_VC1:
             // Not supported by VideoToolbox at time of writing
