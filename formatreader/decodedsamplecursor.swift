@@ -129,7 +129,7 @@ class DecodedSampleCursor: SampleCursor {
                 lastDelivered += Int(ret)
             } else {
                 assert(
-                    av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes == frame.pointee.linesize.0,
+                    av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes <= frame.pointee.linesize.0,
                     "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription): Sample format or size mismatch"
                 )
                 outPtr!.update(from: frame.pointee.data.0!, count: reqdBytes)
