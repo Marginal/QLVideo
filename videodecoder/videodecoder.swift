@@ -59,6 +59,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var isReadyForMoreMediaData: Bool = true
     var params = avcodec_parameters_alloc()!
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>?
+    var lastDTS = CMTime.invalid
 
     // For format conversion using macOS Accelerate API
     var conversionInfo: vImage_YpCbCrToARGB? = nil
@@ -375,16 +376,33 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             )
         }
 
-        // Decode
+        // Try to detect a discontinuous seek and flush the decoder if we see one
+        let DTS = CMTime(value: pkt!.pointee.dts, timeBase: pkt!.pointee.time_base)
+        if pkt!.pointee.flags & AV_PKT_FLAG_KEY != 0 && lastDTS.isValid
+            && (DTS < lastDTS
+                || DTS - lastDTS
+                    > CMTime(
+                        seconds: sampleBuffer.duration != CMTime.zero ? sampleBuffer.duration.seconds * 10 : 1,
+                        preferredTimescale: pkt!.pointee.time_base.den
+                    ))  // arbitrary
+        {
+            logger.debug(
+                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): Seek"
+            )
+            avcodec_send_packet(dec_ctx, nil)
+            avcodec_flush_buffers(dec_ctx)
+        }
 
+        // Decode
+        lastDTS = DTS
         var ret = avcodec_send_packet(dec_ctx, pkt)
         av_packet_free(&pkt)  // Free regardless of result since we don't need this any more - actual data lives in CMBlockBuffer
-        if ret == EAGAIN {
-            // Can't do anything with this packet. Hopefully we can recover on the next packet.
+        if ret == AVERROR_EAGAIN {
+            // Can't do anything with this packet
             logger.warning(
                 "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): Packet produced no output"
             )
-            return completionHandler(nil, .frameDropped, nil)
+            // Fall through with the hope that the decoder can still produce useful output
         } else if ret < 0 {
             let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
             logger.error(

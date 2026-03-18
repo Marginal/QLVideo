@@ -120,7 +120,7 @@ struct ContentView: View {
                     }
 
                     self.player.replaceCurrentItem(with: item)
-                    self.player.seek(to: CMTime(value: 10_000_000, timescale: 1_000_000))  // Start at 10s like QuickLook thumbnailer
+                    // self.player.seek(to: CMTime(value: 10_000_000, timescale: 1_000_000))  // Start at 10s like QuickLook thumbnailer
                     self.player.play()
                 }
             default:
