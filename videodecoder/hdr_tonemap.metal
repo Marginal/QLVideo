@@ -15,6 +15,9 @@ struct HDRParams {
     float scenePeak;    // in nits (cd/m²)
     uint colorTransfer;
     uint colorRange;
+    uint bitDepth;      // 9, 10, 12, or 16
+    uint uvShiftX;      // chroma subsampling: 0=444, 1=422/420
+    uint uvShiftY;      // chroma subsampling: 0=444/422, 1=420
 };
 
 // ---------------------------------------------------------------------------
@@ -173,7 +176,7 @@ inline float3 linearToSRGB3(float3 c) {
 // ===========================================================================
 // Main kernel
 // ===========================================================================
-kernel void hdrTonemapYUV420P10ToBGRA8(
+kernel void hdrTonemapYUVPlanarToBGRA8(
     texture2d<uint, access::read>           yTex       [[texture(0)]],
     texture2d<uint, access::read>           uTex       [[texture(1)]],
     texture2d<uint, access::read>           vTex       [[texture(2)]],
@@ -183,22 +186,30 @@ kernel void hdrTonemapYUV420P10ToBGRA8(
 {
     if (gid.x >= params.dstWidth || gid.y >= params.dstHeight) return;
 
-    // --- Sample 10-bit YUV420 planes ---
-    uint2 uvCoord = uint2(gid.x / 2, gid.y / 2);
+    // --- Sample YUV planar (9–16 bit in 16-bit container, 420/422/444) ---
+    uint2 uvCoord = uint2(gid.x >> params.uvShiftX, gid.y >> params.uvShiftY);
     uint ySample = yTex.read(gid).r;
     uint uSample = uTex.read(uvCoord).r;
     uint vSample = vTex.read(uvCoord).r;
 
+    // Normalization constants derived from bit depth (BT.2020 / BT.709 spec)
+    uint shift = params.bitDepth - 8;
+    float black   = float(16u  << shift);           // limited-range Y offset
+    float yRange  = float(219u << shift);           // limited-range Y extent (white - black)
+    float uvRange = float(224u << shift);           // limited-range UV extent
+    float mid     = float(128u << shift);           // UV midpoint (neutral chroma)
+    float peak    = float((1u << params.bitDepth) - 1u);  // full-range max
+
     float y, u, v;
 
     if (params.colorRange != RANGE_JPEG) { // Limited range
-        y = clamp((float(ySample) -  64.0) / 876.0, 0.0, 1.0);
-        u = clamp((float(uSample) - 512.0) / 896.0, -0.5, 0.5);
-        v = clamp((float(vSample) - 512.0) / 896.0, -0.5, 0.5);
+        y = clamp((float(ySample) - black) / yRange,   0.0, 1.0);
+        u = clamp((float(uSample) - mid)   / uvRange, -0.5, 0.5);
+        v = clamp((float(vSample) - mid)   / uvRange, -0.5, 0.5);
     } else {  // Full range
-        y = clamp(float(ySample) / 1023.0, 0.0, 1.0);
-        u = clamp((float(uSample) - 512.0) / 1023.0, -0.5, 0.5);
-        v = clamp((float(vSample) - 512.0) / 1023.0, -0.5, 0.5);
+        y = clamp(float(ySample)           / peak,  0.0, 1.0);
+        u = clamp((float(uSample) - mid)   / peak, -0.5, 0.5);
+        v = clamp((float(vSample) - mid)   / peak, -0.5, 0.5);
     }
 
     // Step 1: BT.2020 NCL YUV → RGB (still PQ/HLG-encoded, not linear)

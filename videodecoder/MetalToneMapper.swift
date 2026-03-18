@@ -23,6 +23,9 @@ private struct HDRParams {
     var scenePeak: Float
     var colorTransfer: UInt32
     var colorRange: UInt32
+    var bitDepth: UInt32
+    var uvShiftX: UInt32    // 0=444, 1=422/420
+    var uvShiftY: UInt32    // 0=444/422, 1=420
 }
 
 class MetalToneMapper {
@@ -40,10 +43,28 @@ class MetalToneMapper {
     private var textureCache: CVMetalTextureCache?
     private var streamDefaults = HDRMetadata()
 
+    // Supported planar YUV formats: (bitDepth, uvShiftX, uvShiftY)
+    private static let supportedFormats: [Int32: (bitDepth: UInt32, uvShiftX: UInt32, uvShiftY: UInt32)] = [
+        // 420: half width, half height chroma
+        AV_PIX_FMT_YUV420P9LE.rawValue:  (9,  1, 1),
+        AV_PIX_FMT_YUV420P10LE.rawValue: (10, 1, 1),
+        AV_PIX_FMT_YUV420P12LE.rawValue: (12, 1, 1),
+        AV_PIX_FMT_YUV420P16LE.rawValue: (16, 1, 1),
+        // 422: half width, full height chroma
+        AV_PIX_FMT_YUV422P9LE.rawValue:  (9,  1, 0),
+        AV_PIX_FMT_YUV422P10LE.rawValue: (10, 1, 0),
+        AV_PIX_FMT_YUV422P12LE.rawValue: (12, 1, 0),
+        AV_PIX_FMT_YUV422P16LE.rawValue: (16, 1, 0),
+        // 444: full width, full height chroma
+        AV_PIX_FMT_YUV444P9LE.rawValue:  (9,  0, 0),
+        AV_PIX_FMT_YUV444P10LE.rawValue: (10, 0, 0),
+        AV_PIX_FMT_YUV444P12LE.rawValue: (12, 0, 0),
+        AV_PIX_FMT_YUV444P16LE.rawValue: (16, 0, 0),
+    ]
+
     // Returns true if this frame can be processed
     class func supported(for frame: UnsafePointer<AVFrame>) -> Bool {
-        // Only support yuv420p10 input for now
-        guard frame.pointee.format == AV_PIX_FMT_YUV420P10LE.rawValue else { return false }
+        guard supportedFormats[frame.pointee.format] != nil else { return false }
 
         let trc = frame.pointee.color_trc
         if trc == AVCOL_TRC_SMPTE2084 || trc == AVCOL_TRC_ARIB_STD_B67 { return true }  // PQ or HLG
@@ -67,7 +88,7 @@ class MetalToneMapper {
         self.queue = queue
         do {
             library = try device.makeDefaultLibrary(bundle: .main)
-            guard let kernel = library.makeFunction(name: "hdrTonemapYUV420P10ToBGRA8") else { return nil }
+            guard let kernel = library.makeFunction(name: "hdrTonemapYUVPlanarToBGRA8") else { return nil }
             pipeline = try device.makeComputePipelineState(function: kernel)
         } catch {
             return nil
@@ -100,18 +121,22 @@ class MetalToneMapper {
     // Main entry point: tone map and write into destination BGRA8 pixelBuffer.
     func process(frame: UnsafePointer<AVFrame>, pixelBuffer: CVPixelBuffer) -> Error? {
         guard let textureCache else { return AVERROR(errorCode: AVERROR_UNKNOWN, context: "metal texture cache") }
-        // Expect 3-plane 4:2:0 YUV420P10 (10-bit in 16-bit container)
         guard CVPixelBufferGetPixelFormatType(pixelBuffer) == kCVPixelFormatType_32BGRA else {
             return AVERROR(errorCode: AVERROR_UNKNOWN, context: "dest pixelBuffer not BGRA")
+        }
+        guard let formatInfo = MetalToneMapper.supportedFormats[frame.pointee.format] else {
+            return AVERROR(errorCode: AVERROR_UNKNOWN, context: "unsupported pixel format")
         }
 
         let srcWidth = Int(frame.pointee.width)
         let srcHeight = Int(frame.pointee.height)
+        let uvWidth  = srcWidth  >> Int(formatInfo.uvShiftX)
+        let uvHeight = srcHeight >> Int(formatInfo.uvShiftY)
 
         // Create Metal textures for Y, U, V planes from AVFrame data
         guard let yTex = makePlaneTexture(width: srcWidth, height: srcHeight, plane: 0, frame: frame),
-            let uTex = makePlaneTexture(width: srcWidth / 2, height: srcHeight / 2, plane: 1, frame: frame),
-            let vTex = makePlaneTexture(width: srcWidth / 2, height: srcHeight / 2, plane: 2, frame: frame)
+            let uTex = makePlaneTexture(width: uvWidth, height: uvHeight, plane: 1, frame: frame),
+            let vTex = makePlaneTexture(width: uvWidth, height: uvHeight, plane: 2, frame: frame)
         else {
             return AVERROR(errorCode: AVERROR_UNKNOWN, context: "create plane textures")
         }
@@ -143,7 +168,10 @@ class MetalToneMapper {
             dstHeight: UInt32(dstHeight),
             scenePeak: chooseScenePeak(from: metadata, colorTransfer: frame.pointee.color_trc),
             colorTransfer: UInt32(frame.pointee.color_trc.rawValue),
-            colorRange: UInt32(frame.pointee.color_range.rawValue)
+            colorRange: UInt32(frame.pointee.color_range.rawValue),
+            bitDepth: formatInfo.bitDepth,
+            uvShiftX: formatInfo.uvShiftX,
+            uvShiftY: formatInfo.uvShiftY
         )
 
         #if false
