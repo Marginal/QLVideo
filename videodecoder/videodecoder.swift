@@ -13,12 +13,11 @@ import MediaExtension
 
 // Swift Error wrapper for CoreVideo CVReturn codes
 struct CVReturnError: LocalizedError, CustomNSError {
-    let status: CVReturn
+    let errorCode: Int
     let context: String?
 
     static var errorDomain: String { "CoreVideoErrorDomain" }
-    var errorCode: Int { Int(status) }
-    var errorDescription: String? { "\(context ?? "") failed with CVReturn \(status)" }
+    var errorDescription: String? { "\(context ?? "") failed with CVReturn \(errorCode)" }
 }
 
 class VideoDecoder: NSObject, MEVideoDecoder {
@@ -69,6 +68,9 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var scaleYTemp: UnsafeMutableRawPointer? = nil
     var scaleCbTemp: UnsafeMutableRawPointer? = nil
     var scaleCrTemp: UnsafeMutableRawPointer? = nil
+
+    // For format conversion and tonemapping using Metal
+    var metalToneMapper: MetalToneMapper? = nil
 
     // For format conversion using FFmpeg's zscale filter
     var filterGraph: UnsafeMutablePointer<AVFilterGraph>? = nil
@@ -321,7 +323,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
         var totalLength: Int = 0
         var data: UnsafeMutablePointer<Int8>?
-        var status = CMBlockBufferGetDataPointer(
+        let status = CMBlockBufferGetDataPointer(
             blockBuffer,
             atOffset: 0,
             lengthAtOffsetOut: nil,
@@ -455,8 +457,13 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 kCVPixelBufferHeightKey as String: height as CFNumber,
                 kCVPixelBufferBytesPerRowAlignmentKey as String: 64 as CFNumber,  // for potentially faster copy
                 kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,  // what macOS actually uses for rendering
-                kCVPixelBufferIOSurfacePropertiesKey as String: [:] as CFDictionary,
-                kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,  // Don't know if this helps
+                kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,  // for the Metal HDR pipeline
+                kCVBufferPropagatedAttachmentsKey as String: [
+                    // Tag as sRGB BT.709 so the display system doesn't misinterpret the data using any HDR tags in the stream
+                    kCVImageBufferColorPrimariesKey as String: kCVImageBufferColorPrimaries_ITU_R_709_2,
+                    kCVImageBufferTransferFunctionKey as String: kCVImageBufferTransferFunction_sRGB,
+                    kCVImageBufferYCbCrMatrixKey as String: kCVImageBufferYCbCrMatrix_ITU_R_709_2,
+                ],
             ]
             pixelBuffer = try manager.makePixelBuffer()
         } catch {
@@ -465,40 +472,55 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             )
             return completionHandler(nil, .frameDropped, error)
         }
-        status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
-        guard status == kCVReturnSuccess else {
-            let error = CVReturnError(status: status, context: "CVPixelBufferLockBaseAddress")
-            logger.error(
-                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: \(error.localizedDescription, privacy: .public)"
-            )
-            return completionHandler(nil, .frameDropped, error)
-        }
 
         // can we use macOS's accelerated conversions?
-        let error = vImageConvertToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
-        if error != nil && error!.status != kvImageUnsupportedConversion {
-            logger.error(
-                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
-            )
-            CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
-            av_frame_free(&frame)
-            return completionHandler(nil, .frameDropped, error)
-        } else if error != nil {
-            // Fall back to zscale conversion
-            var error = zscaleConvertToGBRP(frame: &frame, pixelBuffer: &pixelBuffer)
-            if error == nil {
-                error = vImageCopyToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
-            }
-            guard error == nil else {
+        if let error = vImageConvertToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer) {
+            if error.errorCode != kvImageUnsupportedConversion {
                 logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
+                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error.localizedDescription, privacy: .public)"
                 )
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
                 av_frame_free(&frame)
                 return completionHandler(nil, .frameDropped, error)
             }
+        } else {
+            av_frame_free(&frame)
+            return completionHandler(pixelBuffer, [], nil)
         }
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
+
+        // can we use Metal for HDR formats?
+        if MetalToneMapper.supported(for: frame!) {
+            if metalToneMapper == nil {
+                metalToneMapper = MetalToneMapper(from: params)
+                guard metalToneMapper != nil else {
+                    logger.error("VideoDecoder decodeFrame: Failed to create Metal tone mapper")
+                    av_frame_free(&frame)
+                    return completionHandler(nil, .frameDropped, MEError(.internalFailure))
+                }
+            }
+            if let error = metalToneMapper!.process(frame: frame!, pixelBuffer: pixelBuffer) {
+                logger.error(
+                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Metal tone map failed: \(error.localizedDescription, privacy: .public)"
+                )
+                av_frame_free(&frame)
+                return completionHandler(nil, .frameDropped, error)
+            } else {
+                av_frame_free(&frame)
+                return completionHandler(pixelBuffer, [], nil)
+            }
+        }
+
+        // Fall back to zscale conversion. Should work for pretty-much any source format.
+        var error = zscaleConvertToGBRP(frame: &frame, pixelBuffer: &pixelBuffer)
+        if error == nil {
+            error = vImageCopyToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
+        }
+        guard error == nil else {
+            logger.error(
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
+            )
+            av_frame_free(&frame)
+            return completionHandler(nil, .frameDropped, error)
+        }
         av_frame_free(&frame)
         return completionHandler(pixelBuffer, [], nil)
     }

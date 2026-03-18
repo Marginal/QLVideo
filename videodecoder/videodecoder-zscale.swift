@@ -23,7 +23,7 @@ extension VideoDecoder {
     func zscaleConvertToGBRP(frame: inout UnsafeMutablePointer<AVFrame>?, pixelBuffer: inout CVPixelBuffer) -> Error? {
 
         // Patch up the incoming frame
-        let colorInfo = inferColors(frame: &frame!.pointee)
+        let colorInfo = VideoDecoder.inferColors(frame: frame!)
         frame!.pointee.color_primaries = colorInfo.primaries
         frame!.pointee.color_trc = colorInfo.transfer
         frame!.pointee.colorspace = colorInfo.matrix
@@ -114,12 +114,12 @@ extension VideoDecoder {
     }
 
     // zscale can't handle unspecifed info in the input AVFrame. Make educated guesses.
-    private func inferColors(frame: inout AVFrame) -> ColorInfo {
+    class func inferColors(frame: UnsafePointer<AVFrame>) -> ColorInfo {
 
         // Let presence of SMPTE 2086:2014 side data override anything else in the AVFrame
-        if av_frame_get_side_data(&frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) != nil
-            || av_frame_get_side_data(&frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) != nil
-            || av_frame_get_side_data(&frame, AV_FRAME_DATA_DOVI_METADATA) != nil
+        if av_frame_get_side_data(frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) != nil
+            || av_frame_get_side_data(frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) != nil
+            || av_frame_get_side_data(frame, AV_FRAME_DATA_DOVI_METADATA) != nil
         {
             return ColorInfo(
                 primaries: AVCOL_PRI_BT2020,
@@ -127,6 +127,8 @@ extension VideoDecoder {
                 matrix: AVCOL_SPC_BT2020_NCL,
             )
         }
+
+        let frame = frame.pointee
 
         // If all fields are specified then assume they're correct
         if frame.color_primaries != AVCOL_PRI_UNSPECIFIED

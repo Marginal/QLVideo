@@ -13,12 +13,11 @@ import MediaExtension
 
 // Swift Error wrapper for CoreVideo CVReturn codes
 struct vImageError: LocalizedError, CustomNSError {
-    let status: vImage_Error
+    let errorCode: Int
     let context: String?
 
     static var errorDomain: String { "vImageErrorDomain" }
-    var errorCode: Int { Int(status) }
-    var errorDescription: String? { "\(context ?? "") failed with vImage_Error \(status)" }
+    var errorDescription: String? { "\(context ?? "") failed with vImage_Error \(errorCode)" }
 }
 
 extension VideoDecoder {
@@ -65,18 +64,18 @@ extension VideoDecoder {
     ]
 
     // Convert supported formats to BGRA using vImage
-    func vImageConvertToBGRA(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> vImageError? {
+    func vImageConvertToBGRA(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> CustomNSError? {
 
         guard let format = VideoDecoder.vImageTypes[AVPixelFormat(frame.format)] else {
-            return vImageError(status: kvImageUnsupportedConversion, context: "vImageConvertToBGRA")
+            return vImageError(errorCode: kvImageUnsupportedConversion, context: "vImageConvertToBGRA")
         }
         let srcWidth = Int(frame.width)
         let srcHeight = Int(frame.height)
         let dstWidth = Int(CVPixelBufferGetWidth(pixelBuffer))
         let dstHeight = Int(CVPixelBufferGetHeight(pixelBuffer))
 
-        if srcWidth != dstWidth && format != kvImage420Yp8_Cb8_Cr8 {
-            return vImageError(status: kvImageUnsupportedConversion, context: "vImageConvertToBGRA")  // Can only handle anamorphic if yuv420p
+        guard srcWidth == dstWidth || format == kvImage420Yp8_Cb8_Cr8 else {
+            return vImageError(errorCode: kvImageUnsupportedConversion, context: "vImageConvertToBGRA")  // Can only handle anamorphic if yuv420p
         }
 
         if conversionInfo == nil {
@@ -101,7 +100,7 @@ extension VideoDecoder {
                 vImage_Flags(kvImageNoFlags)
             )
             guard ret == kvImageNoError else {
-                let error = vImageError(status: ret, context: "vImageConvert_YpCbCrToARGB_GenerateConversion")
+                let error = vImageError(errorCode: ret, context: "vImageConvert_YpCbCrToARGB_GenerateConversion")
                 return error
             }
             if srcWidth != dstWidth {
@@ -118,6 +117,10 @@ extension VideoDecoder {
         }
 
         // Wrap destination
+        let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        guard status == kCVReturnSuccess else {
+            return CVReturnError(errorCode: Int(status), context: "CVPixelBufferLockBaseAddress")
+        }
         var dstBGRA = vImage_Buffer(
             data: CVPixelBufferGetBaseAddress(pixelBuffer)!.assumingMemoryBound(to: UInt8.self),
             height: vImagePixelCount(dstHeight),
@@ -204,8 +207,9 @@ extension VideoDecoder {
         default:
             ret = kvImageUnsupportedConversion  // Shouldn't get here
         }
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
         guard ret == kvImageNoError else {
-            let error = vImageError(status: ret, context: "vImageConvert")
+            let error = vImageError(errorCode: ret, context: "vImageConvert")
             return error
         }
         return nil
@@ -220,13 +224,13 @@ extension VideoDecoder {
         dstHeight: Int
     ) -> vImageError? {
         guard dstWidth != srcWidth else {
-            return vImageError(status: kvImageInternalError, context: "vImageAllocateScaleBuffers: no scaling needed")
+            return vImageError(errorCode: kvImageInternalError, context: "vImageAllocateScaleBuffers: no scaling needed")
         }
         guard
             scaleYBuffer == nil && scaleCbBuffer == nil && scaleCrBuffer == nil && scaleYTemp == nil && scaleCbTemp == nil
                 && scaleCrTemp == nil
         else {
-            return vImageError(status: kvImageInternalError, context: "vImageAllocateScaleBuffers: no scaling needed")
+            return vImageError(errorCode: kvImageInternalError, context: "vImageAllocateScaleBuffers: no scaling needed")
         }
 
         // Y plane buffers (8 bpp)
@@ -265,13 +269,13 @@ extension VideoDecoder {
 
         // temp buffers sized per plane
         var sz = vImageScale_Planar8(&scaleYBuffer!, &scaleYBuffer!, nil, vImage_Flags(kvImageGetTempBufferSize))
-        guard sz > 0 else { return vImageError(status: sz, context: "vImageScale_Planar8") }
+        guard sz > 0 else { return vImageError(errorCode: sz, context: "vImageScale_Planar8") }
         scaleYTemp = UnsafeMutableRawPointer.allocate(byteCount: Int(sz), alignment: yAlign)
         sz = vImageScale_Planar8(&scaleCbBuffer!, &scaleCbBuffer!, nil, vImage_Flags(kvImageGetTempBufferSize))
-        guard sz > 0 else { return vImageError(status: sz, context: "vImageScale_Planar8") }
+        guard sz > 0 else { return vImageError(errorCode: sz, context: "vImageScale_Planar8") }
         scaleCbTemp = UnsafeMutableRawPointer.allocate(byteCount: Int(sz), alignment: cAlign)
         sz = vImageScale_Planar8(&scaleCrBuffer!, &scaleCrBuffer!, nil, vImage_Flags(kvImageGetTempBufferSize))
-        guard sz > 0 else { return vImageError(status: sz, context: "vImageScale_Planar8") }
+        guard sz > 0 else { return vImageError(errorCode: sz, context: "vImageScale_Planar8") }
         scaleCrTemp = UnsafeMutableRawPointer.allocate(byteCount: Int(sz), alignment: cAlign)
         return nil
     }
@@ -314,6 +318,11 @@ extension VideoDecoder {
             width: vImagePixelCount(width),
             rowBytes: Int(frame.linesize.2)
         )
+
+        let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        guard status == kCVReturnSuccess else {
+            return CVReturnError(errorCode: Int(status), context: "CVPixelBufferLockBaseAddress")
+        }
         var dst = vImage_Buffer(
             data: CVPixelBufferGetBaseAddress(pixelBuffer),
             height: vImagePixelCount(height),
@@ -334,8 +343,9 @@ extension VideoDecoder {
         default:
             ret = kvImageUnsupportedConversion  // Shouldn't get here
         }
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, [])
         guard ret == kvImageNoError else {
-            let error = vImageError(status: ret, context: "vImageConvert")
+            let error = vImageError(errorCode: ret, context: "vImageConvert")
             return error
         }
         return nil
