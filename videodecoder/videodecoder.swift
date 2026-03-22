@@ -361,9 +361,10 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         pkt!.pointee.dts = sampleBuffer.decodeTimeStamp.isNumeric ? sampleBuffer.decodeTimeStamp.value : AV_NOPTS_VALUE
         pkt!.pointee.pts =
             sampleBuffer.presentationTimeStamp.isNumeric ? sampleBuffer.presentationTimeStamp.value : AV_NOPTS_VALUE
-        let dependsOnOthers = (attachment[kCMSampleAttachmentKey_DependsOnOthers] as? Bool) ?? true
+        let notSync = (attachment[kCMSampleAttachmentKey_NotSync] as? Bool) ?? false
         let doNotDisplay = (attachment[kCMSampleAttachmentKey_DoNotDisplay] as? Bool) ?? false
-        pkt!.pointee.flags = (!dependsOnOthers ? AV_PKT_FLAG_KEY : 0) | (doNotDisplay ? AV_PKT_FLAG_DISCARD : 0)
+        let discontinuity = (attachment[kCMSampleBufferAttachmentKey_ResetDecoderBeforeDecoding] as? Bool) ?? false
+        pkt!.pointee.flags = (!notSync ? AV_PKT_FLAG_KEY : 0) | (doNotDisplay ? AV_PKT_FLAG_DISCARD : 0)
         var nb_sd: Int32 = 0
         while nb_sd < Int(pkt!.pointee.side_data_elems) {
             let importedSideData = attachment["SideData\(nb_sd)" as CFString] as! Data
@@ -388,15 +389,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
 
         // Try to detect a discontinuous seek and flush the decoder if we see one
-        let DTS = CMTime(value: pkt!.pointee.dts, timeBase: pkt!.pointee.time_base)
-        if pkt!.pointee.flags & AV_PKT_FLAG_KEY != 0 && lastDTS.isValid
-            && (DTS < lastDTS
-                || DTS - lastDTS
-                    > CMTime(
-                        seconds: sampleBuffer.duration != CMTime.zero ? sampleBuffer.duration.seconds * 10 : 1,
-                        preferredTimescale: pkt!.pointee.time_base.den
-                    ))  // arbitrary
-        {
+        if discontinuity {
             logger.debug(
                 "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): Seek"
             )
@@ -405,7 +398,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
 
         // Decode
-        lastDTS = DTS
         var ret = avcodec_send_packet(dec_ctx, pkt)
         av_packet_free(&pkt)  // Free regardless of result since we don't need this any more - actual data lives in CMBlockBuffer
         if ret == AVERROR_EAGAIN {

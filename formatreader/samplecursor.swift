@@ -21,6 +21,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     var track: TrackReader? = nil
     var streamIndex = -1  // FFmpeg stream index
     var handle = PacketHandle(generation: 0, index: -1, isLast: false)
+    var discontinuity: Bool = false
     var timeBase = AVRational()
     var demuxer: PacketDemuxer { format!.demuxer! }
 
@@ -50,6 +51,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             format.demuxer = try PacketDemuxer(format: format)
         }
         self.handle = try demuxer.seek(stream: streamIndex, presentationTimeStamp: presentationTimeStamp)
+        self.discontinuity = true  // SampleCursors are only initted (as opposed to copied) after a seek
     }
 
     init(copying: SampleCursor) {
@@ -61,6 +63,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         self.instance = SampleCursor.instanceCount
         SampleCursor.instanceCount += 1
         self.handle = copying.handle
+        self.discontinuity = false
         self.lastDelivered = copying.lastDelivered
         self.nextHandle = copying.nextHandle
         if TRACE_SAMPLE_CURSOR { logger.debug("\(copying.debugDescription, privacy: .public) copy -> \(self.instance)") }
@@ -88,7 +91,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     var presentationTimeStamp: CMTime {
         if let pkt = demuxer.get(stream: self.streamIndex, handle: self.handle) {
             let time = CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)  // docs suggest can be invalid for B frames
-            if TRACE_SAMPLE_CURSOR {
+            if false {
                 logger.debug("\(self.debugDescription, privacy: .public) presentationTimeStamp = \(time, privacy: .public)")
             }
             return time
@@ -101,7 +104,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     var decodeTimeStamp: CMTime {
         if let pkt = demuxer.get(stream: self.streamIndex, handle: self.handle) {
             let time = CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)
-            if TRACE_SAMPLE_CURSOR {
+            if false {
                 logger.debug("\(self.debugDescription, privacy: .public) decodeTimeStamp = \(time, privacy: .public)")
             }
             return time
@@ -115,7 +118,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         // https://developer.apple.com/documentation/avfoundation/avsamplecursor/currentsampleduration
         if let pkt = demuxer.get(stream: self.streamIndex, handle: self.handle) {
             let time = CMTime(value: pkt.pointee.duration, timeBase: self.timeBase)
-            if TRACE_SAMPLE_CURSOR {
+            if false {
                 logger.debug("\(self.debugDescription, privacy: .public) currentSampleDuration = \(time, privacy: .public)")
             }
             return time
@@ -127,7 +130,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
     var currentSampleFormatDescription: CMFormatDescription? {
         if demuxer.get(stream: self.streamIndex, handle: self.handle) != nil {
-            if TRACE_SAMPLE_CURSOR {
+            if false {
                 logger.debug(
                     "\(self.debugDescription, privacy: .public) currentSampleFormatDescription = \(self.track!.formatDescription!.mediaSubType, privacy: .public)"
                 )
@@ -224,10 +227,12 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         }
         let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer!, createIfNecessary: true)! as NSArray
         let attachment = attachments.firstObject as! NSMutableDictionary
-        attachment[kCMSampleAttachmentKey_DependsOnOthers] =
-            ((pkt.pointee.flags & AV_PKT_FLAG_KEY) != 0) ? kCFBooleanFalse : kCFBooleanTrue
+        attachment[kCMSampleAttachmentKey_NotSync] =
+            ((pkt.pointee.flags & AV_PKT_FLAG_KEY) == 0) ? kCFBooleanTrue : kCFBooleanFalse
         attachment[kCMSampleAttachmentKey_DoNotDisplay] =
             ((pkt.pointee.flags & AV_PKT_FLAG_DISCARD) != 0) ? kCFBooleanTrue : kCFBooleanFalse
+        attachment[kCMSampleBufferAttachmentKey_ResetDecoderBeforeDecoding] =
+            self.discontinuity ? kCFBooleanTrue : kCFBooleanFalse
         for i in 0..<Int(pkt.pointee.side_data_elems) {
             attachment["SideData\(i)" as CFString] = CFDataCreate(
                 kCFAllocatorDefault,
@@ -347,7 +352,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
                 sampleIsPartialSync: false,  // I don't know what this means
                 sampleIsDroppable: ObjCBool((pkt.pointee.flags & (AV_PKT_FLAG_DISCARD | AV_PKT_FLAG_DISPOSABLE)) != 0)
             )
-            if TRACE_SAMPLE_CURSOR {
+            if false {
                 logger.debug(
                     "\(self.debugDescription, privacy: .public) syncInfo sampleIsFullSync:\(info.sampleIsFullSync, privacy: .public) sampleIsDroppable:\(info.sampleIsDroppable, privacy: .public)"
                 )
@@ -369,7 +374,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
                 sampleIndicatesWhetherItHasRedundantCoding: true,
                 sampleHasRedundantCoding: false
             )
-            if TRACE_SAMPLE_CURSOR {
+            if false {
                 logger.debug(
                     "\(self.debugDescription, privacy: .public) dependencyInfo sampleHasDependentSamples:\(info.sampleHasDependentSamples, privacy: .public) sampleDependsOnOthers:\(info.sampleDependsOnOthers, privacy: .public)"
                 )
