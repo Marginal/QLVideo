@@ -1,3 +1,6 @@
+/* Crash reports dialog (TextField: IDd-WH-WPZ) */
+"A zip file has been placed on your Desktop:" = "Zip 압축 파일을 바탕화면에 저장:";
+
 /* Submit button in cover art dialog (Button: 6rg-QU-OWy) */
 "Add" = "추가";
 
@@ -16,6 +19,21 @@
 /* (MenuItem: bIO-Lx-JiA) */
 "Cover Art..." = "커버 아트...";
 
+/* Guidance note in cover art dialog (TextField: X7T-Dc-xUC) */
+"Cover art is displayed in Finder thumbnails and in static QuickLook previews.\n\nYou can add, replace or remove cover art in MP4, M4V, MKV and WEBM files.\n\nCover art must be supplied as a JPEG or PNG file." = "커버 아트는 파인더 썸네일 및 정적 QuickLook 미리보기에 표시됩니다.\n\nMP4, M4V, MKV 및 WEBM 파일에서 커버 아트를 추가, 교체 또는 제거할 수 있습니다.\n\n커버 아트는 JPEG 또는 PNG 파일 형식이어야 합니다.";
+
+/* Crash reports dialog: Window title (Window: CrH-ur-CRW) */
+"Crash reports found" = "충돌 보고를 찾았습니다";
+
+/* Generating a bug report: Prompt (TextField: eA4-FA-7dc) */
+"Drop a problematic video file here" = "여기에 문제있는 영상 파일을 놓으십시오";
+
+/* Prompt in cover art dialog (TextField: TX8-mu-sca) */
+"Drop file to use as cover art here.\nLeave empty to remove existing cover art." = "여기에 커버 아트로 사용할 파일을 놓으십시오.\n기존 커버 아트를 제거하려면 비워 두십시오.";
+
+/* Prompt in cover art dialog (TextField: SDg-KK-0Nv) */
+"Drop video file here" = "여기에 영상 파일을 놓으세요";
+
 /* Standard macOS menu entry (Menu: bib-Uj-vzu, dMs-cI-mzQ) */
 "File" = "파일";
 
@@ -28,8 +46,14 @@
 /* Standard macOS menu entry (MenuItem: Olw-nP-bQN) */
 "Hide QuickLook Video" = "텍스트 편집기 가리기";
 
+/* Generating a bug report: Guidance note (TextField: dCn-U3-hOJ) */
+"Note:\n- You will need a GitHub account to report an Issue. You can register for one in the next step.\n- The file format will be included in the new Issue.\n- No file names or other file content will be sent.\n- You wil be able to review the new Issue before submission." = "참고:\n- 문제를 보고하려면 GitHub 계정이 필요합니다. 다음 단계에서 계정을 등록하실 수 있습니다.\n- 파일 포맷은 문제 보고에 포함됩니다.\n- 파일 이름이나 파일의 내용은 전송되지 않습니다.\n- 제출하기 전에 내용을 검토하실 수 있습니다.";
+
 /* Crash reports dialog (Button: CrB-ok-cell) */
 "OK" = "확인";
+
+/* Crash reports dialog (TextField: UQZ-am-M7w) */
+"Please attach it to your GitHub issue." = "GitHub 문제 보고에 첨부해 주십시오.";
 
 /* Standard macOS menu entry (MenuItem: FKE-Sm-Kum) */
 "QuickLook Video Help" = "텍스트 편집기 도움말";
@@ -51,6 +75,9 @@
 
 /* Setting - time interval (TextField: fxY-dc-4ds) */
 "Snapshot" = "스냅샷";
+
+/* Crash reports dialog (TextField: OoJ-wE-2Cu) */
+"There are some recent crash reports for this app's plugins " = "이 앱의 플러그인에 대한 최근 충돌 보고가 몇 건 있습니다 ";
 
 /* Settings heading (TextField: 37f-qP-fvU) */
 "Thumbnails" = "축소판";
