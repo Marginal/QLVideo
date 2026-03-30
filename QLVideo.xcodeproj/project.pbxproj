@@ -18,11 +18,6 @@
 		AB01AAFA2ECC04CA00A5CB77 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
 		AB01AAFB2ECC04CD00A5CB77 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
 		AB01AAFC2ECC04D000A5CB77 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
-		AB0527D51D294751009A809B /* bench.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0527C81D2946F1009A809B /* bench.m */; };
-		AB0527E21D2947AC009A809B /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
-		AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714819F8A6970006104E /* libiconv.dylib */; };
-		AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
-		AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714619F8A6730006104E /* libz.dylib */; };
 		AB34A76F2ECA3DBA0020E022 /* libdav1d.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141EA2D2EF8CA0040A4E6 /* libdav1d.a */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -38,14 +33,7 @@
 		AB823D362ECB991F00F0E1D3 /* QLVideo Formats.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = AB823D2F2ECB991F00F0E1D3 /* QLVideo Formats.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB9FB57F1965DD7200D39647 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB57E1965DD7200D39647 /* main.c */; };
 		AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */; };
-		ABA141BB2D2EE41B0040A4E6 /* libdav1d.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; };
 		ABA141BF2D2EE47E0040A4E6 /* libdav1d.7.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141BA2D2EE41B0040A4E6 /* libdav1d.7.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		ABA141D52D2EE49D0040A4E6 /* libswresample.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C52D2EE49D0040A4E6 /* libswresample.6.dylib */; };
-		ABA141D62D2EE49D0040A4E6 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
-		ABA141D72D2EE49D0040A4E6 /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
-		ABA141D82D2EE49D0040A4E6 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
-		ABA141D92D2EE49D0040A4E6 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
-		ABA141DA2D2EE49D0040A4E6 /* libavfilter.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C12D2EE49D0040A4E6 /* libavfilter.11.dylib */; };
 		ABA141E32D2EE4B10040A4E6 /* libavcodec.62.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABA141E42D2EE4B50040A4E6 /* libavfilter.11.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141C12D2EE49D0040A4E6 /* libavfilter.11.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABA141E52D2EE4BA0040A4E6 /* libavformat.62.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -115,21 +103,7 @@
 			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
 			remoteInfo = ffmpeg;
 		};
-		AB535D5B1EDCD0C900ECB0CE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
-			remoteInfo = ffmpeg;
-		};
 		AB66472A261AA04400D23514 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB66470D261A88C700D23514;
-			remoteInfo = aom;
-		};
-		AB664730261AA06C00D23514 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
 			proxyType = 1;
@@ -214,8 +188,6 @@
 		AB00C5C81A682EF800D71399 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/schema.strings; sourceTree = "<group>"; };
 		AB00C5CA1A682F6800D71399 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/schema.strings; sourceTree = "<group>"; };
 		AB00C5CB1A682F7200D71399 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/schema.strings; sourceTree = "<group>"; };
-		AB0527C81D2946F1009A809B /* bench.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bench.m; sourceTree = "<group>"; };
-		AB0527CE1D294732009A809B /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB0B80BF1EED41F1008A22DC /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0B80C11EED4204008A22DC /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/schema.strings; sourceTree = "<group>"; };
 		AB0E0D3C1A15B0300056CC24 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/schema.strings; sourceTree = "<group>"; };
@@ -360,24 +332,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB0527CB1D294732009A809B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				ABA141BB2D2EE41B0040A4E6 /* libdav1d.7.dylib in Frameworks */,
-				ABA141D52D2EE49D0040A4E6 /* libswresample.6.dylib in Frameworks */,
-				ABA141D62D2EE49D0040A4E6 /* libavcodec.62.dylib in Frameworks */,
-				ABA141D72D2EE49D0040A4E6 /* libswscale.9.dylib in Frameworks */,
-				ABA141D82D2EE49D0040A4E6 /* libavutil.60.dylib in Frameworks */,
-				ABA141D92D2EE49D0040A4E6 /* libavformat.62.dylib in Frameworks */,
-				ABA141DA2D2EE49D0040A4E6 /* libavfilter.11.dylib in Frameworks */,
-				AB0527E41D2947CF009A809B /* libbz2.dylib in Frameworks */,
-				AB0527E31D2947BB009A809B /* libiconv.dylib in Frameworks */,
-				AB0527E21D2947AC009A809B /* liblzma.5.dylib in Frameworks */,
-				AB0527E51D2947D1009A809B /* libz.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB49FB6C2922769F00B126C0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -431,14 +385,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AB0527CF1D294732009A809B /* benchmark */ = {
-			isa = PBXGroup;
-			children = (
-				AB0527C81D2946F1009A809B /* bench.m */,
-			);
-			path = benchmark;
-			sourceTree = "<group>";
-		};
 		AB49FB70292276A000B126C0 /* app */ = {
 			isa = PBXGroup;
 			children = (
@@ -471,7 +417,6 @@
 			isa = PBXGroup;
 			children = (
 				AB49FB70292276A000B126C0 /* app */,
-				AB0527CF1D294732009A809B /* benchmark */,
 				AB9FB5781965DD7200D39647 /* mdimporter */,
 				AB823D302ECB991F00F0E1D3 /* formatreader */,
 				AB0049872F2143CE0054D7B0 /* videodecoder */,
@@ -486,7 +431,6 @@
 			isa = PBXGroup;
 			children = (
 				AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */,
-				AB0527CE1D294732009A809B /* benchmark */,
 				AB49FB6F2922769F00B126C0 /* QuickLook Video.app */,
 				AB823D2F2ECB991F00F0E1D3 /* QLVideo Formats.appex */,
 				AB5C5AAB2EDE0E0B00AD8A97 /* simpleplayer.app */,
@@ -644,24 +588,6 @@
 			productReference = AB0049862F2143CE0054D7B0 /* QLVideo Codecs.appex */;
 			productType = "com.apple.product-type.extensionkit-extension";
 		};
-		AB0527CD1D294732009A809B /* benchmark */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AB0527D21D294732009A809B /* Build configuration list for PBXNativeTarget "benchmark" */;
-			buildPhases = (
-				AB0527CA1D294732009A809B /* Sources */,
-				AB0527CB1D294732009A809B /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				AB664731261AA06C00D23514 /* PBXTargetDependency */,
-				AB535D5C1EDCD0C900ECB0CE /* PBXTargetDependency */,
-			);
-			name = benchmark;
-			productName = benchmark;
-			productReference = AB0527CE1D294732009A809B /* benchmark */;
-			productType = "com.apple.product-type.tool";
-		};
 		AB49FB6E2922769F00B126C0 /* QuickLook Video */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AB49FB7D292276A100B126C0 /* Build configuration list for PBXNativeTarget "QuickLook Video" */;
@@ -809,7 +735,6 @@
 				AB823D2E2ECB991F00F0E1D3 /* formatreader */,
 				AB0049852F2143CE0054D7B0 /* videodecoder */,
 				AB5C5AAA2EDE0E0B00AD8A97 /* simpleplayer */,
-				AB0527CD1D294732009A809B /* benchmark */,
 				AB535D4D1EDC390C00ECB0CE /* ffmpeg */,
 				AB66470D261A88C700D23514 /* dav1d */,
 				AB006A4E2F2967A20014937F /* zimg */,
@@ -931,14 +856,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB0527CA1D294732009A809B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AB0527D51D294751009A809B /* bench.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AB49FB6B2922769F00B126C0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1007,20 +924,10 @@
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB535D571EDCD0BD00ECB0CE /* PBXContainerItemProxy */;
 		};
-		AB535D5C1EDCD0C900ECB0CE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
-			targetProxy = AB535D5B1EDCD0C900ECB0CE /* PBXContainerItemProxy */;
-		};
 		AB66472B261AA04400D23514 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB66470D261A88C700D23514 /* dav1d */;
 			targetProxy = AB66472A261AA04400D23514 /* PBXContainerItemProxy */;
-		};
-		AB664731261AA06C00D23514 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB66470D261A88C700D23514 /* dav1d */;
-			targetProxy = AB664730261AA06C00D23514 /* PBXContainerItemProxy */;
 		};
 		AB70C90C2EF1A35000E30DCE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1159,32 +1066,6 @@
 		AB006A532F2967A20014937F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-			};
-			name = Release;
-		};
-		AB0527D31D294732009A809B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		AB0527D41D294732009A809B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_NO_COMMON_BLOCKS = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -1569,15 +1450,6 @@
 			buildConfigurations = (
 				AB006A522F2967A20014937F /* Debug */,
 				AB006A532F2967A20014937F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AB0527D21D294732009A809B /* Build configuration list for PBXNativeTarget "benchmark" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				AB0527D31D294732009A809B /* Debug */,
-				AB0527D41D294732009A809B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
