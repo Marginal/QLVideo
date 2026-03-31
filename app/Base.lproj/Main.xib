@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24765" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24765"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -93,6 +93,9 @@
                                     <string key="toolTip">The time at which to take a snapshot for thumbnails in Finder windows.
 Only for files that don't contain cover art.</string>
                                     <sliderCell key="cell" continuous="YES" alignment="left" minValue="1" maxValue="1800" doubleValue="997.65869455645156" tickMarkPosition="above" sliderType="linear" id="ecQ-ky-N4c" userLabel="Snapshot Time Slider"/>
+                                    <attributedString key="userComments">
+                                        <fragment content="Tooltip for snapshot time slider"/>
+                                    </attributedString>
                                     <connections>
                                         <action selector="snapshotTimeChangedWithSender:" target="jrs-wu-C8P" id="CnA-sj-WB8"/>
                                     </connections>
@@ -117,7 +120,7 @@ Only for files that don't contain cover art.</string>
                                         <font key="font" metaFont="system"/>
                                     </buttonCell>
                                     <attributedString key="userComments">
-                                        <fragment content="Regenerate thumbnails"/>
+                                        <fragment content="Regenerate thumbnails button"/>
                                     </attributedString>
                                     <connections>
                                         <action selector="regenerateThumbnailsWithSender:" target="jrs-wu-C8P" id="V0a-sb-EtI"/>
@@ -156,6 +159,9 @@ Only for files that don't contain cover art.</string>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
+                        <attributedString key="userComments">
+                            <fragment content="do not translate"/>
+                        </attributedString>
                     </textField>
                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sv1-Bp-axZ">
                         <rect key="frame" x="18" y="73" width="414" height="45"/>
@@ -171,6 +177,9 @@ Only for files that don't contain cover art.</string>
                     </textField>
                 </subviews>
             </view>
+            <attributedString key="userComments">
+                <fragment content="do not translate"/>
+            </attributedString>
             <point key="canvasLocation" x="-278" y="-199"/>
         </window>
         <menu systemMenu="main" id="W3o-Zv-NUI">
@@ -206,7 +215,13 @@ Only for files that don't contain cover art.</string>
                                 </connections>
                             </menuItem>
                         </items>
+                        <attributedString key="userComments">
+                            <fragment content="do not translate"/>
+                        </attributedString>
                     </menu>
+                    <attributedString key="userComments">
+                        <fragment content="do not translate"/>
+                    </attributedString>
                 </menuItem>
                 <menuItem title="File" id="dMs-cI-mzQ">
                     <modifierMask key="keyEquivalentModifierMask"/>
