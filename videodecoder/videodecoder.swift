@@ -40,6 +40,11 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         0x4d50_3431: AV_CODEC_ID_MSMPEG4V1,  // 'MP41'
         0x4d50_3432: AV_CODEC_ID_MSMPEG4V2,  // 'MP42'
         0x4d50_3433: AV_CODEC_ID_MSMPEG4V3,  // 'MP43'
+        0x4861_7031: AV_CODEC_ID_HAP,  // 'Hap1'
+        0x4861_7035: AV_CODEC_ID_HAP,  // 'Hap5'
+        0x4861_7059: AV_CODEC_ID_HAP,  // 'HapY'
+        0x4861_704D: AV_CODEC_ID_HAP,  // 'HapM'
+        0x4861_7041: AV_CODEC_ID_HAP,  // 'HapA'
     ]
 
     // Supported pixel formats for QuickTime animation. Non-paletised only.
@@ -215,6 +220,10 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                         }
                     }
                 }
+            case AV_CODEC_ID_HAP:
+                // HAP outputs RGB0 (Hap1/HapY), RGBA (Hap5/HapM), or GRAY8 (HapA).
+                // FFmpeg's hapdec.c sets pix_fmt internally; no extradata needed.
+                params.pointee.color_range = AVCOL_RANGE_JPEG
             default:
                 // Shouldn't get here
                 logger.error(
