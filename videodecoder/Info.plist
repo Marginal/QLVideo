@@ -291,6 +291,38 @@
 				<string>MPEG-4 Video (MEncoder)</string>
 			</dict>
 
+			<!-- Vidvox HAP codecs -->
+			<dict>
+				<key>CodecType</key>
+				<string>Hap1</string>
+				<key>CodecName</key>
+				<string>HAP</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>Hap5</string>
+				<key>CodecName</key>
+				<string>HAP Alpha</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>HapY</string>
+				<key>CodecName</key>
+				<string>HAP Q</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>HapM</string>
+				<key>CodecName</key>
+				<string>HAP Q Alpha</string>
+			</dict>
+			<dict>
+				<key>CodecType</key>
+				<string>HapA</string>
+				<key>CodecName</key>
+				<string>HAP Alpha Only</string>
+			</dict>
+
 			<!-- Fallback type set by formatreader -->
 			<dict>
 				<key>CodecType</key>
