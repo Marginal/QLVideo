@@ -25,13 +25,18 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     static let supported: [CMVideoCodecType: AVCodecID] = [
         kCMVideoCodecType_Animation: AV_CODEC_ID_QTRLE,
         kCMVideoCodecType_Cinepak: AV_CODEC_ID_CINEPAK,
-        kCMVideoCodecType_SorensonVideo: AV_CODEC_ID_SVQ1,
-        kCMVideoCodecType_SorensonVideo3: AV_CODEC_ID_SVQ3,
+        0x4861_7031: AV_CODEC_ID_HAP,  // 'Hap1'
+        0x4861_7035: AV_CODEC_ID_HAP,  // 'Hap5'
+        0x4861_7059: AV_CODEC_ID_HAP,  // 'HapY'
+        0x4861_704D: AV_CODEC_ID_HAP,  // 'HapM'
+        0x4861_7041: AV_CODEC_ID_HAP,  // 'HapA'
         0x5254_3231: AV_CODEC_ID_INDEO2,  // 'RT21'
         0x4956_3331: AV_CODEC_ID_INDEO3,  // 'IV31'
         0x4956_3332: AV_CODEC_ID_INDEO3,  // 'IV32'
         0x4956_3431: AV_CODEC_ID_INDEO4,  // 'IV41'
         0x4956_3530: AV_CODEC_ID_INDEO5,  // 'IV50'
+        kCMVideoCodecType_SorensonVideo: AV_CODEC_ID_SVQ1,
+        kCMVideoCodecType_SorensonVideo3: AV_CODEC_ID_SVQ3,
         0x4449_5658: AV_CODEC_ID_MPEG4,  // 'DIVX'
         0x5856_4944: AV_CODEC_ID_MPEG4,  // 'XVID'
         0x4458_3530: AV_CODEC_ID_MPEG4,  // 'DX50'
@@ -40,11 +45,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         0x4d50_3431: AV_CODEC_ID_MSMPEG4V1,  // 'MP41'
         0x4d50_3432: AV_CODEC_ID_MSMPEG4V2,  // 'MP42'
         0x4d50_3433: AV_CODEC_ID_MSMPEG4V3,  // 'MP43'
-        0x4861_7031: AV_CODEC_ID_HAP,  // 'Hap1'
-        0x4861_7035: AV_CODEC_ID_HAP,  // 'Hap5'
-        0x4861_7059: AV_CODEC_ID_HAP,  // 'HapY'
-        0x4861_704D: AV_CODEC_ID_HAP,  // 'HapM'
-        0x4861_7041: AV_CODEC_ID_HAP,  // 'HapA'
     ]
 
     // Supported pixel formats for QuickTime animation. Non-paletised only.
@@ -155,6 +155,9 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             case AV_CODEC_ID_CINEPAK:
                 params.pointee.format = AV_PIX_FMT_RGB24.rawValue
                 params.pointee.color_range = AVCOL_RANGE_JPEG
+            case AV_CODEC_ID_HAP:
+                // FFmpeg hapdec.c sets pix_fmt to one of RGB0 (Hap1/HapY), RGBA (Hap5/HapM), or GRAY8 (HapA) based on fourCC in codec_tag
+                params.pointee.color_range = AVCOL_RANGE_JPEG
             case AV_CODEC_ID_INDEO2, AV_CODEC_ID_INDEO3, AV_CODEC_ID_INDEO4, AV_CODEC_ID_INDEO5:
                 params.pointee.format = AV_PIX_FMT_YUV410P.rawValue
                 params.pointee.color_range = AVCOL_RANGE_MPEG
@@ -220,10 +223,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                         }
                     }
                 }
-            case AV_CODEC_ID_HAP:
-                // HAP outputs RGB0 (Hap1/HapY), RGBA (Hap5/HapM), or GRAY8 (HapA).
-                // FFmpeg's hapdec.c sets pix_fmt internally; no extradata needed.
-                params.pointee.color_range = AVCOL_RANGE_JPEG
             default:
                 // Shouldn't get here
                 logger.error(
@@ -233,6 +232,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             }
             params.pointee.codec_type = AVMEDIA_TYPE_VIDEO
             params.pointee.codec_id = codecID
+            params.pointee.codec_tag = codecType.byteSwapped  // Supplied codecType is big endian
             params.pointee.width = videoFormatDescription.dimensions.width
             params.pointee.height = videoFormatDescription.dimensions.height
             params.pointee.bits_per_coded_sample = depth?.int32Value ?? 0
@@ -301,7 +301,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         // We're going to have to convert
 
         logger.log(
-            "VideoDecoder: Decoding \(self.params.pointee.width)x\(self.params.pointee.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.pointee.format))), privacy: .public) \(String(cString:av_color_space_name(self.params.pointee.color_space)), privacy: .public) frames and converting to BGRA"
+            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(String(cString:av_get_pix_fmt_name(self.dec_ctx!.pointee.pix_fmt)), privacy: .public) \(String(cString:av_color_space_name(self.dec_ctx!.pointee.colorspace)), privacy: .public) frames and converting to BGRA"
         )
 
     }
