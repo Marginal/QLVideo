@@ -24,12 +24,15 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
     static let supported: [CMVideoCodecType: AVCodecID] = [
         kCMVideoCodecType_Animation: AV_CODEC_ID_QTRLE,
+        0x7270_7a61: AV_CODEC_ID_RPZA,  // 'rpza'
         kCMVideoCodecType_Cinepak: AV_CODEC_ID_CINEPAK,
         0x4861_7031: AV_CODEC_ID_HAP,  // 'Hap1'
         0x4861_7035: AV_CODEC_ID_HAP,  // 'Hap5'
         0x4861_7059: AV_CODEC_ID_HAP,  // 'HapY'
         0x4861_704D: AV_CODEC_ID_HAP,  // 'HapM'
         0x4861_7041: AV_CODEC_ID_HAP,  // 'HapA'
+        0x666C_6963: AV_CODEC_ID_FLIC,  // 'flic'
+        0x4146_4C43: AV_CODEC_ID_FLIC,  // 'AFLC'
         0x5254_3231: AV_CODEC_ID_INDEO2,  // 'RT21'
         0x4956_3331: AV_CODEC_ID_INDEO3,  // 'IV31'
         0x4956_3332: AV_CODEC_ID_INDEO3,  // 'IV32'
@@ -48,7 +51,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     ]
 
     // Supported pixel formats for QuickTime animation. Non-paletised only.
-    // TODO: extract the palette from VerbatimSampleDescription.
+    // TODO: extract the palette from VerbatimSampleDescription see ff_get_qtpalette ?
     static let animDepths: [Int: AVPixelFormat] = [
         16: AV_PIX_FMT_RGB555LE,
         24: AV_PIX_FMT_RGB24,
@@ -152,11 +155,17 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                     )
                     throw MEError(.unsupportedFeature)
                 }
+            case AV_CODEC_ID_RPZA:
+                params.pointee.format = AV_PIX_FMT_RGB555LE.rawValue
+                params.pointee.color_range = AVCOL_RANGE_JPEG
             case AV_CODEC_ID_CINEPAK:
                 params.pointee.format = AV_PIX_FMT_RGB24.rawValue
                 params.pointee.color_range = AVCOL_RANGE_JPEG
             case AV_CODEC_ID_HAP:
                 // FFmpeg hapdec.c sets pix_fmt to one of RGB0 (Hap1/HapY), RGBA (Hap5/HapM), or GRAY8 (HapA) based on fourCC in codec_tag
+                params.pointee.color_range = AVCOL_RANGE_JPEG
+            case AV_CODEC_ID_FLIC:
+                // FFmpeg flicvideo.c sets pix_fmt based on depth
                 params.pointee.color_range = AVCOL_RANGE_JPEG
             case AV_CODEC_ID_INDEO2, AV_CODEC_ID_INDEO3, AV_CODEC_ID_INDEO4, AV_CODEC_ID_INDEO5:
                 params.pointee.format = AV_PIX_FMT_YUV410P.rawValue
