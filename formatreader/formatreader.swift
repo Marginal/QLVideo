@@ -209,7 +209,6 @@ class FormatReader: NSObject, MEFormatReader {
         let besties: Set = [
             Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0)),
             Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &decoder, 0)),
-            Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_SUBTITLE, -1, -1, &decoder, 0)),
         ]
         for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
             let stream = fmt_ctx!.pointee.streams[i]!
@@ -228,8 +227,13 @@ class FormatReader: NSObject, MEFormatReader {
                 let reader = AudioTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i))
                 readers.append(reader)
 
-            //case AVMEDIA_TYPE_SUBTITLE:
-            //    readers.append(SubtitleTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i)))
+            case AVMEDIA_TYPE_SUBTITLE:
+                if stream.pointee.codecpar.pointee.codec_id == AV_CODEC_ID_WEBVTT {
+                    readers.append(SubtitleTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i)))
+                } else {
+                    stream.pointee.discard = AVDISCARD_ALL  // no point demuxing or seeking streams that we can't handle
+                    logger.info("Unhandled subtitle format \(String(cString:avcodec_get_name(params.codec_id)), privacy:.public)")
+                }
 
             //case AVMEDIA_TYPE_ATTACHMENT:
             //    let codec_id = stream.pointee.codecpar.pointee.codec_id

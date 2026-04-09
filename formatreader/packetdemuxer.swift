@@ -29,7 +29,24 @@ import Foundation
 let QLThumbnailTime = CMTime(value: 10_000_000, timescale: 1_000_000)  // QuickLook generates its thumbnail at 10s
 let kSettingsSnapshotTime = "SnapshotTime"  // Seek offset for thumbnails and single Previews [s].
 
-private final class PacketRing {
+private protocol PacketBuffer: AnyObject {
+    var timeBase: AVRational { get }
+    var count: Int { get }
+    var isEmpty: Bool { get }
+    var minLogicalIndex: Int { get }
+    var maxLogicalIndex: Int { get }
+    /// true if all data is loaded upfront (e.g. subtitles), false if data arrives incrementally (audio/video ring buffer)
+    var isPreloaded: Bool { get }
+    /// true if the buffer is active (non-zero capacity ring buffer, or a preloaded buffer)
+    var isActive: Bool { get }
+    func get(logicalIndex: Int) -> UnsafeMutablePointer<AVPacket>?
+    func nearest(to target: CMTime) -> Int?
+    func reset()
+    /// Append a packet. Returns an evicted packet if the buffer is full, or nil.
+    @discardableResult func append(packet: UnsafeMutablePointer<AVPacket>) -> UnsafeMutablePointer<AVPacket>?
+}
+
+private final class PacketRing: PacketBuffer {
     private var storage: [UnsafeMutablePointer<AVPacket>?]
     private var head = 0
     private var tail = 0
@@ -46,6 +63,8 @@ private final class PacketRing {
 
     var isEmpty: Bool { count == 0 }
     var isFull: Bool { count == capacity }
+    var isPreloaded: Bool { false }
+    var isActive: Bool { capacity > 0 }
     var minLogicalIndex: Int {
         assert(count > 0)
         return headLogicalIndex
@@ -117,6 +136,58 @@ private final class PacketRing {
     }
 }
 
+private final class SubtitleBuffer: PacketBuffer {
+    private var storage: [UnsafeMutablePointer<AVPacket>] = []
+    let timeBase: AVRational
+
+    init(timeBase: AVRational) {
+        self.timeBase = timeBase
+    }
+
+    var count: Int { storage.count }
+    var isEmpty: Bool { storage.isEmpty }
+    var isPreloaded: Bool { true }
+    var isActive: Bool { true }
+    var minLogicalIndex: Int { 0 }
+    var maxLogicalIndex: Int { storage.count - 1 }
+
+    func reset() {
+        for i in 0..<storage.count {
+            var pkt: UnsafeMutablePointer<AVPacket>? = storage[i]
+            av_packet_free(&pkt)
+        }
+        storage.removeAll()
+    }
+
+    @discardableResult func append(packet: UnsafeMutablePointer<AVPacket>) -> UnsafeMutablePointer<AVPacket>? {
+        storage.append(packet)
+        return nil
+    }
+
+    func get(logicalIndex: Int) -> UnsafeMutablePointer<AVPacket>? {
+        guard logicalIndex >= 0 && logicalIndex < storage.count else { return nil }
+        return storage[logicalIndex]
+    }
+
+    /// Find the last packet with PTS <= target, or the first packet if all are after target.
+    func nearest(to target: CMTime) -> Int? {
+        guard !isEmpty else { return nil }
+        var best: Int? = nil
+        for idx in 0..<storage.count {
+            let pkt = storage[idx]
+            let tsVal = pkt.pointee.pts
+            if tsVal == AV_NOPTS_VALUE { continue }
+            let ts = CMTime(value: tsVal, timeBase: timeBase)
+            if ts <= target {
+                best = idx
+            } else {
+                break  // packets are in PTS order
+            }
+        }
+        return best ?? 0  // if all are after target, return the first
+    }
+}
+
 struct PacketHandle {
     let generation: Int
     let index: Int
@@ -131,7 +202,7 @@ final class PacketDemuxer {
     private let fmtCtx: UnsafeMutablePointer<AVFormatContext>
     private var pktFixup: Int64 = 0
     private var snapshotTime = CMTimeValue(10 * AV_TIME_BASE)  // Snapshot time in AV_TIME_BASE units
-    private var buffers: [PacketRing]
+    private var buffers: [any PacketBuffer]
     private var bsfCtxs: [UnsafeMutablePointer<AVBSFContext>?]
     private var generation: Int = 0
     private var targetLogical: [Int]
@@ -160,17 +231,20 @@ final class PacketDemuxer {
         }
         buffers = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
             let stream = format.fmt_ctx!.pointee.streams[idx]!
-            let capacity: Int
             if stream.pointee.discard != AVDISCARD_ALL {
                 switch stream.pointee.codecpar.pointee.codec_type {
-                case AVMEDIA_TYPE_VIDEO: capacity = PacketDemuxer.videoCapacity
-                case AVMEDIA_TYPE_AUDIO: capacity = PacketDemuxer.audioCapacity
-                default: capacity = 0  // we currently don't handle other kinds of stream
+                case AVMEDIA_TYPE_VIDEO:
+                    return PacketRing(capacity: PacketDemuxer.videoCapacity, timeBase: stream.pointee.time_base)
+                case AVMEDIA_TYPE_AUDIO:
+                    return PacketRing(capacity: PacketDemuxer.audioCapacity, timeBase: stream.pointee.time_base)
+                case AVMEDIA_TYPE_SUBTITLE:
+                    return SubtitleBuffer(timeBase: stream.pointee.time_base)
+                default:
+                    return PacketRing(capacity: 0, timeBase: stream.pointee.time_base)
                 }
             } else {
-                capacity = 0
+                return PacketRing(capacity: 0, timeBase: stream.pointee.time_base)
             }
-            return PacketRing(capacity: capacity, timeBase: stream.pointee.time_base)
         }
         bsfCtxs = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
             let stream = format.fmt_ctx!.pointee.streams[idx]!
@@ -219,6 +293,9 @@ final class PacketDemuxer {
         if TRACE_PACKET_DEMUXER {
             logger.debug("PacketDemuxer init streams: \(self.fmtCtx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
         }
+        if buffers.contains(where: { $0.isPreloaded }) {
+            try preloadSubtitles()
+        }
         try findLastPackets()
         startDemuxLoop()
     }
@@ -229,7 +306,7 @@ final class PacketDemuxer {
         demuxGroup.wait()
         stateLock.lock()
         for i in 0..<buffers.count { buffers[i].reset() }
-        for i in 0..<lastPkt.count { av_packet_free(&lastPkt[i]) }
+        for i in 0..<lastPkt.count where !buffers[i].isPreloaded { av_packet_free(&lastPkt[i]) }
         for i in 0..<bsfCtxs.count { av_bsf_free(&bsfCtxs[i]) }
         stateLock.unlock()
     }
@@ -244,6 +321,8 @@ final class PacketDemuxer {
     func get(stream: Int, handle: PacketHandle) -> UnsafeMutablePointer<AVPacket>? {
         if handle.isLast {
             return lastPkt[stream]
+        } else if buffers[stream].isPreloaded {
+            return buffers[stream].get(logicalIndex: handle.index)
         } else {
             guard handle.generation == generation else {
                 // AVFoundation tries to step from an old video SampleCursor after a seek
@@ -269,6 +348,19 @@ final class PacketDemuxer {
 
     func step(stream: Int, from handle: PacketHandle, by: Int) -> PacketHandle {
         if handle.isLast { return handle }  // Special handling for end-of-stream
+
+        // Preloaded streams (subtitles) are fully loaded — no waiting needed
+        if buffers[stream].isPreloaded {
+            let subBuf = buffers[stream]
+            let requested = handle.index + by
+            if subBuf.isEmpty || requested > subBuf.maxLogicalIndex {
+                return PacketHandle(generation: generation, index: subBuf.isEmpty ? 0 : subBuf.maxLogicalIndex, isLast: true)
+            } else if requested < subBuf.minLogicalIndex {
+                return PacketHandle(generation: generation, index: subBuf.minLogicalIndex, isLast: false)
+            }
+            return PacketHandle(generation: generation, index: requested, isLast: false)
+        }
+
         if handle.generation != generation { return PacketHandle(generation: generation, index: -1, isLast: false) }
         let requested = handle.index + by
         while true {
@@ -323,8 +415,10 @@ final class PacketDemuxer {
                 logger.debug("PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) -> 0 [remembered]")
             }
             if buffers[stream].isEmpty {
-                waitForPacketZero(stream: stream)
-                return PacketHandle(generation: generation, index: 0, isLast: false)
+                if !buffers[stream].isPreloaded {
+                    waitForPacketZero(stream: stream)
+                }
+                return PacketHandle(generation: generation, index: 0, isLast: buffers[stream].isEmpty)
             } else if buffers[stream].minLogicalIndex == 0 {
                 return PacketHandle(generation: generation, index: 0, isLast: false)
             } else {
@@ -332,6 +426,17 @@ final class PacketDemuxer {
                     "PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) remembered but first packet is \(self.buffers[stream].minLogicalIndex)"
                 )
             }
+        }
+
+        // Preloaded streams (subtitles) are fully loaded — just look up directly
+        if buffers[stream].isPreloaded {
+            if let hit = buffers[stream].nearest(to: presentationTimeStamp) {
+                if TRACE_PACKET_DEMUXER {
+                    logger.debug("PacketDemuxer stream \(stream) subtitle seek \(presentationTimeStamp, privacy: .public) -> \(hit)")
+                }
+                return PacketHandle(generation: generation, index: hit, isLast: false)
+            }
+            return PacketHandle(generation: generation, index: 0, isLast: buffers[stream].isEmpty)
         }
 
         // Snapshot for thumbnail
@@ -396,6 +501,11 @@ final class PacketDemuxer {
     }
 
     func seek(stream: Int, decodeTimeStamp: CMTime) throws -> PacketHandle {
+        // Subtitles have no decode reordering, DTS == PTS
+        if buffers[stream].isPreloaded {
+            return try seek(stream: stream, presentationTimeStamp: decodeTimeStamp)
+        }
+
         let target = decodeTimeStamp
         let timeBase = buffers[stream].timeBase
 
@@ -479,10 +589,12 @@ final class PacketDemuxer {
                     continue
                 }
                 if pkt!.pointee.size == 0 || Int(pkt!.pointee.stream_index) >= buffers.count
-                    || buffers[Int(pkt!.pointee.stream_index)].capacity == 0
+                    || !buffers[Int(pkt!.pointee.stream_index)].isActive
+                    || buffers[Int(pkt!.pointee.stream_index)].isPreloaded
                 {
                     // Skip empty packets as seen in e.g. Theora since AVFoundation doesn't like them
-                    // (-12706 kCMBlockBufferEmptyBBufErr) and skip packets for streams we don't handle
+                    // (-12706 kCMBlockBufferEmptyBBufErr), skip packets for streams we don't handle,
+                    // and skip preloaded streams (subtitles) since they're already fully loaded
                     av_packet_free(&pkt)
                 } else if let filtered = applyBitstreamFilter(stream: Int(pkt!.pointee.stream_index), packet: pkt!) {
                     for pkt in filtered { enqueue(pkt) }
@@ -515,7 +627,7 @@ final class PacketDemuxer {
     private func enqueue(_ packet: UnsafeMutablePointer<AVPacket>) {
         let stream = Int(packet.pointee.stream_index)
         let buffer = buffers[stream]
-        assert(buffer.capacity > 0, "PacketDemuxer stream \(stream) unexpected packet in discarded stream")
+        assert(buffer.isActive && !buffer.isPreloaded, "PacketDemuxer stream \(stream) unexpected packet in inactive/preloaded stream")
         var evicted = buffers[stream].append(packet: packet)
         av_packet_free(&evicted)
         if TRACE_PACKET_DEMUXER {
@@ -552,7 +664,7 @@ final class PacketDemuxer {
     }
 
     private func flushLocked() {
-        for i in 0..<buffers.count { buffers[i].reset() }
+        for i in 0..<buffers.count where !buffers[i].isPreloaded { buffers[i].reset() }
         generation &+= 1
         halted = false
         for i in 0..<targetLogical.count { targetLogical[i] = readAhead[i] }
@@ -605,6 +717,59 @@ final class PacketDemuxer {
         avformat_flush(fmtCtx)
         guard ret >= 0 else {
             throw AVERROR(errorCode: ret, context: "avformat_seek_file(min)")  // If we can't seek to start we can't demux
+        }
+    }
+
+    /// Read through the entire file from the start, extracting all subtitle packets into preloaded buffers.
+    private func preloadSubtitles() throws {
+        let nbStreams = Int(fmtCtx.pointee.nb_streams)
+
+        // Tell FFmpeg to discard non-subtitle streams for faster reading
+        for i in 0..<nbStreams {
+            let stream = fmtCtx.pointee.streams[i]!
+            if !buffers[i].isPreloaded {
+                stream.pointee.discard = AVDISCARD_ALL
+            }
+        }
+
+        repeat {
+            var pkt = av_packet_alloc()
+            let ret = av_read_frame(fmtCtx, pkt)
+            if ret == AVERROR_EOF {
+                av_packet_free(&pkt)
+                break
+            } else if ret != 0 {
+                av_packet_free(&pkt)
+                let error = AVERROR(errorCode: ret, context: "av_read_frame")
+                logger.error("PacketDemuxer preloadSubtitles: \(error.localizedDescription, privacy:.public)")
+                break
+            }
+            let idx = Int(pkt!.pointee.stream_index)
+            if idx < buffers.count && buffers[idx].isPreloaded {
+                pkt!.pointee.pos += pktFixup
+                buffers[idx].append(packet: pkt!)
+            } else {
+                av_packet_free(&pkt)
+            }
+        } while true
+
+        if TRACE_PACKET_DEMUXER {
+            for (idx, buf) in buffers.enumerated() where buf.isPreloaded {
+                logger.debug("PacketDemuxer preloadSubtitles: stream \(idx) loaded \(buf.count) packets")
+            }
+        }
+
+        // Populate lastPkt for preloaded streams so get(handle.isLast) works
+        for (idx, buf) in buffers.enumerated() where buf.isPreloaded && !buf.isEmpty {
+            lastPkt[idx] = buf.get(logicalIndex: buf.maxLogicalIndex)
+        }
+
+        // Set up discard flags for subsequent demuxing:
+        // - active non-preloaded streams (audio/video): enable
+        // - everything else (preloaded subtitles, disabled streams): discard
+        for i in 0..<nbStreams {
+            let stream = fmtCtx.pointee.streams[i]!
+            stream.pointee.discard = (buffers[i].isActive && !buffers[i].isPreloaded) ? AVDISCARD_DEFAULT : AVDISCARD_ALL
         }
     }
 
