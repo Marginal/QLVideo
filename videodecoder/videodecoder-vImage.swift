@@ -113,7 +113,7 @@ extension VideoDecoder {
                 )
                 guard error == nil else { return error }
             }
-            logger.debug("VideoDecoder using vImageConvert for format conversion")
+            logger.log("VideoDecoder using vImageConvert for format conversion")
         }
 
         // Wrap destination

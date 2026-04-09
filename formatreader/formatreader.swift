@@ -71,11 +71,6 @@ class FormatReader: NSObject, MEFormatReader {
         return String(cString: av_fourcc_make_string(&buf, fourcc))
     }
 
-    class func avcodec_name(_ codec_id: AVCodecID) -> String {
-        guard let cd = avcodec_descriptor_get(codec_id) else { return "unknown" }
-        return String(cString: cd.pointee.long_name ?? cd.pointee.name)
-    }
-
     func loadFileInfo(completionHandler: @escaping @Sendable (MEFileInfo?, (any Error)?) -> Void) {
         // We can't read using MEByteSource.fileName, so set up an AVIOContext which uses MEByteSource.read
         // See "Opening a media file" https://ffmpeg.org/doxygen/8.0/group__lavf__decoding.html
@@ -250,7 +245,7 @@ class FormatReader: NSObject, MEFormatReader {
             default:
                 stream.pointee.discard = AVDISCARD_ALL  // no point demuxing or seeking streams that we can't handle
                 logger.info(
-                    "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(FormatReader.avcodec_name(params.codec_id), privacy:.public)"
+                    "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(String(cString:avcodec_get_name(params.codec_id)), privacy:.public)"
                 )
             }
         }

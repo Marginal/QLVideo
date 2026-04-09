@@ -506,6 +506,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                     av_frame_free(&frame)
                     return completionHandler(nil, .frameDropped, MEError(.internalFailure))
                 }
+                logger.log("VideoDecoder using Metal for format conversion")
             }
             if let error = metalToneMapper!.process(frame: frame!, pixelBuffer: pixelBuffer) {
                 logger.error(

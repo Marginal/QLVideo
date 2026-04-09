@@ -406,8 +406,11 @@ class AudioTrackReader: TrackReader, METrackReader {
             formatDescriptions: [formatDescription!]
         )
         trackInfo.isEnabled = isEnabled
-        // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
         trackInfo.naturalTimescale = stream.pointee.time_base.den
+        if let entry = av_dict_get(stream.pointee.metadata, "language", nil, 0) {
+            // TODO: check language is RFC4646 compliant and try to map if not
+            trackInfo.extendedLanguageTag = String(validatingUTF8: entry.pointee.value)
+        }
 
         completionHandler(trackInfo, nil)
     }

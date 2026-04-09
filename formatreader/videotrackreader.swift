@@ -274,15 +274,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             // Not supported by VideoToolbox at time of writing
             extract_extradata()  // build extradata if required info is in-band
         default:
-            if params.pointee.extradata_size != 0 {
-                let hex = UnsafeBufferPointer(start: params.pointee.extradata, count: Int(params.pointee.extradata_size)).reduce(
-                    "data=",
-                    { result, byte in String(format: "%@ %02x", result, byte) }
-                )
-                logger.debug(
-                    "VideoTrackReader stream \(self.index) loadTrackInfo unhandled extradata \(params.pointee.extradata_size) bytes with codec \"\(FormatReader.avcodec_name(params.pointee.codec_id), privacy:.public)\": \(hex, privacy:.public)"
-                )
-            }
+            break
         }
 
         if codecType == nil {
@@ -373,7 +365,6 @@ class VideoTrackReader: TrackReader, METrackReader {
             formatDescriptions: [formatDescription!]
         )
         trackInfo.isEnabled = isEnabled
-        // TODO: set extendedLanguageTag as RFC4646 from stream metadata "language" tag
         trackInfo.naturalSize = CGSize(width: Int(params.pointee.width), height: Int(params.pointee.height))
         trackInfo.naturalTimescale = stream.pointee.time_base.den
         trackInfo.nominalFrameRate = Float32(av_q2d(stream.pointee.avg_frame_rate))

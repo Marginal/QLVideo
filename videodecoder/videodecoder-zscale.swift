@@ -64,8 +64,8 @@ extension VideoDecoder {
         let srcArgs =
             "video_size=\(frame.width)x\(frame.height):pix_fmt=\(frame.format):colorspace=\(String(cString: av_color_space_name(frame.colorspace))):range=\(frame.color_range == AVCOL_RANGE_JPEG ? "pc" : "tv"):time_base=1/1000"  // time_base is required but irrelevant
         let sinkArgs = "pixel_formats=\(AV_PIX_FMT_GBRP.rawValue)"  // should use AV_PIX_FMT_GBRPF32LE for HDR to match tonemap output, but vImage conversion broken
-        logger.debug(
-            "VideDecoder using zscale with input \"\(srcArgs, privacy: .public)\", filter \"\(filterDesc, privacy: .public)\", output \"\(sinkArgs, privacy: .public)\""
+        logger.log(
+            "VideDecoder using filter with input \"\(srcArgs, privacy: .public)\", filter \"\(filterDesc, privacy: .public)\", output \"\(sinkArgs, privacy: .public)\""
         )
 
         var ret = avfilter_graph_create_filter(&src_ctx, bufferSrc, "in", srcArgs, nil, filterGraph)
