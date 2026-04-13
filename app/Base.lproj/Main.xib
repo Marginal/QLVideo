@@ -87,12 +87,12 @@
                                         <fragment content="Setting - time interval"/>
                                     </attributedString>
                                 </textField>
-                                <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ao2-4O-GKj" userLabel="Snapshot Time Slider" customClass="LogarithmicSlider" customModule="QuickLook_Video" customModuleProvider="target">
+                                <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ao2-4O-GKj" userLabel="Snapshot Time Slider">
                                     <rect key="frame" x="146" y="46" width="179" height="28"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <string key="toolTip">The time at which to take a snapshot for thumbnails in Finder windows.
 Only for files that don't contain cover art.</string>
-                                    <sliderCell key="cell" continuous="YES" alignment="left" minValue="1" maxValue="1800" doubleValue="997.65869455645156" tickMarkPosition="above" sliderType="linear" id="ecQ-ky-N4c" userLabel="Snapshot Time Slider"/>
+                                    <sliderCell key="cell" continuous="YES" alignment="left" maxValue="1" doubleValue="0.25" tickMarkPosition="above" sliderType="linear" id="ecQ-ky-N4c" userLabel="Snapshot Time Slider"/>
                                     <attributedString key="userComments">
                                         <fragment content="Tooltip for snapshot time slider"/>
                                     </attributedString>
@@ -113,7 +113,7 @@ Only for files that don't contain cover art.</string>
                                     </attributedString>
                                 </textField>
                                 <button toolTip="Relaunch Finder and regenerate thumbnails." verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ChQ-Kj-tnn">
-                                    <rect key="frame" x="5" y="12" width="398" height="32"/>
+                                    <rect key="frame" x="12" y="12" width="391" height="32"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="push" title="Refresh" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KHh-sh-atU">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>

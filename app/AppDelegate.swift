@@ -13,11 +13,11 @@ import Security
 let kSettingsLastSpotlight = "LastSpotlight"  // Last version ran - for upgrade check
 let kSettingsLastQuickLook = "LastQuickLook"  // Last version ran - for upgrade check
 let kSettingsSnapshotCount = "SnapshotCount"  // Max number of snapshots generated in Preview mode.
-let kSettingsSnapshotTime = "SnapshotTime"  // Seek offset for thumbnails and single Previews [s].
+let kSettingsSnapshotTime = "SnapshotPercentage"  // Seek offset for thumbnails and single Previews [s].
 let kSettingsSnapshotAlways = "SnapshotAlways"  // Whether to generate static snapshot(s) even if playable Preview is available.
 
 // Setting defaults
-let kDefaultSnapshotTime = 10  // CoreMedia generator appears to use 10s.
+let kDefaultSnapshotTime = 0.25  // CoreMedia generator appears to use 10s.
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -41,12 +41,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var defaults: UserDefaults?
     var logger = Logger(subsystem: "uk.org.marginal.qlvideo", category: "app")
-
-    lazy var snapshotTimeFormatter: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter
-    }()
 
     lazy var isSandboxed: Bool = {
         var code: SecCode?
@@ -80,17 +74,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let suiteName: String = myBundle.infoDictionary!["ApplicationGroup"] as! String
         defaults = UserDefaults(suiteName: suiteName)
         if let defaults {
-            if defaults.integer(forKey: kSettingsSnapshotTime) <= 0 {
-                snapshotTime.integerValue = kDefaultSnapshotTime
+            if defaults.double(forKey: kSettingsSnapshotTime) <= 0 {
+                snapshotTime.doubleValue = kDefaultSnapshotTime
             } else {
-                snapshotTime.integerValue = defaults.integer(forKey: kSettingsSnapshotTime)
+                snapshotTime.doubleValue = defaults.double(forKey: kSettingsSnapshotTime)
             }
         } else {
-            snapshotTime.integerValue = kDefaultSnapshotTime
+            snapshotTime.doubleValue = kDefaultSnapshotTime
             logger.error("Can't access defaults for \(suiteName, privacy: .public)")
         }
-        snapshotTimeValue.stringValue =
-            snapshotTimeFormatter.string(from: TimeInterval(snapshotTime.integerValue)) ?? "\(snapshotTime.integerValue)"
+        snapshotTimeValue.stringValue = "\(Int(snapshotTime.doubleValue * 100)) %"
 
         // Check if unsupported hardware and don't do further setup if so
         if sysCtl("hw.machine") == "x86_64" && sysCtl("hw.optional.avx2_0") != "yes" {
@@ -115,9 +108,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // snapshotTime slider changed - round to int, update text field, and update defaults
     @IBAction func snapshotTimeChanged(sender: NSSlider) {
-        let value = snapshotTime.intValue
-        snapshotTime.intValue = value
-        snapshotTimeValue.stringValue = snapshotTimeFormatter.string(from: TimeInterval(value)) ?? "\(value)"
+        let value = snapshotTime.doubleValue
+        snapshotTime.doubleValue = (value * 100).rounded() / 100
+        snapshotTimeValue.stringValue = "\(Int(snapshotTime.doubleValue * 100)) %"
         defaults?.set(value, forKey: kSettingsSnapshotTime)
     }
 

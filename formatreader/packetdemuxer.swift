@@ -27,7 +27,8 @@ import Foundation
 #endif
 
 let QLThumbnailTime = CMTime(value: 10_000_000, timescale: 1_000_000)  // QuickLook generates its thumbnail at 10s
-let kSettingsSnapshotTime = "SnapshotTime"  // Seek offset for thumbnails and single Previews [s].
+let kSettingsSnapshotTime = "SnapshotPercentage"  // Seek offset for thumbnails and single Previews [s].
+let kDefaultSnapshotTime = 0.25
 
 private final class PacketRing {
     private var storage: [UnsafeMutablePointer<AVPacket>?]
@@ -130,7 +131,7 @@ final class PacketDemuxer {
     private static let audioReadAhead = 196  // should be more than enough for at least 2 seconds of audio in typical codecs
     private let fmtCtx: UnsafeMutablePointer<AVFormatContext>
     private var pktFixup: Int64 = 0
-    private var snapshotTime = CMTimeValue(10 * AV_TIME_BASE)  // Snapshot time in AV_TIME_BASE units
+    private var snapshotTime = kDefaultSnapshotTime
     private var buffers: [PacketRing]
     private var bsfCtxs: [UnsafeMutablePointer<AVBSFContext>?]
     private var generation: Int = 0
@@ -149,14 +150,13 @@ final class PacketDemuxer {
 
     init(format: FormatReader) throws {
         self.fmtCtx = format.fmt_ctx!
-        if let defaults = format.defaults, defaults.integer(forKey: kSettingsSnapshotTime) > 0 {
+        if let defaults = format.defaults, defaults.object(forKey: kSettingsSnapshotTime) != nil {
             // Note that since this extension is running under app sandbox this will only succeed once notarized or in app store
             // https://developer.apple.com/documentation/security/accessing-files-from-the-macos-app-sandbox#Share-files-between-related-apps-with-app-group-containers
-            let time = CMTimeValue(defaults.integer(forKey: kSettingsSnapshotTime))
-            logger.log("PacketDemuxer using snapshot time of \(time)s")
-            snapshotTime = CMTimeValue(time) * CMTimeValue(AV_TIME_BASE)
+            snapshotTime = defaults.double(forKey: kSettingsSnapshotTime)
+            logger.log("PacketDemuxer using snapshot percentage of \(Int(self.snapshotTime * 100))%")
         } else {
-            logger.log("PacketDemuxer using default snapshot time")
+            logger.log("PacketDemuxer using default snapshot time ")
         }
         buffers = (0..<Int(format.fmt_ctx!.pointee.nb_streams)).map { idx in
             let stream = format.fmt_ctx!.pointee.streams[idx]!
@@ -337,24 +337,19 @@ final class PacketDemuxer {
         // Snapshot for thumbnail
         var target = presentationTimeStamp
         if presentationTimeStamp.value == QLThumbnailTime.value && presentationTimeStamp.timescale == QLThumbnailTime.timescale {
-            // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice or to start if short clip
+            // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice
             let avStream = fmtCtx.pointee.streams[stream]!
             let durationPTS = lastPkt[stream] != nil ? lastPkt[stream]!.pointee.pts : avStream.pointee.duration
-            let duration = CMTime(value: durationPTS, timeBase: avStream.pointee.time_base)
-            if duration == .invalid || duration >= CMTime(value: 2 * snapshotTime, timescale: AV_TIME_BASE) {
-                target = CMTime(value: snapshotTime, timescale: AV_TIME_BASE)  // long or unknown duration clip, snapshot at user's choice
-            } else if duration >= QLThumbnailTime {
-                target = CMTime(value: durationPTS / 2, timeBase: avStream.pointee.time_base)  // medium clip, snapshot in middle
-            } else {
-                target = .zero  // short clip, snapshot at start
+            if durationPTS > 0 {
+                target = CMTime(value: CMTimeValue(Double(durationPTS) * snapshotTime), timescale: avStream.pointee.time_base.den)
             }
         }
 
         stateLock.lock()
         if let hit = buffers[stream].nearest(to: target) {
             stateLock.unlock()
-            if TRACE_PACKET_DEMUXER {
-                logger.debug("PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) -> \(hit)")
+            if true {
+                logger.debug("PacketDemuxer stream \(stream) seek \(target, privacy: .public) -> \(hit)")
             }
             return PacketHandle(generation: generation, index: hit, isLast: false)
         }
@@ -364,10 +359,10 @@ final class PacketDemuxer {
         rememberedSeekPTS = presentationTimeStamp  // remember the request, not the actual target
         var ret: Int32
         if target.timescale == buffers[stream].timeBase.den {
-            // asked to seek in this stream's timebase
+            // asked to seek in this stream's timebase - typical when scrubbing video stream
             ret = avformat_seek_file(fmtCtx, Int32(stream), Int64.min, target.value, Int64.max, 0)
         } else if target.value == 0 || target.timescale == AV_TIME_BASE {
-            // seek in AV_TIME_BASE units - common case for arbitrary seeks from AVFoundation
+            // AV_TIME_BASE units is a common case for arbitrary seeks from AVFoundation including snapshots. Avoid seeking to start.
             ret = avformat_seek_file(fmtCtx, -1, Int64.min, target.value, Int64.max, 0)
         } else {
             // seek in arbitrary units - convert to AV_TIME_BASE

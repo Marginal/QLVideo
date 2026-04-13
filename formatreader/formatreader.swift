@@ -6,6 +6,8 @@
 import Foundation
 import MediaExtension
 
+let kSettingsLastQuickLook = "LastQuickLook"  // Last version ran - for upgrade check
+
 class FormatReader: NSObject, MEFormatReader {
 
     // From metadata tags - see avformat.h
@@ -52,7 +54,9 @@ class FormatReader: NSObject, MEFormatReader {
         let myBundle = Bundle.main
         let suiteName: String = myBundle.infoDictionary!["ApplicationGroup"] as! String
         defaults = UserDefaults(suiteName: suiteName)
-        if defaults == nil { logger.warning("Couldn't access UserDefaults with suite name \(suiteName, privacy:.public)") }
+        if defaults == nil || defaults!.object(forKey: kSettingsLastQuickLook) == nil {
+            logger.warning("Couldn't access UserDefaults with suite name \(suiteName, privacy:.public)")
+        }
         super.init()
     }
 
