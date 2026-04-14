@@ -9,12 +9,6 @@ import CoreVideo
 import Foundation
 import MediaExtension
 
-struct ColorInfo {
-    let primaries: AVColorPrimaries
-    let transfer: AVColorTransferCharacteristic
-    let matrix: AVColorSpace
-}
-
 // See https://www.ffmpeg.org/doxygen/trunk/filtering_video_8c-example.html
 
 extension VideoDecoder {
@@ -22,11 +16,7 @@ extension VideoDecoder {
     // Convert the decoded frame to GBRP float or 8bit depending on whether it's HDR or SDR, return the new frame
     func zscaleConvertToGBRP(frame: inout UnsafeMutablePointer<AVFrame>?, pixelBuffer: inout CVPixelBuffer) -> Error? {
 
-        // Patch up the incoming frame
-        let colorInfo = VideoDecoder.inferColors(frame: frame!)
-        frame!.pointee.color_primaries = colorInfo.primaries
-        frame!.pointee.color_trc = colorInfo.transfer
-        frame!.pointee.colorspace = colorInfo.matrix
+        // frame color fields should already be patched by fixupColors() in decodeFrame
 
         if filterGraph == nil {
             let error = zscaleSetup(frame: &frame!.pointee, pixelBuffer: &pixelBuffer)
@@ -111,71 +101,6 @@ extension VideoDecoder {
         guard ret == 0 else { return AVERROR(errorCode: ret, context: "avfilter_graph_config") }
 
         return nil
-    }
-
-    // zscale can't handle unspecifed info in the input AVFrame. Make educated guesses.
-    class func inferColors(frame: UnsafePointer<AVFrame>) -> ColorInfo {
-
-        // Let presence of SMPTE 2086:2014 side data override anything else in the AVFrame
-        if av_frame_get_side_data(frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) != nil
-            || av_frame_get_side_data(frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) != nil
-            || av_frame_get_side_data(frame, AV_FRAME_DATA_DOVI_METADATA) != nil
-        {
-            return ColorInfo(
-                primaries: AVCOL_PRI_BT2020,
-                transfer: AVCOL_TRC_SMPTE2084,
-                matrix: AVCOL_SPC_BT2020_NCL,
-            )
-        }
-
-        let frame = frame.pointee
-
-        // If all fields are specified then assume they're correct
-        if frame.color_primaries != AVCOL_PRI_UNSPECIFIED
-            && frame.color_trc != AVCOL_TRC_UNSPECIFIED
-            && frame.colorspace != AVCOL_SPC_UNSPECIFIED
-        {
-            return ColorInfo(
-                primaries: frame.color_primaries,
-                transfer: frame.color_trc,
-                matrix: frame.colorspace,
-            )
-        }
-
-        // Explicit PQ or HLG
-        if frame.color_trc == AVCOL_TRC_SMPTE2084 || frame.color_trc == AVCOL_TRC_ARIB_STD_B67 {
-            return ColorInfo(
-                primaries: frame.color_primaries != AVCOL_PRI_UNSPECIFIED ? frame.color_primaries : AVCOL_PRI_BT2020,
-                transfer: frame.color_trc,
-                matrix: frame.colorspace != AVCOL_SPC_UNSPECIFIED ? frame.colorspace : AVCOL_SPC_BT2020_NCL,
-            )
-        }
-
-        // >8‑bit *with BT.2020 primaries* is probably HDR10.
-        let pixDesc = av_pix_fmt_desc_get(AVPixelFormat(frame.format)).pointee
-        let bitDepth = pixDesc.comp.0.depth  // not always accurate but works for supported formats
-        if bitDepth > 8 && frame.color_primaries == AVCOL_PRI_BT2020 {
-            return ColorInfo(
-                primaries: AVCOL_PRI_BT2020,
-                transfer: AVCOL_TRC_SMPTE2084,
-                matrix: AVCOL_SPC_BT2020_NCL,
-            )
-        }
-
-        // SDR. Assume values based on input format and whether HD or SD
-        if frame.width >= 1280 || frame.height >= 720 || frame.format != AV_PIX_FMT_YUV420P.rawValue {
-            return ColorInfo(
-                primaries: AVCOL_PRI_BT709,
-                transfer: AVCOL_TRC_BT709,
-                matrix: AVCOL_SPC_BT709,
-            )
-        } else {
-            return ColorInfo(
-                primaries: AVCOL_PRI_SMPTE170M,
-                transfer: AVCOL_TRC_BT709,  // This got retconned when HDR came out
-                matrix: AVCOL_SPC_SMPTE170M,
-            )
-        }
     }
 
     private func makeFilterChain(frame: inout AVFrame, pixelBuffer: inout CVPixelBuffer) -> String {

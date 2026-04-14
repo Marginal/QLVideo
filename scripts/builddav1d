@@ -44,7 +44,7 @@ ARM64
 			elif [ $ARCH == x86_64 ]; then
 				cat > cross.meson <<X86_64
 [binaries]
-c = ['/usr/bin/cc', '-arch', 'x86_64', '-march=haswell']
+c = ['/usr/bin/cc', '-arch', 'x86_64', '-march=skylake']
 nasm = 'nasm'
 pkg-config = 'pkg-config'
 strip = ['/usr/bin/strip']

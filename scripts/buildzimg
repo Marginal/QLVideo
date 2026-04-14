@@ -38,6 +38,9 @@ else
 			else
 				CPPFLAGS="-DNDEBUG -O3"
 			fi
+			if [ $ARCH == x86_64 ]; then
+				CPPFLAGS="$CPPFLAGS -march=skylake"
+			fi
 			PKG_CONFIG_LIBDIR="${BUILT_PRODUCTS_DIR}/${ARCH}/lib/pkgconfig" CPPFLAGS="${CPPFLAGS} -arch ${ARCH} -fapplication-extension -g3 -ggdb" LDFLAGS="-arch ${ARCH}" "${SRCROOT}/${TARGET_NAME}/configure" --host=${ARCH}-apple-darwin${MACOSX_DEPLOYMENT_TARGET} --prefix="${BUILT_PRODUCTS_DIR}/${ARCH}" ${FLAGS}
 		fi
 		make -j`sysctl -n hw.physicalcpu` install

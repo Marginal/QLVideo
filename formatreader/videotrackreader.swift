@@ -60,16 +60,18 @@ class VideoTrackReader: TrackReader, METrackReader {
 
     static let colorPrimaries: [AVColorPrimaries: CFString] = [
         AVCOL_PRI_BT709: kCMFormatDescriptionColorPrimaries_ITU_R_709_2,
-        AVCOL_PRI_BT470M: kCMFormatDescriptionColorPrimaries_ITU_R_709_2,
-        AVCOL_PRI_BT470BG: kCMFormatDescriptionColorPrimaries_SMPTE_C,
+        AVCOL_PRI_BT470M: kCMFormatDescriptionColorPrimaries_SMPTE_C,
+        AVCOL_PRI_BT470BG: kCMFormatDescriptionColorPrimaries_EBU_3213,
         AVCOL_PRI_SMPTE170M: kCMFormatDescriptionColorPrimaries_SMPTE_C,
         AVCOL_PRI_SMPTE240M: kCMFormatDescriptionColorPrimaries_SMPTE_C,
-        AVCOL_PRI_SMPTE428: kCMFormatDescriptionColorPrimaries_SMPTE_C,
         AVCOL_PRI_BT2020: kCMFormatDescriptionColorPrimaries_ITU_R_2020,
+        AVCOL_PRI_EBU3213: kCMFormatDescriptionColorPrimaries_EBU_3213,
     ]
 
     static let colorTransfer: [AVColorTransferCharacteristic: CFString] = [
         AVCOL_TRC_BT709: kCMFormatDescriptionTransferFunction_ITU_R_709_2,
+        AVCOL_TRC_GAMMA22: kCMFormatDescriptionTransferFunction_ITU_R_709_2,
+        AVCOL_TRC_GAMMA28: kCMFormatDescriptionTransferFunction_ITU_R_709_2,
         AVCOL_TRC_SMPTE170M: kCMFormatDescriptionTransferFunction_SMPTE_240M_1995,
         AVCOL_TRC_SMPTE240M: kCMFormatDescriptionTransferFunction_SMPTE_240M_1995,
         AVCOL_TRC_SMPTE428: kCMFormatDescriptionTransferFunction_SMPTE_ST_428_1,
@@ -85,6 +87,15 @@ class VideoTrackReader: TrackReader, METrackReader {
         AVCOL_SPC_SMPTE170M: kCMFormatDescriptionYCbCrMatrix_ITU_R_601_4,
         AVCOL_SPC_SMPTE240M: kCMFormatDescriptionYCbCrMatrix_SMPTE_240M_1995,
         AVCOL_SPC_BT2020_NCL: kCMFormatDescriptionYCbCrMatrix_ITU_R_2020,
+    ]
+
+    static let chromaLocation: [AVChromaLocation: CFString] = [
+        AVCHROMA_LOC_LEFT: kCVImageBufferChromaLocation_Left,
+        AVCHROMA_LOC_CENTER: kCVImageBufferChromaLocation_Center,
+        AVCHROMA_LOC_TOP: kCVImageBufferChromaLocation_Top,
+        AVCHROMA_LOC_BOTTOM: kCVImageBufferChromaLocation_Bottom,
+        AVCHROMA_LOC_TOPLEFT: kCVImageBufferChromaLocation_TopLeft,
+        AVCHROMA_LOC_BOTTOMLEFT: kCVImageBufferChromaLocation_BottomLeft,
     ]
 
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
@@ -336,6 +347,9 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
         if let colorMatrix = VideoTrackReader.colorMatrix[params.pointee.color_space] {
             extensions[kCMFormatDescriptionExtension_YCbCrMatrix as CFString] = colorMatrix
+        }
+        if let chromaLocation = VideoTrackReader.chromaLocation[params.pointee.chroma_location] {
+            extensions[kCVImageBufferChromaLocationTopFieldKey as CFString] = chromaLocation
         }
         extensions[kCMFormatDescriptionExtension_FullRangeVideo] =
             params.pointee.color_range == AVCOL_RANGE_JPEG ? kCFBooleanTrue : kCFBooleanFalse

@@ -68,6 +68,10 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>?
     var lastDTS = CMTime.invalid
 
+    // Cached pixel buffer config - rebuilt only when frame dimensions, color properties or HDR metadata change
+    private var pixelBufferKey: PixelBufferCacheKey? = nil
+    var pixelBufferConfig: PixelBufferConfig? = nil
+
     // For format conversion using macOS Accelerate API
     var conversionInfo: vImage_YpCbCrToARGB? = nil
     var scaleYBuffer: vImage_Buffer? = nil
@@ -76,9 +80,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var scaleYTemp: UnsafeMutableRawPointer? = nil
     var scaleCbTemp: UnsafeMutableRawPointer? = nil
     var scaleCrTemp: UnsafeMutableRawPointer? = nil
-
-    // For format conversion and tonemapping using Metal
-    var metalToneMapper: MetalToneMapper? = nil
 
     // For format conversion using FFmpeg's zscale filter
     var filterGraph: UnsafeMutablePointer<AVFilterGraph>? = nil
@@ -151,7 +152,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                     params.pointee.color_range = AVCOL_RANGE_JPEG
                 } else {
                     logger.error(
-                        "VideoDecoder: Unsupported depth: \(depth) for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
+                        "VideoDecoder: Unsupported depth: \(depth) in \(String(describing: self.formatDescription), privacy: .public))"
                     )
                     throw MEError(.unsupportedFeature)
                 }
@@ -235,7 +236,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             default:
                 // Shouldn't get here
                 logger.error(
-                    "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
+                    "VideoDecoder: No AVCodecParameters in \(String(describing: self.formatDescription), privacy: .public))"
                 )
                 throw MEError(.unsupportedFeature)
             }
@@ -246,12 +247,10 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             params.pointee.height = videoFormatDescription.dimensions.height
             params.pointee.bits_per_coded_sample = depth?.int32Value ?? 0
             logger.warning(
-                "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
+                "VideoDecoder: No AVCodecParameters in \(String(describing: self.formatDescription), privacy: .public))"
             )
         } else {
-            logger.error(
-                "VideoDecoder: No AVCodecParameters in CMVideoFormatDescription for codecType:\(VideoDecoder.av_fourcc2str(codecType), privacy: .public)"
-            )
+            logger.error("VideoDecoder: No AVCodecParameters in \(String(describing: self.formatDescription), privacy: .public))")
             throw MEError(.unsupportedFeature)
         }
 
@@ -288,29 +287,8 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             throw MEError(.unsupportedFeature)
         }
 
-        #if false  // Prefer to just use zscale filter for 8bit formats that vImage doesn't handle including AV_PIX_FMT_UYVY422 & AV_PIX_FMT_YUV422P. Have to use zscale filter for >=10 bit formats for proper tone mapping etc anyway.
-
-            // Choose whether we're going to write into CVPixelBuffer directly, or first convert to BGRA
-            if VideoDecoder.vImageTypes[AVPixelFormat(params.pointee.format)] == nil  // Prefer to use vImage conversion if available
-                && av_map_videotoolbox_format_from_pixfmt2(
-                    AVPixelFormat(params.pointee.format),
-                    params.pointe.color_range == AVCOL_RANGE_JPEG
-                )
-                    != 0
-            {
-                // Setup context so that av_receive_frame writes directly into the CVPixelBuffer, which on return is in frame.opaque
-                dec_ctx!.pointee.opaque = Unmanaged.passUnretained(self.manager).toOpaque()
-                dec_ctx!.pointee.get_buffer2 = videoDecoder_get_buffer2
-                logger.log(
-                    "VideoDecoder: Decoding \(self.params.pointee.width)x\(self.params.pointee.height), \(String(cString:av_get_pix_fmt_name(AVPixelFormat(self.params.pointee.format))), privacy: .public) \(String(cString:av_color_space_name(self.params.pointee.color_space)), privacy: .public) frames"
-                )
-            }
-        #endif
-
-        // We're going to have to convert
-
         logger.log(
-            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(String(cString:av_get_pix_fmt_name(self.dec_ctx!.pointee.pix_fmt)), privacy: .public) \(String(cString:av_color_space_name(self.dec_ctx!.pointee.colorspace)), privacy: .public) frames and converting to BGRA"
+            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(String(cString:av_get_pix_fmt_name(self.dec_ctx!.pointee.pix_fmt)), privacy: .public) \(String(cString:av_color_space_name(self.dec_ctx!.pointee.colorspace)), privacy: .public)"
         )
 
     }
@@ -447,34 +425,18 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             return completionHandler(pixelBuffer, [], nil)  // early return
         }
 
-        // Either there wasn't a suitable pixelFormat, or the codec didn't call get_buffers2 (e.g. dav1d)
-        // In either case obtain a BGRA pixel buffer and convert the frame data into it
-
-        var width = Int(frame!.pointee.width)
-        let height = Int(frame!.pointee.height)
-        if let sar = formatDescription.extensions[kCMFormatDescriptionExtension_PixelAspectRatio as CFString]
-            as? [CFString: NSNumber],
-            let num = sar[kCVImageBufferPixelAspectRatioHorizontalSpacingKey as CFString],
-            let den = sar[kCVImageBufferPixelAspectRatioVerticalSpacingKey as CFString]
-        {
-            width = Int(av_rescale_rnd(Int64(width), num.int64Value, den.int64Value, AV_ROUND_NEAR_INF))
-        }
+        // Fix up color info on the decoded frame
+        VideoDecoder.fixupColors(frame: frame!)
 
         var pixelBuffer: CVPixelBuffer
         do {
-            manager.pixelBufferAttributes = [
-                kCVPixelBufferWidthKey as String: width as CFNumber,
-                kCVPixelBufferHeightKey as String: height as CFNumber,
-                kCVPixelBufferBytesPerRowAlignmentKey as String: 64 as CFNumber,  // for potentially faster copy
-                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,  // what macOS actually uses for rendering
-                kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,  // for the Metal HDR pipeline
-                kCVBufferPropagatedAttachmentsKey as String: [
-                    // Tag as sRGB BT.709 so the display system doesn't misinterpret the data using any HDR tags in the stream
-                    kCVImageBufferColorPrimariesKey as String: kCVImageBufferColorPrimaries_ITU_R_709_2,
-                    kCVImageBufferTransferFunctionKey as String: kCVImageBufferTransferFunction_sRGB,
-                    kCVImageBufferYCbCrMatrixKey as String: kCVImageBufferYCbCrMatrix_ITU_R_709_2,
-                ],
-            ]
+            // Only update manager.pixelBufferAttributes if frame properties have changed since the last frame
+            let newKey = PixelBufferCacheKey(frame: frame!)
+            if newKey != pixelBufferKey {
+                pixelBufferKey = newKey
+                pixelBufferConfig = makePixelBufferConfig(frame: frame!)
+                manager.pixelBufferAttributes = pixelBufferConfig!.pixelBufferAttributes
+            }
             pixelBuffer = try manager.makePixelBuffer()
         } catch {
             logger.error(
@@ -483,11 +445,24 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             return completionHandler(nil, .frameDropped, error)
         }
 
+        // HDR passthrough: shift and interleave into biplanar pixel buffer
+        if pixelBufferConfig!.isHDR {
+            if let error = hdrConvertToBiPlanar(frame: frame!, pixelBuffer: pixelBuffer) {
+                logger.error(
+                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: HDR conversion failed: \(error.localizedDescription, privacy: .public)"
+                )
+                av_frame_free(&frame)
+                return completionHandler(nil, .frameDropped, error)
+            }
+            av_frame_free(&frame)
+            return completionHandler(pixelBuffer, [], nil)
+        }
+
         // can we use macOS's accelerated conversions?
         if let error = vImageConvertToBGRA(frame: &frame!.pointee, pixelBuffer: &pixelBuffer) {
             if error.errorCode != kvImageUnsupportedConversion {
                 logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error.localizedDescription, privacy: .public)"
+                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: vImage conversion failed: \(error.localizedDescription, privacy: .public)"
                 )
                 av_frame_free(&frame)
                 return completionHandler(nil, .frameDropped, error)
@@ -497,29 +472,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             return completionHandler(pixelBuffer, [], nil)
         }
 
-        // can we use Metal for HDR formats?
-        if MetalToneMapper.supported(for: frame!) {
-            if metalToneMapper == nil {
-                metalToneMapper = MetalToneMapper(from: params)
-                guard metalToneMapper != nil else {
-                    logger.error("VideoDecoder decodeFrame: Failed to create Metal tone mapper")
-                    av_frame_free(&frame)
-                    return completionHandler(nil, .frameDropped, MEError(.internalFailure))
-                }
-                logger.log("VideoDecoder using Metal for format conversion")
-            }
-            if let error = metalToneMapper!.process(frame: frame!, pixelBuffer: pixelBuffer) {
-                logger.error(
-                    "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Metal tone map failed: \(error.localizedDescription, privacy: .public)"
-                )
-                av_frame_free(&frame)
-                return completionHandler(nil, .frameDropped, error)
-            } else {
-                av_frame_free(&frame)
-                return completionHandler(pixelBuffer, [], nil)
-            }
-        }
-
         // Fall back to zscale conversion. Should work for pretty-much any source format.
         var error = zscaleConvertToGBRP(frame: &frame, pixelBuffer: &pixelBuffer)
         if error == nil {
@@ -527,7 +479,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
         guard error == nil else {
             logger.error(
-                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: Format conversion failed with error: \(error!.localizedDescription, privacy: .public)"
+                "VideoDecoder at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) decodeFrame: zScale conversion failed: \(error!.localizedDescription, privacy: .public)"
             )
             av_frame_free(&frame)
             return completionHandler(nil, .frameDropped, error)
@@ -536,110 +488,153 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         return completionHandler(pixelBuffer, [], nil)
     }
 
-    // Set up desired attributes of the pixel buffer
-    // Values may be different from the corresponding values in AVCodecContext https://ffmpeg.org/doxygen/8.0/structAVCodecContext.html#aef79333a4c6abf1628c55d75ec82bede
-    static func pixelAttributesFromFrame(frame: AVFrame, pixFmt: UInt32) -> [String: Any] {
-        var attributes: [String: Any] = [
-            kCVPixelBufferWidthKey as String: frame.width,
-            kCVPixelBufferHeightKey as String: frame.height,
-            kCVPixelBufferPixelFormatTypeKey as String: pixFmt,
-            kCVPixelBufferIOSurfacePropertiesKey as String: [:] as CFDictionary,
-        ]
-        if let chroma_loc = av_map_videotoolbox_chroma_loc_from_av(frame.chroma_location) {
-            attributes[kCVImageBufferChromaLocationTopFieldKey as String] = chroma_loc
-            if frame.flags & AV_FRAME_FLAG_INTERLACED != 0 {
-                attributes[kCVImageBufferChromaLocationBottomFieldKey as String] = chroma_loc  // Not sure if this is correct
-            }
+    // Infer color info from the decoded frame. Make educated guesses for unspecified values.
+    // Mutates the frame's color_primaries, color_trc and colorspace fields in place.
+    class func fixupColors(frame: UnsafeMutablePointer<AVFrame>) {
+
+        // Let presence of SMPTE 2086:2014 side data override anything else in the AVFrame
+        if av_frame_get_side_data(frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) != nil
+            || av_frame_get_side_data(frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) != nil
+            || av_frame_get_side_data(frame, AV_FRAME_DATA_DOVI_METADATA) != nil
+        {
+            frame.pointee.color_primaries = AVCOL_PRI_BT2020
+            frame.pointee.color_trc = AVCOL_TRC_SMPTE2084
+            frame.pointee.colorspace = AVCOL_SPC_BT2020_NCL
+            return
         }
-        if let primaries = av_map_videotoolbox_color_primaries_from_av(frame.color_primaries) {
-            attributes[kCVImageBufferColorPrimariesKey as String] = primaries
+
+        // If all fields are specified then assume they're correct
+        if frame.pointee.color_primaries != AVCOL_PRI_UNSPECIFIED
+            && frame.pointee.color_trc != AVCOL_TRC_UNSPECIFIED
+            && frame.pointee.colorspace != AVCOL_SPC_UNSPECIFIED
+        {
+            return
         }
-        if let matrix = av_map_videotoolbox_color_matrix_from_av(frame.colorspace) {
-            attributes[kCVImageBufferYCbCrMatrixKey as String] = matrix
+
+        // Explicit PQ or HLG
+        if frame.pointee.color_trc == AVCOL_TRC_SMPTE2084 || frame.pointee.color_trc == AVCOL_TRC_ARIB_STD_B67 {
+            if frame.pointee.color_primaries == AVCOL_PRI_UNSPECIFIED { frame.pointee.color_primaries = AVCOL_PRI_BT2020 }
+            if frame.pointee.colorspace == AVCOL_SPC_UNSPECIFIED { frame.pointee.colorspace = AVCOL_SPC_BT2020_NCL }
+            return
         }
-        if let trc = av_map_videotoolbox_color_trc_from_av(frame.color_trc) {
-            attributes[kCVImageBufferTransferFunctionKey as String] = trc
+
+        // >8‑bit *with BT.2020 primaries* is probably HDR10.
+        let pixDesc = av_pix_fmt_desc_get(AVPixelFormat(frame.pointee.format)).pointee
+        let bitDepth = pixDesc.comp.0.depth  // not always accurate but works for supported formats
+        if bitDepth > 8 && frame.pointee.color_primaries == AVCOL_PRI_BT2020 {
+            frame.pointee.color_primaries = AVCOL_PRI_BT2020
+            frame.pointee.color_trc = AVCOL_TRC_SMPTE2084
+            frame.pointee.colorspace = AVCOL_SPC_BT2020_NCL
+            return
         }
-        return attributes
+
+        // SDR. Assume values based on input format and whether HD or SD
+        // Follow mpv heursitics https://wiki.x266.mov/docs/colorimetry/primaries
+        if frame.pointee.width >= 1280 || frame.pointee.height > 576 || frame.pointee.format != AV_PIX_FMT_YUV420P.rawValue {
+            frame.pointee.color_primaries = AVCOL_PRI_BT709
+            frame.pointee.color_trc = AVCOL_TRC_BT709
+            frame.pointee.colorspace = AVCOL_SPC_BT709
+        } else {
+            frame.pointee.color_primaries = AVCOL_PRI_SMPTE170M
+            frame.pointee.color_trc = AVCOL_TRC_BT709  // This got retconned when HDR came out
+            frame.pointee.colorspace = AVCOL_SPC_SMPTE170M
+        }
     }
 
-    class func av_fourcc2str(_ fourcc: UInt32) -> String {
-        var buf = [CChar](repeating: 0, count: Int(AV_FOURCC_MAX_STRING_SIZE))
-        return String(cString: av_fourcc_make_string(&buf, fourcc))
-    }
-}
-
-// Callback for FFmpeg's get_buffer2 that uses the MEVideoDecoderPixelBufferManager passed via AVCodecContext.opaque.
-// On return, the allocated CVPixelBuffer is passed via AVFrame.opaque.
-private func videoDecoder_get_buffer2(
-    _ dec_ctx: UnsafeMutablePointer<AVCodecContext>?,
-    _ frame: UnsafeMutablePointer<AVFrame>?,
-    _ flags: Int32
-) -> Int32 {
-    guard let frame = frame, let dec_ctx = dec_ctx, let opaque = dec_ctx.pointee.opaque else { return -ENOTSUP }
-    let manager = Unmanaged<MEVideoDecoderPixelBufferManager>.fromOpaque(opaque).takeUnretainedValue()
-
-    // https://developer.apple.com/documentation/mediaextension/mevideodecoder says we can "make these calls multiple times
-    // if output requirements change", but I don't know if that has performance implications.
-    manager.pixelBufferAttributes = VideoDecoder.pixelAttributesFromFrame(
-        frame: frame.pointee,
-        pixFmt: av_map_videotoolbox_format_from_pixfmt2(
-            AVPixelFormat(frame.pointee.format),
-            frame.pointee.color_range == AVCOL_RANGE_JPEG
-        ),
-    )
-
-    // Obtain a pixel buffer to back the AVFrame
-    var pixelBuffer: CVPixelBuffer
-    do {
-        pixelBuffer = try manager.makePixelBuffer()
-    } catch {
-        logger.error("VideoDecoder: Failed to obtain a pixel buffer: \(error.localizedDescription, privacy: .public)")
-        return -ENOTSUP
-    }
-    let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
-    guard status == kCVReturnSuccess else {
-        logger.error("VideoDecoder: Failed to lock pixel buffer: \(status)")
-        return -ENOTSUP
+    // Cached pixel buffer configuration. Covers both HDR biplanar and SDR BGRA paths.
+    // Includes the fully-built pixelBufferAttributes dictionary for MEVideoDecoderPixelBufferManager.
+    struct PixelBufferConfig {
+        let pixelBufferAttributes: [String: Any]
+        // HDR conversion parameters. nil for SDR frames.
+        let bitDepth: UInt32
+        let uvShiftX: UInt32  // 0=n/a,444, 1=422,420
+        let uvShiftY: UInt32  // 0=n/a,444,422, 1=420
+        var isHDR: Bool { bitDepth > 8 }
     }
 
-    // Retain and stash the CVPixelBuffer on the frame so decodeFrame can return it
-    frame.pointee.opaque = Unmanaged.passRetained(pixelBuffer).toOpaque()
+    // Lightweight key capturing the frame and display properties that affect PixelBufferConfig / CVPixelBuffer attributes.
+    // Compared each frame to decide whether to rebuild the config or reuse the cached one.
+    // In practice this almost always matches because resolution and color properties are
+    // uniform within a stream, and FFmpeg propagates the same static MDM/CLL metadata onto every frame.
+    private struct PixelBufferCacheKey: Equatable {
+        let width: Int32
+        let height: Int32
+        let format: Int32
+        let colorTrc: AVColorTransferCharacteristic
+        let colorPrimaries: AVColorPrimaries
+        let colorspace: AVColorSpace
+        let colorRange: AVColorRange
+        let chromaLocation: AVChromaLocation
+        let mdmBytes: Data?  // 88 bytes raw AVMasteringDisplayMetadata, or nil
+        let cllBytes: Data?  // 8 bytes raw AVContentLightMetadata, or nil
+        let aveBytes: Data?  // 24 bytes raw AVAmbientViewingEnvironment, or nil
 
-    // Point AVFrame's data pointers to the pixel buffer
-    var dataSize = 0
-    withUnsafeMutablePointer(to: &frame.pointee.data.0) { dataTuplePtr in
-        let dataPtr = UnsafeMutableRawPointer(dataTuplePtr).assumingMemoryBound(to: UnsafeMutablePointer<UInt8>?.self)
-        withUnsafeMutablePointer(to: &frame.pointee.linesize.0) { linesizeTuplePtr in
-            let linesizePtr = UnsafeMutableRawPointer(linesizeTuplePtr).assumingMemoryBound(to: Int32.self)
-            let planeCount = CVPixelBufferGetPlaneCount(pixelBuffer)  // 0 for non-planar (e.g., BGRA)
-            if planeCount == 0 {
-                let base = CVPixelBufferGetBaseAddress(pixelBuffer)
-                dataPtr[0] = base?.assumingMemoryBound(to: UInt8.self)
-                frame.pointee.extended_data[0] = dataPtr[0]
-                linesizePtr[0] = Int32(CVPixelBufferGetBytesPerRow(pixelBuffer))
-                dataSize = Int(linesizePtr[0])
+        init(frame: UnsafePointer<AVFrame>) {
+            self.width = frame.pointee.width
+            self.height = frame.pointee.height
+            self.format = frame.pointee.format
+            self.colorTrc = frame.pointee.color_trc
+            self.colorPrimaries = frame.pointee.color_primaries
+            self.colorspace = frame.pointee.colorspace
+            self.colorRange = frame.pointee.color_range
+            self.chromaLocation = frame.pointee.chroma_location
+            if let sd = av_frame_get_side_data(frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) {
+                self.mdmBytes = Data(bytes: sd.pointee.data, count: Int(sd.pointee.size))
             } else {
-                for plane in 0..<planeCount {
-                    let base = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, plane)
-                    dataPtr[plane] = base?.assumingMemoryBound(to: UInt8.self)
-                    frame.pointee.extended_data[plane] = dataPtr[plane]
-                    linesizePtr[plane] = Int32(CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, plane))
-                    dataSize += Int(linesizePtr[plane])  // Assumes planes are consecutive and contiguous
-                }
+                self.mdmBytes = nil
+            }
+            if let sd = av_frame_get_side_data(frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) {
+                self.cllBytes = Data(bytes: sd.pointee.data, count: Int(sd.pointee.size))
+            } else {
+                self.cllBytes = nil
+            }
+            if let sd = av_frame_get_side_data(frame, AV_FRAME_DATA_AMBIENT_VIEWING_ENVIRONMENT) {
+                self.aveBytes = Data(bytes: sd.pointee.data, count: Int(sd.pointee.size))
+            } else {
+                self.aveBytes = nil
             }
         }
     }
 
-    // Set frame.buf[0] so FFmpeg unlocks and releases the CVPixelBuffer when the decode pipeline no longer needs it
-    frame.pointee.buf.0 = av_buffer_create(frame.pointee.data.0, dataSize, videoDecoder_buffer_free, frame.pointee.opaque, 0)!
-    //logger.debug("VideoDecoder alloc \(String(describing: frame.pointee.data.0)) \(String(describing: pixelBuffer))")
+    // Build PixelBufferConfig for the current frame.
+    // Handles both HDR biplanar and SDR BGRA paths. The frame's color fields must already
+    // be fixed up by fixupColors() before calling this.
+    // The returned config includes the fully-built pixelBufferAttributes dictionary
+    // suitable for assigning directly to MEVideoDecoderPixelBufferManager.
+    func makePixelBufferConfig(frame: UnsafePointer<AVFrame>) -> PixelBufferConfig {
+        var width = Int(frame.pointee.width)
+        let height = Int(frame.pointee.height)
 
-    return 0
-}
+        let config =
+            hdrPixelBufferConfig(frame: frame)
+            ?? {
+                // SDR path: adjust destination width for anamorphic so vImage/zscale will scale into the CVPixelBuffer.
+                if let sar = formatDescription.extensions[kCMFormatDescriptionExtension_PixelAspectRatio]
+                    as? [CFString: NSNumber],
+                    let num = sar[kCVImageBufferPixelAspectRatioHorizontalSpacingKey],
+                    let den = sar[kCVImageBufferPixelAspectRatioVerticalSpacingKey]
+                {
+                    width = Int(av_rescale_rnd(Int64(width), num.int64Value, den.int64Value, AV_ROUND_NEAR_INF))
+                }
+                return PixelBufferConfig(
+                    pixelBufferAttributes: [
+                        kCVPixelBufferWidthKey as String: width as CFNumber,
+                        kCVPixelBufferHeightKey as String: height as CFNumber,
+                        kCVPixelBufferBytesPerRowAlignmentKey as String: 64 as CFNumber,
+                        kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+                        kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,
+                        kCVBufferPropagatedAttachmentsKey as String: [
+                            kCVImageBufferColorPrimariesKey as String: kCVImageBufferColorPrimaries_ITU_R_709_2,
+                            kCVImageBufferTransferFunctionKey as String: kCVImageBufferTransferFunction_sRGB,
+                            kCVImageBufferYCbCrMatrixKey as String: kCVImageBufferYCbCrMatrix_ITU_R_709_2,
+                        ],
+                    ],
+                    bitDepth: 8,
+                    uvShiftX: 0,
+                    uvShiftY: 0
+                )
+            }()
+        return config
+    }
 
-private func videoDecoder_buffer_free(_ opaque: UnsafeMutableRawPointer?, _ data: UnsafeMutablePointer<UInt8>?) {
-    let pixelBuffer = Unmanaged<CVPixelBuffer>.fromOpaque(opaque!)
-    //logger.debug("VideoDecoder free  \(String(describing: data)) \(String(describing: pixelBuffer))")
-    CVPixelBufferUnlockBaseAddress(pixelBuffer.takeRetainedValue(), [])
 }

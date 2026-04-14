@@ -11,6 +11,7 @@
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
+#include <libavutil/ambient_viewing_environment.h>
 #include <libavutil/mastering_display_metadata.h>
 #include <libavutil/hdr_dynamic_metadata.h>
 #include <libavutil/hdr_dynamic_vivid_metadata.h>
@@ -21,3 +22,4 @@
 
 // this project
 #include "callbacks.h"
+#include "hdr_interleave.h"

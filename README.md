@@ -6,16 +6,21 @@ most types of audio and video files.
 QuickLook, AVFoundation and Spotlight understand a limited number of media files - mostly only MPEG
 audio and video codecs within MPEG container files. This app adds support for wide range of other
 codecs and "non-native" media file types, including:
-* File formats: Matroska (`.mka`, `.mkv`), WebM (`.webm`), Windows Media (`.wma`, `.wmv`),
-  Ogg Video (`.ogm`, `.ogv`), AVI (partial support) (`.avi`), Flash Video (`.flv`, `.f4v`),
-  Real Media (`.ra`, `.rm`, `.rv`), SMPTE (`.gxf`, `.mxf`) 
+
+* File formats: Matroska `.mka`, `.mkv`, WebM `.webm`, Windows Media `.wma`, `.wmv`,
+  Ogg Video `.ogm`, `.ogv`, AVI `.avi`, QuickTime `.mov`, Flash Video `.flv`, `.f4v`,
+  Real Media `.ra`, `.rm`, `.rv`, SMPTE `.gxf`, `.mxf`.
 * Audio codecs: Vorbis, Windows Media Audio, WavPak, ATRAC, etc.
-* Video codecs: VP6, VP8, VP9, AV1, VVC/H.266, Dolby Vision, Theora, Sorenson 1 & 3, Cinepak, Flash,
-  Real Video, Intel Indeo, etc.
+* Video codecs: VP6, VP8, VP9, AV1, HEVC/H.265, VVC/H.266, Dolby Vision, Theora, Sorenson 1 & 3,
+  Cinepak, Flash, Real Video, DivX, Intel Indeo, QuickTime animation, etc.
 
 How does it work?
 -----------------
-The app contains a Spotlight extension that adds support for non-native file formats, and two Media Extensions that add support to AVFoundation for non-native file formats and video codecs. (Long-time Mac users may remember [Perian](https://www.perian.org) which performed a similar function with the QuickTime framework before QuickTime was replaced by AVFoundation).
+The app contains a Spotlight extension that adds support for non-native file formats, and two Media
+Extensions that add support to AVFoundation for non-native file formats and video codecs.
+
+(Long-time Mac users may remember [Perian](https://www.perian.org) which performed a similar
+function with the QuickTime framework before QuickTime was replaced by AVFoundation).
 
 Installation and Usage
 ----------------------
