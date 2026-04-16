@@ -28,8 +28,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet var versionLabel: NSTextField!
     @IBOutlet var copyrightNote: NSTextField!
 
-    @IBOutlet var snapshotTime: NSSlider!
-    @IBOutlet var snapshotTimeValue: NSTextField!
+    var snapshotTime = NSSlider()
+    var snapshotTimeValue = NSTextField()
 
     @IBOutlet var regenerateNote: NSTextField!
     @IBOutlet var reindexingNote: NSTextField!

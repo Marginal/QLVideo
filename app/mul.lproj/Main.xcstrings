@@ -607,7 +607,7 @@
     },
     "Ao2-4O-GKj.ibShadowedToolTip" : {
       "comment" : "Class = \"NSSlider\"; ibShadowedToolTip = \"The time at which to take a snapshot for thumbnails in Finder windows.\\nOnly for files that don't contain cover art.\"; ObjectID = \"Ao2-4O-GKj\"; Note = \"Tooltip for snapshot time slider\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -2055,6 +2055,7 @@
     },
     "fxY-dc-4ds.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Snapshot\"; ObjectID = \"fxY-dc-4ds\"; Note = \"Setting - time interval\";",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
