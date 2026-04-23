@@ -675,6 +675,12 @@
             "value" : "O tempo no qual tirar um snapshot para miniaturas nas janelas do Finder.\napenas para arquivos que não contêm arte."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время, в которое будет сделан снимок для миниатюр в окнах Finder.\nТолько для файлов, не имеющих обложки."
+          }
+        },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1092,6 +1098,12 @@
             "value" : "Reinicie o Finder e recrie as miniaturas."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перезапустить Finder и обновить миниатюры."
+          }
+        },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1401,6 +1413,12 @@
             "value" : "Relatórios de travamento encontrados"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обнаружены отчёты о сбоях"
+          }
+        },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1482,6 +1500,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nota:\n- Vai precisar de uma conta GitHub para comunicar um problema. Pode registar-se no passo seguinte.\n- O formato do ficheiro será incluído no novo problema.\n- Não serão enviados nomes de ficheiros nem outro conteúdo do ficheiro.\n- Poderá rever o novo problema antes do envio."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Примечание:\n- Чтобы сообщить о проблеме, вам потребуется учётная запись GitHub. Вы сможете зарегистрироваться на следующем шаге.\n- В проблему будет включена информация о форматах файлов.\n- Имена и другое содержимое файлов передано не будет.\n- Вы сможете проверить проблему перед отправкой."
           }
         },
         "sv" : {
@@ -1785,6 +1809,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Largar ficheiro de vídeo problemático aqui"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите проблемный видеофайл сюда"
           }
         },
         "sv" : {
@@ -2349,6 +2379,12 @@
             "value" : "Um arquivo zip foi colocado no seu computador:"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На рабочий стол был помещён ZIP-файл:"
+          }
+        },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2897,6 +2933,12 @@
             "value" : "Há alguns relatórios de travamento recentes para os plugins deste aplicativo "
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обнаружены недавние отчёты о сбоях плагинов этого приложения "
+          }
+        },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3097,6 +3139,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Largar ficheiro de vídeo aqui"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите видеофайл сюда"
           }
         },
         "sv" : {
@@ -3408,6 +3456,12 @@
             "value" : "Largue aqui o ficheiro a usar como capa.\nDeixe em branco para remover a capa existente."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите файл сюда, чтобы использовать его в качестве обложки.\nОставьте пустым, чтобы удалить текущую обложку."
+          }
+        },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3496,6 +3550,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Por favor, anexe-o ao seu problema no GitHub."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пожалуйста, прикрепите его к вашей проблеме на GitHub."
           }
         },
         "sv" : {
@@ -4031,6 +4091,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A capa é exibida nas miniaturas Finder e nas pré-visualizações estáticas do QuickLook. U\n\nVocê pode adicionar, substituir ou remover a arte da capa em arquivos MP4, M4V, MKV e WEBM.\n\nA capa deve ser fornecida como um arquivo JPEG ou PNG."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обложка отображается в миниатюрах Finder и в статичных окнах Быстрого просмотра.\n\nВы можете добавить, заменить или удалить обложку в файлах MP4, M4V, MKV и WEBM.\n\nФайл обложки должен быть в формате JPEG или PNG."
           }
         },
         "sv" : {
