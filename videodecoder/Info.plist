@@ -47,6 +47,12 @@
 			</dict>
 			<dict>
 				<key>CodecName</key>
+				<string>Apple Intermediate Codec</string>
+				<key>CodecType</key>
+				<string>icod</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
 				<string>Cinepak</string>
 				<key>CodecType</key>
 				<string>cvid</string>

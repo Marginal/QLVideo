@@ -25,6 +25,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     static let supported: [CMVideoCodecType: AVCodecID] = [
         kCMVideoCodecType_Animation: AV_CODEC_ID_QTRLE,
         0x7270_7a61: AV_CODEC_ID_RPZA,  // 'rpza'
+        0x6963_6f64: AV_CODEC_ID_AIC,  // 'icod'
         kCMVideoCodecType_Cinepak: AV_CODEC_ID_CINEPAK,
         0x4861_7031: AV_CODEC_ID_HAP,  // 'Hap1'
         0x4861_7035: AV_CODEC_ID_HAP,  // 'Hap5'
@@ -159,6 +160,9 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             case AV_CODEC_ID_RPZA:
                 params.pointee.format = AV_PIX_FMT_RGB555LE.rawValue
                 params.pointee.color_range = AVCOL_RANGE_JPEG
+            case AV_CODEC_ID_AIC:
+                params.pointee.format = AV_PIX_FMT_YUV420P.rawValue
+                params.pointee.color_range = AVCOL_RANGE_MPEG
             case AV_CODEC_ID_CINEPAK:
                 params.pointee.format = AV_PIX_FMT_RGB24.rawValue
                 params.pointee.color_range = AVCOL_RANGE_JPEG
