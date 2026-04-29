@@ -2,7 +2,34 @@
 //  samplecursor.swift
 //  QLVideo
 //
-//  Created by Jonathan Harris on 02/12/2025.
+// See AVSampleCursor for the consumer's API by analogy. Typical usage pattern:
+//
+// Both:
+//   - SampleCursors are transient - created to perform an operation then discarded. After the first few are created by init,
+//     the rest are created by copying and the original soon discarded (but not immediately so can't just re-use orginal).
+//   - init at 0/1 for playback, or
+//     10,000,000/1,000,000 for thumbnail request (except 26.4 where 0/1 followed by 0/timebase), or
+//     mac OS <= 26.3: n/timebase for scrub, or
+//     mac OS >= 26.4: or n/90,000 for scrub (apart from rewind to start which is 0/60,000)
+//     followed by stepInDecodeOrder +1 a few times.
+//   - init at +inf, followed by stepInDecodeOrder +1 to find duration
+//
+// Audio:
+//   1 *stepByDecodeTime* by ~2 seconds in timeScale units from start or step 5
+//   2 stepInDecodeOrder by ~3 seconds worth of packets from start or step 5
+//   3 stepInDecodeOrder +1 starting from step 2 repeated for about 1 seconds worth of packets ??? (now ~4 seconds ahead)
+//   4 loadSampleBufferContainingSamples of the ~2 seconds worth of packets from step 1
+//   5 stepInDecodeOrder by the number of *samples* in the buffer returned by step 3 to get to the next buffer's worth of packets
+//   6 stepInDecodeOrder +1 starting from step 5 repeated for about 1 seconds worth of packets ???
+//   7 repeat until end of stream
+//
+// Video:
+//   1 stepInDecodeOrder +1
+//   2 stepInDecodeOrder by ~3 seconds worth of packets
+//   3 loadSampleBufferContainingSamples from next pkt by DTS to indefinite (currently we return one packet at a time)
+//   4 samplesWithLaterDTSsMayHaveEarlierPTSs from before step 1 to step 3 - called once after seek?
+//   5 *stepInPresentationOrder* by +1 and stepInDecodeOrder +1 from before step 1 a few times - looking for B frames?
+//   5 repeat until end of stream
 //
 
 import MediaExtension
@@ -12,8 +39,6 @@ import MediaExtension
 #else
     let TRACE_SAMPLE_CURSOR: Bool = false
 #endif
-
-// See AVSampleCursor for the consumer's API by analogy
 
 class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
@@ -398,7 +423,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         return false
     }
 
-    // whether any sample later in decode order than the current sample can have an earllier presentation time than the current sample of the specified cursor
+    // whether any sample later in decode order than the current sample can have an earlier presentation time than the current sample of the specified cursor
     func samplesWithLaterDTSsMayHaveEarlierPTSs(than cursor: any MESampleCursor) -> Bool {
         let cursor = cursor as! SampleCursor
         if TRACE_SAMPLE_CURSOR {

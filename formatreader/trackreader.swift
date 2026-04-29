@@ -32,6 +32,7 @@ class TrackReader: NSObject {
 
     @objc
     func loadUneditedDuration(completionHandler: @escaping (CMTime, (any Error)?) -> Void) {
+        format.loadUneditedDurationCalled = true
         if stream.pointee.duration != 0 {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(

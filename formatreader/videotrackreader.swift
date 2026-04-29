@@ -355,7 +355,7 @@ class VideoTrackReader: TrackReader, METrackReader {
             params.pointee.color_range == AVCOL_RANGE_JPEG ? kCFBooleanTrue : kCFBooleanFalse
 
         logger.debug(
-            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) codecType:\"\(FormatReader.av_fourcc2str(codecType!), privacy: .public)\" extensions:\(extensions, privacy:.public) timescale:\(self.stream.pointee.time_base.den) \(params.pointee.width)x\(params.pointee.height) \(av_q2d(self.stream.pointee.avg_frame_rate), format:.fixed(precision:2))fps"
+            "VideoTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) time_base:\(self.stream.pointee.time_base.num)/\(self.stream.pointee.time_base.den) codecType:\"\(FormatReader.av_fourcc2str(codecType!), privacy: .public)\" extensions:\(extensions, privacy:.public) timescale:\(self.stream.pointee.time_base.den) \(params.pointee.width)x\(params.pointee.height) \(av_q2d(self.stream.pointee.avg_frame_rate), format:.fixed(precision:2))fps"
         )
 
         let status = CMVideoFormatDescriptionCreate(

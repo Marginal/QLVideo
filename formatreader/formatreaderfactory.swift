@@ -28,12 +28,10 @@ class FormatReaderFactory: NSObject, MEFormatReaderExtension {
     func formatReader(with primaryByteSource: MEByteSource, options: MEFormatReaderInstantiationOptions?) throws
         -> any MEFormatReader
     {
-        //let err = AVERROR(errorCode: -0x2bb2afa8, context: "test", file: primaryByteSource.fileName)
-        //logger.critical("testing error: \(err), \(err.localizedDescription, privacy: .public)")
         #if DEBUG
             let identifier: String = primaryByteSource.contentType?.identifier ?? "unknown"
             logger.debug(
-                "FormatReaderFactory formatReader \(primaryByteSource.fileName, privacy:.public) \(identifier, privacy:.public)"
+                "FormatReaderFactory formatReader \(primaryByteSource.fileName, privacy:.public) \(identifier, privacy:.public) \(ProcessInfo().operatingSystemVersionString, privacy:.public)"
             )
         #endif  // DEBUG
         return FormatReader(primaryByteSource: primaryByteSource)

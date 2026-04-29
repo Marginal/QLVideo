@@ -48,6 +48,9 @@ class FormatReader: NSObject, MEFormatReader {
     var defaults: UserDefaults?
     var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
     var demuxer: PacketDemuxer? = nil
+    var loadUneditedDurationCalled = false  // workaround for macOS 26.4 snaphsot time
+    var bestAudio = AVERROR_STREAM_NOT_FOUND
+    var bestVideo = AVERROR_STREAM_NOT_FOUND
 
     init(primaryByteSource: MEByteSource) {
         byteSource = primaryByteSource
@@ -210,11 +213,9 @@ class FormatReader: NSObject, MEFormatReader {
         guard fmt_ctx != nil else { return completionHandler(nil, MEError(.parsingFailure)) }  // we can be called even if we couldn't open the file
         var readers: [METrackReader] = []
         var decoder: UnsafePointer<AVCodec>?
-        let besties: Set = [
-            Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0)),
-            Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &decoder, 0)),
-            Int(av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_SUBTITLE, -1, -1, &decoder, 0)),
-        ]
+        bestVideo = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0)
+        bestAudio = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &decoder, 0)
+
         for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
             let stream = fmt_ctx!.pointee.streams[i]!
             let params = stream.pointee.codecpar.pointee
@@ -222,14 +223,14 @@ class FormatReader: NSObject, MEFormatReader {
             switch params.codec_type {
             case AVMEDIA_TYPE_VIDEO:
                 if stream.pointee.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) == 0 {
-                    let reader = VideoTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i))
+                    let reader = VideoTrackReader(format: self, stream: stream, index: i, enabled: bestVideo == i)
                     readers.append(reader)
                 } else {
                     stream.pointee.discard = AVDISCARD_ALL  // this stream is metadata
                 }
 
             case AVMEDIA_TYPE_AUDIO:
-                let reader = AudioTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i))
+                let reader = AudioTrackReader(format: self, stream: stream, index: i, enabled: bestAudio == i)
                 readers.append(reader)
 
             //case AVMEDIA_TYPE_SUBTITLE:
