@@ -383,6 +383,6 @@ private func setDate(_ key: CFString, _ value: String, in attrs: NSMutableDictio
 private func appendLanguage(_ key: CFString, _ value: String, in attrs: NSMutableDictionary) {
     let lvalue = value.lowercased()
     if lvalue == "und" || lvalue == "unk" { return }
-    // Can't think of an easy way of sanitising input, so just pass though whatever we find and hope for the best
-    append(key, lvalue as CFString, in: attrs, allowDuplicates: true)
+    let cocoalValue = Locale.canonicalLanguageIdentifier(from: lvalue)
+    append(key, cocoalValue as CFString, in: attrs, allowDuplicates: true)
 }
