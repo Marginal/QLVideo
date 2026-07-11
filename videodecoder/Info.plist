@@ -113,6 +113,12 @@
 			</dict>
 			<dict>
 				<key>CodecName</key>
+				<string>NotchLC</string>
+				<key>CodecType</key>
+				<string>nclc</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
 				<string>Indeo 2</string>
 				<key>CodecType</key>
 				<string>RT21</string>

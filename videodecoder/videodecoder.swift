@@ -42,6 +42,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         0x4458_4433: AV_CODEC_ID_DXV,  // 'DXD3'
         0x666C_6963: AV_CODEC_ID_FLIC,  // 'flic'
         0x4146_4C43: AV_CODEC_ID_FLIC,  // 'AFLC'
+        0x6e63_6c63: AV_CODEC_ID_NOTCHLC,  // 'nclc'
         0x5254_3231: AV_CODEC_ID_INDEO2,  // 'RT21'
         0x4956_3331: AV_CODEC_ID_INDEO3,  // 'IV31'
         0x4956_3332: AV_CODEC_ID_INDEO3,  // 'IV32'
@@ -153,7 +154,8 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             switch codecID {
 
             // RGB
-            case AV_CODEC_ID_QTRLE, AV_CODEC_ID_RPZA, AV_CODEC_ID_CINEPAK, AV_CODEC_ID_HAP, AV_CODEC_ID_DXV, AV_CODEC_ID_FLIC:
+            case AV_CODEC_ID_QTRLE, AV_CODEC_ID_RPZA, AV_CODEC_ID_CINEPAK, AV_CODEC_ID_HAP, AV_CODEC_ID_DXV, AV_CODEC_ID_FLIC,
+                AV_CODEC_ID_NOTCHLC:
                 // Pixel format is set from codec_tag and/or bits_per_coded_sample in codec _init() under avcodec_open2()
                 params.pointee.color_range = AVCOL_RANGE_JPEG
                 params.pointee.color_space = AVCOL_SPC_RGB
