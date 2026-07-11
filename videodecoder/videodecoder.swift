@@ -154,11 +154,14 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             switch codecID {
 
             // RGB
-            case AV_CODEC_ID_QTRLE, AV_CODEC_ID_RPZA, AV_CODEC_ID_CINEPAK, AV_CODEC_ID_HAP, AV_CODEC_ID_DXV, AV_CODEC_ID_FLIC,
-                AV_CODEC_ID_NOTCHLC:
+            case AV_CODEC_ID_QTRLE, AV_CODEC_ID_RPZA, AV_CODEC_ID_CINEPAK, AV_CODEC_ID_HAP, AV_CODEC_ID_DXV, AV_CODEC_ID_FLIC:
                 // Pixel format is set from codec_tag and/or bits_per_coded_sample in codec _init() under avcodec_open2()
                 params.pointee.color_range = AVCOL_RANGE_JPEG
                 params.pointee.color_space = AVCOL_SPC_RGB
+
+            case AV_CODEC_ID_NOTCHLC:
+                // Nothing to set: notchlc's decode_init() unconditionally sets pix_fmt (YUVA444P12) and full color info under avcodec_open2()
+                break
 
             // YUV
             case AV_CODEC_ID_AIC:
