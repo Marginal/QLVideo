@@ -454,7 +454,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
 
         // Fix up color info on the decoded frame
-        VideoDecoder.fixupColors(frame: frame!)
+        fixupColors(frame: frame!)
 
         var pixelBuffer: CVPixelBuffer
         do {
@@ -531,15 +531,12 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
     // Infer color info from the decoded frame. Make educated guesses for unspecified values.
     // Mutates the frame's color_primaries, color_trc and colorspace fields in place.
-    class func fixupColors(frame: UnsafeMutablePointer<AVFrame>) {
+    func fixupColors(frame: UnsafeMutablePointer<AVFrame>) {
 
         // RGB space. Set color info in case we somehow end up on the zscale path.
         if frame.pointee.colorspace == AVCOL_SPC_RGB {
-            // NotchLC decodes to full-range BT.709 YUV (yuva444p12le) but FFmpeg's decoder mislabels
-            // the matrix as RGB/identity. Correct the matrix tag so the frame takes the YUV conversion
-            // path; leaving it as RGB either scrambles channels (GBR relabel) or makes zscale reject
-            // "YUV family + RGB matrix" (black).
-            if frame.pointee.format == AV_PIX_FMT_YUVA444P12LE.rawValue {
+            // FFmpeg decoder mislabels notchlc as RGB.
+            if self.dec_ctx?.pointee.codec_id == AV_CODEC_ID_NOTCHLC {
                 frame.pointee.colorspace = AVCOL_SPC_BT709
             }
             frame.pointee.color_range = AVCOL_RANGE_JPEG
