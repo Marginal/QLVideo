@@ -531,12 +531,12 @@ class VideoDecoder: NSObject, MEVideoDecoder {
 
         // RGB space. Set color info in case we somehow end up on the zscale path.
         if frame.pointee.colorspace == AVCOL_SPC_RGB {
-            // NotchLC decodes to a YUV-family planar format (yuva444p12le) but tags it with the
-            // RGB/identity matrix. Relabel to the memory-identical GBR-planar format so it takes an
-            // RGB conversion path instead of zscale, which rejects "YUV family + RGB matrix" (black).
-            // ponytail: NotchLC only ever emits yuva444p12le, so that's the only mapping needed.
+            // NotchLC decodes to full-range BT.709 YUV (yuva444p12le) but FFmpeg's decoder mislabels
+            // the matrix as RGB/identity. Correct the matrix tag so the frame takes the YUV conversion
+            // path; leaving it as RGB either scrambles channels (GBR relabel) or makes zscale reject
+            // "YUV family + RGB matrix" (black).
             if frame.pointee.format == AV_PIX_FMT_YUVA444P12LE.rawValue {
-                frame.pointee.format = AV_PIX_FMT_GBRAP12LE.rawValue
+                frame.pointee.colorspace = AVCOL_SPC_BT709
             }
             frame.pointee.color_range = AVCOL_RANGE_JPEG
             frame.pointee.color_primaries = AVCOL_PRI_BT709
