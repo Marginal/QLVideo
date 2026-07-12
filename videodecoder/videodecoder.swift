@@ -159,10 +159,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 params.pointee.color_range = AVCOL_RANGE_JPEG
                 params.pointee.color_space = AVCOL_SPC_RGB
 
-            case AV_CODEC_ID_NOTCHLC:
-                // Nothing to set: notchlc's decode_init() unconditionally sets pix_fmt (YUVA444P12) and full color info under avcodec_open2()
-                break
-
             // YUV
             case AV_CODEC_ID_AIC:
                 params.pointee.format = AV_PIX_FMT_YUV420P.rawValue
@@ -232,6 +228,14 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                         }
                     }
                 }
+            case AV_CODEC_ID_NOTCHLC:
+                // NotchLC codec overwrites these with the same values in decode_init, but for consistency with
+                // other cases we set them here.
+                params.pointee.format = AV_PIX_FMT_YUVA444P.rawValue;
+                params.pointee.color_range = AVCOL_RANGE_JPEG
+                params.pointee.color_space = AVCOL_SPC_RGB
+                break
+
             default:
                 // Shouldn't get here
                 logger.error(
