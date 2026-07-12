@@ -233,7 +233,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 // other cases we set them here.
                 params.pointee.format = AV_PIX_FMT_YUVA444P.rawValue;
                 params.pointee.color_range = AVCOL_RANGE_JPEG
-                params.pointee.color_space = AVCOL_SPC_RGB
+                params.pointee.color_space = AVCOL_SPC_RGB // Note, should be BT709 but ffmpeg mislabels...
                 break
 
             default:
