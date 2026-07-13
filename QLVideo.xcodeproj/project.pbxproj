@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AB0049E52F2144B40054D7B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		AB0049F62F223E820054D7B0 /* libavformat.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C22D2EE49D0040A4E6 /* libavformat.62.dylib */; };
 		AB0049F72F223E890054D7B0 /* libavutil.60.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C32D2EE49D0040A4E6 /* libavutil.60.dylib */; };
 		AB0049F82F223E8F0054D7B0 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
@@ -24,6 +23,7 @@
 		AB3AD4E22FEEBF380016453D /* MediaExtensionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3AD4E12FEEBF2B0016453D /* MediaExtensionsView.swift */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB4C18B130053D9C008E9B46 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABDA3D793005264100FAD1D9 /* Assets.xcassets */; };
 		AB70C90D2EF1C10500E30DCE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB70C90F2EF1C14D00E30DCE /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB70C90E2EF1C14D00E30DCE /* AVKit.framework */; };
 		AB748EE92D34B0E5001F6921 /* libavcodec.62.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C02D2EE49D0040A4E6 /* libavcodec.62.dylib */; };
@@ -50,7 +50,6 @@
 		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
 		ABA142002D301E670040A4E6 /* ffmpeg in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EC0293A32B5005433DF /* ffmpeg */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA532352F5216B200E6EC43 /* CrashReportView.swift */; };
-		ABB17F932EEC687200733965 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		ABDC7B082FE0783F00E0047A /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
@@ -258,6 +257,7 @@
 		ABCDC9022F6372DE001DE092 /* buildschema */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildschema; sourceTree = "<group>"; };
 		ABCDC9042F6372DE001DE092 /* buildzimg */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = buildzimg; sourceTree = "<group>"; };
 		ABD12FB42F5895BA00F69ECA /* app-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "app-bridge.h"; sourceTree = "<group>"; };
+		ABDA3D793005264100FAD1D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABE05B671A29FED900E228EE /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/schema.strings; sourceTree = "<group>"; };
 		ABE23BD11D258F6C004E9D26 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		ABE23BD61D25914C004E9D26 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -273,6 +273,7 @@
 		AB0049912F2143CE0054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				badge.xcf,
 				Info.plist,
 				Video_Decoder.provisionprofile,
 			);
@@ -297,6 +298,7 @@
 		AB823D3B2ECB991F00F0E1D3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				badge.xcf,
 				Format_Reader.provisionprofile,
 				Info.plist,
 			);
@@ -466,6 +468,7 @@
 		AB9FB5781965DD7200D39647 /* mdimporter */ = {
 			isa = PBXGroup;
 			children = (
+				ABDA3D793005264100FAD1D9 /* Assets.xcassets */,
 				AB1DAC6D2F4D201C006BB899 /* mdimporter-bridge.h */,
 				AB9FB57E1965DD7200D39647 /* main.c */,
 				AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */,
@@ -738,7 +741,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB0049E52F2144B40054D7B0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,7 +766,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABB17F932EEC687200733965 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,6 +773,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB4C18B130053D9C008E9B46 /* Assets.xcassets in Resources */,
 				ABE461181A15A776006C89A2 /* schema.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1340,6 +1342,8 @@
 		AB9FB58A1965DD7200D39647 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video metadata";
@@ -1355,6 +1359,8 @@
 		AB9FB58B1965DD7200D39647 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video metadata";
