@@ -595,6 +595,7 @@
 				ABE72EB929392E18005433DF /* Embed Executables */,
 				ABA141B92D2EE3590040A4E6 /* Embed Libraries */,
 				AB823D372ECB991F00F0E1D3 /* Embed ExtensionKit Extensions */,
+				AB4C19443007C231008E9B46 /* Strip incomplete localizations */,
 			);
 			buildRules = (
 			);
@@ -781,6 +782,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		AB4C19443007C231008E9B46 /* Strip incomplete localizations */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Strip incomplete localizations";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Use presence of translation of \"Add cover art\" to decide whether translation is sufficiently complete.\ncd \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nfind . -name Localizable.strings -exec sh -c 'plutil -type \"Add cover art\" -expect string {} > /dev/null 2>&1 || (echo `basename $(dirname {}) .lproj`; rm -rf `dirname {}`)' \\; | sort\n";
+		};
 		AB7D27C42F55D61C001D9776 /* Embed Help */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
