@@ -23,6 +23,10 @@ let kSettingsSnapshotAlways = "SnapshotAlways"  // Whether to generate static sn
 // Setting defaults
 let kDefaultSnapshotTime = 0.25  // CoreMedia generator appears to use 10s.
 
+// Last time the extensions changed enough that we should automatically reset spotlight or thumbnails
+let kResetSpotlight = 3.09
+let kResetQuickLook = 3.08
+
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -68,14 +72,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         regenerateNote.isHidden = true
         reindexingNote.isHidden = true
 
-        // Allow loading of MediExtensions for Issue View
+        // Allow loading of MediExtensions for Issue View and sanity check
         MTRegisterProfessionalVideoWorkflowFormatReaders()
         VTRegisterProfessionalVideoWorkflowVideoDecoders()
 
         // Set up help
         if isSandboxed {
             NSHelpManager.shared.registerBooks(in: myBundle)  // should be redundant but just in case
-            reportIssue.isHidden = true
         } else {
             NSApplication.shared.helpMenu = NSMenu(title: "Unused")  // Remove the searchable Help entry
         }
@@ -216,24 +219,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK:- plugin management
 
-    // Reset the QuickLook cache if this is the first time this version of the app is run
+    // Reset the QuickLook cache if previous app version was too old
     func maybeResetCache(_ currentVersion: String) {
+        regenerateNote.isHidden = true
         if let defaults {
             let oldVersion = defaults.double(forKey: kSettingsLastQuickLook)  // will be zero if not set
-            if Double(currentVersion) ?? 0.0 > oldVersion && resetCache() {
-                defaults.set(currentVersion, forKey: kSettingsLastQuickLook)
-                regenerateNote.isHidden = false
+            if oldVersion < kResetQuickLook {
+                if resetCache() {
+                    defaults.set(currentVersion, forKey: kSettingsLastQuickLook)
+                    regenerateNote.isHidden = false
+                }
             } else {
-                regenerateNote.isHidden = true
+                defaults.set(currentVersion, forKey: kSettingsLastQuickLook)
             }
         }
     }
 
-    // Reindex Spotlight metadata if this is the first time this version of the app is run
+    // Reindex Spotlight metadata if previous app version was too old
     func maybeResetSpotlight(_ currentVersion: String) {
+        reindexingNote.isHidden = true
         if let defaults {
             let oldVersion = defaults.double(forKey: kSettingsLastSpotlight)  // will be zero if not set
-            if Double(currentVersion) ?? 0.0 > oldVersion {
+            if oldVersion < kResetSpotlight {
                 // Spotlight can be slow to notice new importers. Nothing we can do about that so poll.
                 let timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [self] timer in
                     let mdimporter = "\(Bundle.main.bundlePath)/Contents/Library/Spotlight/"
@@ -244,18 +251,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                             if resetSpotlight() {
                                 defaults.set(currentVersion, forKey: kSettingsLastSpotlight)
                                 reindexingNote.isHidden = false
-                            } else {
-                                reindexingNote.isHidden = true
                             }
                         }
                     } catch {
                         timer.invalidate()
-                        reindexingNote.isHidden = true
                     }
                 }
                 timer.fire()
             } else {
-                reindexingNote.isHidden = true
+                defaults.set(currentVersion, forKey: kSettingsLastSpotlight)
             }
         }
     }
