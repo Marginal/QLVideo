@@ -27,12 +27,14 @@ class TrackReader: NSObject {
         self.stream = stream
         super.init()
         if TRACE_SAMPLE_CURSOR {
-            logger.debug("TrackReader init for stream #\(self.index)")
+            logger.debug("\(String(describing: type(of: self)), privacy: .public) init for stream #\(self.index)")
         }
     }
 
     deinit {
-        logger.debug("TrackReader deinit for stream #\(self.index)")
+        logger.debug("\(String(describing: type(of: self)), privacy: .public) deinit for stream #\(self.index)")
+        if dec_ctx != nil { avcodec_free_context(&dec_ctx) }
+        if swr_ctx != nil { swr_free(&swr_ctx) }
     }
 
     @objc
@@ -41,13 +43,13 @@ class TrackReader: NSObject {
         if stream.pointee.duration != 0 {
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(
-                    "TrackReader stream \(self.index) loadUneditedDuration = \(CMTime(value: self.stream.pointee.duration, timeBase: self.stream.pointee.time_base), privacy: .public)"
+                    "\(String(describing: type(of: self)), privacy: .public) stream \(self.index) loadUneditedDuration = \(CMTime(value: self.stream.pointee.duration, timeBase: self.stream.pointee.time_base), privacy: .public)"
                 )
             }
             return completionHandler(CMTime(value: stream.pointee.duration, timeBase: stream.pointee.time_base), nil)
         } else {
             if TRACE_SAMPLE_CURSOR {
-                logger.debug("TrackReader stream \(self.index) loadUneditedDuration = unknown")
+                logger.debug("\(String(describing: type(of: self)), privacy: .public) stream \(self.index) loadUneditedDuration = unknown")
             }
             return completionHandler(.indefinite, MEError(.unsupportedFeature))
         }

@@ -404,7 +404,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
         guard let format = format else { return completionHandler(nil, MEError(.internalFailure)) }
         do {
-            let cursor = try SampleCursor(
+            let cursor = try VideoSampleCursor(
                 format: format,
                 track: self,
                 index: index,
@@ -428,7 +428,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
         guard let format = format else { return completionHandler(nil, MEError(.internalFailure)) }
         do {
-            let cursor = try SampleCursor(
+            let cursor = try VideoSampleCursor(
                 format: format,
                 track: self,
                 index: index,

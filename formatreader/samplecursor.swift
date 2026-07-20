@@ -50,10 +50,6 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     var timeBase = AVRational()
     var demuxer: PacketDemuxer? { format?.demuxer! }
 
-    // used by stepInDecodeOrderByCount
-    var lastDelivered = 0
-    var nextHandle: PacketHandle? = nil
-
     nonisolated(unsafe) static var instanceCount = 0
     var instance = 0
 
@@ -68,7 +64,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
         if TRACE_SAMPLE_CURSOR {
             logger.debug(
-                "SampleCursor \(self.instance) stream \(index) init at presentationTimeStamp:\(presentationTimeStamp, privacy: .public)"
+                "\(String(describing: type(of: self)), privacy: .public) \(self.instance) stream \(index) init at presentationTimeStamp:\(presentationTimeStamp, privacy: .public)"
             )
         }
         // Creating a SampleCursor means that CoreMedia will want packets. So start demuxing.
@@ -89,14 +85,16 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         SampleCursor.instanceCount += 1
         self.handle = copying.handle
         self.discontinuity = false
-        self.lastDelivered = copying.lastDelivered
-        self.nextHandle = copying.nextHandle
         track?.sampleCursors.add(self)
         if TRACE_SAMPLE_CURSOR { logger.debug("\(copying.debugDescription, privacy: .public) copy -> \(self.instance)") }
     }
 
     deinit {
-        if TRACE_SAMPLE_CURSOR { logger.debug("\(self.debugDescription, privacy: .public) deinit") }
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug(
+                "\(String(describing: type(of: self)), privacy: .public) \(self.instance) stream \(self.streamIndex) at idx:\(self.handle.index) deinit"
+            )
+        }
     }
 
     func copy(with zone: NSZone? = nil) -> Any {
@@ -106,9 +104,10 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     override var debugDescription: String {
         if let pkt = demuxer?.get(stream: self.streamIndex, handle: self.handle) {
             return
-                "SampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.handle.index == Int.max ? "last" : String(self.handle.index)) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase))"
+                "\(String(describing: type(of: self))) \(self.instance) stream \(self.streamIndex) at idx:\(self.handle.index == Int.max ? "last" : String(self.handle.index)) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase))"
         } else {
-            return "SampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.handle.index) [no packet]"
+            return
+                "\(String(describing: type(of: self))) \(self.instance) stream \(self.streamIndex) at idx:\(self.handle.index) [no packet]"
         }
     }
 
@@ -168,147 +167,34 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
         }
     }
 
-    // MARK: Retrieving samples
-
-    // https://developer.apple.com/documentation/mediaextension/mesamplecursor
-    // Core Media's preferred way of accessing sample data is to be provided with an offset and length into
-    // the file via sampleLocation() and chunkDetails(), and reading it directly. But FFmpeg doesn't expose this info.
-    // FFmpeg works by reading data from the file until it has a valid packet for one of the streams.
+    // Placeholder for MESampleCursor conformance. Will be overridden in derived classs.
     func loadSampleBufferContainingSamples(
         to endSampleCursor: (any MESampleCursor)?,
         completionHandler: @escaping (CMSampleBuffer?, (any Error)?) -> Void
     ) {
         let endPresentationTimeStamp = endSampleCursor?.presentationTimeStamp ?? CMTime.indefinite
-        guard let pkt = demuxer?.get(stream: streamIndex, handle: handle) else {
+        guard (demuxer?.get(stream: streamIndex, handle: handle)) != nil else {
             logger.error(
                 "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public)"
             )
-            return completionHandler(nil, MEError(.endOfStream))
+            return completionHandler(nil, MEError(.internalFailure))
         }
-
-        if TRACE_SAMPLE_CURSOR {
-            logger.debug(
-                "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public)"
-            )
-        }
-
-        // Arrange for CoreMedia to free the packet data when no longer needed.
-        // See CMBlockBufferCustomBlockSource in CMBlockBuffer.h for why we're constructing this on the fly
-        let dataPkt = av_packet_clone(pkt)
-        var blockSource = CMBlockBufferCustomBlockSource(
-            version: 0,
-            AllocateBlock: nil,
-            FreeBlock: {
-                var pkt: UnsafeMutablePointer<AVPacket>? = $0!.assumingMemoryBound(to: AVPacket.self)
-                // if TRACE_SAMPLE_CURSOR { logger.debug("AudioSampleCursor free") }
-                let _ = $1  // doomedMemoryBlock unused - av_buffer_unref() or av_packet_free() will free it
-                let _ = $2  // sizeInBytes unused
-                av_packet_free(&pkt)
-            },
-            refCon: dataPkt,
-        )
-        var blockBuffer: CMBlockBuffer? = nil
-        var status = CMBlockBufferCreateWithMemoryBlock(
-            allocator: kCFAllocatorDefault,
-            memoryBlock: dataPkt!.pointee.data,
-            blockLength: Int(dataPkt!.pointee.size),
-            blockAllocator: kCFAllocatorNull,
-            customBlockSource: &blockSource,
-            offsetToData: 0,
-            dataLength: Int(pkt.pointee.size),
-            flags: kCMBlockBufferAssureMemoryNowFlag,  // not sure if this does anything useful
-            blockBufferOut: &blockBuffer
-        )
-        guard status == noErr else {
-            let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-            logger.error(
-                "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)"
-            )
-            return completionHandler(nil, error)
-        }
-
-        var sampleBuffer: CMSampleBuffer? = nil
-        var timingInfo = CMSampleTimingInfo(
-            duration: CMTime(value: pkt.pointee.duration, timeBase: timeBase),
-            presentationTimeStamp: CMTime(value: pkt.pointee.pts, timeBase: timeBase),
-            decodeTimeStamp: CMTime(value: pkt.pointee.dts, timeBase: timeBase)
-        )
-        status = CMSampleBufferCreateReady(
-            allocator: kCFAllocatorDefault,
-            dataBuffer: blockBuffer,
-            formatDescription: track!.formatDescription,
-            sampleCount: track!.stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO ? 1 : 0,
-            sampleTimingEntryCount: 1,
-            sampleTimingArray: &timingInfo,
-            sampleSizeEntryCount: 0,
-            sampleSizeArray: nil,
-            sampleBufferOut: &sampleBuffer
-        )
-        guard status == noErr else {
-            let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-            logger.error(
-                "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public): CMSampleBufferCreateReady returned \(error, privacy:.public)"
-            )
-            return completionHandler(nil, error)
-        }
-        CMSetAttachment(
-            sampleBuffer!,
-            key: kCMSampleBufferAttachmentKey_ResetDecoderBeforeDecoding,
-            value: self.discontinuity ? kCFBooleanTrue : kCFBooleanFalse,
-            attachmentMode: kCMAttachmentMode_ShouldNotPropagate
-        )
-        let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer!, createIfNecessary: true)! as NSArray
-        let attachment = attachments.firstObject as! NSMutableDictionary
-        attachment[kCMSampleAttachmentKey_NotSync] =
-            ((pkt.pointee.flags & AV_PKT_FLAG_KEY) == 0) ? kCFBooleanTrue : kCFBooleanFalse
-        attachment[kCMSampleAttachmentKey_DoNotDisplay] =
-            ((pkt.pointee.flags & AV_PKT_FLAG_DISCARD) != 0) ? kCFBooleanTrue : kCFBooleanFalse
-        for i in 0..<Int(pkt.pointee.side_data_elems) {
-            attachment["SideData\(i)" as CFString] = CFDataCreate(
-                kCFAllocatorDefault,
-                pkt.pointee.side_data[i].data,
-                CFIndex(pkt.pointee.side_data[i].size)
-            )
-            attachment["SideData\(i)Type" as CFString] = CFNumberCreate(nil, .intType, &pkt.pointee.side_data[i].type)
-        }
-
-        return completionHandler(sampleBuffer, nil)
     }
 
     // MARK: navigation
 
     // Step by number of frames (not by packets or timestamp)
     func stepInDecodeOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
-        var steppedBy: Int
         if demuxer?.get(stream: self.streamIndex, handle: handle) != nil {
-            if stepCount == lastDelivered, let next = nextHandle, next.generation == handle.generation {
-                // Being asked to step by the number of audio samples we last delivered in loadSampleBufferContainingSamples
-                if TRACE_SAMPLE_CURSOR {
-                    logger.debug("\(self.debugDescription, privacy: .public) stepInDecodeOrder by \(stepCount) = lastDelivered")
-                }
-                handle = next
-                steppedBy = lastDelivered
-                nextHandle = nil
-                lastDelivered = 0
-            } else {
-                if TRACE_SAMPLE_CURSOR {
-                    logger.debug("\(self.debugDescription, privacy: .public) stepInDecodeOrder by \(stepCount)")
-                }
-                let oldIndex = handle.index
-                guard let newHandle = demuxer?.step(stream: streamIndex, from: handle, by: Int(stepCount)) else {
-                    return completionHandler(0, MEError(.endOfStream))
-                }
-                handle = newHandle
-                steppedBy = handle.index - oldIndex
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug("\(self.debugDescription, privacy: .public) stepInDecodeOrder by \(stepCount)")
             }
-            if demuxer?.get(stream: self.streamIndex, handle: self.handle) != nil {
-                return completionHandler(Int64(steppedBy), nil)
-            } else {
-                // https://developer.apple.com/documentation/avfoundation/avsamplecursor/stepindecodeorder(bycount:)
-                // "If the cursor reaches the beginning or the end of the sample sequence before the requested number of samples was
-                // traversed, the absolute value of the result will be less than the absolute value of the specified step count"
-                return completionHandler(0, nil)
+            guard let newHandle = demuxer?.step(stream: streamIndex, from: handle, by: Int(stepCount)) else {
+                return completionHandler(0, MEError(.endOfStream))
             }
+            let steppedBy = Int64(newHandle.index - handle.index)
+            handle = newHandle
+            return completionHandler(steppedBy, nil)
         } else {
             logger.warning("\(self.debugDescription, privacy: .public) stepInDecodeOrder by \(stepCount)")
             return completionHandler(0, MEError(.endOfStream))

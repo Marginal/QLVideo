@@ -259,7 +259,7 @@ class FormatReader: NSObject, MEFormatReader {
                 )
             }
         }
-        for reader in readers { trackReaders.add(reader as! TrackReader) }
+        for reader in readers { trackReaders.add(reader as? TrackReader) }
         completionHandler(readers, nil)
     }
 }

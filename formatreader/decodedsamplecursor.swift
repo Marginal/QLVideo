@@ -10,6 +10,24 @@ import MediaExtension
 
 class DecodedSampleCursor: SampleCursor {
 
+    // used by stepInDecodeOrderByCount
+    var lastDelivered = 0
+    var nextHandle: PacketHandle? = nil
+
+    override init(format: FormatReader, track: TrackReader, index: Int, atPresentationTimeStamp presentationTimeStamp: CMTime)
+        throws
+    {
+        try super.init(format: format, track: track, index: index, atPresentationTimeStamp: presentationTimeStamp)
+        self.lastDelivered = 0
+        self.nextHandle = nil
+    }
+
+    init(copying: DecodedSampleCursor) {
+        super.init(copying: copying)
+        self.lastDelivered = copying.lastDelivered
+        self.nextHandle = copying.nextHandle
+    }
+
     override func copy(with zone: NSZone? = nil) -> Any {
         return DecodedSampleCursor(copying: self)
     }
@@ -57,7 +75,7 @@ class DecodedSampleCursor: SampleCursor {
 
         // decode packets and add the decoded data to the blockBuffer
         for idx in handle.index...endSampleCursor.handle.index {
-            // we only exect to be asked to provide data in the range of packets that we've previously reported as
+            // we only expect to be asked to provide data in the range of packets that we've previously reported as
             // existing, so treat any errors in retreiving and decoding as unexpected and unrecoverable
             nextHandle = PacketHandle(generation: handle.generation, index: idx, isLast: false)
             guard let pkt = demuxer?.get(stream: streamIndex, handle: nextHandle!) else {
@@ -188,6 +206,26 @@ class DecodedSampleCursor: SampleCursor {
         }
 
         return completionHandler(sampleBuffer, nil)
+    }
+
+    // MARK: navigation
+
+    // Step by number of frames (not by packets or timestamp)
+    override func stepInDecodeOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void) {
+
+        if stepCount == lastDelivered, let next = nextHandle, next.generation == handle.generation {
+            // Being asked to step by the number of audio samples we last delivered in loadSampleBufferContainingSamples
+            if TRACE_SAMPLE_CURSOR {
+                logger.debug("\(self.debugDescription, privacy: .public) stepInDecodeOrder by \(stepCount) = lastDelivered")
+            }
+            let steppedBy = Int64(lastDelivered)
+            handle = next
+            nextHandle = nil
+            lastDelivered = 0
+            return completionHandler(steppedBy, nil)
+        } else {
+            return super.stepInDecodeOrder(by: stepCount, completionHandler: completionHandler)
+        }
     }
 
 }
