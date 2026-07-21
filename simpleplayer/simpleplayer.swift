@@ -184,10 +184,12 @@ func isMetalRenderable(format: OSType, device: MTLDevice) -> Bool {
     return device.supportsTextureSampleCount(1) && mtlFormat != .invalid
 }
 
-func printUTIs(){
+func printUTIs() {
     // AVFoundation supported content
     if #available(macOS 26.0, *) {
-        let ext = AVURLAsset.audiovisualContentTypes.map { "\($0.preferredMIMEType ?? "???"): \($0.tags[.filenameExtension] ?? [])" }
+        let ext = AVURLAsset.audiovisualContentTypes.map {
+            "\($0.preferredMIMEType ?? "???"): \($0.tags[.filenameExtension] ?? [])"
+        }
         print("\naudiovisualContentTypes:\n\(ext.joined(separator: "\n"))")
     } else {
         print("\naudiovisualMIMETypes:\n\(AVURLAsset.audiovisualMIMETypes())")
@@ -221,6 +223,7 @@ func printPixFmts() {
 func printTrackInfo(url: URL) {
     let asset = AVURLAsset(url: url)
     for track in asset.tracks {
+        print("Language: \(track.languageCode ?? "none") \(track.extendedLanguageTag ?? "none")")
         for format in track.formatDescriptions {
             print(format)
             let format = format as! CMFormatDescription
@@ -233,8 +236,20 @@ func printTrackInfo(url: URL) {
             }
         }
     }
+
+    print("Characteristics:")
+    for characteristic in asset.availableMediaCharacteristicsWithMediaSelectionOptions {
+        print("\(characteristic)")
+        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: characteristic) {
+            for option in group.options {
+                print("  Option: \(option.displayName)")
+            }
+        }
+    }
+
     print("Metadata:")
     for item in asset.metadata { print(String(describing: item)) }
+    print("")
 }
 
 func printAudioInfo(url: URL) {
