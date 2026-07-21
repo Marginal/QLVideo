@@ -101,11 +101,11 @@ class FormatReader: NSObject, MEFormatReader {
             let err = AVERROR(errorCode: ret, context: "avformat_open_input", file: byteSource.fileName)
             #if DEBUG
                 logger.error(
-                    "FormatReader can't open \(self.byteSource.fileName, privacy:.public): \(err.localizedDescription, privacy:.public)"
+                    "FormatReader can't open \(self.byteSource.fileName, privacy:.public): \(err.errorDescription, privacy:.public)"
                 )
             #else
                 logger.error(
-                    "FormatReader can't open \(self.byteSource.fileName, privacy:.private(mask:.hash)): \(err.localizedDescription, privacy:.public)"
+                    "FormatReader can't open \(self.byteSource.fileName, privacy:.private(mask:.hash)): \(err.errorDescription, privacy:.public)"
                 )
             #endif
             return completionHandler(nil, err)
@@ -119,11 +119,11 @@ class FormatReader: NSObject, MEFormatReader {
             let err = AVERROR(errorCode: ret, context: "avformat_find_stream_info", file: byteSource.fileName)
             #if DEBUG
                 logger.error(
-                    "FormatReader can't read stream info from \(self.byteSource.fileName, privacy:.public): \(err.localizedDescription, privacy:.public)"
+                    "FormatReader can't read stream info from \(self.byteSource.fileName, privacy:.public): \(err.errorDescription, privacy:.public)"
                 )
             #else
                 logger.error(
-                    "FormatReader can't read stream info from \(self.byteSource.fileName, privacy:.private(mask:.hash)): \(err.localizedDescription, privacy:.public)"
+                    "FormatReader can't read stream info from \(self.byteSource.fileName, privacy:.private(mask:.hash)): \(err.errorDescription, privacy:.public)"
                 )
             #endif
             if fmt_ctx != nil { avformat_close_input(&fmt_ctx) }

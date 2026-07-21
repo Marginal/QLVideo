@@ -421,7 +421,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         } else if ret < 0 {
             let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
             logger.error(
-                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): \(error.errorDescription, privacy: .public)"
             )
             return completionHandler(nil, .frameDropped, MEError(.internalFailure))
         }
@@ -431,7 +431,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         guard ret >= 0 else {
             let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
             logger.error(
-                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): \(error.errorDescription, privacy: .public)"
             )
             if frame != nil { av_frame_free(&frame) }
             return completionHandler(nil, .frameDropped, MEError(.internalFailure))

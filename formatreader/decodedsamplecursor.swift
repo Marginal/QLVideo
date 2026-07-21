@@ -80,15 +80,15 @@ class DecodedSampleCursor: SampleCursor {
             nextHandle = PacketHandle(generation: handle.generation, index: idx, isLast: false)
             guard let pkt = demuxer?.get(stream: streamIndex, handle: nextHandle!) else {
                 logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(idx) [no packet] loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public)"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(idx) [no packet] loadSampleBufferContainingSamples"
                 )
                 break
             }
             var ret = avcodec_send_packet(track!.dec_ctx, pkt)
             if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
-                logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                logger.warning(
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                 )
                 return completionHandler(nil, error)
             }
@@ -99,7 +99,7 @@ class DecodedSampleCursor: SampleCursor {
             } else if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
                 logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                 )
                 return completionHandler(nil, error)
             }
@@ -108,7 +108,7 @@ class DecodedSampleCursor: SampleCursor {
             let reqdBytes = Int(frame.pointee.nb_samples) * sampleSize  // for this frame's data
             if capacity < offset + reqdBytes {
                 logger.debug(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
                 )
                 let newCapacity = capacity + reqdBytes
                 let newBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: newCapacity)
@@ -136,19 +136,19 @@ class DecodedSampleCursor: SampleCursor {
                 if ret < 0 {
                     let error = AVERROR(errorCode: ret, context: "swr_convert")
                     logger.error(
-                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): \(error.localizedDescription, privacy: .public)"
+                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                     )
                     return completionHandler(nil, error)
                 }
                 assert(
                     ret == frame.pointee.nb_samples,
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription): Expected \(frame.pointee.nb_samples), received \(ret) samples"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Expected \(frame.pointee.nb_samples), received \(ret) samples"
                 )
                 lastDelivered += Int(ret)
             } else {
                 assert(
                     av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes <= frame.pointee.linesize.0,
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription): Sample format or size mismatch"
+                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format or size mismatch"
                 )
                 outPtr!.update(from: frame.pointee.data.0!, count: reqdBytes)
                 lastDelivered += Int(frame.pointee.nb_samples)
