@@ -20,8 +20,9 @@
 //   3 stepInDecodeOrder +1 starting from step 2 repeated for about 1 seconds worth of packets ??? (now ~4 seconds ahead)
 //   4 loadSampleBufferContainingSamples of the ~2 seconds worth of packets from step 1
 //   5 stepInDecodeOrder by the number of *samples* in the buffer returned by step 3 to get to the next buffer's worth of packets
-//   6 stepInDecodeOrder +1 starting from step 5 repeated for about 1 seconds worth of packets ???
-//   7 repeat until end of stream
+//   6 stepInDecodeOrder +1 starting from step 5 repeated for about 2 seconds worth of packets ???
+//   7 VBR: stepByDecodeTime by a delta equivalent to ~1000! packets
+//   8 repeat until end of stream
 //
 // Video:
 //   1 stepInDecodeOrder +1

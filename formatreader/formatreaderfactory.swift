@@ -64,9 +64,10 @@ class FormatReaderFactory: NSObject, MEFormatReaderExtension {
         }
         for formatReader in formatReaders.allObjects {
             logger.info("FormatReader for \(formatReader.byteSource.fileName, privacy: .public)")
+            logger.info("  PacketDemuxer \(formatReader.demuxer?.status() ?? "absent", privacy: .public)")
             for trackReader in formatReader.trackReaders.allObjects {
                 logger.info(
-                    "  TrackReader for stream #\(trackReader.index) \(trackReader.formatDescription!.mediaType, privacy: .public) \(trackReader.formatDescription!.mediaSubType, privacy: .public)"
+                    "  \(String(describing: type(of: trackReader)), privacy: .public) for stream #\(trackReader.index) \(trackReader.formatDescription!.mediaSubType, privacy: .public) \(formatReader.demuxer?.status(stream: trackReader.index) ?? "absent", privacy: .public)"
                 )
                 for sampleCursor in trackReader.sampleCursors.allObjects {
                     logger.info("    \(sampleCursor.debugDescription, privacy: .public)")

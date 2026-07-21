@@ -15,7 +15,7 @@ class PassthruSampleCursor: SampleCursor {
     }
 
     func sampleLocation() throws -> MESampleLocation {
-        if let pkt = demuxer?.get(stream: self.streamIndex, handle: self.handle) {
+        if let pkt = demuxer?.get(stream: self.streamIndex, handle: self.handle, consumed: true) {
             let location = AVSampleCursorStorageRange(offset: pkt.pointee.pos, length: Int64(pkt.pointee.size))
             if TRACE_SAMPLE_CURSOR {
                 logger.debug(

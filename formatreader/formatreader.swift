@@ -143,7 +143,7 @@ class FormatReader: NSObject, MEFormatReader {
         while let entry = av_dict_get(fmt_ctx!.pointee.metadata, "", prev, AV_DICT_IGNORE_SUFFIX) {
             prev = entry
             if let identifier = FormatReader.identifiers[String(cString: entry.pointee.key).lowercased()],
-               var lvalue = String(validatingUTF8: entry.pointee.value)?.lowercased(),
+                var lvalue = String(validatingUTF8: entry.pointee.value)?.lowercased(),
                 lvalue != "" && lvalue != "und", lvalue != "unk"
             {
                 if identifier == .commonIdentifierLanguage {
@@ -230,12 +230,19 @@ class FormatReader: NSObject, MEFormatReader {
                 if stream.pointee.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) == 0 {
                     let reader = VideoTrackReader(format: self, stream: stream, index: i, enabled: bestVideo == i)
                     readers.append(reader)
+                    // Packets won't be consumed from disabled streams so demux would stall
+                    if !reader.isEnabled { stream.pointee.discard = AVDISCARD_ALL }
                 } else {
                     stream.pointee.discard = AVDISCARD_ALL  // this stream is metadata
                 }
 
             case AVMEDIA_TYPE_AUDIO:
                 let reader = AudioTrackReader(format: self, stream: stream, index: i, enabled: bestAudio == i)
+                if !reader.isEnabled {
+                    // Packets won't be consumed from disabled streams so demux would stall
+                    // TODO: Revisit PacketDemuxer eviction policy if we get multiple audio tracks working
+                    stream.pointee.discard = AVDISCARD_ALL
+                }
                 readers.append(reader)
 
             //case AVMEDIA_TYPE_SUBTITLE:

@@ -22,7 +22,7 @@ class VideoSampleCursor: SampleCursor {
         completionHandler: @escaping (CMSampleBuffer?, (any Error)?) -> Void
     ) {
         let endPresentationTimeStamp = endSampleCursor?.presentationTimeStamp ?? CMTime.indefinite
-        guard let pkt = demuxer?.get(stream: streamIndex, handle: handle) else {
+        guard let pkt = demuxer?.get(stream: streamIndex, handle: handle, consumed: true) else {
             logger.error(
                 "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endPresentationTimeStamp, privacy: .public)"
             )

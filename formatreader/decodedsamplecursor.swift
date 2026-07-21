@@ -222,6 +222,7 @@ class DecodedSampleCursor: SampleCursor {
             handle = next
             nextHandle = nil
             lastDelivered = 0
+            _ = demuxer?.get(stream: streamIndex, handle: handle, consumed: true)  // trim up to returned packet
             return completionHandler(steppedBy, nil)
         } else {
             return super.stepInDecodeOrder(by: stepCount, completionHandler: completionHandler)
