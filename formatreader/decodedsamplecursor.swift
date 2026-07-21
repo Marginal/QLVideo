@@ -73,6 +73,10 @@ class DecodedSampleCursor: SampleCursor {
         lastDelivered = 0
         let frame = av_frame_alloc()!
 
+        if discontinuity {
+            avcodec_flush_buffers(track!.dec_ctx)
+        }
+
         // decode packets and add the decoded data to the blockBuffer
         for idx in handle.index...endSampleCursor.handle.index {
             // we only expect to be asked to provide data in the range of packets that we've previously reported as
@@ -90,6 +94,7 @@ class DecodedSampleCursor: SampleCursor {
                 logger.warning(
                     "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                 )
+                if ret == AVERROR_INVALIDDATA { continue }  // Hope AVFoundation can cope with missed data
                 return completionHandler(nil, error)
             }
 
