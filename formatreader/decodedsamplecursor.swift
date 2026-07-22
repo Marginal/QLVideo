@@ -98,67 +98,69 @@ class DecodedSampleCursor: SampleCursor {
                 return completionHandler(nil, error)
             }
 
-            ret = avcodec_receive_frame(track!.dec_ctx, frame)
-            if ret == AVERROR_EAGAIN {
-                continue
-            } else if ret < 0 {
-                let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
-                logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
-                )
-                return completionHandler(nil, error)
-            }
-
-            let offset = lastDelivered * sampleSize
-            let reqdBytes = Int(frame.pointee.nb_samples) * sampleSize  // for this frame's data
-            if capacity < offset + reqdBytes {
-                logger.debug(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
-                )
-                let newCapacity = capacity + reqdBytes
-                let newBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: newCapacity)
-                newBuffer.update(from: buffer, count: capacity)
-                buffer.deallocate()
-                buffer = newBuffer
-                capacity = newCapacity
-            }
-
-            var outPtr: UnsafeMutablePointer<UInt8>? = buffer.advanced(by: offset)
-            if track!.swr_ctx != nil {
-                // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
-                // http://www.openradar.me/45068930
-                let inPtrs: UnsafePointer<UnsafePointer<UInt8>?>? = frame.pointee.extended_data?.withMemoryRebound(
-                    to: UnsafePointer<UInt8>?.self,
-                    capacity: Int(track!.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
-                ) { return UnsafePointer($0) }
-                ret = swr_convert(
-                    track!.swr_ctx,
-                    &outPtr,
-                    Int32((capacity - offset) / sampleSize),
-                    inPtrs,
-                    Int32(frame.pointee.nb_samples)
-                )
-                if ret < 0 {
-                    let error = AVERROR(errorCode: ret, context: "swr_convert")
+            while true {
+                ret = avcodec_receive_frame(track!.dec_ctx, frame)
+                if ret == AVERROR_EAGAIN {
+                    break
+                } else if ret < 0 {
+                    let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
                     logger.error(
                         "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                     )
                     return completionHandler(nil, error)
                 }
-                assert(
-                    ret == frame.pointee.nb_samples,
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Expected \(frame.pointee.nb_samples), received \(ret) samples"
-                )
-                lastDelivered += Int(ret)
-            } else {
-                assert(
-                    av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes <= frame.pointee.linesize.0,
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format or size mismatch"
-                )
-                outPtr!.update(from: frame.pointee.data.0!, count: reqdBytes)
-                lastDelivered += Int(frame.pointee.nb_samples)
+
+                let offset = lastDelivered * sampleSize
+                let reqdBytes = Int(frame.pointee.nb_samples) * sampleSize  // for this frame's data
+                if capacity < offset + reqdBytes {
+                    logger.debug(
+                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
+                    )
+                    let newCapacity = capacity + reqdBytes
+                    let newBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: newCapacity)
+                    newBuffer.update(from: buffer, count: capacity)
+                    buffer.deallocate()
+                    buffer = newBuffer
+                    capacity = newCapacity
+                }
+
+                var outPtr: UnsafeMutablePointer<UInt8>? = buffer.advanced(by: offset)
+                if track!.swr_ctx != nil {
+                    // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
+                    // http://www.openradar.me/45068930
+                    let inPtrs: UnsafePointer<UnsafePointer<UInt8>?>? = frame.pointee.extended_data?.withMemoryRebound(
+                        to: UnsafePointer<UInt8>?.self,
+                        capacity: Int(track!.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
+                    ) { return UnsafePointer($0) }
+                    ret = swr_convert(
+                        track!.swr_ctx,
+                        &outPtr,
+                        Int32((capacity - offset) / sampleSize),
+                        inPtrs,
+                        Int32(frame.pointee.nb_samples)
+                    )
+                    if ret < 0 {
+                        let error = AVERROR(errorCode: ret, context: "swr_convert")
+                        logger.error(
+                            "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
+                        )
+                        return completionHandler(nil, error)
+                    }
+                    assert(
+                        ret == frame.pointee.nb_samples,
+                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Expected \(frame.pointee.nb_samples), received \(ret) samples"
+                    )
+                    lastDelivered += Int(ret)
+                } else {
+                    assert(
+                        av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes <= frame.pointee.linesize.0,
+                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format or size mismatch"
+                    )
+                    outPtr!.update(from: frame.pointee.data.0!, count: reqdBytes)
+                    lastDelivered += Int(frame.pointee.nb_samples)
+                }
+                av_frame_unref(frame)
             }
-            av_frame_unref(frame)
         }
         nextHandle =
             endSampleCursor.handle.isLast

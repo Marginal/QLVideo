@@ -49,6 +49,13 @@ private final class PacketRing {
 
     var isEmpty: Bool { count == 0 }
     var isFull: Bool { count == capacity }
+    var isReady: Bool {
+        if count == 0 { return false }
+        if headLogicalIndex == 0 {
+            return storage[head]!.pointee.dts != AV_NOPTS_VALUE
+        }
+        return true
+    }
     var minLogicalIndex: Int {
         assert(count > 0)
         return headLogicalIndex
@@ -172,7 +179,7 @@ final class PacketDemuxer {
     private let demuxGroup = DispatchGroup()
     private let demuxQueue = DispatchQueue(label: "uk.org.marginal.qlvideo.formatreader", qos: .default)
     private let demuxSem = DispatchSemaphore(value: 0)  // wake demuxLoop when paused
-    private let packetSem = DispatchSemaphore(value: 0)  // notify consumers a packet arrived
+    private var packetSems: [DispatchSemaphore]  // notify consumers that a packet arrived
 
     init(format: FormatReader) throws {
         self.format = format
@@ -242,6 +249,7 @@ final class PacketDemuxer {
         }
         lastConsumed = [Int](repeating: -1, count: Int(fmt_ctx.pointee.nb_streams))
         lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(fmt_ctx.pointee.nb_streams))
+        packetSems = [DispatchSemaphore](repeating: DispatchSemaphore(value: 0), count: Int(fmt_ctx.pointee.nb_streams))
         if String(cString: fmt_ctx.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
         if TRACE_PACKET_DEMUXER {
             logger.debug("PacketDemuxer init streams: \(fmt_ctx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
@@ -285,12 +293,12 @@ final class PacketDemuxer {
         stopping = true
         stateLock.unlock()
         demuxSem.signal()
-        packetSem.signal()
+        packetSems.forEach { $0.signal() }
     }
 
     func get(stream: Int, handle: PacketHandle, consumed: Bool = false) -> UnsafeMutablePointer<AVPacket>? {
         if handle.isLast {
-            return lastPkt[stream]
+            return lastPkt[stream]  // may be nil if couldn't find last packet
         } else {
             guard handle.generation == generation else {
                 // AVFoundation tries to step from an old video SampleCursor after a seek
@@ -372,7 +380,7 @@ final class PacketDemuxer {
             }
             // wait for more packets
             stateLock.unlock()
-            packetSem.wait()
+            packetSems[stream].wait()
         }  // loop until available
     }
 
@@ -385,8 +393,8 @@ final class PacketDemuxer {
         // Special cases
         if presentationTimeStamp.isPositiveInfinity
             // Fix for QuickTime player which asks for a later SampleCursor after asking for one at +inf
-            || lastPkt[stream] == nil
-            || presentationTimeStamp >= CMTime(value: lastPkt[stream]!.pointee.pts, timeBase: buffers[stream].timeBase)
+            || (lastPkt[stream] != nil
+                && presentationTimeStamp >= CMTime(value: lastPkt[stream]!.pointee.pts, timeBase: buffers[stream].timeBase))
         {
             return PacketHandle(generation: generation, index: Int.max, isLast: true)
         } else if let remembered = rememberedSeekPTS,
@@ -398,7 +406,7 @@ final class PacketDemuxer {
             if buffers[stream].isEmpty {
                 try waitForPacketZero(stream: stream)
                 return PacketHandle(generation: generation, index: 0, isLast: false)
-            } else if buffers[stream].minLogicalIndex == 0 {
+            } else if buffers[stream].minLogicalIndex == 0 && buffers[stream].isReady {
                 return PacketHandle(generation: generation, index: 0, isLast: false)
             } else {
                 logger.warning(
@@ -483,7 +491,7 @@ final class PacketDemuxer {
             if demuxPause() { break }  // Cannot make progress
             demuxSem.signal()
             stateLock.unlock()
-            packetSem.wait()
+            packetSems[stream].wait()
             stateLock.lock()
         }
         if buffers[stream].isEmpty {
@@ -563,7 +571,7 @@ final class PacketDemuxer {
                         logger.error("PacketDemuxer demuxLoop: \(error.errorDescription, privacy:.public)")
                     }
                     demuxSem.signal()
-                    packetSem.signal()  // wake consumers so they can see halted
+                    packetSems.forEach { $0.signal() }  // wake consumers so they can see halted
                     return
                 }
                 if pkt!.pointee.size == 0 || Int(pkt!.pointee.stream_index) >= buffers.count
@@ -640,7 +648,18 @@ final class PacketDemuxer {
             }
         }
 
-        packetSem.signal()  // signal to consumers that a packet arrived
+        // Audio decode depends on packet duration for efficient buffer allocation.
+        // Missing duration can be seen in some VBR audio such as WMA in ASF.
+        if packet.pointee.duration == 0 {
+            if let prev = buffer.get(logicalIndex: buffer.count - 2) {
+                prev.pointee.duration = packet.pointee.pts - prev.pointee.pts  // Assumes packets demuxed in PTS order
+            } else {
+                if TRACE_PACKET_DEMUXER { logger.debug("PacketDemuxer stream \(stream) fixing up duration values") }
+                return  // Don't signal availability of the first packet. The final packet will be signalled with 0 duration when we hit halted.
+            }
+        }
+
+        packetSems[stream].signal()  // signal to consumers that a packet arrived
     }
 
     private func flushLocked() {
@@ -655,10 +674,10 @@ final class PacketDemuxer {
         defer { stateLock.unlock() }
         while true {
             stateLock.lock()
-            if format == nil || stopping || !buffers[stream].isEmpty { return }
+            if format == nil || stopping || buffers[stream].isReady { return }
             if halted || demuxPause() { throw MEError(.endOfStream) }  // Maybe this stream doesn't contain any packets?
             stateLock.unlock()
-            packetSem.wait()
+            packetSems[stream].wait()
         }
     }
 
