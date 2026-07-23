@@ -38,13 +38,25 @@ private final class PacketRing {
     private(set) var count = 0
     private var headLogicalIndex = 0
     let capacity: Int
-    var highest = 0  // high water mark
+    var readAhead: Int
     let timeBase: AVRational
+    var bsfCtx: UnsafeMutablePointer<AVBSFContext>?
+    var highest = 0  // high water mark
+    var lastConsumed: Int
+    let packetSem: DispatchSemaphore
 
-    init(capacity: Int, timeBase: AVRational) {
-        self.capacity = capacity
-        self.timeBase = timeBase
+    init(capacity: Int, readAhead: Int, timeBase: AVRational, bsfCtx: UnsafeMutablePointer<AVBSFContext>?) {
         self.storage = Array(repeating: nil, count: capacity)
+        self.capacity = capacity
+        self.readAhead = readAhead
+        self.timeBase = timeBase
+        self.bsfCtx = bsfCtx
+        self.lastConsumed = -1
+        self.packetSem = DispatchSemaphore(value: 0)
+    }
+
+    deinit {
+        av_bsf_free(&bsfCtx)
     }
 
     var isEmpty: Bool { count == 0 }
@@ -64,6 +76,9 @@ private final class PacketRing {
         assert(count > 0)
         return headLogicalIndex + count - 1
     }
+    var bufferedAhead: Int {
+        return isEmpty ? 0 : (maxLogicalIndex - lastConsumed)
+    }
 
     func reset() {
         var idx = head
@@ -76,6 +91,13 @@ private final class PacketRing {
         tail = 0
         count = 0
         headLogicalIndex = 0
+        lastConsumed = -1
+        if let bsf = bsfCtx { av_bsf_flush(bsf) }
+    }
+
+    // Increase read-ahead up to capacity
+    func increaseReadAhead(requested: Int) {
+        readAhead = min(max(readAhead, requested - lastConsumed), capacity)
     }
 
     func append(packet: UnsafeMutablePointer<AVPacket>) -> UnsafeMutablePointer<AVPacket>? {
@@ -94,7 +116,7 @@ private final class PacketRing {
         return evicted
     }
 
-    func trim(upTo logicalIndex: Int) {
+    func consume(logicalIndex: Int) {
         while count > 0 && headLogicalIndex < logicalIndex {
             av_packet_free(&storage[head])
             storage[head] = nil
@@ -102,6 +124,7 @@ private final class PacketRing {
             headLogicalIndex += 1
             count -= 1
         }
+        lastConsumed = max(lastConsumed, logicalIndex)
     }
 
     func get(logicalIndex: Int) -> UnsafeMutablePointer<AVPacket>? {
@@ -166,10 +189,7 @@ final class PacketDemuxer {
     private var pktFixup: Int64 = 0
     private var snapshotTime = kDefaultSnapshotTime
     private var buffers: [PacketRing]
-    private var bsfCtxs: [UnsafeMutablePointer<AVBSFContext>?]
     private var generation: Int = 0
-    private var lastConsumed: [Int]  // logical index of the last packet consumed in each stream
-    private var readAhead: [Int]  // target number of packets to keep ahead of lastConsumed
     private var stopping = false
     private var halted = false  // true after EOF or read/seek error until next successful seek
     private var rememberedSeekPTS: CMTime? = nil
@@ -179,7 +199,6 @@ final class PacketDemuxer {
     private let demuxGroup = DispatchGroup()
     private let demuxQueue = DispatchQueue(label: "uk.org.marginal.qlvideo.formatreader", qos: .default)
     private let demuxSem = DispatchSemaphore(value: 0)  // wake demuxLoop when paused
-    private var packetSems: [DispatchSemaphore]  // notify consumers that a packet arrived
 
     init(format: FormatReader) throws {
         self.format = format
@@ -194,67 +213,58 @@ final class PacketDemuxer {
         }
         buffers = (0..<Int(fmt_ctx.pointee.nb_streams)).map { idx in
             let stream = fmt_ctx.pointee.streams[idx]!
-            let capacity: Int
+            var capacity = 0
+            var readAhead = 0
+            var bsfCtx: UnsafeMutablePointer<AVBSFContext>? = nil
             if stream.pointee.discard != AVDISCARD_ALL {
-                switch stream.pointee.codecpar.pointee.codec_type {
-                case AVMEDIA_TYPE_VIDEO: capacity = PacketDemuxer.videoCapacity
-                case AVMEDIA_TYPE_AUDIO: capacity = PacketDemuxer.audioCapacity
-                default: capacity = 0  // we currently don't handle other kinds of stream
-                }
-            } else {
-                capacity = 0
-            }
-            return PacketRing(capacity: capacity, timeBase: stream.pointee.time_base)
-        }
-        bsfCtxs = (0..<Int(fmt_ctx.pointee.nb_streams)).map { idx in
-            let stream = fmt_ctx.pointee.streams[idx]!
-            if stream.pointee.discard != AVDISCARD_ALL
-                && (stream.pointee.codecpar.pointee.codec_tag == 0x4449_5658  // 'DIVX'
-                    || stream.pointee.codecpar.pointee.codec_tag == 0x5856_4944  // 'XVID'
-                    || stream.pointee.codecpar.pointee.codec_tag == 0x4458_3530),  // 'DX50'
-                let bsf = av_bsf_get_by_name("mpeg4_unpack_bframes")  // Regularize DivX streams
-            {
-                var ctx: UnsafeMutablePointer<AVBSFContext>?
-                if av_bsf_alloc(bsf, &ctx) == 0 {
-                    avcodec_parameters_copy(ctx!.pointee.par_in, stream.pointee.codecpar)
-                    ctx!.pointee.time_base_in = stream.pointee.time_base
-                    let ret = av_bsf_init(ctx!)
-                    if ret == 0 {
-                        if TRACE_PACKET_DEMUXER {
-                            logger.debug("PacketDemuxer init: enabled mpeg4_unpack_bframes for stream \(idx)")
+                if stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO {
+                    capacity = PacketDemuxer.videoCapacity
+                    readAhead = PacketDemuxer.videoReadAhead
+                    if stream.pointee.codecpar.pointee.codec_tag == 0x4449_5658  // 'DIVX'
+                        || stream.pointee.codecpar.pointee.codec_tag == 0x5856_4944  // 'XVID'
+                        || stream.pointee.codecpar.pointee.codec_tag == 0x4458_3530,  // 'DX50'
+                        let bsf = av_bsf_get_by_name("mpeg4_unpack_bframes")  // Regularize DivX streams
+                    {
+                        var ctx: UnsafeMutablePointer<AVBSFContext>?
+                        if av_bsf_alloc(bsf, &ctx) == 0 {
+                            avcodec_parameters_copy(ctx!.pointee.par_in, stream.pointee.codecpar)
+                            ctx!.pointee.time_base_in = stream.pointee.time_base
+                            let ret = av_bsf_init(ctx!)
+                            if ret == 0 {
+                                if TRACE_PACKET_DEMUXER {
+                                    logger.debug("PacketDemuxer init: enabled mpeg4_unpack_bframes for stream \(idx)")
+                                }
+                                bsfCtx = ctx
+                            } else {
+                                let error = AVERROR(errorCode: ret, context: "av_bsf_init")
+                                logger.error(
+                                    "PacketDemuxer init: Unable to set up mpeg4_unpack_bframes for stream \(idx): \(error.errorDescription, privacy:.public)"
+                                )
+                                av_bsf_free(&ctx)
+                            }
                         }
-                        return ctx
-                    } else {
-                        let error = AVERROR(errorCode: ret, context: "av_bsf_init")
-                        logger.error(
-                            "PacketDemuxer init: Unable to set up mpeg4_unpack_bframes for stream \(idx): \(error.errorDescription, privacy:.public)"
-                        )
-                        av_bsf_free(&ctx)
                     }
+                } else if stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_AUDIO {
+                    capacity = PacketDemuxer.audioCapacity
+                    readAhead = PacketDemuxer.audioReadAhead
                 }
             }
-            return nil
+            return PacketRing(capacity: capacity, readAhead: readAhead, timeBase: stream.pointee.time_base, bsfCtx: bsfCtx)
         }
-        readAhead = (0..<Int(fmt_ctx.pointee.nb_streams)).map { idx in
-            let stream = fmt_ctx.pointee.streams[idx]!
-            if stream.pointee.discard != AVDISCARD_ALL {
-                switch stream.pointee.codecpar.pointee.codec_type {
-                case AVMEDIA_TYPE_VIDEO: return PacketDemuxer.videoReadAhead
-                case AVMEDIA_TYPE_AUDIO: return PacketDemuxer.audioReadAhead
-                default: return 0
-                }
-            } else {
-                return 0
-            }
-        }
-        lastConsumed = [Int](repeating: -1, count: Int(fmt_ctx.pointee.nb_streams))
-        lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(fmt_ctx.pointee.nb_streams))
-        packetSems = [DispatchSemaphore](repeating: DispatchSemaphore(value: 0), count: Int(fmt_ctx.pointee.nb_streams))
+
         if String(cString: fmt_ctx.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
         if TRACE_PACKET_DEMUXER {
             logger.debug("PacketDemuxer init streams: \(fmt_ctx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
         }
-        try findLastPackets()
+
+        lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(fmt_ctx.pointee.nb_streams))
+        findLastPackets()
+
+        // Reset to start
+        let ret = avformat_seek_file(format.fmt_ctx, -1, Int64.min, Int64.min, 0, 0)
+        guard ret >= 0 else {
+            throw AVERROR(errorCode: ret, context: "avformat_seek_file(min)")  // If we can't seek to start we can't demux
+        }
         startDemuxLoop()
     }
 
@@ -268,7 +278,6 @@ final class PacketDemuxer {
         stateLock.lock()
         for i in 0..<buffers.count { buffers[i].reset() }
         for i in 0..<lastPkt.count { av_packet_free(&lastPkt[i]) }
-        for i in 0..<bsfCtxs.count { av_bsf_free(&bsfCtxs[i]) }
         stateLock.unlock()
     }
 
@@ -285,7 +294,8 @@ final class PacketDemuxer {
     }
 
     func status(stream: Int) -> String {
-        return "currently: \(buffers[stream].count)/\(buffers[stream].capacity) highest: \(buffers[stream].highest) readAhead: \(readAhead[stream])"
+        return
+            "currently: \(buffers[stream].count)/\(buffers[stream].capacity) highest: \(buffers[stream].highest) readAhead: \(buffers[stream].readAhead)"
     }
 
     func stop() {
@@ -293,7 +303,7 @@ final class PacketDemuxer {
         stopping = true
         stateLock.unlock()
         demuxSem.signal()
-        packetSems.forEach { $0.signal() }
+        buffers.forEach { $0.packetSem.signal() }
     }
 
     func get(stream: Int, handle: PacketHandle, consumed: Bool = false) -> UnsafeMutablePointer<AVPacket>? {
@@ -311,8 +321,7 @@ final class PacketDemuxer {
             if let pkt = buffers[stream].get(logicalIndex: handle.index) {
                 if consumed {
                     // Packet is being passed to AVFoundation - assume we won't need it again
-                    lastConsumed[stream] = max(lastConsumed[stream], handle.index)
-                    buffers[stream].trim(upTo: lastConsumed[stream])
+                    buffers[stream].consume(logicalIndex: handle.index)
                     demuxSem.signal()  // demuxer may now be able to proceed
                 }
                 return pkt
@@ -320,7 +329,7 @@ final class PacketDemuxer {
                 logger.error("PacketDemuxer get stream \(stream) idx \(handle.index) buffer empty")
             } else if TRACE_PACKET_DEMUXER {
                 logger.debug(
-                    "PacketDemuxer get stream \(stream) idx \(handle.index) evicted valid:\(self.buffers[stream].minLogicalIndex)-\(self.buffers[stream].maxLogicalIndex) lastConsumed:\(self.lastConsumed[stream])"
+                    "PacketDemuxer get stream \(stream) idx \(handle.index) evicted valid:\(self.buffers[stream].minLogicalIndex)-\(self.buffers[stream].maxLogicalIndex) lastConsumed:\(self.buffers[stream].lastConsumed)"
                 )
             }
             return nil
@@ -355,9 +364,9 @@ final class PacketDemuxer {
                 stateLock.unlock()
                 return handle
             } else if demuxPause() {
-                // Try allowing more read-ahead
-                readAhead[stream] = min(max(readAhead[stream], requested - lastConsumed[stream]), buffers[stream].capacity)
-                if requested - lastConsumed[stream] > buffers[stream].capacity || demuxPause() {
+                // Try again after allowing more read-ahead
+                buffers[stream].increaseReadAhead(requested: requested)
+                if requested - buffers[stream].lastConsumed > buffers[stream].capacity || demuxPause() {
                     // Buffer cannot fill enough to contain the requested packet
                     let maxIdx = buffers[stream].isEmpty ? handle.index : buffers[stream].maxLogicalIndex
                     logger.error(
@@ -369,7 +378,7 @@ final class PacketDemuxer {
                     demuxSem.signal()  // Resume with increased read-ahead
                     if TRACE_PACKET_DEMUXER {
                         logger.debug(
-                            "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) underrun, max=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].maxLogicalIndex) readahead increased to \(self.readAhead[stream])"
+                            "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) underrun, max=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].maxLogicalIndex) readahead increased to \(self.buffers[stream].readAhead)"
                         )
                     }
                 }
@@ -380,7 +389,7 @@ final class PacketDemuxer {
             }
             // wait for more packets
             stateLock.unlock()
-            packetSems[stream].wait()
+            buffers[stream].packetSem.wait()
         }  // loop until available
     }
 
@@ -491,7 +500,7 @@ final class PacketDemuxer {
             if demuxPause() { break }  // Cannot make progress
             demuxSem.signal()
             stateLock.unlock()
-            packetSems[stream].wait()
+            buffers[stream].packetSem.wait()
             stateLock.lock()
         }
         if buffers[stream].isEmpty {
@@ -571,7 +580,7 @@ final class PacketDemuxer {
                         logger.error("PacketDemuxer demuxLoop: \(error.errorDescription, privacy:.public)")
                     }
                     demuxSem.signal()
-                    packetSems.forEach { $0.signal() }  // wake consumers so they can see halted
+                    buffers.forEach { $0.packetSem.signal() }  // wake consumers so they can see halted
                     return
                 }
                 if pkt!.pointee.size == 0 || Int(pkt!.pointee.stream_index) >= buffers.count
@@ -596,14 +605,14 @@ final class PacketDemuxer {
         if halted { return true }
         // Pause if continuing might cause eviction of an unconsumed packet in any stream
         for i in 0..<buffers.count {
-            if buffers[i].isFull && !buffers[i].isEmpty && buffers[i].minLogicalIndex >= lastConsumed[i] { return true }
+            if buffers[i].isFull && !buffers[i].isEmpty && buffers[i].minLogicalIndex >= buffers[i].lastConsumed { return true }
         }
         // Unpause if we haven't reached a read-ahead target in any stream
         for i in 0..<buffers.count {
-            let bufferedAhead = buffers[i].isEmpty ? 0 : (buffers[i].maxLogicalIndex - lastConsumed[i])
-            if bufferedAhead < readAhead[i] {
+            let buffer = buffers[i]
+            if buffer.bufferedAhead < buffer.readAhead {
                 if false {
-                    logger.debug("PacketDemuxer demuxLoop stream \(i) idx \(bufferedAhead) < target \(self.readAhead[i])")
+                    logger.debug("PacketDemuxer demuxLoop stream \(i) idx \(buffer.bufferedAhead) < target \(buffer.readAhead)")
                 }
                 return false
             }
@@ -659,15 +668,13 @@ final class PacketDemuxer {
             }
         }
 
-        packetSems[stream].signal()  // signal to consumers that a packet arrived
+        buffers[stream].packetSem.signal()  // signal to consumers that a packet arrived
     }
 
     private func flushLocked() {
         for i in 0..<buffers.count { buffers[i].reset() }
         generation &+= 1
         halted = false
-        lastConsumed = [Int](repeating: -1, count: buffers.count)
-        for i in 0..<bsfCtxs.count { if let bsf = bsfCtxs[i] { av_bsf_flush(bsf) } }
     }
 
     private func waitForPacketZero(stream: Int) throws {
@@ -677,49 +684,43 @@ final class PacketDemuxer {
             if format == nil || stopping || buffers[stream].isReady { return }
             if halted || demuxPause() { throw MEError(.endOfStream) }  // Maybe this stream doesn't contain any packets?
             stateLock.unlock()
-            packetSems[stream].wait()
+            buffers[stream].packetSem.wait()
         }
     }
 
     // MediaExtension will call us for the last packet for each stream; find this now so it doesn't mess up our demuxing
-    private func findLastPackets() throws {
-        var ret = avformat_seek_file(format!.fmt_ctx, -1, 0, Int64.max, Int64.max, 0)
-        if ret < 0 {
+    private func findLastPackets() {
+        let ret = avformat_seek_file(format!.fmt_ctx, -1, 0, Int64.max, Int64.max, 0)
+        guard ret >= 0 else {
             // Can't seek to end. Not fatal for now.
             let error = AVERROR(errorCode: ret, context: "avformat_seek_file(max)")
             logger.error("PacketDemuxer init: Failed to get last packets \(error.errorDescription, privacy: .public)")
-        } else {
-            repeat {
-                var pkt = av_packet_alloc()
-                let ret = av_read_frame(format!.fmt_ctx, pkt)
-                if ret == AVERROR_EOF {
-                    av_packet_free(&pkt)
-                    break
-                } else if ret != 0 {
-                    av_packet_free(&pkt)
-                    let error = AVERROR(errorCode: ret, context: "av_read_frame")
-                    logger.error("PacketDemuxer init: Failed to get last packets \(error.errorDescription, privacy: .public)")
-                    break
-                } else if pkt!.pointee.stream_index >= buffers.count {
-                    logger.warning("PacketDemuxer init: Packet with invalid stream \(pkt!.pointee.stream_index)")
-                    av_packet_free(&pkt)
-                } else {
-                    let idx = Int(pkt!.pointee.stream_index)
-                    if lastPkt[idx] != nil { av_packet_free(&lastPkt[idx]) }
-                    lastPkt[idx] = pkt
-                }
-            } while true
+            return
         }
-        // Reset to start
-        ret = avformat_seek_file(format!.fmt_ctx, -1, Int64.min, Int64.min, 0, 0)
-        avformat_flush(format!.fmt_ctx)
-        guard ret >= 0 else {
-            throw AVERROR(errorCode: ret, context: "avformat_seek_file(min)")  // If we can't seek to start we can't demux
-        }
+        repeat {
+            var pkt = av_packet_alloc()
+            let ret = av_read_frame(format!.fmt_ctx, pkt)
+            if ret == AVERROR_EOF {
+                av_packet_free(&pkt)
+                break
+            } else if ret != 0 {
+                av_packet_free(&pkt)
+                let error = AVERROR(errorCode: ret, context: "av_read_frame")
+                logger.error("PacketDemuxer init: Failed to get last packets \(error.errorDescription, privacy: .public)")
+                break
+            } else if pkt!.pointee.stream_index >= buffers.count {
+                logger.warning("PacketDemuxer init: Packet with invalid stream \(pkt!.pointee.stream_index)")
+                av_packet_free(&pkt)
+            } else {
+                let idx = Int(pkt!.pointee.stream_index)
+                if lastPkt[idx] != nil { av_packet_free(&lastPkt[idx]) }
+                lastPkt[idx] = pkt
+            }
+        } while true
     }
 
     private func applyBitstreamFilter(stream: Int, packet: UnsafeMutablePointer<AVPacket>) -> [UnsafeMutablePointer<AVPacket>]? {
-        guard let bsf = bsfCtxs[stream] else { return nil }
+        guard let bsf = buffers[stream].bsfCtx else { return nil }
         var ret = av_bsf_send_packet(bsf, packet)  // consumes packet if successful
         if ret < 0 {
             if TRACE_PACKET_DEMUXER {
