@@ -307,7 +307,11 @@ public func GetMetadataForFile(
                     }
                 }
                 if let codecName {
-                    if let profileC = av_get_profile_name(codec, params.pointee.profile) {
+                    if params.pointee.codec_id == AV_CODEC_ID_MPEG4
+                        && [0x4449_5658, 0x5856_4944, 0x4458_3530].contains(params.pointee.codec_tag)  // 'DIVX', 'XVID', 'DX50'
+                    {
+                        append(kMDItemCodecs, "\(codecName) [DivX]" as CFString, in: attrs)
+                    } else if let profileC = av_get_profile_name(codec, params.pointee.profile) {
                         append(kMDItemCodecs, "\(codecName) [\(String(cString: profileC))]" as CFString, in: attrs)
                     } else {
                         append(kMDItemCodecs, codecName as CFString, in: attrs)

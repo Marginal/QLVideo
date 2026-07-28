@@ -28,11 +28,12 @@ struct CVReturnError: LocalizedError, CustomNSError {
 
 class VideoDecoder: NSObject, MEVideoDecoder {
 
+    // Supported fourCCs that might be sent to us by the CoreMedia demuxer i.e. seen in .asf, .avi or .mov files
     static let supported: [CMVideoCodecType: AVCodecID] = [
-        kCMVideoCodecType_Animation: AV_CODEC_ID_QTRLE,
+        kCMVideoCodecType_Animation: AV_CODEC_ID_QTRLE,  // 'rle '
         0x7270_7a61: AV_CODEC_ID_RPZA,  // 'rpza'
         0x6963_6f64: AV_CODEC_ID_AIC,  // 'icod'
-        kCMVideoCodecType_Cinepak: AV_CODEC_ID_CINEPAK,
+        kCMVideoCodecType_Cinepak: AV_CODEC_ID_CINEPAK,  // 'cvid'
         0x4861_7031: AV_CODEC_ID_HAP,  // 'Hap1'
         0x4861_7035: AV_CODEC_ID_HAP,  // 'Hap5'
         0x4861_7059: AV_CODEC_ID_HAP,  // 'HapY'
@@ -48,16 +49,21 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         0x4956_3332: AV_CODEC_ID_INDEO3,  // 'IV32'
         0x4956_3431: AV_CODEC_ID_INDEO4,  // 'IV41'
         0x4956_3530: AV_CODEC_ID_INDEO5,  // 'IV50'
-        kCMVideoCodecType_SorensonVideo: AV_CODEC_ID_SVQ1,
-        kCMVideoCodecType_SorensonVideo3: AV_CODEC_ID_SVQ3,
+        kCMVideoCodecType_SorensonVideo: AV_CODEC_ID_SVQ1,  // 'SVQ1'
+        kCMVideoCodecType_SorensonVideo3: AV_CODEC_ID_SVQ3,  // 'SVQ3'
+        0x464d_5034: AV_CODEC_ID_MPEG4,  // 'FMP4'
         0x4449_5658: AV_CODEC_ID_MPEG4,  // 'DIVX'
         0x5856_4944: AV_CODEC_ID_MPEG4,  // 'XVID'
         0x4458_3530: AV_CODEC_ID_MPEG4,  // 'DX50'
-        0x4d50_4734: AV_CODEC_ID_MPEG4,  // 'MPG4'
-        0x464d_5034: AV_CODEC_ID_MPEG4,  // 'FMP4'
         0x4d50_3431: AV_CODEC_ID_MSMPEG4V1,  // 'MP41'
+        0x4d50_4734: AV_CODEC_ID_MSMPEG4V1,  // 'MPG4'
         0x4d50_3432: AV_CODEC_ID_MSMPEG4V2,  // 'MP42'
+        0x4449_5632: AV_CODEC_ID_MSMPEG4V2,  // 'DIV2'
         0x4d50_3433: AV_CODEC_ID_MSMPEG4V3,  // 'MP43'
+        0x4449_5633: AV_CODEC_ID_MSMPEG4V3,  // 'DIV3'
+        0x4449_5634: AV_CODEC_ID_MSMPEG4V3,  // 'DIV4'
+        0x4449_5635: AV_CODEC_ID_MSMPEG4V3,  // 'DIV5'
+        0x4449_5636: AV_CODEC_ID_MSMPEG4V3,  // 'DIV6'
     ]
 
     let codecType: CMVideoCodecType

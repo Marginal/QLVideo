@@ -14,9 +14,9 @@ class VideoTrackReader: TrackReader, METrackReader {
     // See https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/matroska.c for the codec_ids that FFmpeg expects in a Matroska container
     static let supported: [AVCodecID: CMVideoCodecType] = [
         // Made up FourCCs that match those registered by our videodecoder in order to bypass CoreVideo
-        AV_CODEC_ID_MPEG1VIDEO: 0x4d50_4731,  // 'MPG1' FFmpeg is more tolerant of poor encoding than CoreVideo
-        AV_CODEC_ID_MPEG2VIDEO: 0x4d50_4732,  // 'MPG2' FFmpeg is more tolerant of poor encoding than CoreVideo
-        AV_CODEC_ID_MPEG4: 0x4d50_4734,  // 'MPG4' fallback for missing sample configuration
+        AV_CODEC_ID_MPEG1VIDEO: 0x4d50_3156,  // 'MP1V' FFmpeg is more tolerant of poor encoding than CoreVideo
+        AV_CODEC_ID_MPEG2VIDEO: 0x4d50_3256,  // 'MP2V' FFmpeg is more tolerant of poor encoding than CoreVideo
+        AV_CODEC_ID_MPEG4: 0x4d50_3456,  // 'MP4V' FFmpeg is more tolerant of DivX and MS flavours of MPEG4 than VideoToolbox
         AV_CODEC_ID_H264: 0x4832_3634,  // 'H264' fallback for missing sample configuration
         AV_CODEC_ID_HEVC: 0x4845_5643,  // 'HEVC' fallback for missing sample configuration
         AV_CODEC_ID_VP8: 0x5650_3820,  // 'VP8 ' somehow supported in Safari but not by AVFoundation
@@ -134,12 +134,15 @@ class VideoTrackReader: TrackReader, METrackReader {
             codecType = kCMVideoCodecType_JPEG
         case AV_CODEC_ID_H263:
             codecType = kCMVideoCodecType_H263  // Not hardware acclerated but playable by AVFoundation anyway
-        case AV_CODEC_ID_MPEG4, AV_CODEC_ID_MSMPEG4V1, AV_CODEC_ID_MSMPEG4V2, AV_CODEC_ID_MSMPEG4V3:
-            // MPEG4 part 2 https://developer.apple.com/documentation/quicktime-file-format/mpeg-4_elementary_stream_descriptor_atom
-            // FFmpeg only retains the decoder-specific info from "esds" in extradata - so rebuild it.
-            // See videotoolbox_esds_extradata_create in https://ffmpeg.org/doxygen/8.0/videotoolbox_8c_source.html
+        case AV_CODEC_ID_MPEG4:
+            // MPEG4 part 2
             extract_extradata()  // build extradata if required info is in-band, e.g. .avi
-            if params.pointee.extradata_size > 0 {
+            if params.pointee.extradata_size > 0
+                && !([0x4449_5658, 0x5856_4944, 0x4458_3530].contains(params.pointee.codec_tag))  // 'DIVX', 'XVID', 'DX50' - FFmpeg is more tolerant of DivX
+            {
+                // FFmpeg only retains the decoder-specific info from "esds" in extradata - so rebuild it.
+                // https://developer.apple.com/documentation/quicktime-file-format/mpeg-4_elementary_stream_descriptor_atom
+                // See videotoolbox_esds_extradata_create in https://ffmpeg.org/doxygen/8.0/videotoolbox_8c_source.html
                 let decoder_size = params.pointee.extradata_size  // assumed to be < 16K
                 let config_size = 13 + 5 + decoder_size
                 let full_size = 3 + 5 + config_size + 6

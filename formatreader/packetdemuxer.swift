@@ -220,9 +220,8 @@ final class PacketDemuxer {
                 if stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_VIDEO {
                     capacity = PacketDemuxer.videoCapacity
                     readAhead = PacketDemuxer.videoReadAhead
-                    if stream.pointee.codecpar.pointee.codec_tag == 0x4449_5658  // 'DIVX'
-                        || stream.pointee.codecpar.pointee.codec_tag == 0x5856_4944  // 'XVID'
-                        || stream.pointee.codecpar.pointee.codec_tag == 0x4458_3530,  // 'DX50'
+                    if stream.pointee.codecpar.pointee.codec_id == AV_CODEC_ID_MPEG4
+                        && [0x4449_5658, 0x5856_4944, 0x4458_3530].contains(stream.pointee.codecpar.pointee.codec_tag),  // 'DIVX', 'XVID', 'DX50'
                         let bsf = av_bsf_get_by_name("mpeg4_unpack_bframes")  // Regularize DivX streams
                     {
                         var ctx: UnsafeMutablePointer<AVBSFContext>?

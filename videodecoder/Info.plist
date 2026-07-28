@@ -161,6 +161,12 @@
 			</dict>
 			<dict>
 				<key>CodecName</key>
+				<string>MPEG-4 Video (MEncoder)</string>
+				<key>CodecType</key>
+				<string>FMP4</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
 				<string>DivX</string>
 				<key>CodecType</key>
 				<string>DIVX</string>
@@ -187,7 +193,19 @@
 				<key>CodecName</key>
 				<string>MPEG-4 Video (MS)</string>
 				<key>CodecType</key>
+				<string>MPG4</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
+				<string>MPEG-4 Video (MS)</string>
+				<key>CodecType</key>
 				<string>MP42</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
+				<string>DivX</string>
+				<key>CodecType</key>
+				<string>DIV2</string>
 			</dict>
 			<dict>
 				<key>CodecName</key>
@@ -197,29 +215,47 @@
 			</dict>
 			<dict>
 				<key>CodecName</key>
-				<string>MPEG-4 Video (MEncoder)</string>
+				<string>DivX</string>
 				<key>CodecType</key>
-				<string>FMP4</string>
+				<string>DIV3</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
+				<string>DivX</string>
+				<key>CodecType</key>
+				<string>DIV4</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
+				<string>DivX</string>
+				<key>CodecType</key>
+				<string>DIV5</string>
+			</dict>
+			<dict>
+				<key>CodecName</key>
+				<string>DivX</string>
+				<key>CodecType</key>
+				<string>DIV6</string>
 			</dict>
 
-			<!-- made up fourCCs set by formatreader to bypass CoreVideo -->
+			<!-- made-up fourCCs set by formatreader to bypass CoreVideo -->
 			<dict>
 				<key>CodecName</key>
 				<string>MPEG-1 Video</string>
 				<key>CodecType</key>
-				<string>MPG1</string>
+				<string>MP1V</string>
 			</dict>
 			<dict>
 				<key>CodecName</key>
 				<string>MPEG-2 Video</string>
 				<key>CodecType</key>
-				<string>MPG2</string>
+				<string>MP2V</string>
 			</dict>
 			<dict>
 				<key>CodecName</key>
 				<string>MPEG-4 Video</string>
 				<key>CodecType</key>
-				<string>MPG4</string>
+				<string>MP4V</string>
 			</dict>
 			<dict>
 				<key>CodecName</key>
