@@ -269,6 +269,13 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             )
             throw MEError(.unsupportedFeature)
         }
+
+        // Enable slice threading only. FF_THREAD_FRAME may be more efficient but causes initial frame to be delayed so black thumbnails, black info window, etc.
+        if params.pointee.codec_id != AV_CODEC_ID_AV1 {  // dav1d effectively only supports frame slicing, and with a delay
+            dec_ctx!.pointee.thread_type = FF_THREAD_SLICE
+            dec_ctx!.pointee.thread_count = 0  // auto
+        }
+
         var ret = avcodec_parameters_to_context(dec_ctx, params)
         if ret < 0 {
             let error = AVERROR(errorCode: ret)
@@ -309,9 +316,8 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         let pix_fmt_name = av_get_pix_fmt_name(dec_ctx!.pointee.pix_fmt)
         let color_space_name = av_color_space_name(dec_ctx!.pointee.colorspace)
         logger.log(
-            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(pix_fmt_name != nil ? String(cString: pix_fmt_name!) : "unknown", privacy: .public) \(color_space_name != nil ? String(cString: color_space_name!) : "unknown", privacy: .public)"
+            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(pix_fmt_name != nil ? String(cString: pix_fmt_name!) : "unknown", privacy: .public) \(color_space_name != nil ? String(cString: color_space_name!) : "unknown", privacy: .public), with \(self.dec_ctx!.pointee.active_thread_type == FF_THREAD_FRAME ? "frame" : (self.dec_ctx!.pointee.active_thread_type == FF_THREAD_SLICE ? "slice" : "no"), privacy: .public) threading \(self.dec_ctx!.pointee.thread_count) threads"
         )
-
     }
 
     deinit {
