@@ -16,31 +16,31 @@ class FormatReader: NSObject, MEFormatReader {
     // https://nonstrict.eu/blog/2023/working-with-custom-metadata-in-mp4-files/
     // https://exiftool.org/TagNames/QuickTime.html
     // https://id3.org/id3v2.4.0-frames
-    static let identifiers: [String: AVMetadataIdentifier] = [
-        "album": .commonIdentifierAlbumName,
-        "artist": .commonIdentifierArtist,
-        "author": .commonIdentifierAuthor,
-        "comment": .quickTimeMetadataComment,
-        "composer": .quickTimeMetadataComposer,
-        "copyright": .commonIdentifierCopyrights,
-        "creation_time": .commonIdentifierCreationDate,
-        "date": .commonIdentifierCreationDate,
-        "description": .commonIdentifierDescription,
-        "encoded_by": .quickTimeMetadataEncodedBy,
-        "encoder": .quickTimeMetadataSoftware,
-        "genre": .quickTimeMetadataGenre,
-        "grouping": .iTunesMetadataGrouping,
-        "keywords": .quickTimeMetadataKeywords,
-        "language": .commonIdentifierLanguage,  // TODO: convert?
-        "location": .commonIdentifierLocation,
-        "performer": .quickTimeMetadataPerformer,
-        "publisher": .commonIdentifierPublisher,
-        "service_name": .commonIdentifierSource,  // e.g. TV channel
-        "service_provider": .commonIdentifierSource,  // e.g. TV station
+    static let identifiers: [String: (AVMetadataKeySpace, AVMetadataIdentifier)] = [
+        "album": (.common, .commonIdentifierAlbumName),
+        "artist": (.common, .commonIdentifierArtist),
+        "author": (.common, .commonIdentifierAuthor),
+        "comment": (.common, .quickTimeMetadataComment),
+        "composer": (.common, .quickTimeMetadataComposer),
+        "copyright": (.common, .commonIdentifierCopyrights),
+        "creation_time": (.common, .commonIdentifierCreationDate),
+        "date": (.common, .commonIdentifierCreationDate),
+        "description": (.common, .commonIdentifierDescription),
+        "encoded_by": (.common, .commonIdentifierSoftware),
+        "encoder": (.common, .commonIdentifierSoftware),
+        "genre": (.quickTimeMetadata, .quickTimeMetadataGenre),
+        "grouping": (.iTunes, .iTunesMetadataGrouping),
+        "keywords": (.quickTimeMetadata, .quickTimeMetadataKeywords),
+        "language": (.common, .commonIdentifierLanguage),  // TODO: convert?
+        "location": (.common, .commonIdentifierLocation),
+        "performer": (.quickTimeMetadata, .quickTimeMetadataPerformer),
+        "publisher": (.common, .commonIdentifierPublisher),
+        "service_name": (.common, .commonIdentifierSource),  // e.g. TV channel
+        "service_provider": (.common, .commonIdentifierSource),  // e.g. TV station
         //"show":                // e.g. TV show
-        "synopsis": .quickTimeMetadataInformation,
-        "title": .commonIdentifierTitle,
-        "track": .quickTimeUserDataTrack,
+        "synopsis": (.quickTimeMetadata, .quickTimeMetadataInformation),
+        "title": (.common, .commonIdentifierTitle),
+        "track": (.iTunes, .iTunesMetadataTrackNumber),
     ]
 
     @objc let byteSource: MEByteSource
@@ -170,14 +170,13 @@ class FormatReader: NSObject, MEFormatReader {
         var prev: UnsafeMutablePointer<AVDictionaryEntry>? = nil
         while let entry = av_dict_get(fmt_ctx!.pointee.metadata, "", prev, AV_DICT_IGNORE_SUFFIX) {
             prev = entry
-            if let identifier = FormatReader.identifiers[String(cString: entry.pointee.key).lowercased()],
-                var lvalue = String(validatingUTF8: entry.pointee.value)?.lowercased(),
-                lvalue != "" && lvalue != "und", lvalue != "unk"
+            if let (keySpace, identifier) = FormatReader.identifiers[String(cString: entry.pointee.key).lowercased()],
+                var lvalue = String(validatingUTF8: entry.pointee.value),
+                lvalue != "" && lvalue.lowercased() != "und", lvalue.lowercased() != "unk"
             {
-                if identifier == .commonIdentifierLanguage {
-                    lvalue = Locale.canonicalLanguageIdentifier(from: lvalue)
-                }
+                if identifier == .commonIdentifierLanguage { lvalue = Locale.canonicalLanguageIdentifier(from: lvalue) }
                 let item = AVMutableMetadataItem()
+                item.keySpace = keySpace
                 item.dataType = String(kCMMetadataBaseDataType_UTF8)
                 item.identifier = identifier
                 item.value = lvalue as NSString
@@ -219,21 +218,27 @@ class FormatReader: NSObject, MEFormatReader {
                 }
             }
         }
-        if artStream >= 0 {
+        if artStream >= 0,
             // Found at least one cover art
-            let stream = fmt_ctx!.pointee.streams[artStream]!
-            let params = stream.pointee.codecpar!
+            let stream = fmt_ctx!.pointee.streams[artStream],
+            let params = stream.pointee.codecpar,
+            let provider = CGDataProvider(
+                data: stream.pointee.disposition & AV_DISPOSITION_ATTACHED_PIC != 0
+                    ? NSData(bytes: stream.pointee.attached_pic.data, length: Int(stream.pointee.attached_pic.size))
+                    : NSData(bytes: params.pointee.extradata, length: Int(params.pointee.extradata_size))  // attachment stream
+            ),
+            (params.pointee.codec_id == AV_CODEC_ID_PNG
+                ? CGImage(pngDataProviderSource: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent)
+                : CGImage(jpegDataProviderSource: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent))
+                != nil  // supplying cover art suppresses a psuedo artwork thumbnail, so better validate it
+        {
             let item = AVMutableMetadataItem()
             item.keySpace = .common
             item.dataType =
                 (params.pointee.codec_id == AV_CODEC_ID_PNG ? kCMMetadataBaseDataType_PNG : kCMMetadataBaseDataType_JPEG)
                 as String
             item.identifier = .commonIdentifierArtwork
-            if stream.pointee.disposition & AV_DISPOSITION_ATTACHED_PIC != 0 {
-                item.value = NSData(bytes: stream.pointee.attached_pic.data, length: Int(stream.pointee.attached_pic.size))
-            } else {  // attachment stream
-                item.value = NSData(bytes: params.pointee.extradata, length: Int(params.pointee.extradata_size))
-            }
+            item.value = provider.data! as NSData
             metadata!.append(item)
             logger.debug(
                 "Found \(params.pointee.width)x\(params.pointee.height) cover art in stream \(artStream): \(String(describing: item), privacy: .public)"
@@ -254,6 +259,13 @@ class FormatReader: NSObject, MEFormatReader {
             fmt_ctxLock.unlock()
         }
 
+        let summary = metadata!.reduce(
+            "Metadata:",
+            { a, b in
+                "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : b.value as! String)"
+            }
+        )
+        logger.info("\(summary, privacy: .public)")
         return completionHandler(metadata, nil)
     }
 
