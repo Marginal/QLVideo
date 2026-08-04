@@ -285,7 +285,9 @@ class FormatReader: NSObject, MEFormatReader {
                 }
 
             case AVMEDIA_TYPE_AUDIO:
-                readers.append(AudioTrackReader(format: self, stream: stream, index: i, enabled: bestAudio == i))
+                if i == bestAudio {  // AVFoundation will try to seek the first audio stream, even if enabled==false and so we've discarded it
+                    readers.append(AudioTrackReader(format: self, stream: stream, index: i, enabled: true))
+                }
 
             //case AVMEDIA_TYPE_SUBTITLE:
             //    readers.append(SubtitleTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i)))
