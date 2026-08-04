@@ -59,10 +59,18 @@ class DecodedSampleCursor: SampleCursor {
         var sampleSize =
             Int(av_get_bytes_per_sample(sampleFormat)) * Int(track!.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
         let sampleRate = track!.stream.pointee.codecpar.pointee.sample_rate
-        let duration = AVRational(
-            num: Int32(endPkt.pointee.pts - startPkt.pointee.pts + endPkt.pointee.duration) * track!.stream.pointee.time_base.num,
-            den: track!.stream.pointee.time_base.den
-        )
+        let duration =
+            endPkt.pointee.pts != AV_NOPTS_VALUE && startPkt.pointee.pts != AV_NOPTS_VALUE
+            ? AVRational(
+                num: Int32(endPkt.pointee.pts - startPkt.pointee.pts + endPkt.pointee.duration)
+                    * track!.stream.pointee.time_base.num,
+                den: track!.stream.pointee.time_base.den
+            )
+            : AVRational(
+                num: Int32(endSampleCursor.handle.index - self.handle.index + 1)
+                    * Int32(startPkt.pointee.duration) * track!.stream.pointee.time_base.num,
+                den: track!.stream.pointee.time_base.den
+            )  // Workaround for invalid PTSs after a seek - e.g. Cook in RealMedia
         var sampleCount = Int(av_q2d(av_mul_q(duration, AVRational(num: sampleRate, den: 1))).rounded(.up))
         var frameSize = Int(track!.stream.pointee.codecpar.pointee.frame_size)
         if frameSize == 0 { frameSize = 1024 }  // arbitrary but it's better to slightly over allocate to avoid realloc later
@@ -70,12 +78,10 @@ class DecodedSampleCursor: SampleCursor {
         if remainder != 0 { sampleCount += frameSize - remainder }
         var capacity = sampleSize * sampleCount
         var buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: capacity)
-        lastDelivered = 0
         let frame = av_frame_alloc()!
 
-        if discontinuity {
-            avcodec_flush_buffers(track!.dec_ctx)
-        }
+        if discontinuity { avcodec_flush_buffers(track!.dec_ctx) }
+        lastDelivered = 0
 
         // decode packets and add the decoded data to the blockBuffer
         for idx in handle.index...endSampleCursor.handle.index {
