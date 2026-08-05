@@ -69,9 +69,11 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             )
         }
         // Creating a SampleCursor means that CoreMedia will want packets. So start demuxing.
+        format.fmt_ctxLock.lock() // We want exclusive use of fmt_ctx
         if format.demuxer == nil {
             format.demuxer = try PacketDemuxer(format: format)
         }
+        format.fmt_ctxLock.unlock()
         self.handle = try demuxer!.seek(stream: streamIndex, presentationTimeStamp: presentationTimeStamp)
         self.discontinuity = true  // SampleCursors are only initted (as opposed to copied) after a seek
     }

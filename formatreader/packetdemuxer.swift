@@ -28,8 +28,6 @@ import MediaExtension
 #endif
 
 let QLThumbnailTime = CMTime(value: 10_000_000, timescale: 1_000_000)  // QuickLook generates its thumbnail at 10s
-let kSettingsSnapshotTime = "SnapshotPercentage"  // Seek offset for thumbnails and single Previews [s].
-let kDefaultSnapshotTime = 0.25
 
 private final class PacketRing {
     private var storage: [UnsafeMutablePointer<AVPacket>?]
@@ -187,7 +185,6 @@ final class PacketDemuxer {
     private static let audioReadAhead = 196  // should be more than enough for at least 2 seconds of audio in typical codecs
     private weak var format: FormatReader?
     private var pktFixup: Int64 = 0
-    private var snapshotTime = kDefaultSnapshotTime
     private var buffers: [PacketRing]
     private var generation: Int = 0
     private var stopping = false
@@ -196,21 +193,13 @@ final class PacketDemuxer {
     private var lastPkt: [UnsafeMutablePointer<AVPacket>?]  // MediaExtension wants us to report the last packet for each stream
 
     private let stateLock = NSLock()
-    private let demuxGroup = DispatchGroup()
+    private let demuxGroup = DispatchGroup()  // prevent deinit until demuxLoop has exited
     private let demuxQueue = DispatchQueue(label: "uk.org.marginal.qlvideo.formatreader", qos: .default)
     private let demuxSem = DispatchSemaphore(value: 0)  // wake demuxLoop when paused
 
     init(format: FormatReader) throws {
         self.format = format
         let fmt_ctx = format.fmt_ctx!
-        if let defaults = format.defaults, defaults.object(forKey: kSettingsSnapshotTime) != nil {
-            // Note that since this extension is running under app sandbox this will only succeed once notarized or in app store
-            // https://developer.apple.com/documentation/security/accessing-files-from-the-macos-app-sandbox#Share-files-between-related-apps-with-app-group-containers
-            snapshotTime = defaults.double(forKey: kSettingsSnapshotTime)
-            logger.log("PacketDemuxer using snapshot percentage of \(Int(self.snapshotTime * 100))%")
-        } else {
-            logger.log("PacketDemuxer using default snapshot time ")
-        }
         buffers = (0..<Int(fmt_ctx.pointee.nb_streams)).map { idx in
             let stream = fmt_ctx.pointee.streams[idx]!
             var capacity = 0
@@ -432,7 +421,7 @@ final class PacketDemuxer {
             // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice
             let durationPTS = lastPkt[stream]?.pointee.pts ?? format.fmt_ctx!.pointee.streams[stream]!.pointee.duration
             if durationPTS > 0 {
-                target = CMTime(value: CMTimeValue(Double(durationPTS) * snapshotTime), timeBase: buffers[stream].timeBase)
+                target = CMTime(value: CMTimeValue(Double(durationPTS) * format.snapshotTime), timeBase: buffers[stream].timeBase)
             }
             logger.info(
                 "PacketDemuxer stream \(stream) seek \(presentationTimeStamp, privacy: .public) treated as thumbnail request at \(target, privacy: .public)"

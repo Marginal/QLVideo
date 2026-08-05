@@ -6,7 +6,8 @@
 import Foundation
 import MediaExtension
 
-let kSettingsLastQuickLook = "LastQuickLook"  // Last version ran - for upgrade check
+let kSettingsSnapshotTime = "SnapshotPercentage"  // Seek offset for thumbnails and single Previews [s].
+let kDefaultSnapshotTime = 0.25
 
 class FormatReader: NSObject, MEFormatReader {
 
@@ -48,8 +49,11 @@ class FormatReader: NSObject, MEFormatReader {
     var avio_ctx: UnsafeMutablePointer<AVIOContext>? = nil
     var defaults: UserDefaults?
     var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
+    var fmt_ctxLock = NSLock()
     var demuxer: PacketDemuxer? = nil
+    var snapshotTime = kDefaultSnapshotTime
     var loadUneditedDurationCalled = false  // workaround for macOS 26.4 snaphsot time
+    var metadata: [AVMetadataItem]?  // cached since AVFoundation typically requests it multiple times
     var bestAudio = AVERROR_STREAM_NOT_FOUND
     var bestVideo = AVERROR_STREAM_NOT_FOUND
 
@@ -58,8 +62,13 @@ class FormatReader: NSObject, MEFormatReader {
         let myBundle = Bundle.main
         let suiteName: String = myBundle.infoDictionary!["ApplicationGroup"] as! String
         defaults = UserDefaults(suiteName: suiteName)
-        if defaults == nil || defaults!.object(forKey: kSettingsLastQuickLook) == nil {
-            logger.warning("Couldn't access UserDefaults with suite name \(suiteName, privacy:.public)")
+        if let defaults, defaults.object(forKey: kSettingsSnapshotTime) != nil {
+            // Note that since this extension is running under app sandbox this should only succeed once notarized. But in practice on macOS 26 not even then.
+            // https://developer.apple.com/documentation/security/accessing-files-from-the-macos-app-sandbox#Share-files-between-related-apps-with-app-group-containers
+            snapshotTime = defaults.double(forKey: kSettingsSnapshotTime)
+            logger.log("Using snapshot percentage of \(Int(self.snapshotTime * 100))%")
+        } else {
+            logger.log("Using default snapshot time ")
         }
         super.init()
     }
@@ -130,6 +139,24 @@ class FormatReader: NSObject, MEFormatReader {
             return completionHandler(nil, err)
         }
 
+        // Determine best streams and disable others
+        var decoder: UnsafePointer<AVCodec>?
+        bestVideo = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0)
+        bestAudio = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &decoder, 0)
+        if bestVideo < 0
+            || fmt_ctx!.pointee.streams[Int(bestVideo)]!.pointee.disposition
+                & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) != 0
+        {
+            bestVideo = AVERROR_STREAM_NOT_FOUND  // If the best video stream is pictures then we don't have a viable video stream
+        }
+        for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
+            if i != bestVideo && i != bestAudio {
+                // Packets won't be consumed from non-enabled streams so discard all packets so demux doesn't stall
+                // TODO: Revisit PacketDemuxer eviction policy if we get multiple audio tracks working
+                fmt_ctx!.pointee.streams[i]!.pointee.discard = AVDISCARD_ALL
+            }
+        }
+
         let fileInfo = MEFileInfo()
         fileInfo.duration = CMTime(value: fmt_ctx!.pointee.duration, timescale: AV_TIME_BASE)
         fileInfo.fragmentsStatus = .couldNotContainFragments
@@ -138,7 +165,8 @@ class FormatReader: NSObject, MEFormatReader {
 
     func loadMetadata(completionHandler: @escaping @Sendable ([AVMetadataItem]?, (any Error)?) -> Void) {
         guard fmt_ctx != nil else { return completionHandler(nil, MEError(.parsingFailure)) }  // we can be called even if we couldn't open the file
-        var metadata: [AVMetadataItem] = []
+        if let metadata { return completionHandler(metadata, nil) }  // early return
+        metadata = []
         var prev: UnsafeMutablePointer<AVDictionaryEntry>? = nil
         while let entry = av_dict_get(fmt_ctx!.pointee.metadata, "", prev, AV_DICT_IGNORE_SUFFIX) {
             prev = entry
@@ -153,7 +181,7 @@ class FormatReader: NSObject, MEFormatReader {
                 item.dataType = String(kCMMetadataBaseDataType_UTF8)
                 item.identifier = identifier
                 item.value = lvalue as NSString
-                metadata.append(item)
+                metadata!.append(item)
             } else {
                 logger.debug(
                     "Unrecognised metadata key:\(String(cString:entry.pointee.key), privacy:.public) = \"\(String(validatingUTF8: entry.pointee.value) ?? "", privacy:.public)\""
@@ -165,17 +193,16 @@ class FormatReader: NSObject, MEFormatReader {
         var artStream = -1
         var artPriority = 0
         for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
-            guard let stream = fmt_ctx!.pointee.streams[i]?.pointee else { continue }
-            let params = stream.codecpar.pointee
-            if (params.codec_id == AV_CODEC_ID_PNG || params.codec_id == AV_CODEC_ID_MJPEG)
+            guard let stream = fmt_ctx!.pointee.streams[i], let params = stream.pointee.codecpar else { continue }
+            if (params.pointee.codec_id == AV_CODEC_ID_PNG || params.pointee.codec_id == AV_CODEC_ID_MJPEG)
                 // Depending on codec and ffmpeg version cover art may be represented as attachment or as additional video stream(s)
-                && (params.codec_type == AVMEDIA_TYPE_ATTACHMENT
-                    || (params.codec_type == AVMEDIA_TYPE_VIDEO
-                        && ((stream.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS))
+                && (params.pointee.codec_type == AVMEDIA_TYPE_ATTACHMENT
+                    || (params.pointee.codec_type == AVMEDIA_TYPE_VIDEO
+                        && ((stream.pointee.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS))
                             == AV_DISPOSITION_ATTACHED_PIC)))
             {
                 // MKVs can contain multiple cover art - see https://www.matroska.org/technical/attachments.html
-                let nameDict = av_dict_get(stream.metadata, "filename", nil, 0)
+                let nameDict = av_dict_get(stream.pointee.metadata, "filename", nil, 0)
                 let filename = nameDict != nil ? String(cString: nameDict!.pointee.value) : ""
                 var priority = 1
                 if filename.lowercased().hasPrefix("cover.") {
@@ -193,22 +220,38 @@ class FormatReader: NSObject, MEFormatReader {
             }
         }
         if artStream >= 0 {
-            let stream = fmt_ctx!.pointee.streams[artStream]!.pointee
-            let params = stream.codecpar.pointee
+            // Found at least one cover art
+            let stream = fmt_ctx!.pointee.streams[artStream]!
+            let params = stream.pointee.codecpar!
             let item = AVMutableMetadataItem()
             item.keySpace = .common
             item.dataType =
-                (params.codec_id == AV_CODEC_ID_PNG ? kCMMetadataBaseDataType_PNG : kCMMetadataBaseDataType_JPEG) as String
+                (params.pointee.codec_id == AV_CODEC_ID_PNG ? kCMMetadataBaseDataType_PNG : kCMMetadataBaseDataType_JPEG)
+                as String
             item.identifier = .commonIdentifierArtwork
-            if stream.disposition & AV_DISPOSITION_ATTACHED_PIC != 0 {
-                item.value = NSData(bytes: stream.attached_pic.data, length: Int(stream.attached_pic.size))
+            if stream.pointee.disposition & AV_DISPOSITION_ATTACHED_PIC != 0 {
+                item.value = NSData(bytes: stream.pointee.attached_pic.data, length: Int(stream.pointee.attached_pic.size))
             } else {  // attachment stream
-                item.value = NSData(bytes: params.extradata, length: Int(params.extradata_size))
+                item.value = NSData(bytes: params.pointee.extradata, length: Int(params.pointee.extradata_size))
             }
-            metadata.append(item)
+            metadata!.append(item)
             logger.debug(
-                "Found \(String(describing: item), privacy: .public) cover art in stream \(artStream)"
+                "Found \(params.pointee.width)x\(params.pointee.height) cover art in stream \(artStream): \(String(describing: item), privacy: .public)"
             )
+        } else {
+            // Generate pseudo artwork for the thumbnail.
+            // If demuxing has started we're too late, but we probably don't need this anyway
+            fmt_ctxLock.lock()
+            if demuxer == nil, let snapshot = generateSnapshot() {
+                let item = AVMutableMetadataItem()
+                item.keySpace = .common
+                item.dataType = kCMMetadataBaseDataType_PNG as String
+                item.identifier = .commonIdentifierArtwork
+                item.value = snapshot
+                metadata!.append(item)
+                logger.debug("Added snapshot as cover art")
+            }
+            fmt_ctxLock.unlock()
         }
 
         return completionHandler(metadata, nil)
@@ -217,33 +260,20 @@ class FormatReader: NSObject, MEFormatReader {
     func loadTrackReaders(completionHandler: @escaping @Sendable ([any METrackReader]?, (any Error)?) -> Void) {
         guard fmt_ctx != nil else { return completionHandler(nil, MEError(.parsingFailure)) }  // we can be called even if we couldn't open the file
         var readers: [METrackReader] = []
-        var decoder: UnsafePointer<AVCodec>?
-        bestVideo = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &decoder, 0)
-        bestAudio = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &decoder, 0)
 
         for i in 0..<Int(fmt_ctx!.pointee.nb_streams) {
             let stream = fmt_ctx!.pointee.streams[i]!
-            let params = stream.pointee.codecpar.pointee
+            let params = stream.pointee.codecpar!
+
             // Only add supported stream types
-            switch params.codec_type {
+            switch params.pointee.codec_type {
             case AVMEDIA_TYPE_VIDEO:
-                if stream.pointee.disposition & (AV_DISPOSITION_ATTACHED_PIC | AV_DISPOSITION_TIMED_THUMBNAILS) == 0 {
-                    let reader = VideoTrackReader(format: self, stream: stream, index: i, enabled: bestVideo == i)
-                    readers.append(reader)
-                    // Packets won't be consumed from disabled streams so demux would stall
-                    if !reader.isEnabled { stream.pointee.discard = AVDISCARD_ALL }
-                } else {
-                    stream.pointee.discard = AVDISCARD_ALL  // this stream is metadata
+                if i == bestVideo {  // We only support one video stream
+                    readers.append(VideoTrackReader(format: self, stream: stream, index: i, enabled: true))
                 }
 
             case AVMEDIA_TYPE_AUDIO:
-                let reader = AudioTrackReader(format: self, stream: stream, index: i, enabled: bestAudio == i)
-                if !reader.isEnabled {
-                    // Packets won't be consumed from disabled streams so demux would stall
-                    // TODO: Revisit PacketDemuxer eviction policy if we get multiple audio tracks working
-                    stream.pointee.discard = AVDISCARD_ALL
-                }
-                readers.append(reader)
+                readers.append(AudioTrackReader(format: self, stream: stream, index: i, enabled: bestAudio == i))
 
             //case AVMEDIA_TYPE_SUBTITLE:
             //    readers.append(SubtitleTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i)))
@@ -260,12 +290,12 @@ class FormatReader: NSObject, MEFormatReader {
             //    }
 
             default:
-                stream.pointee.discard = AVDISCARD_ALL  // no point demuxing or seeking streams that we can't handle
                 logger.info(
-                    "Unhandled \(String(cString:av_get_media_type_string(params.codec_type)), privacy:.public) stream: \(String(cString:avcodec_get_name(params.codec_id)), privacy:.public)"
+                    "Unhandled \(String(cString:av_get_media_type_string(params.pointee.codec_type)), privacy:.public) stream: \(String(cString:avcodec_get_name(params.pointee.codec_id)), privacy:.public)"
                 )
             }
         }
+
         for reader in readers { trackReaders.add(reader as? TrackReader) }
         completionHandler(readers, nil)
     }

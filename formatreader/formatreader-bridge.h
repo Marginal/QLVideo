@@ -9,6 +9,7 @@
 #include <libavutil/avutil.h>
 #include <libavutil/dovi_meta.h>
 #include <libswresample/swresample.h>
+#include <libswscale/swscale.h>
 
 // FFmpeg internals
 #include <libavutil/pixdesc.h>

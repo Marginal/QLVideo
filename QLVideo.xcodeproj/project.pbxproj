@@ -50,6 +50,7 @@
 		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
 		ABA142002D301E670040A4E6 /* ffmpeg in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EC0293A32B5005433DF /* ffmpeg */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA532352F5216B200E6EC43 /* CrashReportView.swift */; };
+		ABA7F806301B4739008AAAFE /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
 		ABDC7B082FE0783F00E0047A /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
@@ -353,6 +354,7 @@
 				AB01AAFB2ECC04CD00A5CB77 /* libavcodec.62.dylib in Frameworks */,
 				AB01AAFC2ECC04D000A5CB77 /* libavutil.60.dylib in Frameworks */,
 				AB0070EA2F2A37700014937F /* libswresample.6.dylib in Frameworks */,
+				ABA7F806301B4739008AAAFE /* libswscale.9.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
