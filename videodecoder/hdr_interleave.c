@@ -34,8 +34,29 @@ void hdr_interleave_and_shift(
         const uint16_t *cr = srcCr + row * srcCrStride;
         uint16_t *d = dst + row * dstStride;
         for (int x = 0; x < uvWidth; x++) {
-            d[2*x]     = cb[x] << shift;
-            d[2*x + 1] = cr[x] << shift;
+            d[2 * x] = cb[x] << shift;
+            d[2 * x + 1] = cr[x] << shift;
+        }
+    }
+}
+
+void y_fill_u16(uint16_t *dst, int width, int height, int dstStride, uint16_t value)
+{
+    for (int y = 0; y < height; ++y) {
+        uint16_t *row = dst + y * dstStride;
+        for (int x = 0; x < width; ++x) {
+            row[x] = value;
+        }
+    }
+}
+
+void uv_fill_interleaved_u16(uint16_t *dst, int width, int height, int dstStride, uint16_t cb, uint16_t cr)
+{
+    for (int y = 0; y < height; ++y) {
+        uint16_t *row = dst + y * dstStride;
+        for (int x = 0; x < width; ++x) {
+            row[2 * x + 0] = cb;
+            row[2 * x + 1] = cr;
         }
     }
 }

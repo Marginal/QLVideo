@@ -71,7 +71,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var lastDTS = CMTime.invalid
 
     // Cached pixel buffer config - rebuilt only when frame dimensions, color properties or HDR metadata change
-    private var pixelBufferKey: PixelBufferCacheKey? = nil
+    var pixelBufferKey: PixelBufferCacheKey? = nil
     var pixelBufferConfig: PixelBufferConfig? = nil
 
     // For format conversion using macOS Accelerate API
@@ -160,7 +160,8 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 params.pointee.color_space = AVCOL_SPC_RGB
 
             // YUV
-            case AV_CODEC_ID_AIC, AV_CODEC_ID_INDEO2, AV_CODEC_ID_INDEO3, AV_CODEC_ID_INDEO4, AV_CODEC_ID_INDEO5, AV_CODEC_ID_NOTCHLC:
+            case AV_CODEC_ID_AIC, AV_CODEC_ID_INDEO2, AV_CODEC_ID_INDEO3, AV_CODEC_ID_INDEO4, AV_CODEC_ID_INDEO5,
+                AV_CODEC_ID_NOTCHLC:
                 // Pixel format is set in codec _init() under avcodec_open2()
                 params.pointee.color_range = AVCOL_RANGE_MPEG  // will be overridden by some codecs e.g. notch
             case AV_CODEC_ID_SVQ1, AV_CODEC_ID_SVQ3:
@@ -294,8 +295,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         if params.pointee.codec_id == AV_CODEC_ID_DXV {
             // Hack! DXV encodes width as a multiple of 16 for some reason even though the underlying data blocks are 4x4
             dec_ctx!.pointee.coded_width = (dec_ctx!.pointee.coded_width + 15) & -16
-        }
-        else if params.pointee.codec_id == AV_CODEC_ID_NOTCHLC {
+        } else if params.pointee.codec_id == AV_CODEC_ID_NOTCHLC {
             // FFmpeg decoder mislabels Notch as RGB
             dec_ctx!.pointee.colorspace = AVCOL_SPC_BT709
         }
@@ -452,7 +452,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             let newKey = PixelBufferCacheKey(frame: frame!)
             if newKey != pixelBufferKey {
                 pixelBufferKey = newKey
-                pixelBufferConfig = makePixelBufferConfig(frame: frame!)
+                pixelBufferConfig = makePixelBufferConfig()
                 manager.pixelBufferAttributes = pixelBufferConfig!.pixelBufferAttributes
             }
             pixelBuffer = try manager.makePixelBuffer()
@@ -593,10 +593,11 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     }
 
     // Lightweight key capturing the frame and display properties that affect PixelBufferConfig / CVPixelBuffer attributes.
+    // The frame's color fields must already be fixed up by fixupColors() before calling this.
     // Compared each frame to decide whether to rebuild the config or reuse the cached one.
     // In practice this almost always matches because resolution and color properties are
     // uniform within a stream, and FFmpeg propagates the same static MDM/CLL metadata onto every frame.
-    private struct PixelBufferCacheKey: Equatable {
+    struct PixelBufferCacheKey: Equatable {
         let width: Int32
         let height: Int32
         let format: Int32
@@ -634,19 +635,59 @@ class VideoDecoder: NSObject, MEVideoDecoder {
                 self.aveBytes = nil
             }
         }
+
+        // Fallback version from the AVCodecContext for when we need a pixel buffer but we have not yet seen a valid frame
+        init(dec_ctx: UnsafePointer<AVCodecContext>) {
+            self.width = dec_ctx.pointee.width
+            self.height = dec_ctx.pointee.height
+            self.format = dec_ctx.pointee.pix_fmt.rawValue
+            self.colorTrc = dec_ctx.pointee.color_trc
+            self.colorPrimaries = dec_ctx.pointee.color_primaries
+            self.colorspace = dec_ctx.pointee.colorspace
+            self.colorRange = dec_ctx.pointee.color_range
+            self.chromaLocation = dec_ctx.pointee.chroma_sample_location
+            if let sd = av_packet_side_data_get(
+                dec_ctx.pointee.coded_side_data,
+                dec_ctx.pointee.nb_coded_side_data,
+                AV_PKT_DATA_MASTERING_DISPLAY_METADATA
+            ) {
+                self.mdmBytes = Data(bytes: sd.pointee.data, count: Int(sd.pointee.size))
+            } else {
+                self.mdmBytes = nil
+            }
+            if let sd = av_packet_side_data_get(
+                dec_ctx.pointee.coded_side_data,
+                dec_ctx.pointee.nb_coded_side_data,
+                AV_PKT_DATA_CONTENT_LIGHT_LEVEL
+            ) {
+                self.cllBytes = Data(bytes: sd.pointee.data, count: Int(sd.pointee.size))
+            } else {
+                self.cllBytes = nil
+            }
+            if let sd = av_packet_side_data_get(
+                dec_ctx.pointee.coded_side_data,
+                dec_ctx.pointee.nb_coded_side_data,
+                AV_PKT_DATA_AMBIENT_VIEWING_ENVIRONMENT
+            ) {
+                self.aveBytes = Data(bytes: sd.pointee.data, count: Int(sd.pointee.size))
+            } else {
+                self.aveBytes = nil
+            }
+        }
+
     }
 
-    // Build PixelBufferConfig for the current frame.
-    // Handles both HDR biplanar and SDR BGRA paths. The frame's color fields must already
-    // be fixed up by fixupColors() before calling this.
+    // Build PixelBufferConfig from the PixelBufferCacheKey.
+    // Handles both HDR biplanar and SDR BGRA paths.
     // The returned config includes the fully-built pixelBufferAttributes dictionary
     // suitable for assigning directly to MEVideoDecoderPixelBufferManager.
-    func makePixelBufferConfig(frame: UnsafePointer<AVFrame>) -> PixelBufferConfig {
-        var width = Int(frame.pointee.width)
-        let height = Int(frame.pointee.height)
+    func makePixelBufferConfig() -> PixelBufferConfig {
+        let pixelBufferKey = pixelBufferKey!
+        var width = Int(pixelBufferKey.width)
+        let height = Int(pixelBufferKey.height)
 
         let config =
-            hdrPixelBufferConfig(frame: frame)
+            hdrPixelBufferConfig()
             ?? {
                 // SDR path: adjust destination width for anamorphic so vImage/zscale will scale into the CVPixelBuffer.
                 if let sar = formatDescription.extensions[kCMFormatDescriptionExtension_PixelAspectRatio]
@@ -677,4 +718,45 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         return config
     }
 
+    // MARK: - Pixel buffer fill helper
+
+    private func fillPixelBufferWithBlack(_ pixelBuffer: CVPixelBuffer) {
+        if CVPixelBufferGetPixelFormatType(pixelBuffer) == kCVPixelFormatType_32BGRA {
+            CVPixelBufferLockBaseAddress(pixelBuffer, [])
+            defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
+            var buf = vImage_Buffer(
+                data: CVPixelBufferGetBaseAddress(pixelBuffer),
+                height: vImagePixelCount(CVPixelBufferGetHeight(pixelBuffer)),
+                width: vImagePixelCount(CVPixelBufferGetWidth(pixelBuffer)),
+                rowBytes: CVPixelBufferGetBytesPerRow(pixelBuffer)
+            )
+            vImageBufferFill_ARGB8888(&buf, [0, 0, 0, 0xff], vImage_Flags(kvImageNoFlags))
+            return
+        }
+
+        let yBlack10: UInt16 = pixelBufferKey!.colorRange == AVCOL_RANGE_MPEG ? UInt16(64 << 6) : 0  // left-justified 10-bit in 16 bits
+        let uvNeutral10: UInt16 = UInt16(512 << 6)
+
+        let yWidth = CVPixelBufferGetWidthOfPlane(pixelBuffer, 0)
+        let yHeight = CVPixelBufferGetHeightOfPlane(pixelBuffer, 0)
+        let yRowBytes = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
+
+        let uvWidth = CVPixelBufferGetWidthOfPlane(pixelBuffer, 1)  // number of Cb samples per row
+        let uvHeight = CVPixelBufferGetHeightOfPlane(pixelBuffer, 1)
+        let uvRowBytes = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
+
+        let status = CVPixelBufferLockBaseAddress(pixelBuffer, [])
+        guard status == kCVReturnSuccess else { return }
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
+
+        if let yBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0) {
+            let dst = yBase.assumingMemoryBound(to: UInt16.self)
+            y_fill_u16(dst, Int32(yWidth), Int32(yHeight), Int32(yRowBytes / 2), yBlack10)
+        }
+
+        if let uvBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) {
+            let dst = uvBase.assumingMemoryBound(to: UInt16.self)
+            uv_fill_interleaved_u16(dst, Int32(uvWidth), Int32(uvHeight), Int32(uvRowBytes / 2), uvNeutral10, uvNeutral10)
+        }
+    }
 }

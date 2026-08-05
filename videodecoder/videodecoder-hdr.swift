@@ -32,37 +32,37 @@ extension VideoDecoder {
     ]
 
     // Build the HDR version of a PixelBufferConfig. Called from makePixelBufferConfig() in videodecoder.swift
-    func hdrPixelBufferConfig(frame: UnsafePointer<AVFrame>) -> PixelBufferConfig? {
+    func hdrPixelBufferConfig() -> PixelBufferConfig? {
         // Must be a supported planar format and HDR (PQ or HLG transfer function)
-        guard VideoDecoder.hdrFormats.contains(frame.pointee.format),
-            frame.pointee.color_trc == AVCOL_TRC_SMPTE2084 || frame.pointee.color_trc == AVCOL_TRC_ARIB_STD_B67
+        guard let pixelBufferKey, VideoDecoder.hdrFormats.contains(pixelBufferKey.format),
+            pixelBufferKey.colorTrc == AVCOL_TRC_SMPTE2084 || pixelBufferKey.colorTrc == AVCOL_TRC_ARIB_STD_B67
         else {
             return nil
         }
 
         // Luma/component bit depth (use first component's depth as representative)
-        guard let descPtr = av_pix_fmt_desc_get(AVPixelFormat(frame.pointee.format)) else { return nil }
+        guard let descPtr = av_pix_fmt_desc_get(AVPixelFormat(pixelBufferKey.format)) else { return nil }
         let bitDepth = UInt32(descPtr.pointee.comp.0.depth)
 
         // Chroma subsampling
         var hshift: Int32 = 0
         var vshift: Int32 = 0
-        av_pix_fmt_get_chroma_sub_sample(AVPixelFormat(frame.pointee.format), &hshift, &vshift)
+        av_pix_fmt_get_chroma_sub_sample(AVPixelFormat(pixelBufferKey.format), &hshift, &vshift)
 
         // Map subsampling to a 10-bit biplanar CVPixelFormat type.
         let pixelFormat: OSType
         switch (hshift, vshift) {
         case (1, 1):  // 4:2:0
             pixelFormat =
-                frame.pointee.color_range == AVCOL_RANGE_JPEG
+                pixelBufferKey.colorRange == AVCOL_RANGE_JPEG
                 ? kCVPixelFormatType_420YpCbCr10BiPlanarFullRange : kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
         case (1, 0):  // 4:2:2
             pixelFormat =
-                frame.pointee.color_range == AVCOL_RANGE_JPEG
+                pixelBufferKey.colorRange == AVCOL_RANGE_JPEG
                 ? kCVPixelFormatType_422YpCbCr10BiPlanarFullRange : kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange
         case (0, 0):  // 4:4:4
             pixelFormat =
-                frame.pointee.color_range == AVCOL_RANGE_JPEG
+                pixelBufferKey.colorRange == AVCOL_RANGE_JPEG
                 ? kCVPixelFormatType_444YpCbCr10BiPlanarFullRange : kCVPixelFormatType_444YpCbCr10BiPlanarVideoRange
         default:  // Unsupported subsampling for biplanar 10-bit
             return nil
@@ -70,16 +70,16 @@ extension VideoDecoder {
 
         // Build propagated attachments from the frame's color properties
         var attachments: [String: Any] = [:]
-        if let primaries = av_map_videotoolbox_color_primaries_from_av(frame.pointee.color_primaries) {
+        if let primaries = av_map_videotoolbox_color_primaries_from_av(pixelBufferKey.colorPrimaries) {
             attachments[kCVImageBufferColorPrimariesKey as String] = primaries.takeRetainedValue()
         }
-        if let transfer = av_map_videotoolbox_color_trc_from_av(frame.pointee.color_trc) {
+        if let transfer = av_map_videotoolbox_color_trc_from_av(pixelBufferKey.colorTrc) {
             attachments[kCVImageBufferTransferFunctionKey as String] = transfer.takeRetainedValue()
         }
-        if let matrix = av_map_videotoolbox_color_matrix_from_av(frame.pointee.colorspace) {
+        if let matrix = av_map_videotoolbox_color_matrix_from_av(pixelBufferKey.colorspace) {
             attachments[kCVImageBufferYCbCrMatrixKey as String] = matrix.takeRetainedValue()
         }
-        if let chromaLoc = av_map_videotoolbox_chroma_loc_from_av(frame.pointee.chroma_location) {
+        if let chromaLoc = av_map_videotoolbox_chroma_loc_from_av(pixelBufferKey.chromaLocation) {
             attachments[kCVImageBufferChromaLocationTopFieldKey as String] = chromaLoc.takeRetainedValue()
         }
 
@@ -93,29 +93,38 @@ extension VideoDecoder {
         }
 
         // Add mastering display, content light level, and ambient viewing environment metadata
-        if let mdmSideData = av_frame_get_side_data(frame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA) {
-            let mdm = UnsafeRawPointer(mdmSideData.pointee.data).assumingMemoryBound(to: AVMasteringDisplayMetadata.self).pointee
-            if let bytes = VideoDecoder.serializeMasteringDisplayMetadata(mdm) {
-                attachments[kCVImageBufferMasteringDisplayColorVolumeKey as String] = bytes
+        if let mdmBytes = pixelBufferKey.mdmBytes {
+            mdmBytes.withUnsafeBytes { raw in
+                if let mdm = raw.bindMemory(to: AVMasteringDisplayMetadata.self).baseAddress,
+                    let bytes = VideoDecoder.serializeMasteringDisplayMetadata(mdm.pointee)
+                {
+                    attachments[kCVImageBufferMasteringDisplayColorVolumeKey as String] = bytes
+                }
             }
         }
-        if let cllSideData = av_frame_get_side_data(frame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL) {
-            let cll = UnsafeRawPointer(cllSideData.pointee.data).assumingMemoryBound(to: AVContentLightMetadata.self).pointee
-            if let bytes = VideoDecoder.serializeContentLightLevel(cll) {
-                attachments[kCVImageBufferContentLightLevelInfoKey as String] = bytes
+        if let cllBytes = pixelBufferKey.cllBytes {
+            cllBytes.withUnsafeBytes { raw in
+                if let cll = raw.bindMemory(to: AVContentLightMetadata.self).baseAddress,
+                    let bytes = VideoDecoder.serializeContentLightLevel(cll.pointee)
+                {
+                    attachments[kCVImageBufferContentLightLevelInfoKey as String] = bytes
+                }
             }
         }
-        if let aveSideData = av_frame_get_side_data(frame, AV_FRAME_DATA_AMBIENT_VIEWING_ENVIRONMENT) {
-            let ave = UnsafeRawPointer(aveSideData.pointee.data).assumingMemoryBound(to: AVAmbientViewingEnvironment.self).pointee
-            if let bytes = VideoDecoder.serializeAmbientViewingEnvironment(ave) {
-                attachments[kCVImageBufferAmbientViewingEnvironmentKey as String] = bytes
+        if let aveBytes = pixelBufferKey.aveBytes {
+            aveBytes.withUnsafeBytes { raw in
+                if let ave = raw.bindMemory(to: AVAmbientViewingEnvironment.self).baseAddress,
+                    let bytes = VideoDecoder.serializeAmbientViewingEnvironment(ave.pointee)
+                {
+                    attachments[kCVImageBufferAmbientViewingEnvironmentKey as String] = bytes
+                }
             }
         }
 
         return PixelBufferConfig(
             pixelBufferAttributes: [
-                kCVPixelBufferWidthKey as String: frame.pointee.width as CFNumber,
-                kCVPixelBufferHeightKey as String: frame.pointee.height as CFNumber,
+                kCVPixelBufferWidthKey as String: pixelBufferKey.width as CFNumber,
+                kCVPixelBufferHeightKey as String: pixelBufferKey.height as CFNumber,
                 kCVPixelBufferBytesPerRowAlignmentKey as String: 64 as CFNumber,
                 kCVPixelBufferPixelFormatTypeKey as String: pixelFormat,
                 kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,
