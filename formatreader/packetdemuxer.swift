@@ -307,9 +307,10 @@ final class PacketDemuxer {
             stateLock.lock()
             defer { stateLock.unlock() }
             if let pkt = buffers[stream].get(logicalIndex: handle.index) {
-                if consumed {
-                    // Packet is being passed to AVFoundation - assume we won't need it again
-                    buffers[stream].consume(logicalIndex: handle.index)
+                if consumed && (pkt.pointee.flags & AV_PKT_FLAG_KEY != 0) {
+                    // Packet is being passed to AVFoundation
+                    // Keep the last consumed keyframe for stepInPresentationOrder calculations. Discard everyting older.
+                    buffers[stream].consume(logicalIndex: handle.index - 1)
                     demuxSem.signal()  // demuxer may now be able to proceed
                 }
                 return pkt
@@ -350,7 +351,11 @@ final class PacketDemuxer {
                     "PacketDemuxer stream \(stream) step from:\(handle.index) by:\(by) overrun, min=\(self.buffers[stream].isEmpty ? -1 : self.buffers[stream].minLogicalIndex)"
                 )
                 stateLock.unlock()
-                return handle
+                return PacketHandle(
+                    generation: generation,
+                    index: buffers[stream].minLogicalIndex,
+                    isLast: requested >= buffers[stream].maxLogicalIndex
+                )
             } else if demuxPause() {
                 // Try again after allowing more read-ahead
                 buffers[stream].increaseReadAhead(requested: requested)

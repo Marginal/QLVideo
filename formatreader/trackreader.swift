@@ -17,8 +17,6 @@ class TrackReader: NSObject {
     var stream: UnsafeMutablePointer<AVStream>
     var formatDescription: CMFormatDescription? = nil
     var sampleCursors = NSHashTable<SampleCursor>.weakObjects()  // for dumpState()
-    var dec_ctx: UnsafeMutablePointer<AVCodecContext>? = nil  // for decoding audio
-    var swr_ctx: UnsafeMutablePointer<SwrContext>? = nil  //  "
 
     init(format: FormatReader, stream: UnsafeMutablePointer<AVStream>, index: Int, enabled: Bool) {
         self.index = index
@@ -33,8 +31,6 @@ class TrackReader: NSObject {
 
     deinit {
         logger.debug("\(String(describing: type(of: self)), privacy: .public) deinit for stream #\(self.index)")
-        if dec_ctx != nil { avcodec_free_context(&dec_ctx) }
-        if swr_ctx != nil { swr_free(&swr_ctx) }
     }
 
     @objc

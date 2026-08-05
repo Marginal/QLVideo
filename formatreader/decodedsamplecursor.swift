@@ -40,7 +40,8 @@ class DecodedSampleCursor: SampleCursor {
         to endSampleCursor: (any MESampleCursor)?,
         completionHandler: @escaping (CMSampleBuffer?, (any Error)?) -> Void
     ) {
-        guard let endSampleCursor = endSampleCursor as? SampleCursor,
+        guard let track = track as? AudioTrackReader,
+            let endSampleCursor = endSampleCursor as? SampleCursor,
             let startPkt = demuxer?.get(stream: streamIndex, handle: handle),
             let endPkt = demuxer?.get(stream: streamIndex, handle: endSampleCursor.handle)
         else {
@@ -55,24 +56,24 @@ class DecodedSampleCursor: SampleCursor {
             )
         }
 
-        let sampleFormat = AVSampleFormat(track!.stream.pointee.codecpar.pointee.format)
+        let sampleFormat = AVSampleFormat(track.stream.pointee.codecpar.pointee.format)
         var sampleSize =
-            Int(av_get_bytes_per_sample(sampleFormat)) * Int(track!.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
-        let sampleRate = track!.stream.pointee.codecpar.pointee.sample_rate
+        Int(av_get_bytes_per_sample(sampleFormat)) * Int(track.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
+        let sampleRate = track.stream.pointee.codecpar.pointee.sample_rate
         let duration =
             endPkt.pointee.pts != AV_NOPTS_VALUE && startPkt.pointee.pts != AV_NOPTS_VALUE
             ? AVRational(
                 num: Int32(endPkt.pointee.pts - startPkt.pointee.pts + endPkt.pointee.duration)
-                    * track!.stream.pointee.time_base.num,
-                den: track!.stream.pointee.time_base.den
+                * track.stream.pointee.time_base.num,
+                den: track.stream.pointee.time_base.den
             )
             : AVRational(
                 num: Int32(endSampleCursor.handle.index - self.handle.index + 1)
-                    * Int32(startPkt.pointee.duration) * track!.stream.pointee.time_base.num,
-                den: track!.stream.pointee.time_base.den
+                * Int32(startPkt.pointee.duration) * track.stream.pointee.time_base.num,
+                den: track.stream.pointee.time_base.den
             )  // Workaround for invalid PTSs after a seek - e.g. Cook in RealMedia
         var sampleCount = Int(av_q2d(av_mul_q(duration, AVRational(num: sampleRate, den: 1))).rounded(.up))
-        var frameSize = Int(track!.stream.pointee.codecpar.pointee.frame_size)
+        var frameSize = Int(track.stream.pointee.codecpar.pointee.frame_size)
         if frameSize == 0 { frameSize = 1024 }  // arbitrary but it's better to slightly over allocate to avoid realloc later
         let remainder = sampleCount % frameSize
         if remainder != 0 { sampleCount += frameSize - remainder }
@@ -80,7 +81,7 @@ class DecodedSampleCursor: SampleCursor {
         var buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: capacity)
         let frame = av_frame_alloc()!
 
-        if discontinuity { avcodec_flush_buffers(track!.dec_ctx) }
+        if discontinuity { avcodec_flush_buffers(track.dec_ctx) }
         lastDelivered = 0
 
         // decode packets and add the decoded data to the blockBuffer
@@ -94,7 +95,7 @@ class DecodedSampleCursor: SampleCursor {
                 )
                 break
             }
-            var ret = avcodec_send_packet(track!.dec_ctx, pkt)
+            var ret = avcodec_send_packet(track.dec_ctx, pkt)
             if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
                 logger.warning(
@@ -105,7 +106,7 @@ class DecodedSampleCursor: SampleCursor {
             }
 
             while true {
-                ret = avcodec_receive_frame(track!.dec_ctx, frame)
+                ret = avcodec_receive_frame(track.dec_ctx, frame)
                 if ret == AVERROR_EAGAIN {
                     break
                 } else if ret < 0 {
@@ -131,15 +132,15 @@ class DecodedSampleCursor: SampleCursor {
                 }
 
                 var outPtr: UnsafeMutablePointer<UInt8>? = buffer.advanced(by: offset)
-                if track!.swr_ctx != nil {
+                if track.swr_ctx != nil {
                     // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
                     // http://www.openradar.me/45068930
                     let inPtrs: UnsafePointer<UnsafePointer<UInt8>?>? = frame.pointee.extended_data?.withMemoryRebound(
                         to: UnsafePointer<UInt8>?.self,
-                        capacity: Int(track!.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
+                        capacity: Int(track.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
                     ) { return UnsafePointer($0) }
                     ret = swr_convert(
-                        track!.swr_ctx,
+                        track.swr_ctx,
                         &outPtr,
                         Int32((capacity - offset) / sampleSize),
                         inPtrs,
@@ -202,7 +203,7 @@ class DecodedSampleCursor: SampleCursor {
         status = CMSampleBufferCreateReady(
             allocator: kCFAllocatorDefault,
             dataBuffer: blockBuffer,
-            formatDescription: track!.formatDescription,
+            formatDescription: track.formatDescription,
             sampleCount: lastDelivered,
             sampleTimingEntryCount: 1,
             sampleTimingArray: &timingInfo,

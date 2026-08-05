@@ -315,7 +315,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         let pix_fmt_name = av_get_pix_fmt_name(dec_ctx!.pointee.pix_fmt)
         let color_space_name = av_color_space_name(dec_ctx!.pointee.colorspace)
         logger.log(
-            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(pix_fmt_name != nil ? String(cString: pix_fmt_name!) : "unknown", privacy: .public) \(color_space_name != nil ? String(cString: color_space_name!) : "unknown", privacy: .public), with \(self.dec_ctx!.pointee.active_thread_type == FF_THREAD_FRAME ? "frame" : (self.dec_ctx!.pointee.active_thread_type == FF_THREAD_SLICE ? "slice" : "no"), privacy: .public) threading \(self.dec_ctx!.pointee.thread_count) threads"
+            "VideoDecoder: Decoding \(self.dec_ctx!.pointee.width)x\(self.dec_ctx!.pointee.height), \(pix_fmt_name != nil ? String(cString: pix_fmt_name!) : "unknown", privacy: .public) \(color_space_name != nil ? String(cString: color_space_name!) : "unknown", privacy: .public), B frames:\(self.dec_ctx!.pointee.has_b_frames) Delay:\(self.dec_ctx!.pointee.delay), with \(self.dec_ctx!.pointee.active_thread_type == FF_THREAD_FRAME ? "frame" : (self.dec_ctx!.pointee.active_thread_type == FF_THREAD_SLICE ? "slice" : "no"), privacy: .public) threading \(self.dec_ctx!.pointee.thread_count) threads"
         )
     }
 

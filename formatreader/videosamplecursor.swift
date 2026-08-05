@@ -118,4 +118,114 @@ class VideoSampleCursor: SampleCursor {
         return completionHandler(sampleBuffer, nil)
     }
 
+    // MARK: navigation
+
+    // Step by number of frames (not by packets or timestamp)
+    override func stepInPresentationOrder(by stepCount: Int64, completionHandler: @escaping @Sendable (Int64, (any Error)?) -> Void)
+    {
+        guard let demuxer, let track = track as? VideoTrackReader else { return completionHandler(0, MEError(.endOfStream)) }
+        if track.maxBFrames == 0 {  // We can just step if we don't have B frames
+            return super.stepInPresentationOrder(by: stepCount, completionHandler: completionHandler)
+        }
+        assert(stepCount == -1 || stepCount == 1)  // we don't currently handle anything else
+        guard let startPkt = demuxer.get(stream: streamIndex, handle: handle) else {
+            logger.error("\(self.debugDescription, privacy: .public) stepInPresentationOrder by \(stepCount)")
+            return completionHandler(0, MEError(.endOfStream))
+        }
+        let startPTS = startPkt.pointee.pts
+        var bestPTS = stepCount > 0 ? Int64.max : Int64.min
+        var bestHandle = handle
+
+        // Search +/-maxBFrames frames but stop earlier if:
+        // +1: Can't have an earlier PTS than a keyframe, so search from previous (or current) keyframe to next.
+        // -1: Search to the keyfram after next (or next if we're at a keyframe).
+
+        // back to last keyframe (unless we're currently at one)
+        if startPkt.pointee.flags & AV_PKT_FLAG_KEY == 0 {
+            var stepHandle = handle
+            for _ in 0..<track.maxBFrames {
+                let prev = demuxer.step(stream: streamIndex, from: stepHandle, by: -1)
+                guard prev.index != stepHandle.index,  // we've consumed the required packet(s) or at start of buffer
+                    let pkt = demuxer.get(stream: streamIndex, handle: prev)
+                else {
+                    break
+                }
+                stepHandle = prev
+                let pts = pkt.pointee.pts
+                if stepCount > 0 ? (pts > startPTS) && (pts < bestPTS) : (pts < startPTS) && (pts > bestPTS) {
+                    bestPTS = pts
+                    bestHandle = stepHandle
+                }
+                if pkt.pointee.flags & AV_PKT_FLAG_KEY != 0 { break }  // stop early at previous keyframe
+            }
+        }
+
+        // Scan forward up to and including the keyframe after next
+        var stepHandle = handle
+        var keyFrames = stepCount < 0 || (startPkt.pointee.flags & AV_PKT_FLAG_KEY != 0) ? 1 : 2
+        for _ in 0..<track.maxBFrames {
+            let next = demuxer.step(stream: streamIndex, from: stepHandle, by: 1)
+            guard let pkt = demuxer.get(stream: streamIndex, handle: next) else { break }
+            stepHandle = next
+            let pts = pkt.pointee.pts
+            if stepCount > 0 ? (pts > startPTS) && (pts < bestPTS) : (pts < startPTS) && (pts > bestPTS) {
+                bestPTS = pts
+                bestHandle = stepHandle
+            }
+            if pkt.pointee.flags & AV_PKT_FLAG_KEY != 0 {
+                keyFrames -= 1
+                if keyFrames == 0 { break }  // stop early at 2nd keyframe
+            }
+        }
+
+        let steppedBy = Int64(bestHandle.index - handle.index)
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug(
+                "\(self.debugDescription, privacy: .public) stepInPresentationOrder by \(stepCount) -> idx:\(bestHandle.index) pts:\(CMTime(value:bestPTS, timeBase: track.stream.pointee.time_base), privacy: .public)"
+            )
+        }
+        handle = bestHandle
+        return completionHandler(steppedBy, nil)
+    }
+
+    // MARK: GOP
+
+    // whether any sample later in decode order than the current sample can have an earlier presentation time than the current sample of the specified cursor
+    override func samplesWithLaterDTSsMayHaveEarlierPTSs(than cursor: any MESampleCursor) -> Bool {
+
+        guard let demuxer, let track = track as? VideoTrackReader,
+            track.maxBFrames > 0  // no B frames -> frames are in order
+        else { return false }
+
+        let other = cursor as! SampleCursor
+        assert(self.handle.index > other.handle.index)
+        if let otherPkt = demuxer.get(stream: other.streamIndex, handle: other.handle) {
+            // Scan forward up to and including the next keyframe
+            let targetPts = otherPkt.pointee.pts
+            var stepHandle = handle
+            while !stepHandle.isLast {
+                let next = demuxer.step(stream: streamIndex, from: stepHandle, by: 1)
+                guard let pkt = demuxer.get(stream: streamIndex, handle: next) else { break }
+                stepHandle = next
+                if pkt.pointee.pts < targetPts {
+                    if TRACE_SAMPLE_CURSOR {
+                        logger.debug(
+                            "\(self.debugDescription, privacy: .public) samplesWithLaterDTSsMayHaveEarlierPTSs than SampleCursor \(other.debugDescription, privacy: .public) = true at idx:\(stepHandle.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public)"
+                        )
+                    }
+                    return true
+                } else if pkt.pointee.flags & AV_PKT_FLAG_KEY != 0 {
+                    break
+                }
+            }
+        }
+
+        if TRACE_SAMPLE_CURSOR {
+            logger.debug(
+                "\(self.debugDescription, privacy: .public) samplesWithLaterDTSsMayHaveEarlierPTSs than SampleCursor \(other.debugDescription, privacy: .public) = false"
+            )
+        }
+        return false
+    }
+
 }

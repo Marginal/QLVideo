@@ -98,6 +98,8 @@ class VideoTrackReader: TrackReader, METrackReader {
         AVCHROMA_LOC_BOTTOMLEFT: kCVImageBufferChromaLocation_BottomLeft,
     ]
 
+    var maxBFrames = 0  // for VideoSampleCursor.stepInPresentationOrder
+
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
 
         // Three cases:
@@ -117,6 +119,22 @@ class VideoTrackReader: TrackReader, METrackReader {
             logger.error("Can't get stream parameters for stream #\(self.index)")
             preconditionFailure("Can't get stream parameters for stream #\(self.index)")
         }
+
+        // How many packets to search in VideoSampleCursor.stepInPresentationOrder based on the codec type
+        maxBFrames =
+            params.pointee.video_delay == 0
+            ? 0
+            : {
+                switch params.pointee.codec_id {
+                case AV_CODEC_ID_MPEG1VIDEO, AV_CODEC_ID_MPEG2VIDEO, AV_CODEC_ID_MPEG4, AV_CODEC_ID_MSMPEG4V1,
+                    AV_CODEC_ID_MSMPEG4V2, AV_CODEC_ID_MSMPEG4V3, AV_CODEC_ID_SVQ3, AV_CODEC_ID_RV30, AV_CODEC_ID_RV40:
+                    return 6
+                case AV_CODEC_ID_VC1, AV_CODEC_ID_WMV3, AV_CODEC_ID_CAVS, AV_CODEC_ID_RV60, AV_CODEC_ID_VP9: return 8
+                case AV_CODEC_ID_AV1: return 10
+                case AV_CODEC_ID_H264, AV_CODEC_ID_HEVC, AV_CODEC_ID_VVC: return 16
+                default: return 2
+                }
+            }()
 
         // Determine whether we want VideoToolbox (codecType!=nil) or FFmpeg (codecType==nil) to do the decoding,
         // and construct a codec configuration for those codecs where CoreVideo/VideoToolbox requires one.

@@ -174,6 +174,14 @@ class AudioTrackReader: TrackReader, METrackReader {
         AV_SAMPLE_FMT_S64P: kAudioFormatFlagIsNonInterleaved | kAudioFormatFlagIsSignedInteger,
     ]
 
+    var dec_ctx: UnsafeMutablePointer<AVCodecContext>? = nil  // for decoding audio
+    var swr_ctx: UnsafeMutablePointer<SwrContext>? = nil  //  "
+
+    deinit {
+        if dec_ctx != nil { avcodec_free_context(&dec_ctx) }
+        if swr_ctx != nil { swr_free(&swr_ctx) }
+    }
+
     func loadTrackInfo(completionHandler: @escaping @Sendable (METrackInfo?, (any Error)?) -> Void) {
 
         var params = stream.pointee.codecpar.pointee
