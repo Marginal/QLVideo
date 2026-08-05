@@ -50,6 +50,8 @@
 		ABA141FF2D3016480040A4E6 /* CoverArtView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA141FE2D3016480040A4E6 /* CoverArtView.swift */; };
 		ABA142002D301E670040A4E6 /* ffmpeg in Embed Executables */ = {isa = PBXBuildFile; fileRef = ABE72EC0293A32B5005433DF /* ffmpeg */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		ABA532362F5216B200E6EC43 /* CrashReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA532352F5216B200E6EC43 /* CrashReportView.swift */; };
+		ABA7F720301A612D008AAAFE /* CodecName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA7F71F301A612D008AAAFE /* CodecName.swift */; };
+		ABA7F721301A63C2008AAAFE /* CodecName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA7F71F301A612D008AAAFE /* CodecName.swift */; };
 		ABA7F806301B4739008AAAFE /* libswscale.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABA141C62D2EE49D0040A4E6 /* libswscale.9.dylib */; };
 		ABB719E72924069600F13C24 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB719E62924069600F13C24 /* Assets.xcassets */; };
 		ABBC10E01C1DF64E00B25E28 /* liblzma.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */; };
@@ -246,6 +248,7 @@
 		ABA141F22D2EF8E70040A4E6 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
 		ABA141FE2D3016480040A4E6 /* CoverArtView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArtView.swift; sourceTree = "<group>"; };
 		ABA532352F5216B200E6EC43 /* CrashReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReportView.swift; sourceTree = "<group>"; };
+		ABA7F71F301A612D008AAAFE /* CodecName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodecName.swift; sourceTree = "<group>"; };
 		ABB719E62924069600F13C24 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABB8CF531A1C798B00CF242E /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/schema.strings; sourceTree = "<group>"; };
 		ABBC10DE1C1DF5F600B25E28 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = /usr/lib/liblzma.5.dylib; sourceTree = "<absolute>"; };
@@ -474,6 +477,7 @@
 				AB1DAC6D2F4D201C006BB899 /* mdimporter-bridge.h */,
 				AB9FB57E1965DD7200D39647 /* main.c */,
 				AB9FB5801965DD7200D39647 /* GetMetadataForFile.swift */,
+				ABA7F71F301A612D008AAAFE /* CodecName.swift */,
 				AB9FB58C1965DF0700D39647 /* Info.plist */,
 				ABE4610E1A15A519006C89A2 /* schema.strings */,
 			);
@@ -875,6 +879,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABA7F721301A63C2008AAAFE /* CodecName.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -882,6 +887,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABA7F720301A612D008AAAFE /* CodecName.swift in Sources */,
 				AB9FB57F1965DD7200D39647 /* main.c in Sources */,
 				AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */,
 			);

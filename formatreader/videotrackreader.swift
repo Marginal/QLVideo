@@ -340,6 +340,9 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
 
         // Other extensions
+        if let codecName = CodecName.name(params: params) {
+            extensions[kCMFormatDescriptionExtension_FormatName as CFString] = codecName as CFString
+        }
         let sar = av_guess_sample_aspect_ratio(format.fmt_ctx, &stream.pointee, nil)
         if sar.num != 0 && (sar.num != 1 || sar.den != 1) {
             extensions[kCMFormatDescriptionExtension_PixelAspectRatio as CFString] =

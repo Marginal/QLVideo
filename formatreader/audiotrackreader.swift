@@ -296,7 +296,9 @@ class AudioTrackReader: TrackReader, METrackReader {
             case 8:
                 layoutTag = kAudioChannelLayoutTag_MPEG_7_1_A
             default:
-                logger.error("AudioTrackReader stream \(self.index) loadTrackInfo: can't guess layout for \(params.ch_layout.nb_channels) channels")
+                logger.error(
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: can't guess layout for \(params.ch_layout.nb_channels) channels"
+                )
             }
         }
 
@@ -380,6 +382,7 @@ class AudioTrackReader: TrackReader, METrackReader {
         logger.debug(
             "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) timescale:\(self.stream.pointee.time_base.den) layout:0x\(layoutTag, format:.hex) absd: sampleRate:\(Int(asbd.mSampleRate)) formatID:\"\(FormatReader.av_fourcc2str(asbd.mFormatID), privacy: .public)\" formatFlags:0x\(asbd.mFormatFlags, format: .hex) bytesPerPacket:\(asbd.mBytesPerPacket) framesPerPacket:\(asbd.mFramesPerPacket) bytesPerFrame:\(asbd.mBytesPerFrame) channelsPerFrame:\(asbd.mChannelsPerFrame) bitsPerChannel:\(asbd.mBitsPerChannel)"
         )
+        let codecName = CodecName.name(params: &params)
         let status = CMAudioFormatDescriptionCreate(
             allocator: kCFAllocatorDefault,
             asbd: &asbd,
@@ -387,7 +390,8 @@ class AudioTrackReader: TrackReader, METrackReader {
             layout: &layout,
             magicCookieSize: 0,  // Int(params.extradata_size),
             magicCookie: nil,  // params.extradata, // for AAC this is AudioSpecificConfig (ASC) from the esds atom
-            extensions: nil,
+            extensions: codecName != nil
+                ? [kCMFormatDescriptionExtension_FormatName as CFString: codecName! as CFString] as CFDictionary : nil,
             formatDescriptionOut: &formatDescription
         )
         guard status == noErr else {
