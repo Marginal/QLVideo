@@ -55,6 +55,10 @@ struct ContentView: View {
             HStack {
                 Button("Open Video…") { showingOpenPanel = true }
                 Button("Seek to 10s") { player.seek(to: CMTime(value: 10_000_000, timescale: 1_000_000)) }  // QuickLook thumbnail snapshot time
+                Button("Seek to ½") {
+                    guard let duration = player.currentItem?.duration, duration.isNumeric else { return }
+                    player.seek(to: CMTimeMultiplyByRatio(duration, multiplier: 1, divisor: 2))
+                }
             }
             .padding()
         }

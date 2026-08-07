@@ -74,7 +74,6 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     var isReadyForMoreMediaData: Bool = true
     var params = avcodec_parameters_alloc()!
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>?
-    var lastDTS = CMTime.invalid
 
     // Cached pixel buffer config - rebuilt only when frame dimensions, color properties or HDR metadata change
     var pixelBufferKey: PixelBufferCacheKey? = nil
@@ -377,8 +376,7 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         pkt!.pointee.pts =
             sampleBuffer.presentationTimeStamp.isNumeric ? sampleBuffer.presentationTimeStamp.value : AV_NOPTS_VALUE
         let notSync = (attachment[kCMSampleAttachmentKey_NotSync] as? Bool) ?? false
-        let doNotDisplay = (attachment[kCMSampleAttachmentKey_DoNotDisplay] as? Bool) ?? false
-        pkt!.pointee.flags = (!notSync ? AV_PKT_FLAG_KEY : 0) | (doNotDisplay ? AV_PKT_FLAG_DISCARD : 0)
+        pkt!.pointee.flags = (!notSync ? AV_PKT_FLAG_KEY : 0) | (options.doNotOutputFrame ? AV_PKT_FLAG_DISCARD : 0)
         var nb_sd: Int32 = 0
         while true {
             guard let importedSideData = attachment["SideData\(nb_sd)" as CFString] as? Data else { break }
@@ -409,50 +407,71 @@ class VideoDecoder: NSObject, MEVideoDecoder {
         }
 
         // Try to detect a discontinuous seek and flush the decoder if we see one
-        if (CMGetAttachment(sampleBuffer, key: kCMSampleBufferAttachmentKey_ResetDecoderBeforeDecoding, attachmentModeOut: nil)
-            as? Bool) ?? false
-        {
-            if TRACE_VIDEODECODER {
-                logger.debug(
-                    "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): Seek"
-                )
-            }
-            avcodec_send_packet(dec_ctx, nil)
+        let isSeek =
+            (CMGetAttachment(sampleBuffer, key: kCMSampleBufferAttachmentKey_ResetDecoderBeforeDecoding, attachmentModeOut: nil)
+                as? Bool) ?? false
+        if isSeek {
             avcodec_flush_buffers(dec_ctx)
         }
 
         // Decode
         var ret = avcodec_send_packet(dec_ctx, pkt)
-        av_packet_free(&pkt)  // Free regardless of result since we don't need this any more - actual data lives in CMBlockBuffer
-        if ret == AVERROR_EAGAIN {
-            // Can't do anything with this packet
-            logger.warning(
-                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): Packet produced no output"
-            )
-            // Fall through with the hope that the decoder can still produce useful output
-        } else if ret < 0 {
+        if ret < 0 {
             let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
             logger.error(
                 "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): \(error.errorDescription, privacy: .public)"
             )
-            return completionHandler(nil, .frameDropped, MEError(.internalFailure))
+            av_packet_free(&pkt)
+            return completionHandler(nil, .frameDropped, MEError(.parsingFailure))
         }
+        if TRACE_VIDEODECODER {
+            logger.debug(
+                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) flags:\(pkt!.pointee.flags & AV_PKT_FLAG_KEY != 0 ? "K" : "_", privacy: .public)\(pkt!.pointee.flags & AV_PKT_FLAG_DISCARD != 0 ? "D" : "_", privacy: .public)_ \(isSeek ? "Seek" : "", privacy: .public)"
+            )
+        }
+        av_packet_free(&pkt)  // Free regardless of result since we don't need this any more - actual data lives in CMBlockBuffer
 
         var frame = av_frame_alloc()
         ret = avcodec_receive_frame(dec_ctx, frame)
+        if ret == AVERROR_EAGAIN {
+            // Discarded packets won't produce anything from avcodec_receive_frame (but it appears we still have to call it). Complete now.
+            av_frame_free(&frame)
+            if options.doNotOutputFrame {
+                if TRACE_VIDEODECODER {
+                    logger.debug(
+                        "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) discarded"
+                    )
+                }
+                return completionHandler(nil, .frameDropped, nil)
+            } else if isSeek {
+                // AVFoundation won't send any more input until the first sampleBuffer after a seek produces output. So we have to return something.
+                do {
+                    if TRACE_VIDEODECODER {
+                        logger.debug(
+                            "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) dummy"
+                        )
+                    }
+                    if pixelBufferKey == nil {
+                        // We've never seen an output frame.
+                        pixelBufferKey = PixelBufferCacheKey(dec_ctx: dec_ctx!)  // best effort, may be updated later on a real frame
+                        pixelBufferConfig = makePixelBufferConfig()
+                        manager.pixelBufferAttributes = pixelBufferConfig!.pixelBufferAttributes
+                    }
+                    let pixelBuffer = try manager.makePixelBuffer()
+                    fillPixelBufferWithBlack(pixelBuffer)  // otherwise green which is very noticeable
+                    return completionHandler(pixelBuffer, .frameDropped, nil)
+                } catch {
+                    return completionHandler(nil, .frameDropped, error)
+                }
+            }
+        }
         guard ret >= 0 else {
             let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
             logger.error(
                 "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public): \(error.errorDescription, privacy: .public)"
             )
-            if frame != nil { av_frame_free(&frame) }
+            av_frame_free(&frame)
             return completionHandler(nil, .frameDropped, MEError(.internalFailure))
-        }
-
-        if TRACE_VIDEODECODER {
-            logger.debug(
-                "VideoDecoder decodeFrame at dts:\(sampleBuffer.decodeTimeStamp, privacy: .public) pts:\(sampleBuffer.presentationTimeStamp, privacy: .public) dur:\(sampleBuffer.duration, privacy: .public) size:0x\(UInt(totalLength), format:.hex) flags:\(frame!.pointee.flags & AV_PKT_FLAG_KEY != 0 ? "K" : "_", privacy: .public)\(frame!.pointee.flags & AV_PKT_FLAG_DISCARD != 0 ? "D" : "_", privacy: .public)_ "
-            )
         }
 
         // Fix up color info on the decoded frame
