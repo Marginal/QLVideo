@@ -132,6 +132,10 @@ class VideoTrackReader: TrackReader, METrackReader {
             extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] =
                 ["esds" as CFString: CFDataCreate(kCFAllocatorDefault, bytes, CFIndex(bytes.count))] as CFDictionary
             codecType = kCMVideoCodecType_JPEG
+        case AV_CODEC_ID_MPEG1VIDEO:
+            codecType = kCMVideoCodecType_MPEG1Video  // Not hardware acclerated but playable by AVFoundation anyway
+        case AV_CODEC_ID_MPEG2VIDEO:
+            codecType = kCMVideoCodecType_MPEG2Video  // Not hardware acclerated but playable by AVFoundation anyway
         case AV_CODEC_ID_H263:
             codecType = kCMVideoCodecType_H263  // Not hardware acclerated but playable by AVFoundation anyway
         case AV_CODEC_ID_MPEG4:
