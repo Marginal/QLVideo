@@ -11,58 +11,6 @@ import OSLog
 
 class AudioTrackReader: TrackReader, METrackReader {
 
-    // AVCodecParameters.codec_tag can be zero(!) so prefer .codec_id for common types known to AVFoundation
-    // See https://ffmpeg.org/doxygen/8.0/matroska_8c_source.html#l00027 for the codec_ids that FFmpeg expects in a Matroska container
-    static let formatIDs: [AVCodecID: AudioFormatID] = [
-        AV_CODEC_ID_PCM_S8: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_U8: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_S16BE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_S16LE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_S24BE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_S24LE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_S32BE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_S32LE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_F32BE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_F32LE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_F64BE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_F64LE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_MULAW: kAudioFormatULaw,
-        AV_CODEC_ID_PCM_ALAW: kAudioFormatALaw,
-            /* Easier to let FFmpeg decode all compressed formats - maybe more efficient too since it has to demux the data anyway
-        AV_CODEC_ID_AC3: kAudioFormatAC3,
-        // kAudioFormat60958AC3
-        AV_CODEC_ID_ADPCM_IMA_QT: kAudioFormatAppleIMA4,
-        AV_CODEC_ID_AAC: kAudioFormatMPEG4AAC,
-        // MPEG4CELP: kAudioFormatMPEG4CELP, // not supported by FFmpeg
-        // MPEG4HVXC: kAudioFormatMPEG4HVXC, // not supported by FFmpeg
-        // MPEG4TwinVQ: kAudioFormatMPEG4TwinVQ, // not supported by FFmpeg
-        AV_CODEC_ID_MACE3: kAudioFormatMACE3,
-        AV_CODEC_ID_MACE6: kAudioFormatMACE6,
-        AV_CODEC_ID_QDMC: kAudioFormatQDesign,
-        AV_CODEC_ID_QDM2: kAudioFormatQDesign2,
-        AV_CODEC_ID_QCELP: kAudioFormatQUALCOMM,
-        AV_CODEC_ID_MP1: kAudioFormatMPEGLayer1,
-        AV_CODEC_ID_MP2: kAudioFormatMPEGLayer2,
-        AV_CODEC_ID_MP3: kAudioFormatMPEGLayer3,
-        // kAudioFormatTimeCode,
-        // kAudioFormatMIDIStream,
-        // kAudioFormatParameterValueStream,
-        AV_CODEC_ID_ALAC: kAudioFormatAppleLossless,
-        // kAudioFormatMPEG4AAC_* not supported by FFmpeg
-        AV_CODEC_ID_AMR_NB: kAudioFormatAMR,
-        AV_CODEC_ID_AMR_WB: kAudioFormatAMR_WB,
-        // kAudioFormatAudible, not supported by FFmpeg
-        AV_CODEC_ID_ILBC: kAudioFormatiLBC,
-        AV_CODEC_ID_ADPCM_IMA_WAV: kAudioFormatDVIIntelIMA,
-        AV_CODEC_ID_GSM_MS: kAudioFormatMicrosoftGSM,
-        // AV_CODEC_ID_AES3: kAudioFormatAES3, not supported by FFmpeg
-        AV_CODEC_ID_EAC3: kAudioFormatEnhancedAC3,
-        AV_CODEC_ID_FLAC: kAudioFormatFLAC,
-        AV_CODEC_ID_OPUS: kAudioFormatOpus,
-        // kAudioFormatAPAC, not supported by FFmpeg
-             */
-    ]
-
     // https://ffmpeg.org/doxygen/8.0/channel__layout_8h_source.html#l00175
     struct ChannelMasks: OptionSet {
         let rawValue: UInt64
@@ -175,7 +123,7 @@ class AudioTrackReader: TrackReader, METrackReader {
     ]
 
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>? = nil  // for decoding audio
-    var swr_ctx: UnsafeMutablePointer<SwrContext>? = nil  //  "
+    var swr_ctx: UnsafeMutablePointer<SwrContext>? = nil  //  for resampling planar to packed
 
     deinit {
         if dec_ctx != nil { avcodec_free_context(&dec_ctx) }
@@ -199,70 +147,66 @@ class AudioTrackReader: TrackReader, METrackReader {
             )
         #endif
 
-        // Check that we can decode
-        let formatID = AudioTrackReader.formatIDs[params.codec_id]  // Can macOS decode?
-        if formatID == nil {
-            // macOS can't decode - prepare an AVCodecContext for FFmpeg decoding and SwrContext for resampling
-            guard let codec = avcodec_find_decoder(params.codec_id) else {
-                logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: No decoder for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
-                )
-                return completionHandler(nil, MEError(.unsupportedFeature))
-            }
+        // Check that we can decode and prepare an AVCodecContext for decoding and SwrContext for resampling
+        guard let codec = avcodec_find_decoder(params.codec_id) else {
+            logger.error(
+                "AudioTrackReader stream \(self.index) loadTrackInfo: No decoder for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
+            )
+            return completionHandler(nil, MEError(.unsupportedFeature))
+        }
 
-            dec_ctx = avcodec_alloc_context3(codec)
-            if dec_ctx == nil {
-                logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create decoder context for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
-                )
-                return completionHandler(nil, MEError(.unsupportedFeature))
-            }
-            var ret = avcodec_parameters_to_context(dec_ctx, &params)
+        dec_ctx = avcodec_alloc_context3(codec)
+        if dec_ctx == nil {
+            logger.error(
+                "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create decoder context for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public)"
+            )
+            return completionHandler(nil, MEError(.unsupportedFeature))
+        }
+        var ret = avcodec_parameters_to_context(dec_ctx, &params)
+        if ret < 0 {
+            let err = AVERROR(errorCode: ret, context: "avcodec_parameters_to_context")
+            logger.error(
+                "AudioTrackReader stream \(self.index) loadTrackInfo: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.errorDescription, privacy: .public)"
+            )
+            return completionHandler(nil, err)
+        }
+        ret = avcodec_open2(dec_ctx, codec, nil)
+        if ret < 0 {
+            let err = AVERROR(errorCode: ret, context: "avcodec_open2")
+            logger.error(
+                "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.errorDescription, privacy: .public)"
+            )
+            return completionHandler(nil, err)
+        }
+
+        // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
+        // http://www.openradar.me/45068930
+        if av_sample_fmt_is_planar(AVSampleFormat(params.format)) != 0 {
+            ret = swr_alloc_set_opts2(
+                &swr_ctx,
+                &params.ch_layout,
+                av_get_packed_sample_fmt(AVSampleFormat(params.format)),  // out
+                params.sample_rate,
+                &params.ch_layout,
+                AVSampleFormat(params.format),  // in
+                params.sample_rate,
+                0,
+                nil
+            )
             if ret < 0 {
-                let err = AVERROR(errorCode: ret, context: "avcodec_parameters_to_context")
+                let err = AVERROR(errorCode: ret, context: "swr_alloc_set_opts2")
                 logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't set decoder parameters for codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.errorDescription, privacy: .public)"
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.errorDescription, privacy: .public)"
                 )
                 return completionHandler(nil, err)
             }
-            ret = avcodec_open2(dec_ctx, codec, nil)
+            ret = swr_init(swr_ctx)
             if ret < 0 {
-                let err = AVERROR(errorCode: ret, context: "avcodec_open2")
+                let err = AVERROR(errorCode: ret, context: "swr_init")
                 logger.error(
-                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't open codec \(String(cString:avcodec_get_name(params.codec_id)), privacy: .public): \(err.errorDescription, privacy: .public)"
+                    "AudioTrackReader stream \(self.index) loadTrackInfo: Can't initialise resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.errorDescription, privacy: .public)"
                 )
                 return completionHandler(nil, err)
-            }
-
-            // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
-            // http://www.openradar.me/45068930
-            if av_sample_fmt_is_planar(AVSampleFormat(params.format)) != 0 {
-                ret = swr_alloc_set_opts2(
-                    &swr_ctx,
-                    &params.ch_layout,
-                    av_get_packed_sample_fmt(AVSampleFormat(params.format)),  // out
-                    params.sample_rate,
-                    &params.ch_layout,
-                    AVSampleFormat(params.format),  // in
-                    params.sample_rate,
-                    0,
-                    nil
-                )
-                if ret < 0 {
-                    let err = AVERROR(errorCode: ret, context: "swr_alloc_set_opts2")
-                    logger.error(
-                        "AudioTrackReader stream \(self.index) loadTrackInfo: Can't create resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.errorDescription, privacy: .public)"
-                    )
-                    return completionHandler(nil, err)
-                }
-                ret = swr_init(swr_ctx)
-                if ret < 0 {
-                    let err = AVERROR(errorCode: ret, context: "swr_init")
-                    logger.error(
-                        "AudioTrackReader stream \(self.index) loadTrackInfo: Can't initialise resample context for format \(String(cString:av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy: .public): \(err.errorDescription, privacy: .public)"
-                    )
-                    return completionHandler(nil, err)
-                }
             }
         }
 
@@ -351,38 +295,20 @@ class AudioTrackReader: TrackReader, METrackReader {
         // From CoreAudioBaseTypes.h:
         //   "In uncompressed audio, a Packet is one frame", "In compressed audio, a Packet is an indivisible chunk of compressed data"
         //   "In non-interleaved [=planar] audio, the per frame fields identify one channel".
-        //
-        // 3 cases:
-        //   - Audio that CoreMedia doesn't understand - uncompressed=true, decoding=true
-        //     * Get FFmpeg to decode, and supply the uncompressed data via DecodedSampleCuresor.loadSampleBufferContainingSamples
-        //   - Compressed audio that macOS understands
-        //     * Can't supply the compressed data in loadSampleBufferContainingSamples since CoreMedia expects CMSampleBuffer
-        //       to contain sample count and sizes which we don't know (see CMSampleBufferCreate in CMSampleBuffer.h).
-        //       Could decode as above, but then it would show up as PCM rather than e.g. AAC in media players.
-        //       So supply data via PassthruSampleBuffer.sampleLocation (which unfortunately means it gets copied twice).
-        //   - Uncompressed - uncompressed=true
-        //     * We could use loadSampleBufferContainingSamples, but just supply the data via PassthruSampleBuffer.sampleLocation
-        //
-        let uncompressed = [kAudioFormatLinearPCM, kAudioFormatALaw, kAudioFormatULaw, nil].contains(formatID)
-        let decoding = formatID == nil
-        let bytes = UInt32(
-            decoding
-                ? av_get_bytes_per_sample(AVSampleFormat(params.format))  // size of the decoded samples
-                : av_get_bits_per_sample(params.codec_id) >> 3  // returns zero for compressed formats
-        )
+
+        let bytes = UInt32(av_get_bytes_per_sample(AVSampleFormat(params.format)))  // size of the decoded samples
         let outFmt: AVSampleFormat = swr_ctx?.pointee.out_sample_fmt ?? AVSampleFormat(params.format)
         let flags =
             AudioTrackReader.formatFlags[outFmt]!
             | (params.bits_per_raw_sample == params.bits_per_coded_sample
                 ? kAudioFormatFlagIsPacked : kAudioFormatFlagIsAlignedHigh)
-        let planar = (flags & kAudioFormatFlagIsNonInterleaved) != 0
         var asbd = AudioStreamBasicDescription(
             mSampleRate: Float64(params.sample_rate),
-            mFormatID: formatID ?? kAudioFormatLinearPCM,
+            mFormatID: kAudioFormatLinearPCM,
             mFormatFlags: flags,
-            mBytesPerPacket: bytes * UInt32(planar ? 1 : params.ch_layout.nb_channels),  // "To indicate variable packet size, set this field to 0"
-            mFramesPerPacket: UInt32(uncompressed ? 1 : params.frame_size),  // "In uncompressed audio, a Packet is one frame"
-            mBytesPerFrame: bytes * UInt32(planar ? 1 : params.ch_layout.nb_channels),  // "Set this field to 0 for compressed formats"
+            mBytesPerPacket: bytes * UInt32(params.ch_layout.nb_channels),  // "To indicate variable packet size, set this field to 0"
+            mFramesPerPacket: 1,  // "In uncompressed audio, a Packet is one frame"
+            mBytesPerFrame: bytes * UInt32(params.ch_layout.nb_channels),  // "Set this field to 0 for compressed formats"
             mChannelsPerFrame: UInt32(params.ch_layout.nb_channels),
             mBitsPerChannel: bytes << 3,  // "Set the number of bits to 0 for compressed formats"
             mReserved: 0
@@ -441,20 +367,12 @@ class AudioTrackReader: TrackReader, METrackReader {
         }
         guard let format = format else { return completionHandler(nil, MEError(.internalFailure)) }
         do {
-            let cursor =
-                dec_ctx != nil
-                ? try DecodedSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: presentationTimeStamp
-                )
-                : try PassthruSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: presentationTimeStamp
-                )
+            let cursor = try AudioSampleCursor(
+                format: format,
+                track: self,
+                index: index,
+                atPresentationTimeStamp: presentationTimeStamp
+            )
             sampleCursors.add(cursor)
             return completionHandler(cursor, nil)
         } catch {
@@ -473,22 +391,13 @@ class AudioTrackReader: TrackReader, METrackReader {
         }
         guard let format = format else { return completionHandler(nil, MEError(.internalFailure)) }
         do {
-            let cursor =
-                dec_ctx != nil
-                ? try DecodedSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: stream.pointee.start_time != AV_NOPTS_VALUE
-                        ? CMTime(value: stream.pointee.start_time, timeBase: stream.pointee.time_base) : .zero
-                )
-                : try PassthruSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: stream.pointee.start_time != AV_NOPTS_VALUE
-                        ? CMTime(value: stream.pointee.start_time, timeBase: stream.pointee.time_base) : .zero
-                )
+            let cursor = try AudioSampleCursor(
+                format: format,
+                track: self,
+                index: index,
+                atPresentationTimeStamp: stream.pointee.start_time != AV_NOPTS_VALUE
+                    ? CMTime(value: stream.pointee.start_time, timeBase: stream.pointee.time_base) : .zero
+            )
             sampleCursors.add(cursor)
             return completionHandler(cursor, nil)
         } catch {
@@ -507,20 +416,12 @@ class AudioTrackReader: TrackReader, METrackReader {
         }
         guard let format = format else { return completionHandler(nil, MEError(.internalFailure)) }
         do {
-            let cursor =
-                dec_ctx != nil
-                ? try DecodedSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: .positiveInfinity
-                )
-                : try PassthruSampleCursor(
-                    format: format,
-                    track: self,
-                    index: index,
-                    atPresentationTimeStamp: .positiveInfinity
-                )
+            let cursor = try AudioSampleCursor(
+                format: format,
+                track: self,
+                index: index,
+                atPresentationTimeStamp: .positiveInfinity
+            )
             sampleCursors.add(cursor)
             return completionHandler(cursor, nil)
         } catch {

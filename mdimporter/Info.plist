@@ -58,7 +58,6 @@
 				<string>org.mythtv.nuppelvideo</string>
 				<string>org.xiph.ogv</string>
 				<string>public.ivf</string>
-
 				<string>com.blu-raydisc.bdav</string>
 				<string>com.divx.divx</string>
 				<string>com.google.webm</string>	<!-- we prefer org.webmproject.webm -->
@@ -67,6 +66,7 @@
 				<string>com.real.realvideo</string>
 				<string>org.smpte.mxf</string>
 				<string>org.webmproject.webm</string>
+				<string>com.wavpack.wv</string>
 
 				<!-- defined by VLC.app >= 2.2 -->
 				<string>org.videolan.flash</string>
@@ -94,6 +94,7 @@
 				<string>org.videolan.tod</string>
 				<string>org.videolan.nsv</string>
 				<string>org.videolan.nuv</string>
+				<string>org.videolan.wv</string>
 
 				<!-- defined by MPlayerX.app -->
 				<string>org.niltsh.mplayerx-divx</string>
@@ -162,6 +163,7 @@
 				<string>io.iina.3gpp2</string>
 				<string>io.iina.mkv</string>
 				<string>io.iina.webm</string>
+				<string>io.iina.wv</string>
 
 				<!-- defined by Canon RAW Development -->
 				<string>com.canon.raw.movie</string>

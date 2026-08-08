@@ -1,5 +1,5 @@
 //
-//  decodedsamplecursor.swift
+//  audiosamplecursor.swift
 //  QLVideo
 //
 //  A SampleCursor that responds to loadSampleBufferContainingSamples to provide packets of audio data converted to PCM.
@@ -8,7 +8,7 @@
 
 import MediaExtension
 
-class DecodedSampleCursor: SampleCursor {
+class AudioSampleCursor: SampleCursor {
 
     // used by stepInDecodeOrderByCount
     var lastDelivered = 0
@@ -22,14 +22,14 @@ class DecodedSampleCursor: SampleCursor {
         self.nextHandle = nil
     }
 
-    init(copying: DecodedSampleCursor) {
+    init(copying: AudioSampleCursor) {
         super.init(copying: copying)
         self.lastDelivered = copying.lastDelivered
         self.nextHandle = copying.nextHandle
     }
 
     override func copy(with zone: NSZone? = nil) -> Any {
-        return DecodedSampleCursor(copying: self)
+        return AudioSampleCursor(copying: self)
     }
 
     // https://developer.apple.com/documentation/mediaextension/mesamplecursor
@@ -91,7 +91,7 @@ class DecodedSampleCursor: SampleCursor {
             nextHandle = PacketHandle(generation: handle.generation, index: idx, isLast: false)
             guard let pkt = demuxer?.get(stream: streamIndex, handle: nextHandle!) else {
                 logger.error(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(idx) [no packet] loadSampleBufferContainingSamples"
+                    "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(idx) [no packet] loadSampleBufferContainingSamples"
                 )
                 break
             }
@@ -99,7 +99,7 @@ class DecodedSampleCursor: SampleCursor {
             if ret < 0 {
                 let error = AVERROR(errorCode: ret, context: "avcodec_send_packet")
                 logger.warning(
-                    "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
+                    "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                 )
                 if ret == AVERROR_INVALIDDATA { continue }  // Hope AVFoundation can cope with missed data
                 return completionHandler(nil, error)
@@ -112,7 +112,7 @@ class DecodedSampleCursor: SampleCursor {
                 } else if ret < 0 {
                     let error = AVERROR(errorCode: ret, context: "avcodec_receive_frame")
                     logger.error(
-                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
+                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                     )
                     return completionHandler(nil, error)
                 }
@@ -121,7 +121,7 @@ class DecodedSampleCursor: SampleCursor {
                 let reqdBytes = Int(frame.pointee.nb_samples) * sampleSize  // for this frame's data
                 if capacity < offset + reqdBytes {
                     logger.debug(
-                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
+                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
                     )
                     let newCapacity = capacity + reqdBytes
                     let newBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: newCapacity)
@@ -149,19 +149,19 @@ class DecodedSampleCursor: SampleCursor {
                     if ret < 0 {
                         let error = AVERROR(errorCode: ret, context: "swr_convert")
                         logger.error(
-                            "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
+                            "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: \(error.errorDescription, privacy: .public)"
                         )
                         return completionHandler(nil, error)
                     }
                     assert(
                         ret == frame.pointee.nb_samples,
-                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Expected \(frame.pointee.nb_samples), received \(ret) samples"
+                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Expected \(frame.pointee.nb_samples), received \(ret) samples"
                     )
                     lastDelivered += Int(ret)
                 } else {
                     assert(
                         av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes <= frame.pointee.linesize.0,
-                        "DecodedSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format or size mismatch"
+                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format or size mismatch"
                     )
                     outPtr!.update(from: frame.pointee.data.0!, count: reqdBytes)
                     lastDelivered += Int(frame.pointee.nb_samples)
