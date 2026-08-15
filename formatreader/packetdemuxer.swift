@@ -261,8 +261,7 @@ final class PacketDemuxer {
         logger.info("PacketDemuxer \(self.status(), privacy: .public)")
         logger.info("Buffer usage:")
         for i in 0..<buffers.count { logger.info("  \(i): \(self.status(stream: i), privacy: .public)") }
-        stop()
-        demuxGroup.wait()
+        stop()  // if not already stopping
         stateLock.lock()
         for i in 0..<buffers.count { buffers[i].reset() }
         for i in 0..<lastPkt.count { av_packet_free(&lastPkt[i]) }
@@ -292,6 +291,10 @@ final class PacketDemuxer {
         stateLock.unlock()
         demuxSem.signal()
         buffers.forEach { $0.packetSem.signal() }
+    }
+
+    func join() {
+        demuxGroup.wait()
     }
 
     func get(stream: Int, handle: PacketHandle, consumed: Bool = false) -> UnsafeMutablePointer<AVPacket>? {

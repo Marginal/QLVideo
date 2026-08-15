@@ -75,7 +75,10 @@ class FormatReader: NSObject, MEFormatReader {
 
     deinit {
         logger.debug("FormatReader deinit")
-        if let demuxer { demuxer.stop() }
+        if let demuxer {
+            demuxer.stop()
+            demuxer.join()  // ensure demuxer threads have exited before destroying fmt_ctx
+        }
         if fmt_ctx != nil { avformat_close_input(&fmt_ctx) }
         if let avio_ctx {
             avio_ctx.pointee.opaque = nil  // otherwise avio_close() tries to free it
