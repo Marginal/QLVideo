@@ -64,17 +64,17 @@ void setup_av_log_callback(void) { av_log_set_callback(av_log_callback); }
 //
 
 int MEByteSource_read_packet(void *opaque, uint8_t *buf, int buf_size) {
-    FormatReader *formatReader = (__bridge FormatReader *)opaque;
+    AVIOState *state = (__bridge AVIOState *)opaque;
     size_t bytesRead = 0;
     NSError *error = nil;
 
     if (!logger)
         logger = os_log_create("uk.org.marginal.qlvideo", "formatreader");
 #if TRACE_FILEIO
-    os_log_debug(logger, "MEByteSource read_packet offset %lld, %p %d bytes", formatReader.avio_filepos, buf, buf_size);
+    os_log_debug(logger, "MEByteSource read_packet offset %lld, %p %d bytes", state.filepos, buf, buf_size);
 #endif
 
-    if (formatReader.avio_filepos == formatReader.byteSource.fileLength) {
+    if (state.filepos == state.byteSource.fileLength) {
 #if TRACE_FILEIO
         os_log_debug(logger, "MEByteSource read_packet EOF");
 #endif
@@ -83,12 +83,8 @@ int MEByteSource_read_packet(void *opaque, uint8_t *buf, int buf_size) {
 
     // Read into the provided buffer. readDataOfLength is marked as NS_SWIFT_UNAVAILABLE and I can't
     // find other ways of doing this in Swift without copying the data, so we're doing it in ObjC
-    if ([formatReader.byteSource readDataOfLength:buf_size
-                                       fromOffset:formatReader.avio_filepos
-                                    toDestination:buf
-                                        bytesRead:&bytesRead
-                                            error:&error]) {
-        formatReader.avio_filepos += bytesRead;
+    if ([state.byteSource readDataOfLength:buf_size fromOffset:state.filepos toDestination:buf bytesRead:&bytesRead error:&error]) {
+        state.filepos += bytesRead;
         return (int)bytesRead;
     }
 
@@ -106,7 +102,7 @@ int MEByteSource_read_packet(void *opaque, uint8_t *buf, int buf_size) {
 
 int64_t MEByteSource_seek(void *opaque, int64_t offset, int whence) {
     // MEByteSource doesn't doesn't support seek. Implement a file position/cursor manually.
-    FormatReader *formatReader = (__bridge FormatReader *)opaque;
+    AVIOState *state = (__bridge AVIOState *)opaque;
 
     if (!logger)
         logger = os_log_create("uk.org.marginal.qlvideo", "formatreader");
@@ -114,27 +110,27 @@ int64_t MEByteSource_seek(void *opaque, int64_t offset, int whence) {
     switch (whence) {
     case AVSEEK_SIZE:
 #if TRACE_FILEIO
-        os_log_debug(logger, "MEByteSource seek AVSEEK_SIZE=%lld", formatReader.byteSource.fileLength);
+        os_log_debug(logger, "MEByteSource seek AVSEEK_SIZE=%lld", state.byteSource.fileLength);
 #endif
-        return formatReader.byteSource.fileLength;
+        return state.byteSource.fileLength;
     case SEEK_SET:
 #if TRACE_FILEIO
         os_log_debug(logger, "MMByteSource seek SEEK_SET to %lld", offset);
 #endif
-        formatReader.avio_filepos = offset;
-        return formatReader.avio_filepos;
+        state.filepos = offset;
+        return state.filepos;
     case SEEK_CUR:
 #if TRACE_FILEIO
-        os_log_debug(logger, "MEByteSource seek SEEK_CUR %+lld to %lld", offset, formatReader.avio_filepos + offset);
+        os_log_debug(logger, "MEByteSource seek SEEK_CUR %+lld to %lld", offset, state.filepos + offset);
 #endif
-        formatReader.avio_filepos += offset;
-        return formatReader.avio_filepos;
+        state.filepos += offset;
+        return state.filepos;
     case SEEK_END:
 #if TRACE_FILEIO
-        os_log_debug(logger, "MEByteSource seek SEEK_END %+lld to %lld", offset, formatReader.byteSource.fileLength + offset);
+        os_log_debug(logger, "MEByteSource seek SEEK_END %+lld to %lld", offset, state.byteSource.fileLength + offset);
 #endif
-        formatReader.avio_filepos = formatReader.byteSource.fileLength + offset;
-        return formatReader.avio_filepos;
+        state.filepos = state.byteSource.fileLength + offset;
+        return state.filepos;
     default:
         os_log_error(logger, "MEByteSource seek invalid whence=%d", whence);
         [NSException raise:NSInvalidArgumentException format:@"MEByteSource seek unsupported whence=%d", whence];

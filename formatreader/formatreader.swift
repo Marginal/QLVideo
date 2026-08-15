@@ -9,6 +9,15 @@ import MediaExtension
 let kSettingsSnapshotTime = "SnapshotPercentage"  // Seek offset for thumbnails and single Previews [s].
 let kDefaultSnapshotTime = 0.25
 
+@objc final class AVIOState: NSObject {
+    @objc let byteSource: MEByteSource
+    @objc var filepos: Int64 = 0
+
+    init(byteSource: MEByteSource) {
+        self.byteSource = byteSource
+    }
+}
+
 class FormatReader: NSObject, MEFormatReader {
 
     // From metadata tags - see avformat.h
@@ -43,14 +52,18 @@ class FormatReader: NSObject, MEFormatReader {
         "track": (.iTunes, .iTunesMetadataTrackNumber),
     ]
 
-    @objc let byteSource: MEByteSource
-    @objc var avio_filepos: Int64 = 0
+    let byteSource: MEByteSource
     var trackReaders = NSHashTable<TrackReader>.weakObjects()  // for dumpState()
-    var avio_ctx: UnsafeMutablePointer<AVIOContext>? = nil
     var defaults: UserDefaults?
-    var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil
+    var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil  // for AV
+    var fmt_avio_ctx: UnsafeMutablePointer<AVIOContext>? = nil
+    var fmt_state: AVIOState
     var fmt_ctxLock = NSLock()
     var demuxer: PacketDemuxer? = nil
+    var subs_fmt_ctx: UnsafeMutablePointer<AVFormatContext>? = nil  // for subs
+    var subs_fmt_avio_ctx: UnsafeMutablePointer<AVIOContext>? = nil
+    var subs_fmt_state: AVIOState
+    var subs_demuxer: PacketDemuxer? = nil
     var snapshotTime = kDefaultSnapshotTime
     var loadUneditedDurationCalled = false  // workaround for macOS 26.4 snaphsot time
     var metadata: [AVMetadataItem]?  // cached since AVFoundation typically requests it multiple times
@@ -70,6 +83,8 @@ class FormatReader: NSObject, MEFormatReader {
         } else {
             logger.log("Using default snapshot time ")
         }
+        fmt_state = AVIOState(byteSource: byteSource)
+        subs_fmt_state = AVIOState(byteSource: byteSource)
         super.init()
     }
 
@@ -80,9 +95,20 @@ class FormatReader: NSObject, MEFormatReader {
             demuxer.join()  // ensure demuxer threads have exited before destroying fmt_ctx
         }
         if fmt_ctx != nil { avformat_close_input(&fmt_ctx) }
-        if let avio_ctx {
-            avio_ctx.pointee.opaque = nil  // otherwise avio_close() tries to free it
-            avio_close(avio_ctx)  // also frees the underlying buffer
+        if let fmt_avio_ctx {
+            _ = Unmanaged<AVIOState>.fromOpaque(fmt_avio_ctx.pointee.opaque).takeRetainedValue()
+            fmt_avio_ctx.pointee.opaque = nil  // otherwise avio_close() tries to free it
+            avio_close(fmt_avio_ctx)  // also frees the underlying buffer
+        }
+        if let subs_demuxer {
+            subs_demuxer.stop()
+            subs_demuxer.join()  // ensure demuxer threads have exited before destroying fmt_ctx
+        }
+        if subs_fmt_ctx != nil { avformat_close_input(&subs_fmt_ctx) }
+        if let subs_fmt_avio_ctx {
+            _ = Unmanaged<AVIOState>.fromOpaque(subs_fmt_avio_ctx.pointee.opaque).takeRetainedValue()
+            subs_fmt_avio_ctx.pointee.opaque = nil  // otherwise avio_close() tries to free it
+            avio_close(subs_fmt_avio_ctx)  // also frees the underlying buffer
         }
     }
 
@@ -94,19 +120,18 @@ class FormatReader: NSObject, MEFormatReader {
     func loadFileInfo(completionHandler: @escaping @Sendable (MEFileInfo?, (any Error)?) -> Void) {
         // We can't read using MEByteSource.fileName, so set up an AVIOContext which uses MEByteSource.read
         // See "Opening a media file" https://ffmpeg.org/doxygen/8.0/group__lavf__decoding.html
-        var buf: UnsafeMutableRawPointer? = nil
-        posix_memalign(&buf, 16384, 16384)  // 1 ARM page. Will be freed by avio_close()
-        avio_ctx = avio_alloc_context(
+        var buf = aligned_alloc(16384, 16384)  // 1 ARM page. Will be freed by avio_close()
+        fmt_avio_ctx = avio_alloc_context(
             buf,
             16384,
             0,  // not writable
-            Unmanaged.passUnretained(self).toOpaque(),
+            Unmanaged.passRetained(fmt_state).toOpaque(),
             MEByteSource_read_packet,
             nil,
             MEByteSource_seek
         )
         fmt_ctx = avformat_alloc_context()
-        fmt_ctx!.pointee.pb = avio_ctx
+        fmt_ctx!.pointee.pb = fmt_avio_ctx
         fmt_ctx!.pointee.flags |= AVFMT_FLAG_GENPTS  // AVFoundation requires PTS values. Some formats e.g. AVI don't contain them
         var ret = avformat_open_input(&fmt_ctx, byteSource.fileName, nil, nil)
         guard ret == 0 else {
@@ -157,6 +182,39 @@ class FormatReader: NSObject, MEFormatReader {
                 // Packets won't be consumed from non-enabled streams so discard all packets so demux doesn't stall
                 // TODO: Revisit PacketDemuxer eviction policy if we get multiple audio tracks working
                 fmt_ctx!.pointee.streams[i]!.pointee.discard = AVDISCARD_ALL
+            }
+        }
+
+        // If we have subtitles open another AVFormatContext for them, since they have a very different consumption pattern to AV streams
+        let hasSubtitles = (0..<Int(fmt_ctx!.pointee.nb_streams)).contains {
+            fmt_ctx!.pointee.streams[$0]!.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_SUBTITLE
+        }
+        if hasSubtitles {
+            var buf = aligned_alloc(16384, 16384)  // 1 ARM page. Will be freed by avio_close()
+            subs_fmt_avio_ctx = avio_alloc_context(
+                buf,
+                16384,
+                0,  // not writable
+                Unmanaged.passRetained(subs_fmt_state).toOpaque(),
+                MEByteSource_read_packet,
+                nil,
+                MEByteSource_seek
+            )
+            subs_fmt_ctx = avformat_alloc_context()
+            subs_fmt_ctx!.pointee.pb = subs_fmt_avio_ctx
+            subs_fmt_ctx!.pointee.flags |= AVFMT_FLAG_GENPTS  // AVFoundation requires PTS values. Some formats e.g. AVI don't contain them
+            if avformat_open_input(&subs_fmt_ctx, byteSource.fileName, nil, nil) < 0
+                || avformat_find_stream_info(subs_fmt_ctx, nil) < 0
+            {
+                logger.error("FormatReader can't read subtitle stream info")
+                if subs_fmt_ctx != nil { avformat_close_input(&subs_fmt_ctx) }
+            } else {
+                let streams = subs_fmt_ctx!.pointee.streams!
+                for i in 0..<Int(subs_fmt_ctx!.pointee.nb_streams) {
+                    if streams[i]!.pointee.codecpar.pointee.codec_type != AVMEDIA_TYPE_SUBTITLE {
+                        streams[i]!.pointee.discard = AVDISCARD_ALL
+                    }
+                }
             }
         }
 
@@ -288,12 +346,14 @@ class FormatReader: NSObject, MEFormatReader {
                 }
 
             case AVMEDIA_TYPE_AUDIO:
-                if i == bestAudio {  // AVFoundation will try to seek the first audio stream, even if enabled==false and so we've discarded it
+                if i == bestAudio {  // AVFoundation will try to seek the first audio stream, even if enabled==false and so we've discarded all but one stream
                     readers.append(AudioTrackReader(format: self, stream: stream, index: i, enabled: true))
                 }
 
-            //case AVMEDIA_TYPE_SUBTITLE:
-            //    readers.append(SubtitleTrackReader(format: self, stream: stream, index: i, enabled: besties.contains(i)))
+            case AVMEDIA_TYPE_SUBTITLE:
+                if subs_fmt_ctx != nil {
+                    readers.append(SubtitleTrackReader(format: self, stream: stream, index: i, enabled: true))
+                }
 
             //case AVMEDIA_TYPE_ATTACHMENT:
             //    let codec_id = stream.pointee.codecpar.pointee.codec_id

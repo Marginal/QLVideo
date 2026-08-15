@@ -181,9 +181,12 @@ struct PacketHandle {
 final class PacketDemuxer {
     private static let videoCapacity = 8192  // normally don't need this many but VBR formats can read ahead a lot
     private static let audioCapacity = 8192
+    private static let subtitleCapacity = 16
     private static let videoReadAhead = 120  // 2 seconds of video at 60fps
     private static let audioReadAhead = 196  // should be more than enough for at least 2 seconds of audio in typical codecs
+    private static let subtitleReadAhead = 2
     private weak var format: FormatReader?
+    private var fmt_ctx: UnsafeMutablePointer<AVFormatContext>
     private var pktFixup: Int64 = 0
     private var buffers: [PacketRing]
     private var generation: Int = 0
@@ -197,11 +200,11 @@ final class PacketDemuxer {
     private let demuxQueue = DispatchQueue(label: "uk.org.marginal.qlvideo.formatreader", qos: .default)
     private let demuxSem = DispatchSemaphore(value: 0)  // wake demuxLoop when paused
 
-    init(format: FormatReader) throws {
+    init(format: FormatReader, context: UnsafeMutablePointer<AVFormatContext>) throws {
         self.format = format
-        let fmt_ctx = format.fmt_ctx!
-        buffers = (0..<Int(fmt_ctx.pointee.nb_streams)).map { idx in
-            let stream = fmt_ctx.pointee.streams[idx]!
+        self.fmt_ctx = context
+        buffers = (0..<Int(context.pointee.nb_streams)).map { idx in
+            let stream = context.pointee.streams[idx]!
             var capacity = 0
             var readAhead = 0
             var bsfCtx: UnsafeMutablePointer<AVBSFContext>? = nil
@@ -235,21 +238,24 @@ final class PacketDemuxer {
                 } else if stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_AUDIO {
                     capacity = PacketDemuxer.audioCapacity
                     readAhead = PacketDemuxer.audioReadAhead
+                } else if stream.pointee.codecpar.pointee.codec_type == AVMEDIA_TYPE_SUBTITLE {
+                    capacity = PacketDemuxer.subtitleCapacity
+                    readAhead = PacketDemuxer.subtitleReadAhead
                 }
             }
             return PacketRing(capacity: capacity, readAhead: readAhead, timeBase: stream.pointee.time_base, bsfCtx: bsfCtx)
         }
 
-        if String(cString: fmt_ctx.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
+        if String(cString: context.pointee.iformat.pointee.name).contains("matroska") { pktFixup = 4 }
         if TRACE_PACKET_DEMUXER {
-            logger.debug("PacketDemuxer init streams: \(fmt_ctx.pointee.nb_streams) pktFixup: \(self.pktFixup)")
+            logger.debug("PacketDemuxer init streams: \(context.pointee.nb_streams) pktFixup: \(self.pktFixup)")
         }
 
         lastPkt = [UnsafeMutablePointer<AVPacket>?](repeating: nil, count: Int(fmt_ctx.pointee.nb_streams))
         findLastPackets()
 
         // Reset to start
-        let ret = avformat_seek_file(format.fmt_ctx, -1, Int64.min, Int64.min, 0, 0)
+        let ret = avformat_seek_file(context, -1, Int64.min, Int64.min, 0, 0)
         guard ret >= 0 else {
             throw AVERROR(errorCode: ret, context: "avformat_seek_file(min)")  // If we can't seek to start we can't demux
         }
@@ -390,7 +396,7 @@ final class PacketDemuxer {
     }
 
     func seek(stream: Int, presentationTimeStamp: CMTime) throws -> PacketHandle {
-        guard let format = format else {
+        guard let format else {
             stop()
             throw AVERROR(errorCode: AVERROR_EOF, context: "PacketDemuxer seek")
         }
@@ -427,7 +433,7 @@ final class PacketDemuxer {
                 && format.bestAudio >= 0 && !format.loadUneditedDurationCalled)  // workaround for macOS 26.4 bug
         {
             // If seeking to exactly QuickLook's thumbnail time, seek instead to the user's choice
-            let durationPTS = lastPkt[stream]?.pointee.pts ?? format.fmt_ctx!.pointee.streams[stream]!.pointee.duration
+            let durationPTS = lastPkt[stream]?.pointee.pts ?? fmt_ctx.pointee.streams[stream]!.pointee.duration
             if durationPTS > 0 {
                 target = CMTime(value: CMTimeValue(Double(durationPTS) * format.snapshotTime), timeBase: buffers[stream].timeBase)
             }
@@ -453,20 +459,20 @@ final class PacketDemuxer {
             // Asked to seek in this stream's timebase - typical when scrubbing video stream in macOS <= 26.3, also thumbnail snapshot calculated above
             let src = AVRational(num: 1, den: Int32(target.timescale))
             let timestamp = av_rescale_q(target.value, src, buffers[stream].timeBase)
-            ret = avformat_seek_file(format.fmt_ctx, Int32(stream), timestamp / 2, timestamp, (timestamp * 3) / 2, 0)
+            ret = avformat_seek_file(fmt_ctx, Int32(stream), timestamp / 2, timestamp, (timestamp * 3) / 2, 0)
             if ret < 0 {
-                ret = avformat_seek_file(format.fmt_ctx, Int32(stream), Int64.min, timestamp, Int64.max, 0)
+                ret = avformat_seek_file(fmt_ctx, Int32(stream), Int64.min, timestamp, Int64.max, 0)
             }
         } else if target.value == 0 || target.timescale == AV_TIME_BASE {
             // Arbitrary seeks from AVFoundation
-            ret = avformat_seek_file(format.fmt_ctx, -1, Int64.min, target.value, Int64.max, 0)
+            ret = avformat_seek_file(fmt_ctx, -1, Int64.min, target.value, Int64.max, 0)
         } else {
             // Seek in arbitrary units - typical when scrubbing video stream in macOS >= 26.4
             let src = AVRational(num: 1, den: Int32(target.timescale))
             let AV_TIME_BASE_Q = AVRational(num: 1, den: Int32(AV_TIME_BASE))
             let timestamp = av_rescale_q(target.value, src, AV_TIME_BASE_Q)
             target = CMTime(value: timestamp, timescale: AV_TIME_BASE)
-            ret = avformat_seek_file(format.fmt_ctx, -1, Int64.min, timestamp, Int64.max, 0)
+            ret = avformat_seek_file(fmt_ctx, -1, Int64.min, timestamp, Int64.max, 0)
         }
         if ret < 0 {
             let error = AVERROR(errorCode: ret, context: "avformat_seek_file")
@@ -479,7 +485,7 @@ final class PacketDemuxer {
         if TRACE_PACKET_DEMUXER {
             logger.debug("PacketDemuxer stream \(stream) seek \(target, privacy: .public) -> 0 [seek_file]")
         }
-        avformat_flush(format.fmt_ctx)
+        avformat_flush(fmt_ctx)
         stateLock.unlock()
         demuxSem.signal()  // kick demux loop to start filling
         try waitForPacketZero(stream: stream)  // Wait for the first packet to arrive after seek
@@ -556,7 +562,7 @@ final class PacketDemuxer {
                 demuxSem.wait()
                 continue
             }
-            guard let format, let fmt_ctx = format.fmt_ctx else {
+            guard let format else {
                 stateLock.unlock()
                 break
             }
@@ -686,7 +692,7 @@ final class PacketDemuxer {
 
     // MediaExtension will call us for the last packet for each stream; find this now so it doesn't mess up our demuxing
     private func findLastPackets() {
-        let ret = avformat_seek_file(format!.fmt_ctx, -1, 0, Int64.max, Int64.max, 0)
+        let ret = avformat_seek_file(fmt_ctx, -1, 0, Int64.max, Int64.max, 0)
         guard ret >= 0 else {
             // Can't seek to end. Not fatal for now.
             let error = AVERROR(errorCode: ret, context: "avformat_seek_file(max)")
@@ -695,7 +701,7 @@ final class PacketDemuxer {
         }
         repeat {
             var pkt = av_packet_alloc()
-            let ret = av_read_frame(format!.fmt_ctx, pkt)
+            let ret = av_read_frame(fmt_ctx, pkt)
             if ret == AVERROR_EOF {
                 av_packet_free(&pkt)
                 break

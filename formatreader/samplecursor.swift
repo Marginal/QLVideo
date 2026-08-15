@@ -49,7 +49,11 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
     var handle = PacketHandle(generation: 0, index: -1, isLast: false)
     var discontinuity: Bool = false
     var timeBase = AVRational()
-    var demuxer: PacketDemuxer? { format?.demuxer! }
+    var fmt_ctx: UnsafeMutablePointer<AVFormatContext>? { return format?.fmt_ctx }
+    var demuxer: PacketDemuxer? {
+        get { return format?.demuxer }
+        set { format?.demuxer = newValue }
+    }
 
     nonisolated(unsafe) static var instanceCount = 0
     var instance = 0
@@ -69,9 +73,9 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
             )
         }
         // Creating a SampleCursor means that CoreMedia will want packets. So start demuxing.
-        format.fmt_ctxLock.lock() // We want exclusive use of fmt_ctx
-        if format.demuxer == nil {
-            format.demuxer = try PacketDemuxer(format: format)
+        format.fmt_ctxLock.lock()  // We want exclusive use of fmt_ctx
+        if demuxer == nil {
+            demuxer = try PacketDemuxer(format: format, context: fmt_ctx!)
         }
         format.fmt_ctxLock.unlock()
         self.handle = try demuxer!.seek(stream: streamIndex, presentationTimeStamp: presentationTimeStamp)
@@ -225,8 +229,7 @@ class SampleCursor: NSObject, MESampleCursor, NSCopying {
 
     // step by timestamp
 
-    func stepByDecodeTime(_ deltaDecodeTime: CMTime, completionHandler: @escaping @Sendable (CMTime, Bool, (any Error)?) -> Void)
-    {
+    func stepByDecodeTime(_ deltaDecodeTime: CMTime, completionHandler: @escaping @Sendable (CMTime, Bool, (any Error)?) -> Void) {
         if let pkt = demuxer?.get(stream: streamIndex, handle: handle) {
             if !deltaDecodeTime.isNumeric || deltaDecodeTime.timescale != timeBase.den {
                 logger.error(
