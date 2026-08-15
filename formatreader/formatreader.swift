@@ -31,7 +31,7 @@ class FormatReader: NSObject, MEFormatReader {
         "genre": (.quickTimeMetadata, .quickTimeMetadataGenre),
         "grouping": (.iTunes, .iTunesMetadataGrouping),
         "keywords": (.quickTimeMetadata, .quickTimeMetadataKeywords),
-        "language": (.common, .commonIdentifierLanguage),  // TODO: convert?
+        "language": (.common, .commonIdentifierLanguage),
         "location": (.common, .commonIdentifierLocation),
         "performer": (.quickTimeMetadata, .quickTimeMetadataPerformer),
         "publisher": (.common, .commonIdentifierPublisher),
@@ -180,8 +180,8 @@ class FormatReader: NSObject, MEFormatReader {
                 if identifier == .commonIdentifierLanguage { lvalue = Locale.canonicalLanguageIdentifier(from: lvalue) }
                 let item = AVMutableMetadataItem()
                 item.keySpace = keySpace
-                item.dataType = String(kCMMetadataBaseDataType_UTF8)
                 item.identifier = identifier
+                item.dataType = String(kCMMetadataBaseDataType_UTF8)
                 item.value = lvalue as NSString
                 metadata!.append(item)
             } else {
@@ -237,10 +237,10 @@ class FormatReader: NSObject, MEFormatReader {
         {
             let item = AVMutableMetadataItem()
             item.keySpace = .common
+            item.identifier = .commonIdentifierArtwork
             item.dataType =
                 (params.pointee.codec_id == AV_CODEC_ID_PNG ? kCMMetadataBaseDataType_PNG : kCMMetadataBaseDataType_JPEG)
                 as String
-            item.identifier = .commonIdentifierArtwork
             item.value = provider.data! as NSData
             metadata!.append(item)
             logger.debug(
@@ -253,8 +253,8 @@ class FormatReader: NSObject, MEFormatReader {
             if demuxer == nil, let snapshot = generateSnapshot() {
                 let item = AVMutableMetadataItem()
                 item.keySpace = .common
-                item.dataType = kCMMetadataBaseDataType_PNG as String
                 item.identifier = .commonIdentifierArtwork
+                item.dataType = kCMMetadataBaseDataType_PNG as String
                 item.value = snapshot
                 metadata!.append(item)
                 logger.debug("Added snapshot as cover art")
@@ -265,7 +265,7 @@ class FormatReader: NSObject, MEFormatReader {
         let summary = metadata!.reduce(
             "Metadata:",
             { a, b in
-                "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : b.value as! String)"
+                "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : String(describing: b.value!))"
             }
         )
         logger.info("\(summary, privacy: .public)")

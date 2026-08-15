@@ -276,6 +276,7 @@ class VideoTrackReader: TrackReader, METrackReader {
                     "VP8 decode available: \(VTIsHardwareDecodeSupported(VideoTrackReader.kVideoCodecType_VP8))"
                 )
             } else if params.pointee.codec_id == AV_CODEC_ID_VP9 {
+                // TODO: This returns false even if the playing process has called VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9) - how to detect this?
                 if VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9) { codecType = kCMVideoCodecType_VP9 }
                 logger.log("VP9 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_VP9))")
             }

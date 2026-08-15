@@ -24,6 +24,7 @@ struct SimplePlayer: App {
     init() {
         MTRegisterProfessionalVideoWorkflowFormatReaders()
         VTRegisterProfessionalVideoWorkflowVideoDecoders()
+        VTRegisterSupplementalVideoDecoderIfAvailable(kCMVideoCodecType_VP9)
         print("JPEG decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_JPEG))")
         print("JPEGXL decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_JPEG_XL))")
         print("MPEG-1 decode available: \(VTIsHardwareDecodeSupported(kCMVideoCodecType_MPEG1Video))")
@@ -229,8 +230,28 @@ func printPixFmts() {
 
 func printTrackInfo(url: URL) {
     let asset = AVURLAsset(url: url)
+
+    print("Characteristics:")
+    for characteristic in asset.availableMediaCharacteristicsWithMediaSelectionOptions {
+        print("\(characteristic)")
+        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: characteristic) {
+            for option in group.options {
+                print("  Option: \(option.displayName)")
+            }
+        }
+    }
+    if !asset.metadata.isEmpty {
+        let summary = asset.metadata.reduce(
+            "Metadata:",
+            { a, b in
+                "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : String(describing: b.value!))"
+            }
+        )
+        print(summary)
+    }
+
     for track in asset.tracks {
-        print("Language: \(track.languageCode ?? "none") \(track.extendedLanguageTag ?? "none")")
+        print("\nTrack \(track.trackID) \(track.languageCode ?? "none") \(track.extendedLanguageTag ?? "none"):")
         for format in track.formatDescriptions {
             print(format)
             let format = format as! CMFormatDescription
@@ -242,21 +263,16 @@ func printTrackInfo(url: URL) {
                 }
             }
         }
-    }
-
-    print("Characteristics:")
-    for characteristic in asset.availableMediaCharacteristicsWithMediaSelectionOptions {
-        print("\(characteristic)")
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: characteristic) {
-            for option in group.options {
-                print("  Option: \(option.displayName)")
-            }
+        if !asset.metadata.isEmpty {
+            let summary = asset.metadata.reduce(
+                "Metadata:",
+                { a, b in
+                    "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : b.value! as? String ?? String(describing: b.value!))"
+                }
+            )
+            print(summary)
         }
     }
-
-    print("Metadata:")
-    for item in asset.metadata { print(String(describing: item)) }
-    print("")
 }
 
 func printAudioInfo(url: URL) {
