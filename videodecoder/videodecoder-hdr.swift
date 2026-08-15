@@ -52,15 +52,15 @@ extension VideoDecoder {
         // Map subsampling to a 10-bit biplanar CVPixelFormat type.
         let pixelFormat: OSType
         switch (hshift, vshift) {
-        case (1, 1):  // 4:2:0
+        case (1, 1):  // 4:2:0 AV_PIX_FMT_P010 or AV_PIX_FMT_YUV420Pxx -> x420/xf20
             pixelFormat =
                 pixelBufferKey.colorRange == AVCOL_RANGE_JPEG
                 ? kCVPixelFormatType_420YpCbCr10BiPlanarFullRange : kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
-        case (1, 0):  // 4:2:2
+        case (1, 0):  // 4:2:2 AV_PIX_FMT_YUV422Pxx -> x422/xf22
             pixelFormat =
                 pixelBufferKey.colorRange == AVCOL_RANGE_JPEG
                 ? kCVPixelFormatType_422YpCbCr10BiPlanarFullRange : kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange
-        case (0, 0):  // 4:4:4
+        case (0, 0):  // 4:4:4 AV_PIX_FMT_YUV444Pxx -> x444/xf44
             pixelFormat =
                 pixelBufferKey.colorRange == AVCOL_RANGE_JPEG
                 ? kCVPixelFormatType_444YpCbCr10BiPlanarFullRange : kCVPixelFormatType_444YpCbCr10BiPlanarVideoRange

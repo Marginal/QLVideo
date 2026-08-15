@@ -71,7 +71,10 @@ class VideoDecoder: NSObject, MEVideoDecoder {
     let specifications: [String: Any]
     let manager: MEVideoDecoderPixelBufferManager
 
+    // properties
     var isReadyForMoreMediaData: Bool = true
+    var actualThreadCount: Int { return Int(dec_ctx?.pointee.thread_count ?? 0) }
+
     var params = avcodec_parameters_alloc()!
     var dec_ctx: UnsafeMutablePointer<AVCodecContext>?
 
