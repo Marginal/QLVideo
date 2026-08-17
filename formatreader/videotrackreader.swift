@@ -482,7 +482,7 @@ class VideoTrackReader: TrackReader, METrackReader {
         }
         guard let format = format else { return completionHandler(nil, MEError(.internalFailure)) }
         do {
-            let cursor = try SampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity)
+            let cursor = try VideoSampleCursor(format: format, track: self, index: index, atPresentationTimeStamp: .positiveInfinity)
             sampleCursors.add(cursor)
             return completionHandler(cursor, nil)
         } catch {
