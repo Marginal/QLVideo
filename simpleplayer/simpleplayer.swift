@@ -81,7 +81,9 @@ struct ContentView: View {
                     }
                     defer { url.stopAccessingSecurityScopedResource() }
 
-                    printTrackInfo(url: url)
+                    Task {
+                        try? await printTrackInfo(url: url)
+                    }
 
                     let item = AVPlayerItem(url: url)
 
@@ -228,33 +230,64 @@ func printPixFmts() {
     }
 }
 
-func printTrackInfo(url: URL) {
+func printTrackInfo(url: URL) async throws {
     let asset = AVURLAsset(url: url)
 
-    print("Characteristics:")
-    for characteristic in asset.availableMediaCharacteristicsWithMediaSelectionOptions {
-        print("\(characteristic)")
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: characteristic) {
-            for option in group.options {
-                print("  Option: \(option.displayName)")
+    let characteristics = try? await asset.load(.availableMediaCharacteristicsWithMediaSelectionOptions)
+    if let characteristics, !characteristics.isEmpty {
+        print("\nCharacteristics:")
+        for characteristic in characteristics {
+            print("\(characteristic.rawValue)")
+            let group = try await asset.loadMediaSelectionGroup(for: characteristic)
+            if let group {
+                for option in group.options {
+                    print("  Option: \(option.displayName)")
+                }
             }
         }
     }
-    if !asset.metadata.isEmpty {
-        let summary = asset.metadata.reduce(
-            "Metadata:",
-            { a, b in
-                "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : String(describing: b.value!))"
+
+    let metadata = try? await asset.load(.metadata)
+    if let metadata, !metadata.isEmpty {
+        var summary = "\nMetadata:"
+        for item in metadata {
+            let value = try await item.load(.value)
+            if [kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(item.dataType!) {
+                summary += "\n\(item.identifier!.rawValue): \(item.dataType!) length=\((value as! NSData).length)"
+            } else {
+                summary += "\n\(item.identifier!.rawValue): \(String(describing: value!))"
             }
-        )
+        }
         print(summary)
     }
 
-    for track in asset.tracks {
-        print("\nTrack \(track.trackID) \(track.languageCode ?? "none") \(track.extendedLanguageTag ?? "none"):")
-        for format in track.formatDescriptions {
+    if let chapterLocales = try? await asset.load(.availableChapterLocales),
+        let chapterGroups = try? await asset.loadChapterMetadataGroups(
+            bestMatchingPreferredLanguages: Locale.preferredLanguages + chapterLocales.map { $0.identifier }
+        ),
+        !chapterGroups.isEmpty
+    {
+        print(chapterLocales.reduce("\nChapters", { a, b in "\(a) \(b.identifier)" }))
+        for group in chapterGroups {
+            let s = group.timeRange.start.seconds
+            var chapter =
+                "\(String(format: "%02d:%02d:%06.3f", Int(s)/3600, (Int(s)/60)%60, s.truncatingRemainder(dividingBy: 60))) "
+            for item in group.items {
+                let value = try await item.load(.value)
+                chapter += "\(item.key!): \(value!) "
+            }
+            print(chapter)
+        }
+    }
+
+    let tracks = try await asset.load(.tracks)
+    for track in tracks {
+        let languageCode = try? await track.load(.languageCode)
+        let extendedLanguageTag = try? await track.load(.extendedLanguageTag)
+        print("\nTrack \(track.trackID) \(languageCode ?? "none") \(extendedLanguageTag ?? "none"):")
+        let formatDescriptions = try await track.load(.formatDescriptions)
+        for format in formatDescriptions {
             print(format)
-            let format = format as! CMFormatDescription
             if let atoms = format.extensions[kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms] as? [CFString: Data] {
                 for (key, value) in atoms {
                     print(
@@ -263,13 +296,17 @@ func printTrackInfo(url: URL) {
                 }
             }
         }
-        if !asset.metadata.isEmpty {
-            let summary = asset.metadata.reduce(
-                "Metadata:",
-                { a, b in
-                    "\(a)\n\(b.identifier!.rawValue): \([kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(b.dataType!) ? "\(b.dataType!) length=\((b.value as! NSData).length)" : b.value! as? String ?? String(describing: b.value!))"
+        let metadata = try? await track.load(.metadata)
+        if let metadata, !metadata.isEmpty {
+            var summary = "Metadata:"
+            for item in metadata {
+                let value = try await item.load(.value)
+                if [kCMMetadataBaseDataType_PNG as String, kCMMetadataBaseDataType_JPEG as String].contains(item.dataType!) {
+                    summary += "\n\(item.identifier!.rawValue): \(item.dataType!) length=\((value as! NSData).length)"
+                } else {
+                    summary += "\n\(item.identifier!.rawValue): \(String(describing: value!))"
                 }
-            )
+            }
             print(summary)
         }
     }
