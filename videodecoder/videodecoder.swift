@@ -311,12 +311,9 @@ class VideoDecoder: NSObject, MEVideoDecoder {
             }
         }
 
-        if params.pointee.codec_id == AV_CODEC_ID_DXV {
-            // Hack! DXV encodes width as a multiple of 16 for some reason even though the underlying data blocks are 4x4
-            dec_ctx!.pointee.coded_width = (dec_ctx!.pointee.coded_width + 15) & -16
-        } else if params.pointee.codec_id == AV_CODEC_ID_NOTCHLC {
-            // FFmpeg decoder mislabels Notch as RGB
-            dec_ctx!.pointee.colorspace = AVCOL_SPC_BT709
+        // Hacks!
+        if params.pointee.codec_id == AV_CODEC_ID_NOTCHLC {
+            dec_ctx!.pointee.colorspace = AVCOL_SPC_BT709  // FFmpeg decoder mislabels Notch as RGB
         }
 
         let pix_fmt_name = av_get_pix_fmt_name(dec_ctx!.pointee.pix_fmt)
