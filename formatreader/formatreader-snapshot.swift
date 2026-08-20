@@ -25,8 +25,12 @@ extension FormatReader {
         defer { avcodec_free_context(&dec_ctx) }
         var ret = avcodec_parameters_to_context(dec_ctx, stream.pointee.codecpar!)
         if ret < 0 { return nil }
-        dec_ctx!.pointee.thread_type = FF_THREAD_FRAME|FF_THREAD_SLICE
-        dec_ctx!.pointee.thread_count = 0  // auto
+        dec_ctx!.pointee.thread_type = FF_THREAD_FRAME | FF_THREAD_SLICE
+        var len = MemoryLayout.size(ofValue: dec_ctx!.pointee.thread_count)
+        // Get number of *performance* cores /usr/include/sys/sysctl.h
+        if sysctlbyname("hw.perflevel0.logicalcpu", &dec_ctx!.pointee.thread_count, &len, nil, 0) != 0 {
+            dec_ctx!.pointee.thread_count = 0  // auto
+        }
         ret = avcodec_open2(dec_ctx, codec, nil)
         if ret < 0 { return nil }
 
