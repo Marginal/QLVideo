@@ -43,7 +43,7 @@ class AudioSampleCursor: SampleCursor {
         guard let track = track as? AudioTrackReader,
             let endSampleCursor = endSampleCursor as? SampleCursor,
             let startPkt = demuxer?.get(stream: streamIndex, handle: handle),
-            let endPkt = demuxer?.get(stream: streamIndex, handle: endSampleCursor.handle)
+            let _ = demuxer?.get(stream: streamIndex, handle: endSampleCursor.handle)
         else {
             logger.error(
                 "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public)"
@@ -56,33 +56,32 @@ class AudioSampleCursor: SampleCursor {
             )
         }
 
-        let sampleFormat = AVSampleFormat(track.stream.pointee.codecpar.pointee.format)
-        var sampleSize =
-        Int(av_get_bytes_per_sample(sampleFormat)) * Int(track.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
-        let sampleRate = track.stream.pointee.codecpar.pointee.sample_rate
-        let duration =
-            endPkt.pointee.pts != AV_NOPTS_VALUE && startPkt.pointee.pts != AV_NOPTS_VALUE
-            ? AVRational(
-                num: Int32(endPkt.pointee.pts - startPkt.pointee.pts + endPkt.pointee.duration)
-                * track.stream.pointee.time_base.num,
-                den: track.stream.pointee.time_base.den
-            )
-            : AVRational(
-                num: Int32(endSampleCursor.handle.index - self.handle.index + 1)
-                * Int32(startPkt.pointee.duration) * track.stream.pointee.time_base.num,
-                den: track.stream.pointee.time_base.den
-            )  // Workaround for invalid PTSs after a seek - e.g. Cook in RealMedia
-        var sampleCount = Int(av_q2d(av_mul_q(duration, AVRational(num: sampleRate, den: 1))).rounded(.up))
-        var frameSize = Int(track.stream.pointee.codecpar.pointee.frame_size)
-        if frameSize == 0 { frameSize = 1024 }  // arbitrary but it's better to slightly over allocate to avoid realloc later
-        let remainder = sampleCount % frameSize
-        if remainder != 0 { sampleCount += frameSize - remainder }
-        var capacity = sampleSize * sampleCount
-        var buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: capacity)
-        let frame = av_frame_alloc()!
+        let params = track.stream.pointee.codecpar!
+        let sampleRate = params.pointee.sample_rate
+        let sampleFormat = AVSampleFormat(params.pointee.format)
+        let sampleSize = Int(av_get_bytes_per_sample(sampleFormat))
+        var frameSize = sampleSize * Int(params.pointee.ch_layout.nb_channels)
+        var frame = av_frame_alloc()
+        defer { av_frame_free(&frame) }  // safe to call if frame is NULL
+        guard let frame else { return completionHandler(nil, MEError(.allocationFailure)) }
 
         if discontinuity { avcodec_flush_buffers(track.dec_ctx) }
         lastDelivered = 0
+
+        var blockBuffer: CMBlockBuffer? = nil
+        var status = CMBlockBufferCreateEmpty(
+            allocator: kCFAllocatorDefault,
+            capacity: UInt32(endSampleCursor.handle.index - self.handle.index + 1),
+            flags: 0,
+            blockBufferOut: &blockBuffer
+        )
+        guard status == noErr else {
+            let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+            logger.error(
+                "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): CMBlockBufferCreateEmpty returned \(error, privacy:.public)"
+            )
+            return completionHandler(nil, error)
+        }
 
         // decode packets and add the decoded data to the blockBuffer
         for idx in handle.index...endSampleCursor.handle.index {
@@ -116,35 +115,52 @@ class AudioSampleCursor: SampleCursor {
                     )
                     return completionHandler(nil, error)
                 }
+                let frameCount = Int(frame.pointee.nb_samples)
+                let capacity = frameCount * frameSize
+                var childBuffer: CMBlockBuffer?
 
-                let offset = lastDelivered * sampleSize
-                let reqdBytes = Int(frame.pointee.nb_samples) * sampleSize  // for this frame's data
-                if capacity < offset + reqdBytes {
-                    logger.debug(
-                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase), privacy: .public) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase), privacy: .public) loadSampleBufferContainingSamples: Resizing output buffer from \(capacity) to \(capacity + sampleSize * Int(frame.pointee.nb_samples))"
-                    )
-                    let newCapacity = capacity + reqdBytes
-                    let newBuffer = UnsafeMutablePointer<UInt8>.allocate(capacity: newCapacity)
-                    newBuffer.update(from: buffer, count: capacity)
-                    buffer.deallocate()
-                    buffer = newBuffer
-                    capacity = newCapacity
-                }
-
-                var outPtr: UnsafeMutablePointer<UInt8>? = buffer.advanced(by: offset)
                 if track.swr_ctx != nil {
+                    // planar / non-interleaved - convert to packed
                     // CoreMedia doesn't like planar PCM (error "SSP::Render: CopySlice returned 1") so convert to packed/interleaved
                     // http://www.openradar.me/45068930
+                    status = CMBlockBufferCreateWithMemoryBlock(
+                        allocator: kCFAllocatorDefault,
+                        memoryBlock: nil,  // let CoreMedia allocate
+                        blockLength: capacity,
+                        blockAllocator: kCFAllocatorDefault,
+                        customBlockSource: nil,
+                        offsetToData: 0,
+                        dataLength: capacity,  // we intend to fill the whole block
+                        flags: kCMBlockBufferAssureMemoryNowFlag,
+                        blockBufferOut: &childBuffer
+                    )
+                    guard status == noErr else {
+                        let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+                        logger.error(
+                            "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)"
+                        )
+                        return completionHandler(nil, error)
+                    }
+
+                    var dataPtr: UnsafeMutablePointer<Int8>?
+                    status = CMBlockBufferGetDataPointer(
+                        childBuffer!,
+                        atOffset: 0,
+                        lengthAtOffsetOut: nil,
+                        totalLengthOut: nil,
+                        dataPointerOut: &dataPtr
+                    )
+                    var outPtr = UnsafeMutablePointer<UInt8>(OpaquePointer(dataPtr))
                     let inPtrs: UnsafePointer<UnsafePointer<UInt8>?>? = frame.pointee.extended_data?.withMemoryRebound(
                         to: UnsafePointer<UInt8>?.self,
-                        capacity: Int(track.stream.pointee.codecpar.pointee.ch_layout.nb_channels)
+                        capacity: Int(params.pointee.ch_layout.nb_channels)
                     ) { return UnsafePointer($0) }
                     ret = swr_convert(
                         track.swr_ctx,
                         &outPtr,
-                        Int32((capacity - offset) / sampleSize),
+                        frame.pointee.nb_samples,
                         inPtrs,
-                        Int32(frame.pointee.nb_samples)
+                        frame.pointee.nb_samples
                     )
                     if ret < 0 {
                         let error = AVERROR(errorCode: ret, context: "swr_convert")
@@ -157,16 +173,63 @@ class AudioSampleCursor: SampleCursor {
                         ret == frame.pointee.nb_samples,
                         "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Expected \(frame.pointee.nb_samples), received \(ret) samples"
                     )
-                    lastDelivered += Int(ret)
                 } else {
+                    // packed / interleaved - pass the AVFrame data through
                     assert(
-                        av_sample_fmt_is_planar(sampleFormat) == 0 && reqdBytes <= frame.pointee.linesize.0,
-                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format or size mismatch"
+                        av_sample_fmt_is_planar(sampleFormat) == 0,
+                        "AudioSampleCursor \(self.instance) stream \(self.streamIndex) at idx:\(self.nextHandle!.index) dts:\(CMTime(value: pkt.pointee.dts, timeBase: self.timeBase)) pts:\(CMTime(value: pkt.pointee.pts, timeBase: self.timeBase)) loadSampleBufferContainingSamples: Sample format mismatch"
                     )
-                    outPtr!.update(from: frame.pointee.data.0!, count: reqdBytes)
-                    lastDelivered += Int(frame.pointee.nb_samples)
+
+                    // Arrange for CoreMedia to free the frame data when no longer needed.
+                    // See CMBlockBufferCustomBlockSource in CMBlockBuffer.h for why we're constructing this on the fly
+                    let dataFrame = av_frame_clone(frame)
+                    var blockSource = CMBlockBufferCustomBlockSource(
+                        version: 0,
+                        AllocateBlock: nil,
+                        FreeBlock: {
+                            var frame: UnsafeMutablePointer<AVFrame>? = $0!.assumingMemoryBound(to: AVFrame.self)
+                            let _ = $1  // doomedMemoryBlock unused - av_frame_free() will free it
+                            let _ = $2  // sizeInBytes unused
+                            av_frame_free(&frame)
+                        },
+                        refCon: dataFrame,
+                    )
+                    let status = CMBlockBufferCreateWithMemoryBlock(
+                        allocator: kCFAllocatorDefault,
+                        memoryBlock: dataFrame!.pointee.data.0,
+                        blockLength: Int(dataFrame!.pointee.linesize.0),
+                        blockAllocator: kCFAllocatorNull,
+                        customBlockSource: &blockSource,
+                        offsetToData: 0,
+                        dataLength: capacity,
+                        flags: kCMBlockBufferAssureMemoryNowFlag,  // not sure if this does anything useful
+                        blockBufferOut: &childBuffer
+                    )
+                    guard status == noErr else {
+                        let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+                        logger.error(
+                            "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)"
+                        )
+                        return completionHandler(nil, error)
+                    }
+                }
+
+                let status = CMBlockBufferAppendBufferReference(
+                    blockBuffer!,
+                    targetBBuf: childBuffer!,
+                    offsetToData: 0,
+                    dataLength: 0,
+                    flags: kCMBlockBufferAssureMemoryNowFlag
+                )
+                guard status == noErr else {
+                    let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+                    logger.error(
+                        "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): CMBlockBufferAppendBufferReference returned \(error, privacy:.public)"
+                    )
+                    return completionHandler(nil, error)
                 }
                 av_frame_unref(frame)
+                lastDelivered += frameCount
             }
         }
         nextHandle =
@@ -174,26 +237,7 @@ class AudioSampleCursor: SampleCursor {
             ? nil
             : demuxer?.step(stream: streamIndex, from: endSampleCursor.handle, by: 1)
 
-        var blockBuffer: CMBlockBuffer? = nil
-        var status = CMBlockBufferCreateWithMemoryBlock(
-            allocator: kCFAllocatorDefault,
-            memoryBlock: buffer,
-            blockLength: capacity,
-            blockAllocator: kCFAllocatorDefault,
-            customBlockSource: nil,
-            offsetToData: 0,
-            dataLength: lastDelivered * sampleSize,
-            flags: kCMBlockBufferAssureMemoryNowFlag,  // not sure if this does anything useful
-            blockBufferOut: &blockBuffer
-        )
-        guard status == noErr else {
-            let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status))
-            logger.error(
-                "\(self.debugDescription, privacy: .public) loadSampleBufferContainingSamples to \(endSampleCursor.debugDescription, privacy: .public): CMBlockBufferCreateWithMemoryBlock returned \(error, privacy:.public)"
-            )
-            return completionHandler(nil, error)
-        }
-
+        // At this point the data is packed / interleaved residing in multiple children of blockBuffer
         var sampleBuffer: CMSampleBuffer? = nil
         var timingInfo = CMSampleTimingInfo(
             duration: CMTime(value: 1, timescale: sampleRate),  // duration of one sample
@@ -208,7 +252,7 @@ class AudioSampleCursor: SampleCursor {
             sampleTimingEntryCount: 1,
             sampleTimingArray: &timingInfo,
             sampleSizeEntryCount: 1,
-            sampleSizeArray: &sampleSize,
+            sampleSizeArray: &frameSize,  // size in bytes of the frame not of a sample
             sampleBufferOut: &sampleBuffer
         )
         guard status == noErr else {
