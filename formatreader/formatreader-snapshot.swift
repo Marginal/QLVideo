@@ -70,9 +70,9 @@ extension FormatReader {
 
         // Decoded image
         var dstStride = (4 * dstWidth + 63) & ~63
-        guard let dstData = malloc(Int(dstStride * dstHeight)) else { return nil }
-        defer { free(dstData) }
-        var dstPlane0: UnsafeMutablePointer<UInt8>? = dstData.assumingMemoryBound(to: UInt8.self)
+        guard let dstData = CFDataCreateMutable(kCFAllocatorDefault, Int(dstStride * dstHeight)) else { return nil }
+        CFDataSetLength(dstData, Int(dstStride * dstHeight))  // ensure its allocated
+        var dstPlane0: UnsafeMutablePointer<UInt8>? = CFDataGetMutableBytePtr(dstData)
 
         var pkt = av_packet_alloc()
         guard pkt != nil else { return nil }
@@ -169,13 +169,7 @@ extension FormatReader {
 
                     // wangle into a CGImage
                     guard
-                        let data = CFDataCreateWithBytesNoCopy(
-                            kCFAllocatorDefault,
-                            dstData,
-                            CFIndex(dstStride * dstHeight),
-                            kCFAllocatorNull
-                        ),
-                        let provider = CGDataProvider(data: data),
+                        let provider = CGDataProvider(data: dstData),
                         let image = CGImage(
                             width: Int(dstWidth),
                             height: Int(dstHeight),
