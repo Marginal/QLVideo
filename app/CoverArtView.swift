@@ -340,7 +340,7 @@ class VideoDropTarget: NSImageView {
                     parent.videoDropTarget.image = NSImage(data: Data(bytes: params.extradata, count: Int(params.extradata_size)))
                 }
             } else {
-                parent.videoDropTarget.image = NSImage(named: "Document")
+                parent.videoDropTarget.image = NSWorkspace.shared.icon(forFile: parent.videoFile!.path)
             }
         }
 
