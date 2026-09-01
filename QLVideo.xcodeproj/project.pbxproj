@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,37 @@
 		AB3AD4E22FEEBF380016453D /* MediaExtensionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3AD4E12FEEBF2B0016453D /* MediaExtensionsView.swift */; };
 		AB49FBA22923B5DD00B126C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB49FB952923B5BB00B126C0 /* AppDelegate.swift */; };
 		AB49FBB92923CF1C00B126C0 /* QLVideo Metadata.mdimporter in Embed mdimporter */ = {isa = PBXBuildFile; fileRef = AB9FB56D1965DD7200D39647 /* QLVideo Metadata.mdimporter */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB5CF124304723C900DA6A16 /* averror.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF110304723C900DA6A16 /* averror.swift */; };
+		AB5CF125304723C900DA6A16 /* cmtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF114304723C900DA6A16 /* cmtime.swift */; };
+		AB5CF126304723C900DA6A16 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = AB5CF10C304723C900DA6A16 /* AppIcon.icon */; };
+		AB5CF127304723C900DA6A16 /* audiopassthrusamplecursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF10D304723C900DA6A16 /* audiopassthrusamplecursor.swift */; };
+		AB5CF128304723C900DA6A16 /* audiosamplecursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF10E304723C900DA6A16 /* audiosamplecursor.swift */; };
+		AB5CF129304723C900DA6A16 /* audiotrackreader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF10F304723C900DA6A16 /* audiotrackreader.swift */; };
+		AB5CF12A304723C900DA6A16 /* averror.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF110304723C900DA6A16 /* averror.swift */; };
+		AB5CF12B304723C900DA6A16 /* callbacks.m in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF113304723C900DA6A16 /* callbacks.m */; };
+		AB5CF12C304723C900DA6A16 /* cmtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF114304723C900DA6A16 /* cmtime.swift */; };
+		AB5CF12D304723C900DA6A16 /* formatreader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF117304723C900DA6A16 /* formatreader.swift */; };
+		AB5CF12E304723C900DA6A16 /* formatreader-snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF11A304723C900DA6A16 /* formatreader-snapshot.swift */; };
+		AB5CF12F304723C900DA6A16 /* formatreaderfactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF11B304723C900DA6A16 /* formatreaderfactory.swift */; };
+		AB5CF130304723C900DA6A16 /* packetdemuxer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF11D304723C900DA6A16 /* packetdemuxer.swift */; };
+		AB5CF131304723C900DA6A16 /* samplecursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF11E304723C900DA6A16 /* samplecursor.swift */; };
+		AB5CF132304723C900DA6A16 /* trackreader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF11F304723C900DA6A16 /* trackreader.swift */; };
+		AB5CF133304723C900DA6A16 /* videosamplecursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF120304723C900DA6A16 /* videosamplecursor.swift */; };
+		AB5CF134304723C900DA6A16 /* videotrackreader.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF121304723C900DA6A16 /* videotrackreader.swift */; };
+		AB5CF135304723C900DA6A16 /* videotrackreaderdv.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF122304723C900DA6A16 /* videotrackreaderdv.swift */; };
+		AB5CF136304723C900DA6A16 /* averror.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF110304723C900DA6A16 /* averror.swift */; };
+		AB5CF137304723C900DA6A16 /* cmtime.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF114304723C900DA6A16 /* cmtime.swift */; };
+		AB5CF14A304723D000DA6A16 /* callbacks.m in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF13B304723D000DA6A16 /* callbacks.m */; };
+		AB5CF14B304723D000DA6A16 /* hdr_interleave.c in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF13D304723D000DA6A16 /* hdr_interleave.c */; };
+		AB5CF14C304723D000DA6A16 /* videodecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF141304723D000DA6A16 /* videodecoder.swift */; };
+		AB5CF14D304723D000DA6A16 /* videodecoder-hdr.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF144304723D000DA6A16 /* videodecoder-hdr.swift */; };
+		AB5CF14E304723D000DA6A16 /* videodecoder-rgb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF145304723D000DA6A16 /* videodecoder-rgb.swift */; };
+		AB5CF14F304723D000DA6A16 /* videodecoder-vImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF146304723D000DA6A16 /* videodecoder-vImage.swift */; };
+		AB5CF150304723D000DA6A16 /* videodecoder-zscale.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF147304723D000DA6A16 /* videodecoder-zscale.swift */; };
+		AB5CF151304723D000DA6A16 /* videodecoderfactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF148304723D000DA6A16 /* videodecoderfactory.swift */; };
+		AB5CF152304723D000DA6A16 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = AB5CF138304723D000DA6A16 /* AppIcon.icon */; };
+		AB5CF165304723DD00DA6A16 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = AB5CF161304723DD00DA6A16 /* AppIcon.icon */; };
+		AB5CF166304723DD00DA6A16 /* simpleplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5CF163304723DD00DA6A16 /* simpleplayer.swift */; };
 		AB70C90D2EF1C10500E30DCE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2ACD9D1A696F72002411DF /* AVFoundation.framework */; };
 		AB70C90F2EF1C14D00E30DCE /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB70C90E2EF1C14D00E30DCE /* AVKit.framework */; };
 		AB7C714119F8A5C50006104E /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB7C714019F8A5C50006104E /* libbz2.dylib */; };
@@ -105,6 +136,13 @@
 			remoteInfo = mdimporter;
 		};
 		AB535D571EDCD0BD00ECB0CE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB535D4D1EDC390C00ECB0CE;
+			remoteInfo = ffmpeg;
+		};
+		AB5CF10A3047216A00DA6A16 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AB9FB5651965DD7200D39647 /* Project object */;
 			proxyType = 1;
@@ -214,6 +252,50 @@
 		AB49FB952923B5BB00B126C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB54B962217F425D00558403 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/schema.strings"; sourceTree = "<group>"; };
 		AB5C5AAB2EDE0E0B00AD8A97 /* simpleplayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = simpleplayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB5CF10C304723C900DA6A16 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		AB5CF10D304723C900DA6A16 /* audiopassthrusamplecursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = audiopassthrusamplecursor.swift; sourceTree = "<group>"; };
+		AB5CF10E304723C900DA6A16 /* audiosamplecursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = audiosamplecursor.swift; sourceTree = "<group>"; };
+		AB5CF10F304723C900DA6A16 /* audiotrackreader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = audiotrackreader.swift; sourceTree = "<group>"; };
+		AB5CF110304723C900DA6A16 /* averror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = averror.swift; sourceTree = "<group>"; };
+		AB5CF112304723C900DA6A16 /* callbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = callbacks.h; sourceTree = "<group>"; };
+		AB5CF113304723C900DA6A16 /* callbacks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = callbacks.m; sourceTree = "<group>"; };
+		AB5CF114304723C900DA6A16 /* cmtime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cmtime.swift; sourceTree = "<group>"; };
+		AB5CF116304723C900DA6A16 /* formatreader.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = formatreader.entitlements; sourceTree = "<group>"; };
+		AB5CF117304723C900DA6A16 /* formatreader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = formatreader.swift; sourceTree = "<group>"; };
+		AB5CF119304723C900DA6A16 /* formatreader-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "formatreader-bridge.h"; sourceTree = "<group>"; };
+		AB5CF11A304723C900DA6A16 /* formatreader-snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "formatreader-snapshot.swift"; sourceTree = "<group>"; };
+		AB5CF11B304723C900DA6A16 /* formatreaderfactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = formatreaderfactory.swift; sourceTree = "<group>"; };
+		AB5CF11C304723C900DA6A16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AB5CF11D304723C900DA6A16 /* packetdemuxer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = packetdemuxer.swift; sourceTree = "<group>"; };
+		AB5CF11E304723C900DA6A16 /* samplecursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = samplecursor.swift; sourceTree = "<group>"; };
+		AB5CF11F304723C900DA6A16 /* trackreader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = trackreader.swift; sourceTree = "<group>"; };
+		AB5CF120304723C900DA6A16 /* videosamplecursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = videosamplecursor.swift; sourceTree = "<group>"; };
+		AB5CF121304723C900DA6A16 /* videotrackreader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = videotrackreader.swift; sourceTree = "<group>"; };
+		AB5CF122304723C900DA6A16 /* videotrackreaderdv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = videotrackreaderdv.swift; sourceTree = "<group>"; };
+		AB5CF138304723D000DA6A16 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		AB5CF13A304723D000DA6A16 /* callbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = callbacks.h; sourceTree = "<group>"; };
+		AB5CF13B304723D000DA6A16 /* callbacks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = callbacks.m; sourceTree = "<group>"; };
+		AB5CF13C304723D000DA6A16 /* hdr_interleave.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hdr_interleave.h; sourceTree = "<group>"; };
+		AB5CF13D304723D000DA6A16 /* hdr_interleave.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hdr_interleave.c; sourceTree = "<group>"; };
+		AB5CF13E304723D000DA6A16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AB5CF140304723D000DA6A16 /* videodecoder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = videodecoder.entitlements; sourceTree = "<group>"; };
+		AB5CF141304723D000DA6A16 /* videodecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = videodecoder.swift; sourceTree = "<group>"; };
+		AB5CF143304723D000DA6A16 /* videodecoder-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "videodecoder-bridge.h"; sourceTree = "<group>"; };
+		AB5CF144304723D000DA6A16 /* videodecoder-hdr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "videodecoder-hdr.swift"; sourceTree = "<group>"; };
+		AB5CF145304723D000DA6A16 /* videodecoder-rgb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "videodecoder-rgb.swift"; sourceTree = "<group>"; };
+		AB5CF146304723D000DA6A16 /* videodecoder-vImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "videodecoder-vImage.swift"; sourceTree = "<group>"; };
+		AB5CF147304723D000DA6A16 /* videodecoder-zscale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "videodecoder-zscale.swift"; sourceTree = "<group>"; };
+		AB5CF148304723D000DA6A16 /* videodecoderfactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = videodecoderfactory.swift; sourceTree = "<group>"; };
+		AB5CF153304723D500DA6A16 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
+		AB5CF154304723D500DA6A16 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/ActionViewController.xib; sourceTree = "<group>"; };
+		AB5CF156304723D500DA6A16 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		AB5CF158304723D500DA6A16 /* contactsheet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = contactsheet.entitlements; sourceTree = "<group>"; };
+		AB5CF159304723D500DA6A16 /* contactsheet-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "contactsheet-bridge.h"; sourceTree = "<group>"; };
+		AB5CF15A304723D500DA6A16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AB5CF15B304723D500DA6A16 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
+		AB5CF161304723DD00DA6A16 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		AB5CF162304723DD00DA6A16 /* simpleplayer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = simpleplayer.entitlements; sourceTree = "<group>"; };
+		AB5CF163304723DD00DA6A16 /* simpleplayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = simpleplayer.swift; sourceTree = "<group>"; };
 		AB70C90E2EF1C14D00E30DCE /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		AB75CB1D261D19F2009BE894 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
 		AB75CB1F261D19F2009BE894 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
@@ -276,49 +358,6 @@
 		ABE72EBC29392EEB005433DF /* ffprobe */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ffprobe; path = universal/bin/ffprobe; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABE72EC0293A32B5005433DF /* ffmpeg */ = {isa = PBXFileReference; lastKnownFileType = text; name = ffmpeg; path = universal/bin/ffmpeg; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		AB0049912F2143CE0054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				badge.xcf,
-				Info.plist,
-				Video_Decoder.provisionprofile,
-			);
-			target = AB0049852F2143CE0054D7B0 /* videodecoder */;
-		};
-		AB004A162F22B1B80054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				averror.swift,
-				cmtime.swift,
-			);
-			target = AB0049852F2143CE0054D7B0 /* videodecoder */;
-		};
-		AB1DACD32F4D251B006BB899 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				averror.swift,
-				cmtime.swift,
-			);
-			target = AB9FB56C1965DD7200D39647 /* mdimporter */;
-		};
-		AB823D3B2ECB991F00F0E1D3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				badge.xcf,
-				Format_Reader.provisionprofile,
-				Info.plist,
-			);
-			target = AB823D2E2ECB991F00F0E1D3 /* formatreader */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		AB0049872F2143CE0054D7B0 /* videodecoder */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB0049912F2143CE0054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = videodecoder; sourceTree = "<group>"; };
-		AB5C5AAC2EDE0E0B00AD8A97 /* simpleplayer */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = simpleplayer; sourceTree = "<group>"; };
-		AB823D302ECB991F00F0E1D3 /* formatreader */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AB1DACD32F4D251B006BB899 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB823D3B2ECB991F00F0E1D3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, AB004A162F22B1B80054D7B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = formatreader; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AB0049832F2143CE0054D7B0 /* Frameworks */ = {
@@ -409,6 +448,64 @@
 			path = app;
 			sourceTree = "<group>";
 		};
+		AB5CF123304723C900DA6A16 /* formatreader */ = {
+			isa = PBXGroup;
+			children = (
+				AB5CF10C304723C900DA6A16 /* AppIcon.icon */,
+				AB5CF10D304723C900DA6A16 /* audiopassthrusamplecursor.swift */,
+				AB5CF10E304723C900DA6A16 /* audiosamplecursor.swift */,
+				AB5CF10F304723C900DA6A16 /* audiotrackreader.swift */,
+				AB5CF110304723C900DA6A16 /* averror.swift */,
+				AB5CF112304723C900DA6A16 /* callbacks.h */,
+				AB5CF113304723C900DA6A16 /* callbacks.m */,
+				AB5CF114304723C900DA6A16 /* cmtime.swift */,
+				AB5CF116304723C900DA6A16 /* formatreader.entitlements */,
+				AB5CF117304723C900DA6A16 /* formatreader.swift */,
+				AB5CF119304723C900DA6A16 /* formatreader-bridge.h */,
+				AB5CF11A304723C900DA6A16 /* formatreader-snapshot.swift */,
+				AB5CF11B304723C900DA6A16 /* formatreaderfactory.swift */,
+				AB5CF11C304723C900DA6A16 /* Info.plist */,
+				AB5CF11D304723C900DA6A16 /* packetdemuxer.swift */,
+				AB5CF11E304723C900DA6A16 /* samplecursor.swift */,
+				AB5CF11F304723C900DA6A16 /* trackreader.swift */,
+				AB5CF120304723C900DA6A16 /* videosamplecursor.swift */,
+				AB5CF121304723C900DA6A16 /* videotrackreader.swift */,
+				AB5CF122304723C900DA6A16 /* videotrackreaderdv.swift */,
+			);
+			path = formatreader;
+			sourceTree = "<group>";
+		};
+		AB5CF149304723D000DA6A16 /* videodecoder */ = {
+			isa = PBXGroup;
+			children = (
+				AB5CF138304723D000DA6A16 /* AppIcon.icon */,
+				AB5CF13A304723D000DA6A16 /* callbacks.h */,
+				AB5CF13B304723D000DA6A16 /* callbacks.m */,
+				AB5CF13C304723D000DA6A16 /* hdr_interleave.h */,
+				AB5CF13D304723D000DA6A16 /* hdr_interleave.c */,
+				AB5CF13E304723D000DA6A16 /* Info.plist */,
+				AB5CF140304723D000DA6A16 /* videodecoder.entitlements */,
+				AB5CF141304723D000DA6A16 /* videodecoder.swift */,
+				AB5CF143304723D000DA6A16 /* videodecoder-bridge.h */,
+				AB5CF144304723D000DA6A16 /* videodecoder-hdr.swift */,
+				AB5CF145304723D000DA6A16 /* videodecoder-rgb.swift */,
+				AB5CF146304723D000DA6A16 /* videodecoder-vImage.swift */,
+				AB5CF147304723D000DA6A16 /* videodecoder-zscale.swift */,
+				AB5CF148304723D000DA6A16 /* videodecoderfactory.swift */,
+			);
+			path = videodecoder;
+			sourceTree = "<group>";
+		};
+		AB5CF164304723DD00DA6A16 /* simpleplayer */ = {
+			isa = PBXGroup;
+			children = (
+				AB5CF161304723DD00DA6A16 /* AppIcon.icon */,
+				AB5CF162304723DD00DA6A16 /* simpleplayer.entitlements */,
+				AB5CF163304723DD00DA6A16 /* simpleplayer.swift */,
+			);
+			path = simpleplayer;
+			sourceTree = "<group>";
+		};
 		AB664719261A900600D23514 /* dav1d */ = {
 			isa = PBXGroup;
 			children = (
@@ -426,9 +523,9 @@
 				AB17AF8F3003AB31003767DB /* BUILDING.md */,
 				AB49FB70292276A000B126C0 /* app */,
 				AB9FB5781965DD7200D39647 /* mdimporter */,
-				AB823D302ECB991F00F0E1D3 /* formatreader */,
-				AB0049872F2143CE0054D7B0 /* videodecoder */,
-				AB5C5AAC2EDE0E0B00AD8A97 /* simpleplayer */,
+				AB5CF123304723C900DA6A16 /* formatreader */,
+				AB5CF149304723D000DA6A16 /* videodecoder */,
+				AB5CF164304723DD00DA6A16 /* simpleplayer */,
 				ABCDC9062F6372DE001DE092 /* scripts */,
 				AB9FB56F1965DD7200D39647 /* Frameworks */,
 				AB9FB56E1965DD7200D39647 /* Products */,
@@ -596,9 +693,6 @@
 			dependencies = (
 				AB0049932F21441D0054D7B0 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				AB0049872F2143CE0054D7B0 /* videodecoder */,
-			);
 			name = videodecoder;
 			packageProductDependencies = (
 			);
@@ -645,9 +739,6 @@
 			dependencies = (
 				AB70C90C2EF1A35000E30DCE /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				AB5C5AAC2EDE0E0B00AD8A97 /* simpleplayer */,
-			);
 			name = simpleplayer;
 			packageProductDependencies = (
 			);
@@ -667,9 +758,6 @@
 			);
 			dependencies = (
 				AB01AAF72ECC048C00A5CB77 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				AB823D302ECB991F00F0E1D3 /* formatreader */,
 			);
 			name = formatreader;
 			packageProductDependencies = (
@@ -704,7 +792,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					AB0049852F2143CE0054D7B0 = {
@@ -715,6 +803,9 @@
 					};
 					AB823D2E2ECB991F00F0E1D3 = {
 						CreatedOnToolsVersion = 26.1.1;
+					};
+					ABBA17CA3046028A00967EFC = {
+						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
@@ -765,6 +856,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB5CF152304723D000DA6A16 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -783,6 +875,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB5CF165304723DD00DA6A16 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -790,6 +883,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB5CF126304723C900DA6A16 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -870,6 +964,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB5CF136304723C900DA6A16 /* averror.swift in Sources */,
+				AB5CF14A304723D000DA6A16 /* callbacks.m in Sources */,
+				AB5CF14B304723D000DA6A16 /* hdr_interleave.c in Sources */,
+				AB5CF14C304723D000DA6A16 /* videodecoder.swift in Sources */,
+				AB5CF14D304723D000DA6A16 /* videodecoder-hdr.swift in Sources */,
+				AB5CF14E304723D000DA6A16 /* videodecoder-rgb.swift in Sources */,
+				AB5CF14F304723D000DA6A16 /* videodecoder-vImage.swift in Sources */,
+				AB5CF150304723D000DA6A16 /* videodecoder-zscale.swift in Sources */,
+				AB5CF151304723D000DA6A16 /* videodecoderfactory.swift in Sources */,
+				AB5CF137304723C900DA6A16 /* cmtime.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -889,6 +993,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB5CF166304723DD00DA6A16 /* simpleplayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -896,6 +1001,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB5CF127304723C900DA6A16 /* audiopassthrusamplecursor.swift in Sources */,
+				AB5CF128304723C900DA6A16 /* audiosamplecursor.swift in Sources */,
+				AB5CF129304723C900DA6A16 /* audiotrackreader.swift in Sources */,
+				AB5CF12A304723C900DA6A16 /* averror.swift in Sources */,
+				AB5CF12B304723C900DA6A16 /* callbacks.m in Sources */,
+				AB5CF12C304723C900DA6A16 /* cmtime.swift in Sources */,
+				AB5CF12D304723C900DA6A16 /* formatreader.swift in Sources */,
+				AB5CF12E304723C900DA6A16 /* formatreader-snapshot.swift in Sources */,
+				AB5CF12F304723C900DA6A16 /* formatreaderfactory.swift in Sources */,
+				AB5CF130304723C900DA6A16 /* packetdemuxer.swift in Sources */,
+				AB5CF131304723C900DA6A16 /* samplecursor.swift in Sources */,
+				AB5CF132304723C900DA6A16 /* trackreader.swift in Sources */,
+				AB5CF133304723C900DA6A16 /* videosamplecursor.swift in Sources */,
+				AB5CF134304723C900DA6A16 /* videotrackreader.swift in Sources */,
+				AB5CF135304723C900DA6A16 /* videotrackreaderdv.swift in Sources */,
 				ABA7F721301A63C2008AAAFE /* CodecName.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -907,6 +1027,8 @@
 				ABA7F720301A612D008AAAFE /* CodecName.swift in Sources */,
 				AB9FB57F1965DD7200D39647 /* main.c in Sources */,
 				AB9FB5811965DD7200D39647 /* GetMetadataForFile.swift in Sources */,
+				AB5CF124304723C900DA6A16 /* averror.swift in Sources */,
+				AB5CF125304723C900DA6A16 /* cmtime.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -942,6 +1064,11 @@
 			isa = PBXTargetDependency;
 			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
 			targetProxy = AB535D571EDCD0BD00ECB0CE /* PBXContainerItemProxy */;
+		};
+		AB5CF10B3047216A00DA6A16 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB535D4D1EDC390C00ECB0CE /* ffmpeg */;
+			targetProxy = AB5CF10A3047216A00DA6A16 /* PBXContainerItemProxy */;
 		};
 		AB66472B261AA04400D23514 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1002,11 +1129,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = videodecoder/videodecoder.entitlements;
 				ENABLE_APP_SANDBOX = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				INFOPLIST_FILE = videodecoder/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QLVideo video codecs";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1015,9 +1140,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.videodecoder;
 				PRODUCT_NAME = "QLVideo Codecs";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "videodecoder/videodecoder-bridge.h";
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 			};
 			name = Debug;
 		};
@@ -1025,11 +1148,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = videodecoder/videodecoder.entitlements;
 				ENABLE_APP_SANDBOX = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				INFOPLIST_FILE = videodecoder/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QLVideo video codecs";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1038,9 +1159,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.videodecoder;
 				PRODUCT_NAME = "QLVideo Codecs";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "videodecoder/videodecoder-bridge.h";
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 			};
 			name = Release;
 		};
@@ -1120,13 +1239,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = simpleplayer/simpleplayer.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1135,9 +1250,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.simpleplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1146,21 +1259,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = simpleplayer/simpleplayer.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.simpleplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -1181,11 +1288,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = formatreader/formatreader.entitlements;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ffmpeg",
@@ -1198,9 +1304,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.formatreader;
 				PRODUCT_NAME = "QLVideo Formats";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "formatreader/formatreader-bridge.h";
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 			};
 			name = Debug;
 		};
@@ -1208,11 +1312,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = formatreader/formatreader.entitlements;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ffmpeg",
@@ -1225,9 +1328,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = uk.org.marginal.qlvideo.formatreader;
 				PRODUCT_NAME = "QLVideo Formats";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "formatreader/formatreader-bridge.h";
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 			};
 			name = Release;
 		};
@@ -1236,7 +1337,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_GROUP = group.uk.org.marginal.qlvideo;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_EMPTY_CONTEXT = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1251,6 +1351,7 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
@@ -1303,8 +1404,11 @@
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -1314,7 +1418,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_GROUP = group.uk.org.marginal.qlvideo;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_EMPTY_CONTEXT = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1329,6 +1432,7 @@
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
@@ -1377,9 +1481,12 @@
 				OTHER_CODE_SIGN_FLAGS = "--timestamp";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -1388,7 +1495,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video metadata";
@@ -1405,7 +1511,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = mdimporter/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "QuickLook Video metadata";
