@@ -127,7 +127,7 @@ extension VideoDecoder {
                 kCVPixelBufferHeightKey as String: pixelBufferKey.height as CFNumber,
                 kCVPixelBufferBytesPerRowAlignmentKey as String: 64 as CFNumber,
                 kCVPixelBufferPixelFormatTypeKey as String: pixelFormat,
-                kCVPixelBufferMetalCompatibilityKey as String: kCFBooleanTrue as CFBoolean,
+                kCVPixelBufferIOSurfacePropertiesKey as String: [:] as CFDictionary,
                 kCVBufferPropagatedAttachmentsKey as String: attachments,
             ],
             bitDepth: bitDepth,
