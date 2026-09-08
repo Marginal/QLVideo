@@ -86,11 +86,6 @@ class FormatReader: NSObject, MEFormatReader {
         }
     }
 
-    class func av_fourcc2str(_ fourcc: UInt32) -> String {
-        var buf = [CChar](repeating: 0, count: Int(AV_FOURCC_MAX_STRING_SIZE))
-        return String(cString: av_fourcc_make_string(&buf, fourcc))
-    }
-
     func loadFileInfo(completionHandler: @escaping @Sendable (MEFileInfo?, (any Error)?) -> Void) {
         // We can't read using MEByteSource.fileName, so set up an AVIOContext which uses MEByteSource.read
         // See "Opening a media file" https://ffmpeg.org/doxygen/8.0/group__lavf__decoding.html

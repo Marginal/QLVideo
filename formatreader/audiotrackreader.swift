@@ -11,7 +11,7 @@ import OSLog
 
 class AudioTrackReader: TrackReader, METrackReader {
 
-    // AudioFormatIDs from CoreAudioBaseTypes.h
+    // AudioFormatIDs supported for passthrough to CoreAudio, ordered by listing in CoreAudioBaseTypes.h
     static let formatIDs: [AVCodecID: AudioFormatID] = [
         AV_CODEC_ID_PCM_S8: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_U8: kAudioFormatLinearPCM,
@@ -25,17 +25,17 @@ class AudioTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_PCM_F32LE: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_F64BE: kAudioFormatLinearPCM,
         AV_CODEC_ID_PCM_F64LE: kAudioFormatLinearPCM,
-        AV_CODEC_ID_PCM_MULAW: kAudioFormatULaw,
-        AV_CODEC_ID_PCM_ALAW: kAudioFormatALaw,
         AV_CODEC_ID_AC3: kAudioFormatAC3,
-        // kAudioFormat60958AC3
         AV_CODEC_ID_ADPCM_IMA_QT: kAudioFormatAppleIMA4,
+        // kAudioFormat60958AC3
         AV_CODEC_ID_AAC: kAudioFormatMPEG4AAC,
         // MPEG4CELP: kAudioFormatMPEG4CELP, // not supported by FFmpeg
         // MPEG4HVXC: kAudioFormatMPEG4HVXC, // not supported by FFmpeg
         // MPEG4TwinVQ: kAudioFormatMPEG4TwinVQ, // not supported by FFmpeg
         AV_CODEC_ID_MACE3: kAudioFormatMACE3,
         AV_CODEC_ID_MACE6: kAudioFormatMACE6,
+        AV_CODEC_ID_PCM_MULAW: kAudioFormatULaw,
+        AV_CODEC_ID_PCM_ALAW: kAudioFormatALaw,
         AV_CODEC_ID_QDMC: kAudioFormatQDesign,
         AV_CODEC_ID_QDM2: kAudioFormatQDesign2,
         AV_CODEC_ID_QCELP: kAudioFormatQUALCOMM,
@@ -53,7 +53,7 @@ class AudioTrackReader: TrackReader, METrackReader {
         AV_CODEC_ID_ILBC: kAudioFormatiLBC,
         AV_CODEC_ID_ADPCM_IMA_WAV: kAudioFormatDVIIntelIMA,
         AV_CODEC_ID_GSM_MS: kAudioFormatMicrosoftGSM,
-        // AV_CODEC_ID_AES3: kAudioFormatAES3, not supported by FFmpeg
+        // kAudioFormatAES3, just treated as PCM by FFmpeg
         AV_CODEC_ID_EAC3: kAudioFormatEnhancedAC3,
             // AV_CODEC_ID_FLAC: kAudioFormatFLAC,  // requires frame_size, error "kAudioCodecPropertyPacketFrameSize is zero"
             // AV_CODEC_ID_OPUS: kAudioFormatOpus,  // no errors, but doesn't decode well
@@ -199,7 +199,7 @@ class AudioTrackReader: TrackReader, METrackReader {
                 String(format: "%02x", $0)
             }.joined(separator: " ")
             logger.debug(
-                "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) time_base:\(self.stream.pointee.time_base.num)/\(self.stream.pointee.time_base.den) start_time:\(self.stream.pointee.start_time) duration:\(self.stream.pointee.duration == AV_NOPTS_VALUE ? -1 : self.stream.pointee.duration) disposition:\(UInt(self.stream.pointee.disposition), format:.hex) codecpar: codec_id:\(String(cString:avcodec_get_name(params.codec_id)), privacy: .public) codec_tag:\"\(FormatReader.av_fourcc2str(params.codec_tag), privacy:.public)\" format:\(String(cString: av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy:.public) sample_rate:\(params.sample_rate) frame_size:\(params.frame_size) bits_per_coded_sample:\(params.bits_per_coded_sample) bits_per_raw_sample:\(params.bits_per_raw_sample) layout: order:\(params.ch_layout.order.rawValue) nb_channels:\(params.ch_layout.nb_channels) mask:\(params.ch_layout.u.mask, format: .hex) extradata \(params.extradata_size) bytes: \(hex)"
+                "AudioTrackReader stream \(self.index) loadTrackInfo enabled:\(self.isEnabled) time_base:\(self.stream.pointee.time_base.num)/\(self.stream.pointee.time_base.den) start_time:\(self.stream.pointee.start_time) duration:\(self.stream.pointee.duration == AV_NOPTS_VALUE ? -1 : self.stream.pointee.duration) disposition:\(UInt(self.stream.pointee.disposition), format:.hex) codecpar: codec_id:\(String(cString:avcodec_get_name(params.codec_id)), privacy: .public) codec_tag:\"\(CodecName.av_fourcc2str(params.codec_tag), privacy:.public)\" format:\(String(cString: av_get_sample_fmt_name(AVSampleFormat(rawValue: params.format))), privacy:.public) sample_rate:\(params.sample_rate) frame_size:\(params.frame_size) bits_per_coded_sample:\(params.bits_per_coded_sample) bits_per_raw_sample:\(params.bits_per_raw_sample) layout: order:\(params.ch_layout.order.rawValue) nb_channels:\(params.ch_layout.nb_channels) mask:\(params.ch_layout.u.mask, format: .hex) extradata \(params.extradata_size) bytes: \(hex)"
             )
         #endif
 
