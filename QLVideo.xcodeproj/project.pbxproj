@@ -263,7 +263,7 @@
 		AB5CF116304723C900DA6A16 /* formatreader.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = formatreader.entitlements; sourceTree = "<group>"; };
 		AB5CF117304723C900DA6A16 /* formatreader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = formatreader.swift; sourceTree = "<group>"; };
 		AB5CF119304723C900DA6A16 /* formatreader-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "formatreader-bridge.h"; sourceTree = "<group>"; };
-		AB5CF11A304723C900DA6A16 /* formatreader-snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "formatreader-snapshot.swift"; sourceTree = "<group>"; };
+		AB5CF11A304723C900DA6A16 /* snapshotter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = snapshotter.swift; sourceTree = "<group>"; };
 		AB5CF11B304723C900DA6A16 /* formatreaderfactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = formatreaderfactory.swift; sourceTree = "<group>"; };
 		AB5CF11C304723C900DA6A16 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB5CF11D304723C900DA6A16 /* packetdemuxer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = packetdemuxer.swift; sourceTree = "<group>"; };
@@ -462,11 +462,11 @@
 				AB5CF116304723C900DA6A16 /* formatreader.entitlements */,
 				AB5CF117304723C900DA6A16 /* formatreader.swift */,
 				AB5CF119304723C900DA6A16 /* formatreader-bridge.h */,
-				AB5CF11A304723C900DA6A16 /* formatreader-snapshot.swift */,
 				AB5CF11B304723C900DA6A16 /* formatreaderfactory.swift */,
 				AB5CF11C304723C900DA6A16 /* Info.plist */,
 				AB5CF11D304723C900DA6A16 /* packetdemuxer.swift */,
 				AB5CF11E304723C900DA6A16 /* samplecursor.swift */,
+				AB5CF11A304723C900DA6A16 /* snapshotter.swift */,
 				AB5CF11F304723C900DA6A16 /* trackreader.swift */,
 				AB5CF120304723C900DA6A16 /* videosamplecursor.swift */,
 				AB5CF121304723C900DA6A16 /* videotrackreader.swift */,
@@ -1008,7 +1008,7 @@
 				AB5CF12B304723C900DA6A16 /* callbacks.m in Sources */,
 				AB5CF12C304723C900DA6A16 /* cmtime.swift in Sources */,
 				AB5CF12D304723C900DA6A16 /* formatreader.swift in Sources */,
-				AB5CF12E304723C900DA6A16 /* formatreader-snapshot.swift in Sources */,
+				AB5CF12E304723C900DA6A16 /* snapshotter.swift in Sources */,
 				AB5CF12F304723C900DA6A16 /* formatreaderfactory.swift in Sources */,
 				AB5CF130304723C900DA6A16 /* packetdemuxer.swift in Sources */,
 				AB5CF131304723C900DA6A16 /* samplecursor.swift in Sources */,

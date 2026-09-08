@@ -250,14 +250,24 @@ class FormatReader: NSObject, MEFormatReader {
             // Generate pseudo artwork for the thumbnail.
             // If demuxing has started we're too late, but we probably don't need this anyway
             fmt_ctxLock.lock()
-            if demuxer == nil, let snapshot = generateSnapshot() {
-                let item = AVMutableMetadataItem()
-                item.keySpace = .common
-                item.identifier = .commonIdentifierArtwork
-                item.dataType = kCMMetadataBaseDataType_PNG as String
-                item.value = snapshot
-                metadata!.append(item)
-                logger.debug("Added snapshot as cover art")
+            if demuxer == nil, bestVideo != AVERROR_STREAM_NOT_FOUND,
+                let snapshotter = SnapShotter(fmt_ctx: fmt_ctx!, stream: fmt_ctx!.pointee.streams[Int(bestVideo)]!),
+                let image = snapshotter.generateSnapshot(snapshotTime: snapshotTime),
+                let data = CFDataCreateMutable(kCFAllocatorDefault, 0),
+                let destination = CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil)  // Encode as HEIC to handle either SDR or HDR
+            {
+                CGImageDestinationAddImage(destination, image, nil)
+                if CGImageDestinationFinalize(destination) {
+                    let item = AVMutableMetadataItem()
+                    item.keySpace = .common
+                    item.identifier = .commonIdentifierArtwork
+                    item.dataType = kCMMetadataBaseDataType_PNG as String
+                    item.value = data as NSData
+                    metadata!.append(item)
+                    logger.debug("Added snapshot as cover art")
+                } else {
+                    logger.debug("Failed to encode snapshot as cover art")
+                }
             }
             fmt_ctxLock.unlock()
         }
